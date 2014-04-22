@@ -1,0 +1,30 @@
+<div class="panel panel-default content-panel">
+    <div class="panel-heading">
+        <h3 class="panel-title">View or modify the blood glucose target(s)</h3>
+    </div>
+    <div class="panel-body ">
+        <form novalidate class="simple-form">
+            <div class="input-group">
+                <input type="number" required class="input-lg" data-ng-model="target.upperLevel">
+                <input type="number" required class="input-lg" data-ng-model="target.lowerLevel">
+                
+                <select class="blood-glucose-select blood-glucose-input-field input-lg form-inline" data-ng-model="currentUnit" data-ng-options="unit.name for unit in units"></select>
+
+                <div class="btn-group">
+                    <button type="button" class="btn btn-primary" data-ng-model="target.preMeal" btn-checkbox>Pre-meal</button>
+                    <button type="button" class="btn btn-primary" data-ng-model="target.postMeal" btn-checkbox>Post-meal</button>                
+                </div>
+
+
+                <button type="button" class="btn btn-primary" ng-click="update(target)">Save</button>
+                <div class="alert alert-danger"  ng-show="errorMessage">                            
+                    <strong>Error!</strong> {{errorMessage}}
+                </div>
+                <div class="alert alert-success"  ng-show="successMessage">                            
+                    <strong>Success!</strong> {{successMessage}}
+                </div>
+            </div>
+
+        </form>
+    </div>
+</div>

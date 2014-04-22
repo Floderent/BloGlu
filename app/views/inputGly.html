@@ -1,0 +1,52 @@
+<div class="panel panel-default content-panel">
+    <div class="panel-heading">
+        <h3 class="panel-title">Enter a blood glucose reading</h3>
+    </div>
+    <div class="panel-body ">
+        <form novalidate class="simple-form">
+
+            <p class="input-group">                     
+                
+                <input type="text" class="form-control" datepicker-popup="dd/MM/yyyy" is-open="opened" ng-model="date" ng-required="true" close-text="Close" />               
+                <span class="input-group-btn">                    
+                    <button class="btn btn-default" ng-click="open($event)"><i class="glyphicon glyphicon-calendar"></i></button>
+                </span>
+
+            </p>
+
+            <div class="input-group">               
+                <div ng-model="date" ng-required="true">
+                    <timepicker show-meridian="false"></timepicker>
+                </div>
+            </div>
+
+            <div class="input-group">                        
+                <input type="number" min="0" required  class="blood-glucose-input blood-glucose-input-field pull-left input-lg" placeholder="{{placeholder}}" ng-model="readingGlucoseBlood.reading" ng-disabled="!currentUnit">                                                    
+                <select class="blood-glucose-select blood-glucose-input-field input-lg form-inline" data-ng-model="currentUnit" data-ng-options="unit.name for unit in units"></select>                        
+            </div>
+
+            <!--
+            <div class="input-group">
+                <input type="checkbox" data-ng-model="readingGlucoseBlood.postMeal"> Post-meal
+                <input type="checkbox" data-ng-model="readingGlucoseBlood.preMeal"> Pre-meal
+            </div>
+            -->
+
+            <div class="btn-group">
+                <button type="button" class="btn btn-primary" data-ng-model="readingGlucoseBlood.preMeal" btn-checkbox>Pre-meal</button>
+                <button type="button" class="btn btn-primary" data-ng-model="readingGlucoseBlood.postMeal" btn-checkbox>Post-meal</button>                
+            </div>
+
+
+
+            <div class="input-group">
+                <h5>Comment</h5>
+                <textarea class="form-control" ng-model="readingGlucoseBlood.comment">                    
+                </textarea>
+            </div>
+            
+            <button class="btn btn-primary btn-lg active pull-right" ng-show="isEdit" ng-click="delete()">Delete</button>
+            <button class="btn btn-primary btn-lg active pull-right" ng-click="update(readingGlucoseBlood)">Save</button>
+        </form>
+    </div>
+</div>

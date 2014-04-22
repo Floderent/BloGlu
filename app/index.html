@@ -1,0 +1,196 @@
+<!doctype html>
+<!--[if lt IE 7]>      <html class="no-js lt-ie9 lt-ie8 lt-ie7"> <![endif]-->
+<!--[if IE 7]>         <html class="no-js lt-ie9 lt-ie8"> <![endif]-->
+<!--[if IE 8]>         <html class="no-js lt-ie9"> <![endif]-->
+<!--[if gt IE 8]><!--> <html class="no-js"> <!--<![endif]-->
+    <head>
+        <meta charset="utf-8">
+        <title></title>
+        <meta name="description" content="">
+        <meta name="viewport" content="width=device-width">
+        <!-- Place favicon.ico and apple-touch-icon.png in the root directory -->
+        <!-- build:css styles/vendor.css -->
+        <!-- bower:css -->
+        <link rel="stylesheet" href="bower_components/bootstrap/dist/css/bootstrap.css">
+        <!-- endbower -->
+        <!-- endbuild -->
+        <!-- build:css({.tmp,app}) styles/main.css -->
+        <link rel="stylesheet" href="styles/main.css">
+        <!-- endbuild -->
+    </head>
+
+    <!--[if lt IE 7]>
+        <p class="browsehappy">You are using an <strong>outdated</strong> browser. Please <a href="http://browsehappy.com/">upgrade your browser</a> to improve your experience.</p>
+      <![endif]-->
+
+
+    <body ng-app="BloGlu">
+
+        <div class="container" ng-hide="currentUser">
+            <div class="page-header">
+                <h1>Bloglu <small>Handle your blood glucose</small></h1>
+            </div>
+
+            <!-- Page feedback -->
+            <div ng-show="pending > 0">
+                Loading... <img alt="loading" src="images/spinnerLarge.gif" /> 
+            </div>           
+
+            <div ng-repeat="message in messages" ng-show="messages && messages.length > 0">
+                <!-- error message alert-dismissable-->
+                <div ng-if="message.type === 'error'">                
+                    <div class="alert alert-danger" ng-show="message.display">
+                        <!--<button type="button" class="close" data-dismiss="alert" aria-hidden="true">&times;</button>-->
+                        <strong>Error!</strong> {{message.text}}
+                    </div>
+                </div>
+                <!-- success message -->                
+                <div ng-if="message.type === 'success'">                
+                    <div class="alert alert-success" ng-show="message.display">
+                        <button type="button" class="close" data-dismiss="alert" aria-hidden="true">&times;</button>
+                        {{message.text}}
+                    </div>
+                </div>                
+            </div>
+
+
+
+            <!-- login form -->
+            <div class="panel-default">
+                <form class="form-signin panel-body">
+                    <h2 class="form-signin-heading">Log in</h2>
+                    <input id="name" class="form-control" placeholder="User name" required autofocus type="text" value="" name="name" ng-model="user.username" />
+                    <input id="email" class="form-control" placeholder="Password" required type="password" value="" name="password" ng-model="user.password" />
+                    <a href="#" ng-click="displaySignUpModal()">Sign up</a> or <a href="#" class="pull-right" ng-click="displayResetPasswordModal()">Forgot your password ?</a>
+                    <button class="btn btn-primary btn-lg btn-block" ng-disabled="pending > 0" ng-click="logIn(user)">Log in</button>
+                </form>
+            </div>
+        </div>
+
+
+        <!-- navbar -->
+        <div ng-show="currentUser">
+            <div class="container-fluid">
+                <!-- Brand and toggle get grouped for better mobile display -->
+                <div class="navbar-header">                    
+                    <a class="navbar-brand" href="#">Bloglu</a>
+                </div>
+                <ul class="nav navbar-nav">
+                    <li class="dropdown">
+                        <a href="#" class="dropdown-toggle" data-toggle="dropdown"><b>Blood Glucose</b> <b class="caret"></b></a>
+                        <ul class="dropdown-menu">
+                            <li><a href="#inputGly">Enter blood glucose reading</a></li>
+                            <li><a href="#inputBgTarget">Enter blood glucose target</a></li>                            
+                            <li><a href="#overview">View your notebook</a></li>
+                            <li><a href="#charts">See charts</a></li>
+                            <li><a href="#import">Import</a></li>
+                        </ul> 
+                    </li>
+                    <li class="dropdown">
+                        <a href="#" class="dropdown-toggle" data-toggle="dropdown"><b>Settings</b> <b class="caret"></b></a>
+                        <ul class="dropdown-menu">
+                            <li><a href="#inputPeriod">Periods</a></li>                                                        
+                        </ul> 
+                    </li>
+                </ul>
+                <!-- Collect the nav links, forms, and other content for toggling -->
+                <div class="collapse navbar-collapse navbar-right" id="bs-example-navbar-collapse-1">
+                    <ul class="nav navbar-nav">                        
+                        <li class="dropdown">                            
+                            <a href="" class="dropdown-toggle" data-toggle="dropdown"><b>Welcome {{currentUser.username}}</b><b class="caret"></b></a>
+                            <ul class="dropdown-menu">
+                                <li><a href="#userPreferences">Preferences</a></li>
+                                <li><a href="#" ng-click="logOut(user)">Log out</a></li>
+                            </ul>
+                        </li>
+                    </ul>                                        
+                </div>
+            </div>
+
+            <!-- Page feedback -->
+            <div ng-show="pending > 0">
+                Loading... <img alt="loading" src="images/spinnerLarge.gif" /> 
+            </div>           
+
+            <div ng-repeat="message in messages" ng-show="messages && messages.length > 0">
+                <!-- error message alert-dismissable-->
+                <div ng-if="message.type === 'error'">                
+                    <div class="alert alert-danger" ng-show="message.display">
+                        <!--<button type="button" class="close" data-dismiss="alert" aria-hidden="true">&times;</button>-->
+                        <strong>Error!</strong> {{message.text}}
+                    </div>
+                </div>
+                <!-- success message -->                
+                <div ng-if="message.type === 'success'">                
+                    <div class="alert alert-success" ng-show="message.display">
+                        <button type="button" class="close" data-dismiss="alert" aria-hidden="true">&times;</button>
+                        {{message.text}}
+                    </div>
+                </div>                
+            </div>
+
+
+
+
+        </div>       
+
+        <!-- Hold the views of the application  ng-show="currentUser"-->        
+        <div  ng-switch on="currentUser">
+            <div ng-view>
+            </div>
+        </div>
+
+
+        <!-- Google Analytics: change UA-XXXXX-X to be your site's ID -->
+        <script>
+            /*
+             (function(i,s,o,g,r,a,m){i['GoogleAnalyticsObject']=r;i[r]=i[r]||function(){
+             (i[r].q=i[r].q||[]).push(arguments)},i[r].l=1*new Date();a=s.createElement(o),
+             m=s.getElementsByTagName(o)[0];a.async=1;a.src=g;m.parentNode.insertBefore(a,m)
+             })(window,document,'script','//www.google-analytics.com/analytics.js','ga');
+             
+             ga('create', 'UA-XXXXX-X');
+             ga('send', 'pageview');
+             */
+        </script>
+
+        <!--[if lt IE 9]>
+        <script src="bower_components/es5-shim/es5-shim.js"></script>
+        <script src="bower_components/json3/lib/json3.min.js"></script>
+        <![endif]-->
+
+        <!-- build:js scripts/vendor.js -->
+        <!-- bower:js -->
+        <script src="bower_components/jquery/dist/jquery.js"></script>
+        <script src="bower_components/angular/angular.js"></script>
+        <script src="bower_components/bootstrap/dist/js/bootstrap.js"></script>
+        <script src="bower_components/angular-resource/angular-resource.js"></script>
+        <script src="bower_components/angular-cookies/angular-cookies.js"></script>
+        <script src="bower_components/angular-sanitize/angular-sanitize.js"></script>
+        <script src="bower_components/angular-route/angular-route.js"></script>
+
+        <script src="bower_components/angular-bootstrap/ui-bootstrap.min.js"></script>
+        <script src="bower_components/angular-bootstrap/ui-bootstrap-tpls.min.js"></script>
+
+        <!-- highcharts -->
+        <script src="bower_components/highcharts/highcharts-all.js"></script>
+        <script src="bower_components/highcharts-ng/dist/highcharts-ng.min.js"></script>
+
+        <!-- file upload -->
+        <script src="bower_components/ng-file-upload/angular-file-upload.min.js"></script>
+
+        <!-- endbower -->
+        <!-- endbuild -->
+
+        <!-- build:js({.tmp,app}) scripts/scripts.js -->
+        <!-- Application -->
+        <script src="scripts/app.js"></script>
+        <script src="scripts/controllers/main.js"></script>
+        <script src="scripts/controllers/controllers.js"></script>
+        <script src="scripts/services/services.js"></script>
+        <script src="scripts/directives/directives.js"></script>
+
+
+        <!-- endbuild -->
+    </body>
+</html>

@@ -1,0 +1,61 @@
+<div class="panel panel-default content-panel">
+    <div class="panel-heading">
+        <h3 class="panel-title">View or modify your settings</h3>
+    </div>
+    <div class="panel-body ">
+
+
+        <tabset>
+            <tab heading="Account">
+                <ng-form name="nameDialog" novalidate role="form">
+                    <div class="form-group input-group-lg" ng-class="{
+                        true: 'has-error'}
+                            [nameDialog.username.$dirty && nameDialog.username.$invalid]">
+                        <label class="control-label" for="username">Name</label>
+                        <input type="text" class="form-control" name="username" id="username" ng-model="user.username" ng-keyup="hitEnter($event)" required>
+                        <label class="control-label" for="password">Password</label>
+                        <input type="password" class="form-control" name="password" id="password" ng-model="user.password" equals="{{confirmedPassword}}" ng-keyup="hitEnter($event)" required>                                 
+                        <label class="control-label" for="confirmPassword">Confirm password</label>
+                        <input type="password" class="form-control" name="confirmPassword" id="confirmPassword" ng-model="confirmedPassword" equals="{{user.password}}" ng-keyup="hitEnter($event)" required>                                 
+                        <label class="control-label" for="email">Email</label>
+                        <input type="email" class="form-control" name="email" id="email" ng-model="user.email" ng-keyup="hitEnter($event)" required>
+
+                        <div class="alert alert-danger"  ng-show="nameDialog.email.$invalid && nameDialog.email.$dirty">                            
+                            <strong>Error!</strong> Invalid email
+                        </div>
+                        <div class="alert alert-danger"  ng-show="(nameDialog.password.$invalid && nameDialog.password.$dirty) && (nameDialog.confirmPassword.$invalid && nameDialog.confirmPassword.$dirty)">                            
+                            <strong>Error!</strong> Password mismatched
+                        </div>                        
+                        <div class="alert alert-danger"  ng-show="errorMessage">                            
+                            <strong>Error!</strong> {{errorMessage}}
+                        </div>
+                        <div class="alert alert-success"  ng-show="successMessage">                            
+                            <strong>Success!</strong> {{successMessage}}
+                        </div>
+                    </div>
+
+                </ng-form>
+
+
+            </tab>
+
+            <tab heading="Application">
+
+                <!-- Application preferences -->
+                <ng-form name="applicationSettings" novalidate role="form">                
+                    <label class="control-label" for="unitSelect">Default unit</label>
+                    <select name="unitSelect" class="blood-glucose-select blood-glucose-input-field form-inline" data-ng-model="user.preferences.defaultUnit" data-ng-options="unit.name for unit in units"></select>
+
+                    <label class="control-label" for="daySelect">First day of week</label>                                        
+                    <select name="daySelect" class="blood-glucose-select blood-glucose-input-field form-inline" data-ng-model="user.preferences.firstDayOfWeek" data-ng-options="day.index as day.date for day in days">
+                    </select>
+                    
+                    
+                </ng-form>
+
+            </tab>            
+        </tabset>
+
+        <button class="btn btn-primary btn-lg active pull-right" ng-disabled="pending > 0" ng-click="update(user)">Save</button>
+    </div>
+</div>

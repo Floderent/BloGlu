@@ -1,0 +1,73 @@
+<div class="panel panel-default content-panel">
+    <div class="panel-heading">
+        <!--<h3 class="panel-title">View blood glucose notebook</h3>-->
+        <div>
+            <button ng-click="back()" type="button" class="btn btn-lg"><span class="glyphicon glyphicon-step-backward"></span></button>
+            <span>From {{timeInterval.begin| date:'dd/MM/yyyy'}} to {{timeInterval.end| date:'dd/MM/yyyy'}}</span>
+            <button ng-click="advance()" type="button" class="btn btn-lg"><span class="glyphicon glyphicon-step-forward right"></span></button>
+
+            <select ng-model="interval" ng-change="change()">
+                <option value="week">Week</option>
+                <option value="month">Month</option>
+                <option value="year">Year</option>
+            </select>
+
+        </div>
+    </div>
+
+    <!-- Header -->
+    <div class="panel-body ">
+
+        <div class="table-responsive">
+            <table class="table">
+                <th ng-repeat="period in header track by $index">
+                    {{period.name}}
+                </th>
+                <tr ng-repeat="line in data track by $index" ng-if="$index != 0">
+                    <td ng-repeat="bloodGlucoseReadings in line track by $index">
+                        <!-- Row header -->
+                        <div ng-if="$index == 0">                            
+                            <div ng-if="interval == 'week'">
+                                <strong>{{bloodGlucoseReadings.date| date:'EEEE d MMM'}}</strong>
+                            </div>
+                            <div ng-if="interval != 'week'">
+                                <strong>{{bloodGlucoseReadings.text}}</strong>
+                            </div>                            
+                        </div>
+                        <div ng-if="$index != 0 && interval == 'week'">                            
+                            <div ng-repeat="bloodGlucoseReading in bloodGlucoseReadings track by $index| orderBy:dateTime.iso">
+                                <!--<button type="button" class="btn btn-primary" ng-click="viewBloodGlucoseReading(bloodGlucoseReading.objectId)">{{bloodGlucoseReading.reading}} {{bloodGlucoseReading.unit.name}}</button>-->
+                                <div class="panel panel-default">
+                                    <div class="panel-body">
+                                        {{bloodGlucoseReading.dateTime| date:'HH:mm'}}
+                                        {{bloodGlucoseReading.reading}}
+                                        <button type="button" class="btn btn-primary" ng-click="viewBloodGlucoseReading(bloodGlucoseReading.objectId)">View</button>
+                                    </div>
+                                </div>
+                            </div>    
+                            <!-- handle case of empty section -->
+                            <div ng-if="bloodGlucoseReadings.length === 0">
+                                <button type="button" class="btn btn-primary" ng-click="addBloodGlucoseReading(line[0], header[$index])">Add new reading</button>
+                            </div>
+                        </div>
+
+                        <div ng-if="interval != 'week' && bloodGlucoseReadings.length > 0">                            
+                            <div class="panel panel-default">
+                                <div ng-if="bloodGlucoseReadings.length > 0" class="panel-body">
+                                    Maximum: {{bloodGlucoseReadings[0].maximum}}
+                                    Minimum: {{bloodGlucoseReadings[0].minimum}}
+                                    Average: {{bloodGlucoseReadings[0].average}}
+                                    Number: {{bloodGlucoseReadings[0].nb}}
+                                    <div>
+                                        <button type="button" class="btn btn-primary" ng-click="zoomInInterval(header[$index].begin)">View</button>
+                                    </div>
+                                </div>                                    
+                            </div>
+                        </div>
+                    </td>                
+                </tr> 
+            </table>
+
+        </div>
+    </div>
+</div>
