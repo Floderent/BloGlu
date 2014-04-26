@@ -109,6 +109,10 @@ servicesModule.factory('ReadingGlucoseBlood', ['$resource', 'UserService', 'date
                             return jsonResponse;
                         }
                     },
+                    count: {
+                        method: 'GET',
+                        headers: UserService.headers()
+                    },
                     save: {
                         method: 'POST',
                         headers: UserService.headers(),
@@ -540,7 +544,7 @@ servicesModule.factory('dateUtil', ['$filter', function($filter) {
         dateUtil.getPeriodMaxEndDate = function(periodArray) {
             return dateUtil.getPeriodMaxDate(periodArray, 'end');
         };
-        
+
         dateUtil.getPeriodMaxBeginDate = function(periodArray) {
             return dateUtil.getPeriodMaxDate(periodArray, 'begin');
         };
@@ -787,6 +791,38 @@ servicesModule.factory('chartService', ['dateUtil', function(dateUtil) {
             return dataSerie;
         };
 
+        chartService.getChartDataSeriesFromAggregatedData = function(aggregatedData) {
+            var series = [];
+            var averageSerie = {name: 'Average', data: []};
+            var maxSerie = {name: 'Maximum', data: []};
+            var minimumSerie = {name: 'Minimum', data: []};
+            for (var lineIndex = 1; lineIndex < aggregatedData.length; lineIndex++) {
+                for (var columnIndex = 0; columnIndex < aggregatedData[0].length; columnIndex++) {
+                    var numericDataObject = {};
+                    var textData = aggregatedData[0][columnIndex].name;
+                    var average = null;
+                    var maximum = null;
+                    var minimum = null;
+
+                    if (aggregatedData[1][columnIndex] && aggregatedData[1][columnIndex].length > 0) {
+                        numericDataObject = aggregatedData[1][columnIndex][0];
+                        average = parseInt(numericDataObject.average);
+                        maximum = parseInt(numericDataObject.maximum);
+                        minimum = parseInt(numericDataObject.minimum);
+                    }
+                    averageSerie.data.push([textData, average]);
+                    maxSerie.data.push([textData, maximum]);
+                    minimumSerie.data.push([textData, minimum]);
+                }
+            }
+            series.push(averageSerie);
+            series.push(maxSerie);
+            series.push(minimumSerie);
+            return series;
+        };
+
+
+
         return chartService;
     }]);
 
@@ -819,16 +855,130 @@ servicesModule.factory('statsService', ['$filter', function($filter) {
     }]);
 
 
+servicesModule.factory('dataService', ['$q', function($q) {
+        var dataService = {};
+        var maxResult = 1000;
 
-servicesModule.factory('overViewService', ['$q', '$filter', 'UserService', 'Period', 'ReadingGlucoseBlood', 'dateUtil', 'statsService', function($q, $filter, UserService, Period, ReadingGlucoseBlood, dateUtil, statsService) {
+        dataService.query = function(resourceObject, params) {
+            var deferred = $q.defer();
+            if (resourceObject && resourceObject.query) {
+                //do parse query
+                queryParse(resourceObject, params).then(function(queryResult) {
+                    //process result
+                    deferred.resolve(processResult(queryResult, params));
+                });
+            } else {
+                deferred.reject(resourceObject + ' is not a resource object');
+            }
+            return deferred.promise;
+        };
+
+        function queryParse(resourceObject, params) {
+            if (params.bigResult) {
+                //do multiple requests
+                return doMultipleRequests(resourceObject, params);
+            } else {
+                //do normal query
+                return doParseQuery(resourceObject, params);
+            }
+        }
+
+        function doParseQuery(resourceObject, params) {
+            var parseParams = {};
+            var promise = null;
+
+            if (params.include) {
+                parseParams.include = params.include;
+            }
+            if (params.where) {
+                parseParams.where = params.where;
+            }
+            if (params.limit || params.limit === 0) {
+                parseParams.limit = params.limit;
+            } else {
+                parseParams.limit = maxResult;
+            }
+            if (params.skip) {
+                parseParams.skip = params.skip;
+            }
+            if (params.count) {
+                parseParams.count = params.count;
+            }
+            if (params.count) {
+                promise = resourceObject.count(parseParams).$promise;
+            } else {
+                promise = resourceObject.query(parseParams).$promise;
+            }
+            return promise;
+        }
+
+        function doMultipleRequests(resourceObject, params) {
+            var newParams = angular.extend({}, params);
+            newParams.count = 1;
+            newParams.limit = 0;
+            return doParseQuery(resourceObject, newParams).then(function(result) {
+                var queryPromise = null;
+                var resultCount = result.count;
+                if (resultCount <= maxResult) {
+                    queryPromise = doParseQuery(resourceObject, params);
+                } else {
+                    var requestArray = [];
+                    var requestNumber = Math.floor(resultCount / maxResult);
+                    var lastRequestCount = resultCount % maxResult;
+                    if (lastRequestCount > 0) {
+                        requestNumber++;
+                    }
+                    for (var requestIndex = 0; requestIndex < requestNumber; requestIndex++) {
+                        var requestParams = angular.extend({}, params);
+                        requestParams.limit = maxResult;
+                        requestParams.skip = requestIndex * maxResult;
+                        var request = doParseQuery(resourceObject, requestParams);
+                        requestArray.push(request);
+                    }
+                    queryPromise = $q.all(requestArray).then(function(results) {
+                        var resultArray = [];
+                        for (var resultIndex = 0; resultIndex < results.length; resultIndex++) {
+                            resultArray = resultArray.concat(results[resultIndex]);
+                        }
+                        return resultArray;
+                    });
+                }
+                return queryPromise;
+            });
+        }
+
+        function processResult(queryResult, params) {
+            var processedResult = queryResult;
+            //aggregate and / or do stuff
+            
+            
+            
+
+            return processedResult;
+        }
+
+        return dataService;
+
+    }]);
+
+
+servicesModule.factory('overViewService', ['$q', '$filter', 'UserService', 'Period', 'ReadingGlucoseBlood', 'dateUtil', 'statsService', 'dataService', function($q, $filter, UserService, Period, ReadingGlucoseBlood, dateUtil, statsService, dataService) {
         var overViewService = {};
 
-        function getBloodGlucoseReadingsBetweenDates(beginDate, endDate) {
-            return ReadingGlucoseBlood.query({
+        function getBloodGlucoseReadingsBetweenDates(beginDate, endDate, params) {
+            /*
+             return ReadingGlucoseBlood.query({
+             include: 'unit',
+             where: '{"dateTime": {"$gt": {"__type": "Date", "iso":"' + beginDate.toISOString() + '"}, "$lt": {"__type": "Date", "iso":"' + endDate.toISOString() + '"}}}',
+             limit: 1000
+             }).$promise;
+             */
+            var queryParams = angular.extend({
                 include: 'unit',
                 where: '{"dateTime": {"$gt": {"__type": "Date", "iso":"' + beginDate.toISOString() + '"}, "$lt": {"__type": "Date", "iso":"' + endDate.toISOString() + '"}}}',
                 limit: 1000
-            }).$promise;
+            }, params);
+            return dataService.query(ReadingGlucoseBlood, queryParams);
         }
 
         function getAnalysisPeriods(timeInterval) {
@@ -970,7 +1120,7 @@ servicesModule.factory('overViewService', ['$q', '$filter', 'UserService', 'Peri
                     dataPromise = overViewService.getAggregtedData(timeInterval);
                     break;
                 case 'year':
-                    dataPromise = overViewService.getAggregtedData(timeInterval);
+                    dataPromise = overViewService.getAggregtedData(timeInterval, {bigResult: true});
                     break;
                 default:
                     dataPromise = overViewService.getWeekData(timeInterval);
@@ -980,9 +1130,9 @@ servicesModule.factory('overViewService', ['$q', '$filter', 'UserService', 'Peri
         };
 
 
-        overViewService.getAggregtedData = function(timeInterval) {
+        overViewService.getAggregtedData = function(timeInterval, params) {
             return $q.all([
-                getBloodGlucoseReadingsBetweenDates(timeInterval.begin, timeInterval.end),
+                getBloodGlucoseReadingsBetweenDates(timeInterval.begin, timeInterval.end, params),
                 getAnalysisPeriods(timeInterval)
             ]).then(function(result) {
                 var bloodGlucoseReadings = result[0];

@@ -1,3 +1,19 @@
 <div class="panel panel-default content-panel">
-    <highchart id="chart1" config="chartConfig" class="span10"></highchart>
+    <div class="panel-heading">
+        <h3 class="panel-title">View charts</h3>
+        
+        View by
+        <select ng-model="interval" ng-change="change()">
+            <option value="week">Week</option>
+            <option value="month">Month</option>
+            <option value="year">Year</option>
+        </select>
+
+
+    </div>
+    <div class="panel-body ">
+        <highchart id="chart1" config="chartConfig" class="span10"></highchart>
+    </div>
 </div>
+
+

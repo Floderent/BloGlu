@@ -202,14 +202,53 @@ ControllersModule.controller('inputUserController', ['$scope', '$rootScope', '$m
     }]);
 
 
-ControllersModule.controller('chartController', ['$rootScope', '$scope', '$q', 'ReadingGlucoseBlood', 'chartService', 'BloodGlucoseTarget', function Controller($rootScope, $scope, $q, ReadingGlucoseBlood, chartService, BloodGlucoseTarget) {
+ControllersModule.controller('chartController', ['$rootScope', '$scope', '$q','$routeParams','$location', 'ReadingGlucoseBlood', 'chartService', 'BloodGlucoseTarget', 'overViewService', function Controller($rootScope, $scope, $q, $routeParams,$location, ReadingGlucoseBlood, chartService, BloodGlucoseTarget, overViewService) {
 
         $rootScope.messages = [];
         $rootScope.pending = 0;
+        $scope.interval = 'month';
+        
+        var currentDate = new Date();
+        
+        if ($routeParams && $routeParams.weekDate) {
+            currentDate = new Date($routeParams.weekDate);
+        } else {
+            currentDate = new Date();
+        }
+        if ($routeParams && $routeParams.interval) {
+            $scope.interval = $routeParams.interval;
+        }
+        $scope.timeInterval = overViewService.getTimeInterval($scope.interval, currentDate);
+
 
         $scope.toggleLoading = function() {
             this.chartConfig.loading = !this.chartConfig.loading;
         };
+
+        
+        /**
+         * Change grouping
+         */
+        $scope.change = function() {
+            changeInterval(currentDate, $scope.interval, 0);
+        };
+        
+        function changeInterval(currentDate, interval, coef) {
+            var newDate = new Date(currentDate.getTime());
+            switch (interval) {
+                case 'week':
+                    newDate.setDate(newDate.getDate() + (7 * coef));
+                    break;
+                case 'month':
+                    newDate.setMonth(newDate.getMonth() + (1 * coef));
+                    break;
+                case 'year':
+                    newDate.setFullYear(newDate.getFullYear() + (1 * coef));
+                    break;
+            }
+            $location.path('charts').search('weekDate', newDate.toISOString()).search('interval', interval);
+        }
+
 
         $scope.chartConfig = {
             options: {
@@ -237,11 +276,33 @@ ControllersModule.controller('chartController', ['$rootScope', '$scope', '$q', '
 
         $scope.data = [];
         $rootScope.pending++;
+        overViewService.getTableData($scope.timeInterval).then(
+                function resolve(result) {
+                    $rootScope.pending--;
+                    $scope.header = result[0];
+                    $scope.data = result;
+                },
+                function reject(error) {
+                    $rootScope.pending--;
+                    $scope.header = [];
+                    $scope.data = [];
+                });
+        
+        
+        
+        
+        $rootScope.pending++;
         $q.all([
-            ReadingGlucoseBlood.query({order: "dateTime", include: "unit"}).$promise,
+            //ReadingGlucoseBlood.query({order: "dateTime", include: "unit"}).$promise,
+            overViewService.getTableData($scope.timeInterval),
             BloodGlucoseTarget.query({include: "unit"}).$promise
         ]).then(function(results) {
-            $scope.chartConfig.series[0].data = chartService.getGlucoseReadingData(results[0]);
+            //$scope.chartConfig.series[0].data = chartService.getGlucoseReadingData(results[0]);
+            
+            var chartSeries = chartService.getChartDataSeriesFromAggregatedData(results[0]);            
+            $scope.chartConfig.series = chartSeries;
+            
+            
             if (results[1] && results[1].length > 0) {
                 var target = results[1][0];
                 $scope.chartConfig.yAxis = {
@@ -260,6 +321,18 @@ ControllersModule.controller('chartController', ['$rootScope', '$scope', '$q', '
             }
             $rootScope.pending--;
         });
+
+
+
+        $scope.$on("$routeChangeStart", function() {
+            //cancel promise
+            MessageService.cancelAll($rootScope.messages);
+            //clear messages
+            $rootScope.messages = [];
+        });
+
+
+
     }]);
 
 
