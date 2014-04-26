@@ -5,8 +5,9 @@
     <div class="panel-body ">
         <form novalidate class="simple-form">
             <div class="input-group">
-
-                <div class="table-responsive">
+                
+               
+                <div class="table-responsive" ng-show="!arePeriodsOnMoreThanOneDay">
                     <table class="table table-striped">
                         <th>Name</th>
                         <th>Start time</th>
@@ -29,13 +30,13 @@
                             </td>
                             <td>{{newPeriod.end - newPeriod.begin - 3600000| date:'hh:mm'}}</td>
                             <td>
-                                <button type="button" ng-disabled="arePeriodsOnMoreThanOneDay" ng-click="savePeriod(newPeriod)">Save</button>
+                                <button type="button" ng-click="savePeriod(newPeriod)">Add</button>
                             </td>
 
                         </tr>
                     </table>
                 </div>
-
+               
 
 
 
@@ -75,7 +76,7 @@
                             <button type="button" ng-click="deletePeriod(period)">Delete</button>
                             <button type="button" ng-show="!period.isEdit" ng-click="editPeriod(period)">Edit</button>
                             <button type="button" ng-show="period.isEdit" ng-click="updatePeriod(period)">Update</button>
-                            <button type="button" ng-show="period.isEdit" ng-click="cancelEditPeriod(period)">Cancel</button>
+                            <button type="button" ng-show="period.isEdit" ng-click="cancelEditPeriod(period)">Cancel</button>                            
                         </td>
                     </tr>
                 </table>

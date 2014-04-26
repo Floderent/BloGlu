@@ -14,8 +14,5 @@ describe('Controller: inputPeriodController', function() {
             $scope: scope
         });
     }));
-
-    it('should init with empty new period', function() {
-        expect(scope.newPeriod.name).toBe('');
-    });
+    
 });

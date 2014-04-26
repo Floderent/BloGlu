@@ -524,6 +524,28 @@ servicesModule.factory('dateUtil', ['$filter', function($filter) {
         }
 
 
+        dateUtil.getPeriodMaxDate = function(periodArray, dateField) {
+            var maxDate = null;
+            if (Array.isArray(periodArray)) {
+                periodArray.forEach(function(period) {
+                    if (maxDate === null || maxDate < period[dateField]) {
+                        maxDate = period[dateField];
+                    }
+                });
+            }
+            return maxDate;
+        };
+
+
+        dateUtil.getPeriodMaxEndDate = function(periodArray) {
+            return dateUtil.getPeriodMaxDate(periodArray, 'end');
+        };
+        
+        dateUtil.getPeriodMaxBeginDate = function(periodArray) {
+            return dateUtil.getPeriodMaxDate(periodArray, 'begin');
+        };
+
+
         dateUtil.getNumberOfMillis = function(timeString) {
             var splittedDateString = timeString.split(":");
             var hours = parseInt(splittedDateString[0], 10);
