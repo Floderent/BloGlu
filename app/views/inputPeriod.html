@@ -5,8 +5,8 @@
     <div class="panel-body ">
         <form novalidate class="simple-form">
             <div class="input-group">
-                
-               
+
+
                 <div class="table-responsive" ng-show="!arePeriodsOnMoreThanOneDay">
                     <table class="table table-striped">
                         <th>Name</th>
@@ -28,7 +28,7 @@
                                     <timepicker show-meridian="false"></timepicker>
                                 </div>
                             </td>
-                            <td>{{newPeriod.end - newPeriod.begin - 3600000| date:'hh:mm'}}</td>
+                            <td>{{newPeriod.end - newPeriod.begin - 3600000| date:'HH:mm'}}</td>                            
                             <td>
                                 <button type="button" ng-click="savePeriod(newPeriod)">Add</button>
                             </td>
@@ -36,7 +36,7 @@
                         </tr>
                     </table>
                 </div>
-               
+
 
 
 
@@ -60,18 +60,18 @@
                             <input type="text" required class="input-sm" ng-show="period.isEdit" data-ng-model="period.name">
                         </td>
                         <td>
-                            <div ng-show="!period.isEdit">{{period.begin | date:'HH:mm'}}</div>
+                            <div ng-show="!period.isEdit">{{period.begin| date:'HH:mm'}}</div>
                             <div ng-model="period.begin" ng-show="period.isEdit" ng-required="true" style="display:inline-block;">
                                 <timepicker show-meridian="false"></timepicker>
                             </div>
                         </td>
                         <td>
-                            <div ng-show="!period.isEdit">{{period.end | date:'HH:mm'}}</div>
+                            <div ng-show="!period.isEdit">{{period.end| date:'HH:mm'}}</div>
                             <div ng-model="period.end" ng-show="period.isEdit" ng-required="true" style="display:inline-block;">
                                 <timepicker show-meridian="false"></timepicker>
                             </div>
                         </td>
-                        <td>{{period.end - period.begin - 3600000 | date:'hh:mm'}}</td>
+                        <td>{{period.end - period.begin - 3600000| date:'HH:mm'}}</td>
                         <td>
                             <button type="button" ng-click="deletePeriod(period)">Delete</button>
                             <button type="button" ng-show="!period.isEdit" ng-click="editPeriod(period)">Edit</button>

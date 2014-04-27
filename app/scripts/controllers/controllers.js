@@ -361,24 +361,16 @@ ControllersModule.controller('resetPasswordController', ['$scope', '$modalInstan
 
 ControllersModule.controller('inputPeriodController', ['$rootScope', '$scope', '$modal', 'dateUtil', 'Period', 'MessageService', function Controller($rootScope, $scope, $modal, dateUtil, Period, MessageService) {
         $rootScope.messages = [];
-        $rootScope.pending = 0;
-
-        //initNewPeriod();
+        $rootScope.pending = 0;        
         $scope.arePeriodsOnMoreThanOneDay = true;
         $rootScope.pending++;
-        Period.query().$promise.then(function(result) {
-            $scope.arePeriodsOnMoreThanOneDay = (dateUtil.arePeriodsOnMoreThanOneDay(result) >= 1);
+        Period.query().$promise.then(function(result) {            
             $scope.periods = result;
             processPeriods($scope.periods);
-
-            $scope.$watch('periods', function(newValue, oldValue) {
-                if (newValue) {
+            $scope.$watch('periods', function(newValue, oldValue) {                
                     processPeriods($scope.periods);
-                    checkPeriods($scope.periods);
-                }
+                    checkPeriods($scope.periods);                
             }, true);
-
-
             $rootScope.pending--;
         }, function(error) {
             $rootScope.messages.push(MessageService.errorMessage("Error loading periods.", 2000));
@@ -387,6 +379,7 @@ ControllersModule.controller('inputPeriodController', ['$rootScope', '$scope', '
 
 
         function processPeriods(periodArray) {
+            $scope.arePeriodsOnMoreThanOneDay = (dateUtil.arePeriodsOnMoreThanOneDay(periodArray) >= 1);
             if (dateUtil.arePeriodsOnMoreThanOneDay(periodArray) === 0) {
                 var newPeriod = getNewPeriod(periodArray);
                 $scope.newPeriod = newPeriod;
@@ -399,10 +392,15 @@ ControllersModule.controller('inputPeriodController', ['$rootScope', '$scope', '
                 maxEndDate = new Date();
                 maxEndDate.setHours(0);
                 maxEndDate.setMinutes(0);
+                maxEndDate.setSeconds(0);
+                maxEndDate.setMilliseconds(0);
             }
             var endDate = new Date(maxEndDate.getTime());
+            endDate.setDate(maxEndDate.getDate()+1);
             endDate.setHours(0);
             endDate.setMinutes(0);
+            endDate.setSeconds(0);
+            endDate.setMilliseconds(0);           
             var newPeriod = {
                 name: '',
                 begin: maxEndDate,
