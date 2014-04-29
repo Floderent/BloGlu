@@ -74,17 +74,7 @@ mainModule.run(["$rootScope", "$modal", "UserService", "MessageService", functio
                         });
             }
         };
-
-        $scope.resetPassword = function(email) {
-            UserService.requestPasswordReset(email)
-                    .success(function(result) {
-
-                    })
-                    .error(function(error) {
-                        alert("Unable to log in: " + error.code + " " + error.message);
-                    });
-        };
-
+    
         $scope.logOut = function() {
             UserService.logOut();
             $scope.currentUser = null;

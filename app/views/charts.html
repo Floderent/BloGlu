@@ -1,7 +1,7 @@
-<div class="panel panel-default content-panel">
+<div class="panel panel-primary content-panel">
     <div class="panel-heading">
         <h3 class="panel-title">View charts</h3>
-        
+
         View by
         <select ng-model="interval" ng-change="change()">
             <option value="week">Week</option>
@@ -12,8 +12,26 @@
 
     </div>
     <div class="panel-body ">
-        <highchart id="chart1" config="chartConfig" class="span10"></highchart>
+
+        <p class="input-group">                
+            <input type="text" class="form-control" datepicker-popup="dd/MM/yyyy" is-open="beginDateOpened" ng-model="beginDate" ng-required="true" close-text="Close" />               
+            <span class="input-group-btn">                    
+                <button class="btn btn-default" ng-click="openBeginDate($event)"><i class="glyphicon glyphicon-calendar"></i></button>
+            </span>
+        </p>
+
+        <p class="input-group">                
+            <input type="text" class="form-control" datepicker-popup="dd/MM/yyyy" is-open="endDateOpened" ng-model="endDate" ng-required="true" close-text="Close" />               
+            <span class="input-group-btn">                    
+                <button class="btn btn-default" ng-click="openEndDate($event)"><i class="glyphicon glyphicon-calendar"></i></button>
+            </span>
+        </p>
+
+
     </div>
+
+    <highchart id="chart1" config="chartConfig" class="span10"></highchart>
+
 </div>
 
 

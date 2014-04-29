@@ -120,7 +120,7 @@ servicesModule.factory('ReadingGlucoseBlood', ['$resource', 'UserService', 'date
                             if (data) {
                                 data.ACL = UserService.ownerReadWriteACL();
                                 if (data.dateTime) {
-                                    data.dateTime = convertToParseFormat(data.dateTime);
+                                    data.dateTime = dateUtil.convertToParseFormat(data.dateTime);
                                 }
                                 if (data.unit && data.unit.objectId) {
                                     data.unit = {__type: 'Pointer', className: 'Unit', objectId: data.unit.objectId};
@@ -147,9 +147,9 @@ servicesModule.factory('ReadingGlucoseBlood', ['$resource', 'UserService', 'date
                         headers: UserService.headers(),
                         transformRequest: function(data) {
                             if (data) {
-                                data.ACL = UserService.ownerReadWrite();
+                                data.ACL = UserService.ownerReadWriteACL();
                                 if (data.dateTime) {
-                                    data.dateTime = convertToParseFormat(data.dateTime);
+                                    data.dateTime = dateUtil.convertToParseFormat(data.dateTime);
                                 }
                                 if (data.unit && data.unit.objectId) {
                                     data.unit = {__type: 'Pointer', className: 'Unit', objectId: data.unit.objectId};
@@ -377,15 +377,13 @@ servicesModule.factory('UserService', ['$http', '$cookieStore', function($http, 
 
 
         UserService.requestPasswordReset = function(email) {
-            return $http.get(
-                    parseBaseUrl + 'requestPasswordReset',
-                    {
-                        headers: headers,
-                        params: {
-                            email: email
-                        }
-                    }
-            );
+            debugger;
+            return $http({
+                method: 'POST',
+                url: parseBaseUrl + 'requestPasswordReset',
+                data: angular.toJson({'email': email}),
+                headers: headers
+            });
         };
 
         UserService.currentUser = function() {
@@ -689,7 +687,6 @@ servicesModule.factory('dateUtil', ['$filter', function($filter) {
         dateUtil.getDateYearBeginAndEndDate = function(date) {
             var beginDate = new Date(date.getFullYear(), 0, 1);
             var endDate = new Date(date.getFullYear() + 1, 0, 0);
-            debugger;
             return {
                 name: 'year',
                 begin: beginDate,
@@ -776,7 +773,7 @@ servicesModule.factory('dateUtil', ['$filter', function($filter) {
     }]);
 
 
-servicesModule.factory('chartService', ['dateUtil', function(dateUtil) {
+servicesModule.factory('chartService', ['$q', 'overViewService', 'BloodGlucoseTarget', function($q, overViewService, BloodGlucoseTarget) {
         var chartService = {};
         chartService.getGlucoseReadingData = function(readingGlucoseList) {
             var dataSerie = [];
@@ -792,7 +789,11 @@ servicesModule.factory('chartService', ['dateUtil', function(dateUtil) {
         };
 
         chartService.getChartDataSeriesFromAggregatedData = function(aggregatedData) {
-            var series = [];
+            var resultObject = {
+                series: [],
+                axisLabels: []
+            };
+
             var averageSerie = {name: 'Average', data: []};
             var maxSerie = {name: 'Maximum', data: []};
             var minimumSerie = {name: 'Minimum', data: []};
@@ -809,17 +810,52 @@ servicesModule.factory('chartService', ['dateUtil', function(dateUtil) {
                         average = parseInt(numericDataObject.average);
                         maximum = parseInt(numericDataObject.maximum);
                         minimum = parseInt(numericDataObject.minimum);
+
+                        averageSerie.data.push([textData, average]);
+                        maxSerie.data.push([textData, maximum]);
+                        minimumSerie.data.push([textData, minimum]);
+
+                        resultObject.axisLabels.push(textData);
                     }
-                    averageSerie.data.push([textData, average]);
-                    maxSerie.data.push([textData, maximum]);
-                    minimumSerie.data.push([textData, minimum]);
+
                 }
             }
-            series.push(averageSerie);
-            series.push(maxSerie);
-            series.push(minimumSerie);
-            return series;
+            resultObject.series.push(averageSerie);
+            resultObject.series.push(maxSerie);
+            resultObject.series.push(minimumSerie);
+            return resultObject;
         };
+
+
+
+        chartService.getChartAggregatedDataSeries = function(beginDate, endDate, groupBy, includeTarget) {
+            var params = {bigResult: isBigResult(beginDate, endDate)};
+            var timeInterval = {
+                name: groupBy,
+                begin: beginDate,
+                end: endDate
+            };
+            var promises = [overViewService.getAggregtedData(timeInterval, params)];
+            if (includeTarget) {
+                promises.push(BloodGlucoseTarget.query({include: 'unit'}).$promise);
+            }
+            return $q.all(promises).then(function(results) {
+                return chartService.getChartDataSeriesFromAggregatedData(results[0]);
+            });
+        };
+
+
+        function isBigResult(beginDate, endDate) {
+            var isBigResult = false;
+            var maxDays = 100;
+            var timeInterval = endDate.getTime() - beginDate.getTime();
+            var numberOfDays = timeInterval / (1000 * 60 * 60 * 24);
+            if (numberOfDays > maxDays) {
+                isBigResult = true;
+            }
+            return isBigResult;
+        }
+
 
 
 
@@ -851,6 +887,51 @@ servicesModule.factory('statsService', ['$filter', function($filter) {
             stats.average = $filter('number')(stats._total / stats.nb, 0);
             return stats;
         };
+
+
+
+        /*
+         function processResult(queryResult, params) {
+         var processedResult = queryResult;
+         //aggregate and / or do stuff
+         
+         if (params.select) {
+         processedResult = [];
+         queryResult.forEach(function(row) {
+         
+         
+         
+         });
+         
+         }
+         return processedResult;
+         }
+         
+         function aggregateRow(results, newRow, selectedFields){
+         
+         
+         
+         results.forEach();
+         }
+         
+         
+         function getSelectedFields(params) {
+         var selectObj = {};
+         if (params.select && Array.isArray(params.select)) {
+         params.select.forEach(function(selectElement) {
+         selectObj[selectElement.field] = {};
+         selectObj[selectElement.field] = angular.extend({},selectElement);
+         delete selectObj[selectElement.field].field;
+         });
+         }
+         return selectObj;
+         }
+         */
+
+
+
+
+
         return statsService;
     }]);
 
@@ -947,18 +1028,102 @@ servicesModule.factory('dataService', ['$q', function($q) {
             });
         }
 
-        function processResult(queryResult, params) {
+        dataService.processResult = function(queryResult, params) {
             var processedResult = queryResult;
-            //aggregate and / or do stuff
-            
-            
-            
+            //if there is a select or a groupby, do client side data processing
+            if (params.select || params.groupBy) {
+                processedResult = [];
+                queryResult.forEach(function(row) {
+                    var selectedRow = applySelect(row, params);
+                    if (params.groupBy) {
+                        applyGroupBy(processedResult, selectedRow, params);
+                    } else {
+                        processedResult.push(selectedRow);
+                    }
+                });
 
+            }
+            //aggregate and / or do stuff
             return processedResult;
+        };
+
+        function applySelect(row, params) {
+            var resultRow = {};
+            params.select.forEach(function(selectElement) {
+                if (selectElement.field && typeof (row[selectElement.field]) !== 'undefined') {
+                    var value = row[selectElement.field];
+                    if (selectElement.transform) {
+                        value = selectElement.transform(value, row);
+                    }
+                    if (selectElement.alias) {
+                        resultRow[selectElement.alias] = value;
+                    } else {
+                        resultRow[selectElement.field] = value;
+                    }
+                }
+            });
+            return resultRow;
         }
 
-        return dataService;
+        function applyGroupBy(rows, currentRow, params) {
+            var rowToAdd = currentRow;
+            var indexOfRow = getIndexOfRowInResult(rows, currentRow, params.groupBy);
+            if (indexOfRow !== -1) {
+                rowToAdd = rows[indexOfRow];
+                params.select.forEach(function(selectElement) {
+                    if (selectElement.aggregate) {                        
+                        var alias = selectElement.field;
+                        if (selectElement.alias) {
+                            alias = selectElement.alias;
+                        }
+                        var existingValue = rowToAdd[alias];
+                        var newValue = currentRow[alias];
+                        switch (selectElement.aggregate) {
+                            case 'avg':
+                                break;
+                            case 'sum':                                
+                                rows[indexOfRow][alias] = existingValue + newValue;
+                                break;
+                            case 'max':
+                                if (newValue > existingValue) {
+                                    rows[indexOfRow][alias] = newValue;
+                                }
+                                break;
+                            case 'min':
+                                if (newValue < existingValue) {
+                                    rows[indexOfRow][alias] = newValue;
+                                }
+                                break;
+                        }
+                    }
+                });
+            } else {
+                rows.push(rowToAdd);
+            }
 
+        }
+
+        function getIndexOfRowInResult(rows, currentRow, groupBy) {
+            var resultIndex = -1;
+            for (var indexOfRow = 0; indexOfRow < rows.length; indexOfRow++) {
+                var rowEquals = true;
+                groupBy.forEach(function(groupByField) {
+                    if (currentRow[groupByField] !== rows[indexOfRow][groupByField]) {
+                        rowEquals = false;
+                        return;
+                    }
+                });
+                if (rowEquals) {
+                    resultIndex = indexOfRow;
+                    break;
+                }
+            }
+            return resultIndex;
+        }
+
+
+
+        return dataService;
     }]);
 
 
@@ -1005,11 +1170,15 @@ servicesModule.factory('overViewService', ['$q', '$filter', 'UserService', 'Peri
             var analysisPeriods = [];
             var deferred = $q.defer();
             var baseDate = new Date(timeInterval.begin.getFullYear(), 0, 1);
-            for (var indexOfMonth = 0; indexOfMonth < 12; indexOfMonth++) {
-                var analysisPeriod = dateUtil.getDateMonthBeginAndEndDate(baseDate);
-                analysisPeriod.name = $filter('date')(baseDate, 'MMMM yyyy');
-                analysisPeriods.push(analysisPeriod);
-                baseDate.setMonth(baseDate.getMonth() + 1);
+            var endDate = new Date(timeInterval.end.getFullYear(), 11, 31);
+            for (var year = baseDate.getFullYear(); year <= endDate.getFullYear(); year++) {
+                for (var indexOfMonth = 0; indexOfMonth < 12; indexOfMonth++) {
+                    var analysisPeriod = dateUtil.getDateMonthBeginAndEndDate(baseDate);
+                    analysisPeriod.name = $filter('date')(baseDate, 'MMMM yyyy');
+                    analysisPeriods.push(analysisPeriod);
+                    baseDate.setMonth(baseDate.getMonth() + 1);
+                }
+                baseDate.setFullYear(baseDate.getFullYear() + 1);
             }
             deferred.resolve(analysisPeriods);
             return deferred.promise;
@@ -1021,13 +1190,16 @@ servicesModule.factory('overViewService', ['$q', '$filter', 'UserService', 'Peri
             var baseDate = new Date(timeInterval.begin.getTime());
             var month = baseDate.getMonth();
             var firstDayOfWeek = UserService.getFirstDayOfWeek();
-            var index = 0;
-            while (baseDate.getMonth() === month) {
-                var analysisPeriod = dateUtil.getDateWeekBeginAndEndDate(baseDate, firstDayOfWeek);
-                analysisPeriod.name = $filter('date')(baseDate, 'MMMM yyyy') + " week " + (index + 1);
-                analysisPeriods.push(analysisPeriod);
-                baseDate.setDate(baseDate.getDate() + 7);
-                index++;
+            while (baseDate.getMonth() < timeInterval.end.getMonth()) {
+                var index = 0;
+                while (baseDate.getMonth() === month) {
+                    var analysisPeriod = dateUtil.getDateWeekBeginAndEndDate(baseDate, firstDayOfWeek);
+                    analysisPeriod.name = $filter('date')(baseDate, 'MMMM yyyy') + " week " + (index + 1);
+                    analysisPeriods.push(analysisPeriod);
+                    baseDate.setDate(baseDate.getDate() + 7);
+                    index++;
+                }
+                month = baseDate.getMonth();
             }
             deferred.resolve(analysisPeriods);
             return deferred.promise;

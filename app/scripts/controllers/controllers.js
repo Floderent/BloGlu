@@ -202,53 +202,49 @@ ControllersModule.controller('inputUserController', ['$scope', '$rootScope', '$m
     }]);
 
 
-ControllersModule.controller('chartController', ['$rootScope', '$scope', '$q','$routeParams','$location', 'ReadingGlucoseBlood', 'chartService', 'BloodGlucoseTarget', 'overViewService', function Controller($rootScope, $scope, $q, $routeParams,$location, ReadingGlucoseBlood, chartService, BloodGlucoseTarget, overViewService) {
+ControllersModule.controller('chartController', ['$rootScope', '$scope', '$routeParams','$location','MessageService', 'chartService', 'overViewService', function Controller($rootScope, $scope,$routeParams,$location, MessageService, chartService, overViewService) {
 
         $rootScope.messages = [];
         $rootScope.pending = 0;
         $scope.interval = 'month';
         
-        var currentDate = new Date();
+        var interval = overViewService.getTimeInterval($scope.interval, new Date());
+        $scope.beginDate = interval.begin;
+        $scope.endDate = interval.end;
         
-        if ($routeParams && $routeParams.weekDate) {
-            currentDate = new Date($routeParams.weekDate);
-        } else {
-            currentDate = new Date();
+        $scope.openBeginDate = function($event) {
+            $event.preventDefault();
+            $event.stopPropagation();
+            $scope.beginDateOpened = true;
+        };        
+        $scope.openEndDate = function($event) {
+            $event.preventDefault();
+            $event.stopPropagation();
+            $scope.endDateOpened = true;
+        };
+                
+        
+        if ($routeParams && $routeParams.beginDate && $routeParams.endDate) {
+            $scope.beginDate = new Date($routeParams.beginDate);
+            $scope.endDate = new Date($routeParams.endDate);
         }
+        
         if ($routeParams && $routeParams.interval) {
             $scope.interval = $routeParams.interval;
-        }
-        $scope.timeInterval = overViewService.getTimeInterval($scope.interval, currentDate);
-
+        }        
 
         $scope.toggleLoading = function() {
             this.chartConfig.loading = !this.chartConfig.loading;
         };
-
-        
-        /**
-         * Change grouping
-         */
+      
         $scope.change = function() {
-            changeInterval(currentDate, $scope.interval, 0);
+            $location.path('charts')
+                    .search('interval', $scope.interval)
+                    .search('beginDate', $scope.beginDate)
+                    .search('endDate', $scope.endDate)
+            ;
         };
         
-        function changeInterval(currentDate, interval, coef) {
-            var newDate = new Date(currentDate.getTime());
-            switch (interval) {
-                case 'week':
-                    newDate.setDate(newDate.getDate() + (7 * coef));
-                    break;
-                case 'month':
-                    newDate.setMonth(newDate.getMonth() + (1 * coef));
-                    break;
-                case 'year':
-                    newDate.setFullYear(newDate.getFullYear() + (1 * coef));
-                    break;
-            }
-            $location.path('charts').search('weekDate', newDate.toISOString()).search('interval', interval);
-        }
-
 
         $scope.chartConfig = {
             options: {
@@ -264,16 +260,26 @@ ControllersModule.controller('chartController', ['$rootScope', '$scope', '$q','$
                 text: 'Blood Glucose over time'
             },
             xAxis: {
+                /*
                 type: 'datetime',
                 dateTimeLabelFormats: {// don't display the dummy year
                     month: '%e. %b',
                     year: '%b'
-                }
+                }*/
             },
             loading: false
-        };
-
-
+        };        
+        $rootScope.pending++;
+        chartService.getChartAggregatedDataSeries($scope.beginDate, $scope.endDate, $scope.interval, false).then(function(chartSeries){          
+            $scope.chartConfig.series = chartSeries.series;
+            $scope.chartConfig.xAxis.categories = chartSeries.axisLabels;
+            $rootScope.pending--;
+        });
+               
+        
+        
+        
+        /*
         $scope.data = [];
         $rootScope.pending++;
         overViewService.getTableData($scope.timeInterval).then(
@@ -321,7 +327,7 @@ ControllersModule.controller('chartController', ['$rootScope', '$scope', '$q','$
             }
             $rootScope.pending--;
         });
-
+        */
 
 
         $scope.$on("$routeChangeStart", function() {
@@ -342,11 +348,11 @@ ControllersModule.controller('resetPasswordController', ['$scope', '$modalInstan
             $modalInstance.dismiss('canceled');
         };
         $scope.resettingPassword = false;
-        $scope.signUp = function() {
+        $scope.resetPassword = function(email) {            
             $scope.successMessage = null;
             $scope.erroMessage = null;
             $scope.resettingPassword = true;
-            UserService.requestPasswordReset($scope.email)
+            UserService.requestPasswordReset(email)
                     .success(function(result) {
                         $scope.successMessage = 'Password reset';
                         $scope.resettingPassword = false;
