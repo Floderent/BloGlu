@@ -1,7 +1,5 @@
 'use strict';
 
-
-
 describe('Services: dataService', function() {
 
     // load the controller's module
@@ -117,6 +115,58 @@ describe('Services: dataService', function() {
         expect(processedResult).toEqual(expectedResult);
     });
     
+    
+    it('should do a count and group by result', function() {
+        var testResult = [
+            {truc: "1", toto1: "2", test: "3", toto3: 4}, 
+            {truc: "1", toto1: "2", test: "3", toto3: 4},
+            {truc: "2", toto1: "4", test: "3", toto3: 4}
+        ];
+        var expectedResult = [
+            {field1: "2", field2: 2},
+            {field1: "4", field2: 1}
+            ];
+        var params = {
+            select: [
+                { field: 'toto1',                  
+                  alias: 'field1'
+                },
+                { 
+                    field: 'toto3',
+                    aggregate: 'count',
+                    alias: 'field2'
+                }
+            ],
+            groupBy:['field1']
+        };
+        var processedResult = dataServ.processResult(testResult, params);
+        expect(processedResult).toEqual(expectedResult);
+    });
+    
+    it('should do an average and group by result', function() {
+        var testResult = [
+            {truc: "1", toto1: "2", test: "3", toto3: 4}, 
+            {truc: "1", toto1: "2", test: "3", toto3: 1},
+            {truc: "2", toto1: "4", test: "3", toto3: 4}
+        ];
+        var expectedResult = [
+            {toto1: "2", toto3: 2.5},
+            {toto1: "4", toto3: 4}
+            ];
+        var params = {
+            select: [
+                { field: 'toto1'                  
+                },
+                { 
+                    field: 'toto3',
+                    aggregate: 'avg'                    
+                }
+            ],
+            groupBy:['toto1']
+        };
+        var processedResult = dataServ.processResult(testResult, params);
+        expect(processedResult).toEqual(expectedResult);
+    });
     
     
     

@@ -1033,6 +1033,8 @@ servicesModule.factory('dataService', ['$q', function($q) {
             //if there is a select or a groupby, do client side data processing
             if (params.select || params.groupBy) {
                 processedResult = [];
+                var groupByResult = [];
+
                 queryResult.forEach(function(row) {
                     var selectedRow = applySelect(row, params);
                     if (params.groupBy) {
@@ -1041,11 +1043,14 @@ servicesModule.factory('dataService', ['$q', function($q) {
                         processedResult.push(selectedRow);
                     }
                 });
-
             }
-            //aggregate and / or do stuff
+            //TODO add having here            
+            postProcess(processedResult, params);
+
             return processedResult;
         };
+
+
 
         function applySelect(row, params) {
             var resultRow = {};
@@ -1069,39 +1074,104 @@ servicesModule.factory('dataService', ['$q', function($q) {
             var rowToAdd = currentRow;
             var indexOfRow = getIndexOfRowInResult(rows, currentRow, params.groupBy);
             if (indexOfRow !== -1) {
-                rowToAdd = rows[indexOfRow];
-                params.select.forEach(function(selectElement) {
-                    if (selectElement.aggregate) {                        
+                rows[indexOfRow] = groupRow(params, currentRow, rows[indexOfRow]);
+                //rowToAdd = rows[indexOfRow];
+            } else {
+                rows.push(initNewRow(params, rowToAdd));
+            }
+        }
+
+        function initNewRow(params, newRow) {
+            params.select.forEach(function(selectElement) {
+                if (selectElement.aggregate) {
+                    var alias = selectElement.field;
+                    if (selectElement.alias) {
+                        alias = selectElement.alias;
+                    }
+                    var existingValue = newRow[alias];
+                    switch (selectElement.aggregate) {
+                        case 'count':
+                            newRow[alias] = 1;
+                            break;
+                        case 'avg':
+                            var existingValue = newRow[alias];
+                            newRow[alias] = {};
+                            newRow[alias].count = 1;
+                            newRow[alias].sum = existingValue;
+                            break;
+                    }
+                }
+            });
+            return newRow;
+        }
+
+
+        function groupRow(params, currentRow, existingRow) {
+            params.select.forEach(function(selectElement) {
+                if (selectElement.aggregate) {
+                    var alias = selectElement.field;
+                    if (selectElement.alias) {
+                        alias = selectElement.alias;
+                    }
+                    var existingValue = existingRow[alias];
+                    var newValue = currentRow[alias];
+                    switch (selectElement.aggregate) {
+                        case 'count':
+                            existingRow[alias] = existingRow[alias] + 1;
+                            break;
+                        case 'avg':                            
+                            existingRow[alias] = {};                            
+                            existingRow[alias].count = existingValue.count + 1;                            
+                            existingRow[alias].sum = newValue + existingValue.sum;
+                            break;
+                        case 'sum':
+                            existingRow[alias] = existingValue + newValue;
+                            break;
+                        case 'max':
+                            if (newValue > existingValue) {
+                                existingRow[alias] = newValue;
+                            }
+                            break;
+                        case 'min':
+                            if (newValue < existingValue) {
+                                existingRow[alias] = newValue;
+                            }
+                            break;
+                    }
+                }
+            });
+            return existingRow;
+        }
+
+        function postProcess(processedResult, params) {
+            var avgFields = getAvgFieldsFromParams(params);
+            if (params.having || avgFields.length > 0) {
+                for (var indexOfRow = 0; indexOfRow < processedResult.length; indexOfRow++) {
+                    avgFields.forEach(function(selectElement) {
                         var alias = selectElement.field;
                         if (selectElement.alias) {
                             alias = selectElement.alias;
                         }
-                        var existingValue = rowToAdd[alias];
-                        var newValue = currentRow[alias];
-                        switch (selectElement.aggregate) {
-                            case 'avg':
-                                break;
-                            case 'sum':                                
-                                rows[indexOfRow][alias] = existingValue + newValue;
-                                break;
-                            case 'max':
-                                if (newValue > existingValue) {
-                                    rows[indexOfRow][alias] = newValue;
-                                }
-                                break;
-                            case 'min':
-                                if (newValue < existingValue) {
-                                    rows[indexOfRow][alias] = newValue;
-                                }
-                                break;
-                        }
+                        var existingValue = processedResult[indexOfRow][alias];                        
+                        processedResult[indexOfRow][alias] = existingValue.sum / existingValue.count;
+                    });
+                }
+            }
+            return processedResult;
+        }
+
+        function getAvgFieldsFromParams(params) {
+            var avgFields = [];
+            if (params.select) {
+                params.select.forEach(function(selectElement) {
+                    if (selectElement.aggregate && selectElement.aggregate === 'avg') {
+                        avgFields.push(selectElement);
                     }
                 });
-            } else {
-                rows.push(rowToAdd);
             }
-
+            return avgFields;
         }
+
 
         function getIndexOfRowInResult(rows, currentRow, groupBy) {
             var resultIndex = -1;
