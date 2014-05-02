@@ -202,49 +202,49 @@ ControllersModule.controller('inputUserController', ['$scope', '$rootScope', '$m
     }]);
 
 
-ControllersModule.controller('chartController', ['$rootScope', '$scope', '$routeParams','$location','MessageService', 'chartService', 'overViewService', function Controller($rootScope, $scope,$routeParams,$location, MessageService, chartService, overViewService) {
+ControllersModule.controller('chartController', ['$rootScope', '$scope', '$routeParams', '$location', 'MessageService', 'chartService', 'overViewService', function Controller($rootScope, $scope, $routeParams, $location, MessageService, chartService, overViewService) {
 
         $rootScope.messages = [];
         $rootScope.pending = 0;
         $scope.interval = 'month';
-        
+
         var interval = overViewService.getTimeInterval($scope.interval, new Date());
         $scope.beginDate = interval.begin;
         $scope.endDate = interval.end;
-        
+
         $scope.openBeginDate = function($event) {
             $event.preventDefault();
             $event.stopPropagation();
             $scope.beginDateOpened = true;
-        };        
+        };
         $scope.openEndDate = function($event) {
             $event.preventDefault();
             $event.stopPropagation();
             $scope.endDateOpened = true;
         };
-                
-        
+
+
         if ($routeParams && $routeParams.beginDate && $routeParams.endDate) {
             $scope.beginDate = new Date($routeParams.beginDate);
             $scope.endDate = new Date($routeParams.endDate);
         }
-        
+
         if ($routeParams && $routeParams.interval) {
             $scope.interval = $routeParams.interval;
-        }        
+        }
 
         $scope.toggleLoading = function() {
             this.chartConfig.loading = !this.chartConfig.loading;
         };
-      
+
         $scope.change = function() {
             $location.path('charts')
                     .search('interval', $scope.interval)
                     .search('beginDate', $scope.beginDate)
                     .search('endDate', $scope.endDate)
-            ;
+                    ;
         };
-        
+
 
         $scope.chartConfig = {
             options: {
@@ -261,73 +261,73 @@ ControllersModule.controller('chartController', ['$rootScope', '$scope', '$route
             },
             xAxis: {
                 /*
-                type: 'datetime',
-                dateTimeLabelFormats: {// don't display the dummy year
-                    month: '%e. %b',
-                    year: '%b'
-                }*/
+                 type: 'datetime',
+                 dateTimeLabelFormats: {// don't display the dummy year
+                 month: '%e. %b',
+                 year: '%b'
+                 }*/
             },
             loading: false
-        };        
+        };
         $rootScope.pending++;
-        chartService.getChartAggregatedDataSeries($scope.beginDate, $scope.endDate, $scope.interval, false).then(function(chartSeries){          
+        chartService.getChartAggregatedDataSeries($scope.beginDate, $scope.endDate, $scope.interval, false).then(function(chartSeries) {
             $scope.chartConfig.series = chartSeries.series;
             $scope.chartConfig.xAxis.categories = chartSeries.axisLabels;
             $rootScope.pending--;
         });
-               
-        
-        
-        
+
+
+
+
         /*
-        $scope.data = [];
-        $rootScope.pending++;
-        overViewService.getTableData($scope.timeInterval).then(
-                function resolve(result) {
-                    $rootScope.pending--;
-                    $scope.header = result[0];
-                    $scope.data = result;
-                },
-                function reject(error) {
-                    $rootScope.pending--;
-                    $scope.header = [];
-                    $scope.data = [];
-                });
-        
-        
-        
-        
-        $rootScope.pending++;
-        $q.all([
-            //ReadingGlucoseBlood.query({order: "dateTime", include: "unit"}).$promise,
-            overViewService.getTableData($scope.timeInterval),
-            BloodGlucoseTarget.query({include: "unit"}).$promise
-        ]).then(function(results) {
-            //$scope.chartConfig.series[0].data = chartService.getGlucoseReadingData(results[0]);
-            
-            var chartSeries = chartService.getChartDataSeriesFromAggregatedData(results[0]);            
-            $scope.chartConfig.series = chartSeries;
-            
-            
-            if (results[1] && results[1].length > 0) {
-                var target = results[1][0];
-                $scope.chartConfig.yAxis = {
-                    plotBands: [{// Light air
-                            from: target.lowerLevel * target.unit.coefficient,
-                            to: target.upperLevel * target.unit.coefficient,
-                            color: 'rgba(68, 170, 213, 0.1)',
-                            label: {
-                                text: 'Target',
-                                style: {
-                                    color: '#606060'
-                                }
-                            }
-                        }]
-                };
-            }
-            $rootScope.pending--;
-        });
-        */
+         $scope.data = [];
+         $rootScope.pending++;
+         overViewService.getTableData($scope.timeInterval).then(
+         function resolve(result) {
+         $rootScope.pending--;
+         $scope.header = result[0];
+         $scope.data = result;
+         },
+         function reject(error) {
+         $rootScope.pending--;
+         $scope.header = [];
+         $scope.data = [];
+         });
+         
+         
+         
+         
+         $rootScope.pending++;
+         $q.all([
+         //ReadingGlucoseBlood.query({order: "dateTime", include: "unit"}).$promise,
+         overViewService.getTableData($scope.timeInterval),
+         BloodGlucoseTarget.query({include: "unit"}).$promise
+         ]).then(function(results) {
+         //$scope.chartConfig.series[0].data = chartService.getGlucoseReadingData(results[0]);
+         
+         var chartSeries = chartService.getChartDataSeriesFromAggregatedData(results[0]);            
+         $scope.chartConfig.series = chartSeries;
+         
+         
+         if (results[1] && results[1].length > 0) {
+         var target = results[1][0];
+         $scope.chartConfig.yAxis = {
+         plotBands: [{// Light air
+         from: target.lowerLevel * target.unit.coefficient,
+         to: target.upperLevel * target.unit.coefficient,
+         color: 'rgba(68, 170, 213, 0.1)',
+         label: {
+         text: 'Target',
+         style: {
+         color: '#606060'
+         }
+         }
+         }]
+         };
+         }
+         $rootScope.pending--;
+         });
+         */
 
 
         $scope.$on("$routeChangeStart", function() {
@@ -348,7 +348,7 @@ ControllersModule.controller('resetPasswordController', ['$scope', '$modalInstan
             $modalInstance.dismiss('canceled');
         };
         $scope.resettingPassword = false;
-        $scope.resetPassword = function(email) {            
+        $scope.resetPassword = function(email) {
             $scope.successMessage = null;
             $scope.erroMessage = null;
             $scope.resettingPassword = true;
@@ -367,15 +367,15 @@ ControllersModule.controller('resetPasswordController', ['$scope', '$modalInstan
 
 ControllersModule.controller('inputPeriodController', ['$rootScope', '$scope', '$modal', 'dateUtil', 'Period', 'MessageService', function Controller($rootScope, $scope, $modal, dateUtil, Period, MessageService) {
         $rootScope.messages = [];
-        $rootScope.pending = 0;        
+        $rootScope.pending = 0;
         $scope.arePeriodsOnMoreThanOneDay = true;
         $rootScope.pending++;
-        Period.query().$promise.then(function(result) {            
+        Period.query().$promise.then(function(result) {
             $scope.periods = result;
             processPeriods($scope.periods);
-            $scope.$watch('periods', function(newValue, oldValue) {                
-                    processPeriods($scope.periods);
-                    checkPeriods($scope.periods);                
+            $scope.$watch('periods', function(newValue, oldValue) {
+                processPeriods($scope.periods);
+                checkPeriods($scope.periods);
             }, true);
             $rootScope.pending--;
         }, function(error) {
@@ -402,11 +402,11 @@ ControllersModule.controller('inputPeriodController', ['$rootScope', '$scope', '
                 maxEndDate.setMilliseconds(0);
             }
             var endDate = new Date(maxEndDate.getTime());
-            endDate.setDate(maxEndDate.getDate()+1);
+            endDate.setDate(maxEndDate.getDate() + 1);
             endDate.setHours(0);
             endDate.setMinutes(0);
             endDate.setSeconds(0);
-            endDate.setMilliseconds(0);           
+            endDate.setMilliseconds(0);
             var newPeriod = {
                 name: '',
                 begin: maxEndDate,
@@ -612,7 +612,7 @@ ControllersModule.controller('userPreferencesController', ['$rootScope', '$scope
 
 
 
-ControllersModule.controller('overviewController', ['$scope', '$rootScope', '$location', '$routeParams', 'dateUtil', 'UserService', 'overViewService', 'MessageService', function Controller($scope, $rootScope, $location, $routeParams, dateUtil, UserService, overViewService, MessageService) {
+ControllersModule.controller('overviewController', ['$scope', '$rootScope', '$location', '$routeParams', '$filter', 'dateUtil', 'UserService', 'overViewService', 'MessageService', 'printService', function Controller($scope, $rootScope, $location, $routeParams, $filter, dateUtil, UserService, overViewService, MessageService, printService) {
 
         $rootScope.messages = [];
         $rootScope.pending = 0;
@@ -645,6 +645,49 @@ ControllersModule.controller('overviewController', ['$scope', '$rootScope', '$lo
                     $scope.header = [];
                     $scope.data = [];
                 });
+
+        $scope.printToPDF = function() {
+            printService.convertTableToPDF($scope.data, renderCell.bind({
+                interval: $scope.interval
+            }));
+        };
+
+        function renderCell(rowIndex, columnIndex, cellData, tableData) {
+            var valueToDisplay = "";
+            if (cellData) {
+                if (rowIndex === 0) {
+                    if (cellData.name) {
+                        valueToDisplay = cellData.name;
+                    }
+                } else {
+                    if (columnIndex === 0) {
+                        if (this.interval === 'week') {
+                            valueToDisplay = $filter('date')(cellData.date, 'EEEE d MMM');
+                        } else {
+                            valueToDisplay = cellData.text;
+                        }
+                    } else {
+                        if (this.interval === 'week') {
+                            if (cellData && Array.isArray(cellData)) {
+                                cellData.forEach(function(element) {
+                                    valueToDisplay = $filter('date')(element.dateTime, 'HH:mm') + " " + element.reading;
+                                });
+                            }
+                        } else {
+                            if (cellData && Array.isArray(cellData)) {
+                                cellData.forEach(function(element) {
+                                    valueToDisplay = "Maximum: " + element.maximum + " / Minimum: " + element.minimum + " / Average: " + element.average + " / Number: " + element.nb;
+                                });
+                            }
+                        }
+                    }
+                }
+            }
+            return valueToDisplay;
+        }
+
+
+
         /**
          * Change grouping
          */

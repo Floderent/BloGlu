@@ -10,6 +10,7 @@ var mainModule = angular
             'highcharts-ng',
             'angularFileUpload',
             'BloGlu.services',
+            'BloGlu.modelServices',
             'BloGlu.controllers',
             'BloGlu.directives'
         ]);

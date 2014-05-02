@@ -1,18 +1,26 @@
 'use strict';
 
-var applicationId = 'U5hc606XgvqC5cNoBW9EUOYRPN28bGsiowBYLVbv';
-var javascriptKey = 'B5ytGV1AZND3t2HvHFMzZNEtBTzydI9PB7J5TbRg';
-var restApiKey = 'PPawPdkaltJhjHktfeHaQeBoVOYgphPn0ByIZl5v';
-
-var parseBaseUrl = 'https://api.parse.com/1/';
-var headers = {
-    "Content-Type": 'application/json',
-    "X-Parse-Application-Id": applicationId,
-    "X-Parse-REST-API-Key": restApiKey
-};
 var servicesModule = angular.module('BloGlu.services', ['ngResource']);
 
-servicesModule.factory("MyInterceptor", ["$q", "$location", "$injector", function($q, $location, $injector) {
+servicesModule.factory('ServerService', [function() {
+
+        var applicationId = 'U5hc606XgvqC5cNoBW9EUOYRPN28bGsiowBYLVbv';
+        var restApiKey = 'PPawPdkaltJhjHktfeHaQeBoVOYgphPn0ByIZl5v';
+
+        return {
+            headers: {
+                "Content-Type": 'application/json',
+                "X-Parse-Application-Id": applicationId,
+                "X-Parse-REST-API-Key": restApiKey
+            },
+            baseUrl: 'https://api.parse.com/1/',
+            applicationId: applicationId,
+            restApiKey: restApiKey
+        };
+    }]);
+
+
+servicesModule.factory('MyInterceptor', ['$q', '$location', '$injector', function($q, $location, $injector) {
         return {
             responseError: function(rejection) {
                 if (rejection.status === 401) {
@@ -67,274 +75,12 @@ servicesModule.factory('MessageService', ['$timeout', function($timeout) {
 
 
 
-servicesModule.factory('Unit', ['$resource', function($resource) {
-        var url = parseBaseUrl + 'classes/Unit/:Id';
-        return $resource(url,
-                {Id: '@Id'},
-        {
-            query: {
-                method: 'GET',
-                headers: headers,
-                isArray: true,
-                transformResponse: function(data) {
-                    var jsonResponse = angular.fromJson(data);
-                    if (jsonResponse && jsonResponse.results) {
-                        jsonResponse = jsonResponse.results;
-                    }
-                    return jsonResponse;
-                }
-            }
-        });
-    }]);
-
-servicesModule.factory('ReadingGlucoseBlood', ['$resource', 'UserService', 'dateUtil', function($resource, UserService, dateUtil) {
-        var url = parseBaseUrl + "classes/ReadingGlucoseBlood/:Id";
-        return $resource(url, {},
-                {
-                    query: {
-                        method: 'GET',
-                        headers: UserService.headers(),
-                        isArray: true,
-                        transformResponse: function(data) {
-                            var jsonResponse = angular.fromJson(data);
-                            if (jsonResponse && jsonResponse.results) {
-                                jsonResponse = jsonResponse.results;
-                                jsonResponse = jsonResponse.map(function(element) {
-                                    if (element.dateTime) {
-                                        element.dateTime = dateUtil.convertToNormalFormat(element.dateTime);
-                                    }
-                                    return element;
-                                });
-                            }
-                            return jsonResponse;
-                        }
-                    },
-                    count: {
-                        method: 'GET',
-                        headers: UserService.headers()
-                    },
-                    save: {
-                        method: 'POST',
-                        headers: UserService.headers(),
-                        transformRequest: function(data) {
-                            if (data) {
-                                data.ACL = UserService.ownerReadWriteACL();
-                                if (data.dateTime) {
-                                    data.dateTime = dateUtil.convertToParseFormat(data.dateTime);
-                                }
-                                if (data.unit && data.unit.objectId) {
-                                    data.unit = {__type: 'Pointer', className: 'Unit', objectId: data.unit.objectId};
-                                }
-                            }
-                            return angular.toJson(data);
-                        }
-                    },
-                    get: {
-                        method: 'GET',
-                        headers: UserService.headers(),
-                        transformResponse: function(data) {
-                            var jsonResponse = angular.fromJson(data);
-                            if (jsonResponse) {
-                                if (jsonResponse.dateTime) {
-                                    jsonResponse.dateTime = dateUtil.convertToNormalFormat(jsonResponse.dateTime);
-                                }
-                            }
-                            return jsonResponse;
-                        }
-                    },
-                    update: {
-                        method: 'PUT',
-                        headers: UserService.headers(),
-                        transformRequest: function(data) {
-                            if (data) {
-                                data.ACL = UserService.ownerReadWriteACL();
-                                if (data.dateTime) {
-                                    data.dateTime = dateUtil.convertToParseFormat(data.dateTime);
-                                }
-                                if (data.unit && data.unit.objectId) {
-                                    data.unit = {__type: 'Pointer', className: 'Unit', objectId: data.unit.objectId};
-                                }
-                            }
-                            return angular.toJson(data);
-                        }
-                    },
-                    delete: {
-                        method: 'DELETE',
-                        headers: UserService.headers()
-                    }
-
-                    /*
-                     ,
-                     queryBetweenDates: {
-                     method: "GET",
-                     headers: headers,
-                     isArray: true,
-                     params: {
-                     where: {"dateTime": {"$gt": {"__type": "Date", "iso": ":beginDate"}, "&lt": {"__type": "Date", "iso": ":endDate"}}}
-                     },
-                     transformResponse: function(data) {
-                     var jsonResponse = angular.fromJson(data);
-                     if (jsonResponse && jsonResponse.results) {
-                     jsonResponse = jsonResponse.results;
-                     }
-                     return jsonResponse;
-                     }
-                     }
-                     */
-                });
-    }]);
-
-
-
-
-servicesModule.factory('BloodGlucoseTarget', ['$resource', 'UserService', function($resource, UserService) {
-        var url = parseBaseUrl + "classes/Target";
-        return $resource(url, {},
-                {
-                    query: {
-                        method: "GET",
-                        headers: UserService.headers(),
-                        isArray: true,
-                        transformResponse: function(data) {
-                            var jsonResponse = angular.fromJson(data);
-                            if (jsonResponse && jsonResponse.results) {
-                                jsonResponse = jsonResponse.results;
-                            }
-                            return jsonResponse;
-                        }
-                    },
-                    save: {
-                        method: "POST",
-                        headers: UserService.headers(),
-                        transformRequest: function(data) {
-                            if (data) {
-                                data.ACL = UserService.ownerReadWriteACL();
-                            }
-                            return angular.toJson(data);
-                        }
-                    },
-                    update: {
-                        method: "PUT",
-                        headers: UserService.headers(),
-                        transformRequest: function(data) {
-                            if (data) {
-                                data.ACL = UserService.ownerReadWrite();
-                            }
-                            return angular.toJson(data);
-                        }
-                    }
-                });
-    }]);
-
-
-
-servicesModule.factory('UserPreferences', ['$resource', 'UserService', function($resource, UserService) {
-        var url = parseBaseUrl + 'classes/UserPreferences';
-        return $resource(url, {},
-                {
-                    query: {
-                        method: 'GET',
-                        headers: UserService.headers(),
-                        isArray: true,
-                        transformResponse: function(data) {
-                            var jsonResponse = angular.fromJson(data);
-                            if (jsonResponse && jsonResponse.results) {
-                                jsonResponse = jsonResponse.results;
-                            }
-                            return jsonResponse;
-                        }
-                    },
-                    save: {
-                        method: 'POST',
-                        headers: UserService.headers(),
-                        transformRequest: function(data) {
-                            if (data) {
-                                data.ACL = UserService.ownerReadWriteACL();
-                            }
-                            return angular.toJson(data);
-                        }
-                    },
-                    update: {
-                        method: 'PUT',
-                        headers: UserService.headers(),
-                        transformRequest: function(data) {
-                            if (data) {
-                                data.ACL = UserService.ownerReadWrite();
-                            }
-                            return angular.toJson(data);
-                        }
-                    }
-
-                });
-    }]);
-
-
-servicesModule.factory('Period', ['$resource', 'UserService', 'dateUtil', function($resource, UserService, dateUtil) {
-        var url = parseBaseUrl + 'classes/Period/:periodId';
-        return $resource(url,
-                {
-                },
-                {
-                    query: {
-                        method: 'GET',
-                        headers: UserService.headers(),
-                        isArray: true,
-                        transformResponse: function(data) {
-                            var jsonResponse = angular.fromJson(data);
-                            if (jsonResponse && jsonResponse.results) {
-                                jsonResponse = jsonResponse.results;
-                                jsonResponse = jsonResponse.map(function(period) {
-                                    period.begin = dateUtil.convertToNormalFormat(period.begin);
-                                    period.end = dateUtil.convertToNormalFormat(period.end);
-                                    return period;
-                                });
-                            }
-                            return jsonResponse;
-                        }
-                    },
-                    save: {
-                        method: 'POST',
-                        headers: UserService.headers(),
-                        transformRequest: function(data) {
-                            if (data) {
-                                var dataToSave = angular.extend({}, data);
-                                dataToSave.ACL = UserService.ownerReadWriteACL();
-                                if (dataToSave.begin && dataToSave.end) {
-                                    dataToSave.begin = dateUtil.convertToParseFormat(dataToSave.begin);
-                                    dataToSave.end = dateUtil.convertToParseFormat(dataToSave.end);
-                                }
-                            }
-                            return angular.toJson(dataToSave);
-                        }
-                    },
-                    update: {
-                        method: 'PUT',
-                        headers: UserService.headers(),
-                        transformRequest: function(data) {
-                            if (data) {
-                                data.ACL = UserService.ownerReadWriteACL();
-                                if (data.begin && data.end) {
-                                    data.begin = dateUtil.convertToParseFormat(data.begin);
-                                    data.end = dateUtil.convertToParseFormat(data.end);
-                                }
-                            }
-                            return angular.toJson(data);
-                        }
-                    },
-                    delete: {
-                        method: 'DELETE',
-                        headers: UserService.headers()
-                    }
-                });
-    }]);
-
-
-servicesModule.factory('UserService', ['$http', '$cookieStore', function($http, $cookieStore) {
+servicesModule.factory('UserService', ['$http', '$cookieStore', 'ServerService', function($http, $cookieStore, ServerService) {
         var UserService = {};
         var user;
         UserService.signUp = function(user) {
             return $http.post(
-                    parseBaseUrl + 'users',
+                    ServerService.baseUrl + 'users',
                     user,
                     {
                         headers: UserService.headers(),
@@ -349,9 +95,9 @@ servicesModule.factory('UserService', ['$http', '$cookieStore', function($http, 
 
         UserService.logIn = function(username, password) {
             return $http.get(
-                    parseBaseUrl + 'login',
+                    ServerService.baseUrl + 'login',
                     {
-                        headers: headers,
+                        headers: ServerService.headers,
                         params: {
                             'username': username,
                             'password': password
@@ -380,9 +126,9 @@ servicesModule.factory('UserService', ['$http', '$cookieStore', function($http, 
             debugger;
             return $http({
                 method: 'POST',
-                url: parseBaseUrl + 'requestPasswordReset',
+                url: ServerService.baseUrl + 'requestPasswordReset',
                 data: angular.toJson({'email': email}),
-                headers: headers
+                headers: ServerService.headers
             });
         };
 
@@ -424,8 +170,8 @@ servicesModule.factory('UserService', ['$http', '$cookieStore', function($http, 
         UserService.headers = function() {
             var headers = {
                 "Content-Type": "application/json",
-                "X-Parse-Application-Id": applicationId,
-                "X-Parse-REST-API-Key": restApiKey
+                "X-Parse-Application-Id": ServerService.applicationId,
+                "X-Parse-REST-API-Key": ServerService.restApiKey
             };
             if (UserService.currentUser() && UserService.currentUser().sessionToken) {
                 headers["X-Parse-Session-Token"] = UserService.currentUser().sessionToken;
@@ -440,60 +186,8 @@ servicesModule.factory('UserService', ['$http', '$cookieStore', function($http, 
             }
             return firstDayOfWeek;
         };
-
-
-
-
         return UserService;
     }]);
-
-
-servicesModule.factory("User", ["$resource", "UserService", function($resource, UserService) {
-        var url = parseBaseUrl + "users/:userId";
-        return $resource(url,
-                {},
-                {
-                    update: {
-                        method: "PUT",
-                        headers: UserService.headers(),
-                        transformRequest: function(data) {
-                            if (data) {
-                                data.ACL = UserService.ownerReadWriteACL();
-                                if (data.sessionToken) {
-                                    delete data.sessionToken;
-                                }
-                            }
-                            return angular.toJson(data);
-                        }
-                    }
-                });
-
-    }]);
-
-
-servicesModule.factory("parseRESTService", ["$http", function($http) {
-
-
-        var parseRESTService = {};
-        parseRESTService.get = function(className) {
-            var url = parseBaseUrl + "classes/" + className;
-            var config = {
-                headers: headers
-            };
-            return $http.get(url, config);
-        };
-
-        parseRESTService.put = function() {
-
-        };
-
-        parseRESTService.post = function() {
-
-        };
-
-        return parseRESTService;
-    }]);
-
 
 servicesModule.factory('dateUtil', ['$filter', function($filter) {
         var dateUtil = {};
@@ -856,9 +550,6 @@ servicesModule.factory('chartService', ['$q', 'overViewService', 'BloodGlucoseTa
             return isBigResult;
         }
 
-
-
-
         return chartService;
     }]);
 
@@ -889,49 +580,6 @@ servicesModule.factory('statsService', ['$filter', function($filter) {
         };
 
 
-
-        /*
-         function processResult(queryResult, params) {
-         var processedResult = queryResult;
-         //aggregate and / or do stuff
-         
-         if (params.select) {
-         processedResult = [];
-         queryResult.forEach(function(row) {
-         
-         
-         
-         });
-         
-         }
-         return processedResult;
-         }
-         
-         function aggregateRow(results, newRow, selectedFields){
-         
-         
-         
-         results.forEach();
-         }
-         
-         
-         function getSelectedFields(params) {
-         var selectObj = {};
-         if (params.select && Array.isArray(params.select)) {
-         params.select.forEach(function(selectElement) {
-         selectObj[selectElement.field] = {};
-         selectObj[selectElement.field] = angular.extend({},selectElement);
-         delete selectObj[selectElement.field].field;
-         });
-         }
-         return selectObj;
-         }
-         */
-
-
-
-
-
         return statsService;
     }]);
 
@@ -946,7 +594,7 @@ servicesModule.factory('dataService', ['$q', function($q) {
                 //do parse query
                 queryParse(resourceObject, params).then(function(queryResult) {
                     //process result
-                    deferred.resolve(processResult(queryResult, params));
+                    deferred.resolve(dataService.processResult(queryResult, params));
                 });
             } else {
                 deferred.reject(resourceObject + ' is not a resource object');
@@ -1075,7 +723,6 @@ servicesModule.factory('dataService', ['$q', function($q) {
             var indexOfRow = getIndexOfRowInResult(rows, currentRow, params.groupBy);
             if (indexOfRow !== -1) {
                 rows[indexOfRow] = groupRow(params, currentRow, rows[indexOfRow]);
-                //rowToAdd = rows[indexOfRow];
             } else {
                 rows.push(initNewRow(params, rowToAdd));
             }
@@ -1119,9 +766,9 @@ servicesModule.factory('dataService', ['$q', function($q) {
                         case 'count':
                             existingRow[alias] = existingRow[alias] + 1;
                             break;
-                        case 'avg':                            
-                            existingRow[alias] = {};                            
-                            existingRow[alias].count = existingValue.count + 1;                            
+                        case 'avg':
+                            existingRow[alias] = {};
+                            existingRow[alias].count = existingValue.count + 1;
                             existingRow[alias].sum = newValue + existingValue.sum;
                             break;
                         case 'sum':
@@ -1152,7 +799,7 @@ servicesModule.factory('dataService', ['$q', function($q) {
                         if (selectElement.alias) {
                             alias = selectElement.alias;
                         }
-                        var existingValue = processedResult[indexOfRow][alias];                        
+                        var existingValue = processedResult[indexOfRow][alias];
                         processedResult[indexOfRow][alias] = existingValue.sum / existingValue.count;
                     });
                 }
@@ -1190,9 +837,6 @@ servicesModule.factory('dataService', ['$q', function($q) {
             }
             return resultIndex;
         }
-
-
-
         return dataService;
     }]);
 
@@ -1260,7 +904,7 @@ servicesModule.factory('overViewService', ['$q', '$filter', 'UserService', 'Peri
             var baseDate = new Date(timeInterval.begin.getTime());
             var month = baseDate.getMonth();
             var firstDayOfWeek = UserService.getFirstDayOfWeek();
-            while (baseDate.getMonth() < timeInterval.end.getMonth()) {
+            while (baseDate.getMonth() <= timeInterval.end.getMonth()) {
                 var index = 0;
                 while (baseDate.getMonth() === month) {
                     var analysisPeriod = dateUtil.getDateWeekBeginAndEndDate(baseDate, firstDayOfWeek);
@@ -1473,13 +1117,29 @@ servicesModule.factory('overViewService', ['$q', '$filter', 'UserService', 'Peri
         return overViewService;
     }]);
 
+servicesModule.factory('printService', [function() {
+        var printService = {};
+        printService.convertTableToPDF = function(tableData, renderCellFunction) {
+            debugger;
+            var doc = new jsPDF('l', 'pt', 'a4', true);
+            doc.cellInitialize();
+            for (var rowIndex = 0; rowIndex < tableData.length; rowIndex++) {
+                var row = tableData[rowIndex];
+                for(var columnIndex = 0; columnIndex < row.length; columnIndex++){
+                    var cell = row[columnIndex];
+                    doc.cell(10, 50, 120, 50, renderCellFunction(rowIndex, columnIndex, cell, tableData), rowIndex);
+                };
+            }
+            doc.save('sample-file.pdf');
+        };
+        return printService;
+    }]);
 
 
 
-
-servicesModule.factory('importService', ['ReadingGlucoseBlood', 'dateUtil', '$upload', '$http', '$q', function(ReadingGlucoseBlood, dateUtil, $upload, $http, $q) {
+servicesModule.factory('importService', ['ReadingGlucoseBlood', 'dateUtil', '$upload', '$http', '$q', 'ServerService', function(ReadingGlucoseBlood, dateUtil, $upload, $http, $q, ServerService) {
         var importService = {};
-        var uploadUrl = parseBaseUrl + 'files/';
+        var uploadUrl = ServerService.baseUrl + 'files/';
         var fileHeaders = angular.extend({'Content-Type': 'text/plain'}, headers);
 
         function processDateTime(dateStr) {
