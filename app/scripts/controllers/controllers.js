@@ -10,7 +10,7 @@ ControllersModule.controller('confirmModalController', ['$scope', '$modalInstanc
         };
     }]);
 
-ControllersModule.controller('inputGlyController', ['$scope', '$rootScope', '$routeParams', '$q', '$window', '$modal', 'dateUtil', 'Unit', 'UserService', 'MessageService', 'ReadingGlucoseBlood', function Controller($scope, $rootScope, $routeParams, $q, $window, $modal, dateUtil, Unit, UserService, MessageService, ReadingGlucoseBlood) {
+ControllersModule.controller('eventController', ['$scope', '$rootScope', '$routeParams', '$q', '$window', '$modal','ResourceCode', 'dateUtil', 'Unit', 'UserService', 'MessageService', 'Event', function Controller($scope, $rootScope, $routeParams, $q, $window, $modal, ResourceCode, dateUtil, Unit, UserService, MessageService, Event) {
         $rootScope.messages = [];
         $rootScope.pending = 0;
 
@@ -19,31 +19,36 @@ ControllersModule.controller('inputGlyController', ['$scope', '$rootScope', '$ro
 
         $scope.isEdit = $routeParams && $routeParams.objectId;
         var isPrefilledDateAndTime = $routeParams && $routeParams.day && $routeParams.time;
-
-
+        
+        var eventType = 'other';
+        if($routeParams.eventType){
+            eventType = $routeParams.eventType;
+        }         
+        $scope.eventCode = ResourceCode[eventType];
+        
         $rootScope.pending++;
         $q.all([
-            getReadingGLucoseBlood(),
-            Unit.query().$promise
+            getEvent(),
+            Unit.query({where:JSON.stringify({code: $scope.eventCode})}).$promise
         ]).then(function resolve(results) {
             $rootScope.pending--;
-            $scope.readingGlucoseBlood = results[0];
+            $scope.event = results[0];            
             $scope.units = results[1];
             //=====handle date
             var currentDate = new Date();
-            if ($scope.readingGlucoseBlood.dateTime) {
-                currentDate = $scope.readingGlucoseBlood.dateTime;
+            if ($scope.event.dateTime) {
+                currentDate = $scope.event.dateTime;
             } else {
-                if ($scope.readingGlucoseBlood.dateTime) {
-                    currentDate = $scope.readingGlucoseBlood.dateTime;
+                if ($scope.event.dateTime) {
+                    currentDate = $scope.event.dateTime;
                 }
             }
             $scope.date = currentDate;
 
             //=====handle units
-            if ($scope.readingGlucoseBlood.unit) {
+            if ($scope.event.unit) {
                 $scope.units.forEach(function(unit) {
-                    if (unit.objectId === $scope.readingGlucoseBlood.unit.objectId) {
+                    if (unit.objectId === $scope.event.unit.objectId) {
                         $scope.currentUnit = unit;
                     }
                 });
@@ -52,16 +57,18 @@ ControllersModule.controller('inputGlyController', ['$scope', '$rootScope', '$ro
                     $scope.units.forEach(function(unit) {
                         if (unit.objectId === UserService.currentUser().preferences.defaultUnit.objectId) {
                             $scope.currentUnit = unit;
+                            return;
                         }
                     });
-                } else {
+                } 
+                if(!$scope.currentUnit && $scope.units.length > 0){
                     $scope.currentUnit = $scope.units[0];
                 }
             }
             $scope.$watch('currentUnit', function(newValue, oldValue) {
                 if (newValue && oldValue) {
-                    if ($scope.readingGlucoseBlood && $scope.readingGlucoseBlood.reading) {
-                        $scope.readingGlucoseBlood.reading = $scope.readingGlucoseBlood.reading * oldValue.coefficient / newValue.coefficient;
+                    if ($scope.event && $scope.event.reading) {
+                        $scope.event.reading = $scope.event.reading * oldValue.coefficient / newValue.coefficient;
                     } else {
                         $scope.placeHolder = $scope.placeHolder * oldValue.coefficient / newValue.coefficient;
                     }
@@ -72,20 +79,17 @@ ControllersModule.controller('inputGlyController', ['$scope', '$rootScope', '$ro
             $rootScope.messages.push(MessageService.errorMessage('Cannot read informations from server', 2000));
         });
 
-
-
         $scope.open = function($event) {
             $event.preventDefault();
             $event.stopPropagation();
             $scope.opened = true;
         };
 
-
-        function getReadingGLucoseBlood() {
+        function getEvent() {
             $rootScope.pending++;
             var deferred = $q.defer();
             if ($scope.isEdit) {
-                ReadingGlucoseBlood.get({Id: $routeParams.objectId, include: "unit"}, function(result) {
+                Event.get({Id: $routeParams.objectId, include: "unit"}, function(result) {                    
                     $rootScope.pending--;
                     deferred.resolve(result);
                 }, function(error) {
@@ -116,16 +120,15 @@ ControllersModule.controller('inputGlyController', ['$scope', '$rootScope', '$ro
             return deferred.promise;
         }
 
-
-
-        $scope.update = function(readingGlucoseBlood) {
-            readingGlucoseBlood.dateTime = $scope.date;
-            readingGlucoseBlood.unit = $scope.currentUnit;
+        $scope.update = function(event) {
+            event.dateTime = $scope.date;
+            event.unit = $scope.currentUnit;
+            event.code = $scope.eventCode;
             var savingPromise = null;
             if ($scope.isEdit) {
-                savingPromise = ReadingGlucoseBlood.update({'Id': readingGlucoseBlood.objectId}, readingGlucoseBlood).$promise;
+                savingPromise = Event.update({'Id': event.objectId}, event).$promise;
             } else {
-                savingPromise = ReadingGlucoseBlood.save({}, readingGlucoseBlood).$promise;
+                savingPromise = Event.save({}, event).$promise;
             }
             savingPromise.then(function resolve(result) {
                 $rootScope.messages.push(MessageService.successMessage('Blood glucose reading saved', 2000));
@@ -147,7 +150,7 @@ ControllersModule.controller('inputGlyController', ['$scope', '$rootScope', '$ro
             });
             modalInstance.result.then(function(confirmed) {
                 if (confirmed) {
-                    ReadingGlucoseBlood.delete({"Id": $scope.readingGlucoseBlood.objectId}).$promise.then(function(result) {
+                    Event.delete({"Id": $scope.event.objectId}).$promise.then(function(result) {
                         $window.history.back();
                     }, function(error) {
                         $rootScope.messages.push(MessageService.errorMessage("Problem deleting blood glucose reading", 2000));
@@ -612,7 +615,7 @@ ControllersModule.controller('userPreferencesController', ['$rootScope', '$scope
 
 
 
-ControllersModule.controller('overviewController', ['$scope', '$rootScope', '$location', '$routeParams', '$filter', 'dateUtil', 'UserService', 'overViewService', 'MessageService', 'printService', function Controller($scope, $rootScope, $location, $routeParams, $filter, dateUtil, UserService, overViewService, MessageService, printService) {
+ControllersModule.controller('overviewController', ['$scope', '$rootScope', '$location', '$routeParams', '$filter', 'ResourceCode', 'dateUtil', 'UserService', 'overViewService', 'MessageService', 'printService', function Controller($scope, $rootScope, $location, $routeParams, $filter, ResourceCode, dateUtil, UserService, overViewService, MessageService, printService) {
 
         $rootScope.messages = [];
         $rootScope.pending = 0;
@@ -632,9 +635,12 @@ ControllersModule.controller('overviewController', ['$scope', '$rootScope', '$lo
             $scope.interval = $routeParams.interval;
         }
         $scope.timeInterval = overViewService.getTimeInterval($scope.interval, currentDate);
+        
+        var params = {where: {code:[1]}};
+        
 
         $rootScope.pending++;
-        overViewService.getTableData($scope.timeInterval).then(
+        overViewService.getTableData($scope.timeInterval, params).then(
                 function resolve(result) {
                     $rootScope.pending--;
                     $scope.header = result[0];
@@ -664,13 +670,15 @@ ControllersModule.controller('overviewController', ['$scope', '$rootScope', '$lo
                         if (this.interval === 'week') {
                             valueToDisplay = $filter('date')(cellData.date, 'EEEE d MMM');
                         } else {
-                            valueToDisplay = cellData.text;
+                            if(cellData.text){
+                                valueToDisplay = cellData.text;
+                            }                            
                         }
                     } else {
                         if (this.interval === 'week') {
                             if (cellData && Array.isArray(cellData)) {
                                 cellData.forEach(function(element) {
-                                    valueToDisplay = $filter('date')(element.dateTime, 'HH:mm') + " " + element.reading;
+                                    valueToDisplay += $filter('date')(element.dateTime, 'HH:mm') + " " + element.reading + " ";
                                 });
                             }
                         } else {
@@ -687,7 +695,7 @@ ControllersModule.controller('overviewController', ['$scope', '$rootScope', '$lo
         }
 
 
-
+        
         /**
          * Change grouping
          */
@@ -697,13 +705,20 @@ ControllersModule.controller('overviewController', ['$scope', '$rootScope', '$lo
 
 
         //view reading by id
-        $scope.viewBloodGlucoseReading = function(objectId) {
-            $location.path("inputGly/" + objectId);
+        $scope.viewEvent = function(code, objectId) {            
+            $location.path('event/'+ResourceCode[code]+"/"+objectId);
         };
 
         //create new reading with prefilled date and time
-        $scope.addBloodGlucoseReading = function(day, period) {
-            $location.path("inputGly").search("day", day.date.toISOString()).search("time", period.begin.toISOString());
+        $scope.addEvent = function(day, period) {
+            //TODO display modal window to choose the type of event
+            
+            
+            
+            $location
+                    .path('event')                    
+                    .search('day', day.date.toISOString())
+                    .search('time', period.begin.toISOString());
         };
 
         function changeInterval(currentDate, interval, coef) {

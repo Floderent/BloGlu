@@ -3,7 +3,6 @@
 var servicesModule = angular.module('BloGlu.services', ['ngResource']);
 
 servicesModule.factory('ServerService', [function() {
-
         var applicationId = 'U5hc606XgvqC5cNoBW9EUOYRPN28bGsiowBYLVbv';
         var restApiKey = 'PPawPdkaltJhjHktfeHaQeBoVOYgphPn0ByIZl5v';
 
@@ -16,6 +15,25 @@ servicesModule.factory('ServerService', [function() {
             baseUrl: 'https://api.parse.com/1/',
             applicationId: applicationId,
             restApiKey: restApiKey
+        };
+    }]);
+
+servicesModule.factory('ResourceCode', [function() {
+        return {
+            other: 0,
+            bloodGlucose: 1,
+            medication: 2,
+            weight: 3,
+            bloodPressure: 4,
+            a1c: 5,
+            exercise: 6,
+            0: 'other',
+            1: 'bloodGlucose',
+            2: 'medication',
+            3: 'weight',
+            4: 'bloodPressure',
+            5: 'a1c',
+            6: 'exercise'
         };
     }]);
 
@@ -322,6 +340,8 @@ servicesModule.factory('dateUtil', ['$filter', function($filter) {
         dateUtil.getDateWeekBeginAndEndDate = function(date, indexOfFirstDay) {
             var beginDate = null;
             var endDate = null;
+            indexOfFirstDay = parseInt(indexOfFirstDay);
+
             if (date.getDay() === indexOfFirstDay) {
                 beginDate = new Date(date.getTime());
                 endDate = new Date(date.getTime());
@@ -841,23 +861,20 @@ servicesModule.factory('dataService', ['$q', function($q) {
     }]);
 
 
-servicesModule.factory('overViewService', ['$q', '$filter', 'UserService', 'Period', 'ReadingGlucoseBlood', 'dateUtil', 'statsService', 'dataService', function($q, $filter, UserService, Period, ReadingGlucoseBlood, dateUtil, statsService, dataService) {
+servicesModule.factory('overViewService', ['$q', '$filter', 'UserService', 'Period', 'Event', 'dateUtil', 'statsService', 'dataService', 'ModelUtil', function($q, $filter, UserService, Period, Event, dateUtil, statsService, dataService, ModelUtil) {
         var overViewService = {};
 
         function getBloodGlucoseReadingsBetweenDates(beginDate, endDate, params) {
-            /*
-             return ReadingGlucoseBlood.query({
-             include: 'unit',
-             where: '{"dateTime": {"$gt": {"__type": "Date", "iso":"' + beginDate.toISOString() + '"}, "$lt": {"__type": "Date", "iso":"' + endDate.toISOString() + '"}}}',
-             limit: 1000
-             }).$promise;
-             */
+            //{dateTime:{$gt: {__type: "Date", iso: beginDate.toISOString()},$lt: {__type: "Date", iso: endDate.toISOString()}}}
+                //JSON.stringify(angular.extend(params.where, {dateTime:{$gt: {__type: "Date", iso: beginDate.toISOString()},$lt: {__type: "Date", iso: endDate.toISOString()}}}))               
+            var where = ModelUtil.addClauseToFilter({dateTime:{$gt: {__type: "Date", iso: beginDate.toISOString()},$lt: {__type: "Date", iso: endDate.toISOString()}}}, params.where);
+            delete params.where;
             var queryParams = angular.extend({
-                include: 'unit',
-                where: '{"dateTime": {"$gt": {"__type": "Date", "iso":"' + beginDate.toISOString() + '"}, "$lt": {"__type": "Date", "iso":"' + endDate.toISOString() + '"}}}',
+                include: 'unit', 
+                where: where,
                 limit: 1000
             }, params);
-            return dataService.query(ReadingGlucoseBlood, queryParams);
+            return dataService.query(Event, queryParams);
         }
 
         function getAnalysisPeriods(timeInterval) {
@@ -996,20 +1013,23 @@ servicesModule.factory('overViewService', ['$q', '$filter', 'UserService', 'Peri
 
 
 
-        overViewService.getTableData = function(timeInterval) {
+        overViewService.getTableData = function(timeInterval, params) {
             var dataPromise = null;
+            var dataParams = angular.extend({}, params);
+            
             switch (timeInterval.name) {
                 case 'week':
-                    dataPromise = overViewService.getWeekData(timeInterval);
+                    dataPromise = overViewService.getWeekData(timeInterval, dataParams);
                     break;
                 case 'month':
-                    dataPromise = overViewService.getAggregtedData(timeInterval);
+                    dataPromise = overViewService.getAggregtedData(timeInterval, dataParams);
                     break;
                 case 'year':
-                    dataPromise = overViewService.getAggregtedData(timeInterval, {bigResult: true});
+                    dataParams = angular.extend({bigResult: true}, dataParams);
+                    dataPromise = overViewService.getAggregtedData(timeInterval, dataParams);
                     break;
                 default:
-                    dataPromise = overViewService.getWeekData(timeInterval);
+                    dataPromise = overViewService.getWeekData(timeInterval, dataParams);
                     break;
             }
             return dataPromise;
@@ -1066,9 +1086,9 @@ servicesModule.factory('overViewService', ['$q', '$filter', 'UserService', 'Peri
 
 
 
-        overViewService.getWeekData = function(timeInterval) {
+        overViewService.getWeekData = function(timeInterval, params) {
             return $q.all([
-                getBloodGlucoseReadingsBetweenDates(timeInterval.begin, timeInterval.end),
+                getBloodGlucoseReadingsBetweenDates(timeInterval.begin, timeInterval.end, params),
                 getAnalysisPeriods(timeInterval)
             ]).then(function(result) {
                 var bloodGlucoseReadings = result[0];
@@ -1087,7 +1107,8 @@ servicesModule.factory('overViewService', ['$q', '$filter', 'UserService', 'Peri
                         dataArray[indexOfDay] = [];
                     }
                     var dayDate = new Date(timeInterval.begin.getTime());
-                    var dayOfMonth = dayDate.getDate() + (indexOfDay - 1);
+                    dayDate.setDate(dayDate.getDate() + (indexOfDay - 1));
+                    var dayOfMonth = dayDate.getDate();
                     dayDate.setDate(dayOfMonth);
                     days.push(dayOfMonth);
                     dataArray[indexOfDay][0] = {
@@ -1125,10 +1146,11 @@ servicesModule.factory('printService', [function() {
             doc.cellInitialize();
             for (var rowIndex = 0; rowIndex < tableData.length; rowIndex++) {
                 var row = tableData[rowIndex];
-                for(var columnIndex = 0; columnIndex < row.length; columnIndex++){
+                for (var columnIndex = 0; columnIndex < row.length; columnIndex++) {
                     var cell = row[columnIndex];
                     doc.cell(10, 50, 120, 50, renderCellFunction(rowIndex, columnIndex, cell, tableData), rowIndex);
-                };
+                }
+                ;
             }
             doc.save('sample-file.pdf');
         };
@@ -1137,10 +1159,10 @@ servicesModule.factory('printService', [function() {
 
 
 
-servicesModule.factory('importService', ['ReadingGlucoseBlood', 'dateUtil', '$upload', '$http', '$q', 'ServerService', function(ReadingGlucoseBlood, dateUtil, $upload, $http, $q, ServerService) {
+servicesModule.factory('importService', ['Event', 'dateUtil', '$upload', '$http', '$q', 'ServerService', function(Event, dateUtil, $upload, $http, $q, ServerService) {
         var importService = {};
         var uploadUrl = ServerService.baseUrl + 'files/';
-        var fileHeaders = angular.extend({'Content-Type': 'text/plain'}, headers);
+        var fileHeaders = angular.extend({'Content-Type': 'text/plain'}, ServerService.headers);
 
         function processDateTime(dateStr) {
             var date = null;
@@ -1249,12 +1271,13 @@ servicesModule.factory('importService', ['ReadingGlucoseBlood', 'dateUtil', '$up
             //gly => 29
             //dateTime => 3          
             var returnValue = null;
-            var readingGlucoseBlood = {};
+            var event = {};
             if (dataArray.length >= 29 && dataArray[29] && dataArray[3] && dataArray[0] !== "Index") {
-                readingGlucoseBlood.reading = parseInt(dataArray[29]);
-                readingGlucoseBlood.dateTime = processDateTime(dataArray[3]);
-                readingGlucoseBlood.unit = {objectId: "0Erp4POX9d"};
-                returnValue = ReadingGlucoseBlood.save({}, readingGlucoseBlood);
+                event.reading = parseInt(dataArray[29]);
+                event.dateTime = processDateTime(dataArray[3]);
+                event.unit = {objectId: "0Erp4POX9d"};
+                event.code = 1;
+                returnValue = Event.save({}, event);
             }
             return returnValue;
         };

@@ -17,8 +17,8 @@ var mainModule = angular
 
 mainModule.config(['$routeProvider',
     function($routeProvider) {
-        $routeProvider.when('/inputGly/:objectId', {controller: 'inputGlyController', templateUrl: 'views/inputGly.html'});
-        $routeProvider.when('/inputGly', {controller: 'inputGlyController', templateUrl: 'views/inputGly.html'});
+        $routeProvider.when('/event/:eventType/:objectId', {controller: 'eventController', templateUrl: 'views/inputGly.html'});
+        $routeProvider.when('/event/:eventType', {controller: 'eventController', templateUrl: 'views/inputGly.html'});
         $routeProvider.when('/overview', {controller: 'overviewController', templateUrl: 'views/overView.html'});
         $routeProvider.when('/inputPeriod', {controller: 'inputPeriodController', templateUrl: 'views/inputPeriod.html'});
         $routeProvider.when('/inputBgTarget', {controller: 'bloodGlucoseTargetController', templateUrl: 'views/inputBloodGlucoseTarget.html'});

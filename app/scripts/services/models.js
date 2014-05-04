@@ -2,7 +2,42 @@
 
 var servicesModule = angular.module('BloGlu.modelServices', ['ngResource']);
 
-servicesModule.factory('Unit', ['$resource','ServerService', function($resource, ServerService) {
+
+servicesModule.factory('ModelUtil', [function() {
+        var ModelUtil = {};
+        ModelUtil.addClauseToFilter = function(existingClause, additionnalClauses) {            
+            var whereClause = {};
+            if (!existingClause && additionnalClauses) {
+                existingClause = {};
+            }
+            if (typeof existingClause === 'string') {
+                whereClause = angular.fromJson(existingClause);
+            }else{
+                whereClause = existingClause;
+            }
+            angular.extend(whereClause, transformConditionToParseFormat(additionnalClauses));
+            return JSON.stringify(whereClause);
+        };
+
+        function transformConditionToParseFormat(additionnalClauses) {
+            var parseCondition = {};
+            angular.forEach(additionnalClauses, function(value, key) {
+                var newValue = null;
+                if (Array.isArray(value)) {
+                    newValue = {$in: value};
+                } else {
+                    newValue = value;
+                }
+                parseCondition[key] = newValue;
+            });
+            return parseCondition;
+        }
+        return ModelUtil;
+
+    }]);
+
+
+servicesModule.factory('Unit', ['$resource', 'ServerService', function($resource, ServerService) {
         var url = ServerService.baseUrl + 'classes/Unit/:Id';
         return $resource(url,
                 {Id: '@Id'},
@@ -22,7 +57,7 @@ servicesModule.factory('Unit', ['$resource','ServerService', function($resource,
         });
     }]);
 
-servicesModule.factory('ReadingGlucoseBlood', ['$resource','ServerService', 'UserService', 'dateUtil', function($resource, ServerService, UserService, dateUtil) {
+servicesModule.factory('ReadingGlucoseBlood', ['$resource', 'ServerService', 'UserService', 'dateUtil', function($resource, ServerService, UserService, dateUtil) {
         var url = ServerService.baseUrl + "classes/ReadingGlucoseBlood/:Id";
         return $resource(url, {},
                 {
@@ -97,32 +132,95 @@ servicesModule.factory('ReadingGlucoseBlood', ['$resource','ServerService', 'Use
                         method: 'DELETE',
                         headers: UserService.headers()
                     }
+                });
+    }]);
 
-                    /*
-                     ,
-                     queryBetweenDates: {
-                     method: "GET",
-                     headers: headers,
-                     isArray: true,
-                     params: {
-                     where: {"dateTime": {"$gt": {"__type": "Date", "iso": ":beginDate"}, "&lt": {"__type": "Date", "iso": ":endDate"}}}
-                     },
-                     transformResponse: function(data) {
-                     var jsonResponse = angular.fromJson(data);
-                     if (jsonResponse && jsonResponse.results) {
-                     jsonResponse = jsonResponse.results;
-                     }
-                     return jsonResponse;
-                     }
-                     }
-                     */
+servicesModule.factory('Event', ['$resource', 'ServerService', 'UserService', 'dateUtil', function($resource, ServerService, UserService, dateUtil) {
+        var url = ServerService.baseUrl + "classes/Event/:Id";
+        return $resource(url, {},
+                {
+                    query: {
+                        method: 'GET',
+                        headers: UserService.headers(),
+                        isArray: true,                       
+                        transformResponse: function(data) {
+                            var jsonResponse = angular.fromJson(data);
+                            if (jsonResponse && jsonResponse.results) {
+                                jsonResponse = jsonResponse.results;
+                                jsonResponse = jsonResponse.map(function(element) {
+                                    if (element.dateTime) {
+                                        element.dateTime = dateUtil.convertToNormalFormat(element.dateTime);
+                                    }
+                                    return element;
+                                });
+                            }
+                            return jsonResponse;
+                        }
+                    },
+                    count: {
+                        method: 'GET',
+                        headers: UserService.headers()
+                    },
+                    save: {
+                        method: 'POST',
+                        headers: UserService.headers(),
+                        transformRequest: function(data) {
+                            if (data) {
+                                data.ACL = UserService.ownerReadWriteACL();
+                                if (data.dateTime) {
+                                    data.dateTime = dateUtil.convertToParseFormat(data.dateTime);
+                                }
+                                if (data.unit && data.unit.objectId) {
+                                    data.unit = {__type: 'Pointer', className: 'Unit', objectId: data.unit.objectId};
+                                }
+                                if (data.type && data.type.objectId) {
+                                    data.unit = {__type: 'Pointer', className: 'Type', objectId: data.type.objectId};
+                                }
+                            }
+                            return angular.toJson(data);
+                        }
+                    },
+                    get: {
+                        method: 'GET',
+                        headers: UserService.headers(),
+                        transformResponse: function(data) {
+                            var jsonResponse = angular.fromJson(data);
+                            if (jsonResponse) {
+                                if (jsonResponse.dateTime) {
+                                    jsonResponse.dateTime = dateUtil.convertToNormalFormat(jsonResponse.dateTime);
+                                }
+                            }
+                            return jsonResponse;
+                        }
+                    },
+                    update: {
+                        method: 'PUT',
+                        headers: UserService.headers(),
+                        transformRequest: function(data) {
+                            if (data) {
+                                data.ACL = UserService.ownerReadWriteACL();
+                                if (data.dateTime) {
+                                    data.dateTime = dateUtil.convertToParseFormat(data.dateTime);
+                                }
+                                if (data.unit && data.unit.objectId) {
+                                    data.unit = {__type: 'Pointer', className: 'Unit', objectId: data.unit.objectId};
+                                }
+                                if (data.type && data.type.objectId) {
+                                    data.unit = {__type: 'Pointer', className: 'Type', objectId: data.type.objectId};
+                                }
+                            }
+                            return angular.toJson(data);
+                        }
+                    },
+                    delete: {
+                        method: 'DELETE',
+                        headers: UserService.headers()
+                    }
                 });
     }]);
 
 
-
-
-servicesModule.factory('BloodGlucoseTarget', ['$resource','ServerService', 'UserService', function($resource,ServerService, UserService) {
+servicesModule.factory('BloodGlucoseTarget', ['$resource', 'ServerService', 'UserService', function($resource, ServerService, UserService) {
         var url = ServerService.baseUrl + "classes/Target";
         return $resource(url, {},
                 {
@@ -161,7 +259,7 @@ servicesModule.factory('BloodGlucoseTarget', ['$resource','ServerService', 'User
                 });
     }]);
 
-servicesModule.factory('Period', ['$resource','ServerService', 'UserService', 'dateUtil', function($resource, ServerService, UserService, dateUtil) {
+servicesModule.factory('Period', ['$resource', 'ServerService', 'UserService', 'dateUtil', function($resource, ServerService, UserService, dateUtil) {
         var url = ServerService.baseUrl + 'classes/Period/:periodId';
         return $resource(url,
                 {
@@ -221,7 +319,7 @@ servicesModule.factory('Period', ['$resource','ServerService', 'UserService', 'd
     }]);
 
 
-servicesModule.factory('User', ['$resource','ServerService', 'UserService', function($resource, ServerService, UserService) {
+servicesModule.factory('User', ['$resource', 'ServerService', 'UserService', function($resource, ServerService, UserService) {
         var url = ServerService.baseUrl + "users/:userId";
         return $resource(url,
                 {},
@@ -243,7 +341,7 @@ servicesModule.factory('User', ['$resource','ServerService', 'UserService', func
 
     }]);
 
-servicesModule.factory('UserPreferences', ['$resource','ServerService', 'UserService', function($resource, ServerService, UserService) {
+servicesModule.factory('UserPreferences', ['$resource', 'ServerService', 'UserService', function($resource, ServerService, UserService) {
         var url = ServerService.baseUrl + 'classes/UserPreferences';
         return $resource(url, {},
                 {
