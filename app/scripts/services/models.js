@@ -5,14 +5,14 @@ var servicesModule = angular.module('BloGlu.modelServices', ['ngResource']);
 
 servicesModule.factory('ModelUtil', [function() {
         var ModelUtil = {};
-        ModelUtil.addClauseToFilter = function(existingClause, additionnalClauses) {            
+        ModelUtil.addClauseToFilter = function(existingClause, additionnalClauses) {
             var whereClause = {};
             if (!existingClause && additionnalClauses) {
                 existingClause = {};
             }
             if (typeof existingClause === 'string') {
                 whereClause = angular.fromJson(existingClause);
-            }else{
+            } else {
                 whereClause = existingClause;
             }
             angular.extend(whereClause, transformConditionToParseFormat(additionnalClauses));
@@ -57,82 +57,86 @@ servicesModule.factory('Unit', ['$resource', 'ServerService', function($resource
         });
     }]);
 
-servicesModule.factory('ReadingGlucoseBlood', ['$resource', 'ServerService', 'UserService', 'dateUtil', function($resource, ServerService, UserService, dateUtil) {
-        var url = ServerService.baseUrl + "classes/ReadingGlucoseBlood/:Id";
-        return $resource(url, {},
-                {
-                    query: {
-                        method: 'GET',
-                        headers: UserService.headers(),
-                        isArray: true,
-                        transformResponse: function(data) {
-                            var jsonResponse = angular.fromJson(data);
-                            if (jsonResponse && jsonResponse.results) {
-                                jsonResponse = jsonResponse.results;
-                                jsonResponse = jsonResponse.map(function(element) {
-                                    if (element.dateTime) {
-                                        element.dateTime = dateUtil.convertToNormalFormat(element.dateTime);
-                                    }
-                                    return element;
-                                });
-                            }
-                            return jsonResponse;
-                        }
-                    },
-                    count: {
-                        method: 'GET',
-                        headers: UserService.headers()
-                    },
-                    save: {
-                        method: 'POST',
-                        headers: UserService.headers(),
-                        transformRequest: function(data) {
-                            if (data) {
-                                data.ACL = UserService.ownerReadWriteACL();
-                                if (data.dateTime) {
-                                    data.dateTime = dateUtil.convertToParseFormat(data.dateTime);
-                                }
-                                if (data.unit && data.unit.objectId) {
-                                    data.unit = {__type: 'Pointer', className: 'Unit', objectId: data.unit.objectId};
-                                }
-                            }
-                            return angular.toJson(data);
-                        }
-                    },
-                    get: {
-                        method: 'GET',
-                        headers: UserService.headers(),
-                        transformResponse: function(data) {
-                            var jsonResponse = angular.fromJson(data);
-                            if (jsonResponse) {
-                                if (jsonResponse.dateTime) {
-                                    jsonResponse.dateTime = dateUtil.convertToNormalFormat(jsonResponse.dateTime);
-                                }
-                            }
-                            return jsonResponse;
-                        }
-                    },
-                    update: {
-                        method: 'PUT',
-                        headers: UserService.headers(),
-                        transformRequest: function(data) {
-                            if (data) {
-                                data.ACL = UserService.ownerReadWriteACL();
-                                if (data.dateTime) {
-                                    data.dateTime = dateUtil.convertToParseFormat(data.dateTime);
-                                }
-                                if (data.unit && data.unit.objectId) {
-                                    data.unit = {__type: 'Pointer', className: 'Unit', objectId: data.unit.objectId};
-                                }
-                            }
-                            return angular.toJson(data);
-                        }
-                    },
-                    delete: {
-                        method: 'DELETE',
-                        headers: UserService.headers()
+
+servicesModule.factory('Report', ['$resource', 'ServerService','UserService', function($resource, ServerService, UserService) {
+        var url = ServerService.baseUrl + 'classes/Report/:Id';
+        return $resource(url,
+                {Id: '@Id'},
+        {
+            query: {
+                method: 'GET',
+                headers: ServerService.headers,
+                isArray: true,
+                transformResponse: function(data) {
+                    var jsonResponse = angular.fromJson(data);
+                    if (jsonResponse && jsonResponse.results) {
+                        jsonResponse = jsonResponse.results;
                     }
-                });
+                    return jsonResponse;
+                }
+            },
+            count: {
+                method: 'GET',
+                headers: UserService.headers()
+            },
+            save: {
+                method: 'POST',
+                headers: UserService.headers(),
+                transformRequest: function(data) {
+                    if (data) {
+                        data.ACL = UserService.ownerReadWriteACL();
+                    }
+                    return angular.toJson(data);
+                }
+            },
+            get: {
+                method: 'GET',
+                headers: UserService.headers()
+            },
+            update: {
+                method: 'PUT',
+                headers: UserService.headers(),
+                transformRequest: function(data) {
+                    if (data) {
+                        data.ACL = UserService.ownerReadWriteACL();                        
+                    }
+                    return angular.toJson(data);
+                }
+            },
+            delete: {
+                method: 'DELETE',
+                headers: UserService.headers()
+            }
+        });
+    }]);
+
+
+servicesModule.factory('Metadatamodel', ['$resource', 'ServerService','UserService', function($resource, ServerService, UserService) {
+        var url = ServerService.baseUrl + 'classes/Metadatamodel/:Id';
+        return $resource(url,
+                {Id: '@Id'},
+        {
+            query: {
+                method: 'GET',
+                headers: ServerService.headers,
+                isArray: true,
+                transformResponse: function(data) {
+                    var jsonResponse = angular.fromJson(data);
+                    if (jsonResponse && jsonResponse.results) {
+                        jsonResponse = jsonResponse.results;
+                    }
+                    return jsonResponse;
+                }
+            },
+            count: {
+                method: 'GET',
+                headers: UserService.headers()
+            },           
+            get: {
+                method: 'GET',
+                headers: UserService.headers()
+            }
+        });
     }]);
 
 servicesModule.factory('Event', ['$resource', 'ServerService', 'UserService', 'dateUtil', function($resource, ServerService, UserService, dateUtil) {
@@ -142,7 +146,7 @@ servicesModule.factory('Event', ['$resource', 'ServerService', 'UserService', 'd
                     query: {
                         method: 'GET',
                         headers: UserService.headers(),
-                        isArray: true,                       
+                        isArray: true,
                         transformResponse: function(data) {
                             var jsonResponse = angular.fromJson(data);
                             if (jsonResponse && jsonResponse.results) {

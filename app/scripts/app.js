@@ -30,14 +30,14 @@ mainModule.config(['$routeProvider',
     }]);
 
 
-mainModule.run(["$rootScope", "$modal", "UserService", "MessageService", function($scope, $modal, UserService, MessageService) {
+mainModule.run(['$rootScope', '$modal', 'UserService', 'MessageService', 'syncService', 'dataService', function($scope, $modal, UserService, MessageService, syncService, dataService) {
         $scope.currentUser = UserService.currentUser();
         $scope.messages = [];
         $scope.pending = 0;
         var modal = null;
 
         $scope.displaySignUpModal = function() {
-            $scope.messages = [];            
+            $scope.messages = [];
             modal = $modal.open({
                 templateUrl: 'views/modal/inputUser.html',
                 controller: 'inputUserController'
@@ -45,7 +45,7 @@ mainModule.run(["$rootScope", "$modal", "UserService", "MessageService", functio
         };
 
         $scope.displayResetPasswordModal = function() {
-            $scope.messages = [];            
+            $scope.messages = [];
             modal = $modal.open({
                 templateUrl: 'views/modal/resetPassword.html',
                 controller: 'resetPasswordController'
@@ -59,6 +59,19 @@ mainModule.run(["$rootScope", "$modal", "UserService", "MessageService", functio
                         .success(function(result) {
                             $scope.pending--;
                             $scope.currentUser = result;
+
+                            //======TEST=========
+                            syncService.sync().then(function(result) {                                
+                                debugger;
+                                dataService.init().then(function(result) {
+                                    debugger;
+                                }, function(error) {
+                                    debugger;
+                                });
+                            });
+                            //===================
+
+
                         })
                         .error(function(error) {
                             $scope.pending--;
@@ -75,7 +88,7 @@ mainModule.run(["$rootScope", "$modal", "UserService", "MessageService", functio
                         });
             }
         };
-    
+
         $scope.logOut = function() {
             UserService.logOut();
             $scope.currentUser = null;

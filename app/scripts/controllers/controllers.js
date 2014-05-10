@@ -633,7 +633,7 @@ ControllersModule.controller('overviewController', ['$scope', '$rootScope', '$lo
         }
         if ($routeParams && $routeParams.interval) {
             $scope.interval = $routeParams.interval;
-        }
+        }        
         $scope.timeInterval = overViewService.getTimeInterval($scope.interval, currentDate);
         
         var params = {where: {code:[1]}};
@@ -724,6 +724,9 @@ ControllersModule.controller('overviewController', ['$scope', '$rootScope', '$lo
         function changeInterval(currentDate, interval, coef) {
             var newDate = new Date(currentDate.getTime());
             switch (interval) {
+                case 'day':
+                    newDate.setDate(newDate.getDate() + (1 * coef));
+                    break;
                 case 'week':
                     newDate.setDate(newDate.getDate() + (7 * coef));
                     break;

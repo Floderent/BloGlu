@@ -5,7 +5,6 @@ var servicesModule = angular.module('BloGlu.services', ['ngResource']);
 servicesModule.factory('ServerService', [function() {
         var applicationId = 'U5hc606XgvqC5cNoBW9EUOYRPN28bGsiowBYLVbv';
         var restApiKey = 'PPawPdkaltJhjHktfeHaQeBoVOYgphPn0ByIZl5v';
-
         return {
             headers: {
                 "Content-Type": 'application/json',
@@ -36,6 +35,20 @@ servicesModule.factory('ResourceCode', [function() {
             6: 'exercise'
         };
     }]);
+
+servicesModule.factory('Database', [function() {
+        return {
+            schema: [
+                'Event',
+                'Period',
+                'Report',
+                //'Target',
+                //'Type',
+                'Unit'
+            ]
+        };
+    }]);
+
 
 
 servicesModule.factory('MyInterceptor', ['$q', '$location', '$injector', function($q, $location, $injector) {
@@ -93,7 +106,7 @@ servicesModule.factory('MessageService', ['$timeout', function($timeout) {
 
 
 
-servicesModule.factory('UserService', ['$http', '$cookieStore', 'ServerService', function($http, $cookieStore, ServerService) {
+servicesModule.factory('UserService', ['$http', '$cookieStore', 'ServerService', 'indexeddbService', function($http, $cookieStore, ServerService, indexeddbService) {
         var UserService = {};
         var user;
         UserService.signUp = function(user) {
@@ -135,8 +148,13 @@ servicesModule.factory('UserService', ['$http', '$cookieStore', 'ServerService',
         };
         UserService.logOut = function() {
             user = null;
-            $cookieStore.remove('user');
-            $cookieStore.remove('sessionToken');
+            indexeddbService.dropDatabase().then(function() {
+                $cookieStore.remove('user');
+                $cookieStore.remove('sessionToken');
+            }, function(error) {
+                $cookieStore.remove('user');
+                $cookieStore.remove('sessionToken');
+            });
         };
 
 
@@ -398,6 +416,27 @@ servicesModule.factory('dateUtil', ['$filter', function($filter) {
             };
         };
 
+        dateUtil.getDateDayBeginAndEndDate = function(date) {
+            var beginDate = new Date(date);
+            beginDate.setHours(0);
+            beginDate.setMinutes(0);
+            beginDate.setSeconds(0);
+            beginDate.setMilliseconds(0);
+
+            var endDate = new Date(date);
+            endDate.setHours(23);
+            endDate.setMinutes(59);
+            endDate.setSeconds(59);
+            endDate.setMilliseconds(999);
+
+            return {
+                name: 'day',
+                begin: beginDate,
+                end: endDate
+            };
+        };
+
+
         dateUtil.getDateYearBeginAndEndDate = function(date) {
             var beginDate = new Date(date.getFullYear(), 0, 1);
             var endDate = new Date(date.getFullYear() + 1, 0, 0);
@@ -604,10 +643,102 @@ servicesModule.factory('statsService', ['$filter', function($filter) {
     }]);
 
 
-servicesModule.factory('dataService', ['$q', function($q) {
+servicesModule.factory('dataService', ['$q', '$filter','$injector', 'indexeddbService', function($q, $filter,$injector, indexeddbService) {
         var dataService = {};
+        var localData = null;
         var maxResult = 1000;
+        var idField = 'objectId';
 
+        var operators = {
+            $in: function(value, comparison) {
+                var match = false;                
+                if (Array.isArray(comparison)) {
+                    if (comparison.indexOf(value) !== -1) {
+                        match = true;
+                    }
+                }
+                return match;
+            },
+            $gt: function(value, comparison) {
+                return value >= comparison;
+            },
+            $lt: function(value, comparison) {
+                return value < comparison;
+            }
+        };
+        
+
+        dataService.init = function(forceRefresh) {
+            var deferred = $q.defer();
+            if (localData === null || forceRefresh) {
+                indexeddbService.getWholeDatabase().then(function(result) {
+                    localData = result;
+                    deferred.resolve(result);
+                }, deferred.reject);
+            } else {
+                deferred.resolve(localData);
+            }
+            return deferred.promise;
+        };
+        
+        dataService.save = function(collection,data, params){
+            return dataService.init().then(function(localData){
+                //save in local data
+                if(localData && localData[collection]){
+                    localData[collection].push(data);
+                }
+                //save to indexedDB add to the cloud
+                var resource = $injector.get(collection);                
+                return $q.all([
+                    indexeddbService.addRecord(collection, data),
+                    resource.save(data).$promise
+                ]);
+            });            
+        };
+        
+        dataService.update = function(collection,objectId,data, params){
+            return dataService.init().then(function(localData){
+                //save in local data
+                if(localData && localData[collection]){
+                    localData[collection].forEach(function(record, index){
+                        if(record[idField] === objectId){
+                            record[index] = angular.extend(record[index], data);
+                        }
+                    });
+                }
+                //save to indexedDB add to the cloud
+                var resource = $injector.get(collection);                
+                return $q.all([
+                    indexeddbService.addRecord(collection, data),
+                    resource.update({'Id': objectId},data).$promise
+                ]);
+            });            
+        };
+        
+        dataService.delete = function(collection,objectId, params){
+            return dataService.init().then(function(localData){
+                //save in local data
+                if(localData && localData[collection]){
+                    localData[collection].forEach(function(record, index){
+                        if(record[idField] === objectId){
+                            localData[collection].splice(index, 1);
+                        }
+                    });
+                }
+                //save to indexedDB add to the cloud
+                var resource = $injector.get(collection);
+                var recordToDelete = {};
+                recordToDelete[idField] = objectId;
+                return $q.all([
+                    indexeddbService.deleteRecord(collection, recordToDelete),
+                    resource.delete({'Id': objectId}).$promise
+                ]);
+            });            
+        };
+        
+        
+        
+        
         dataService.query = function(resourceObject, params) {
             var deferred = $q.defer();
             if (resourceObject && resourceObject.query) {
@@ -704,11 +835,13 @@ servicesModule.factory('dataService', ['$q', function($q) {
                 var groupByResult = [];
 
                 queryResult.forEach(function(row) {
-                    var selectedRow = applySelect(row, params);
-                    if (params.groupBy) {
-                        applyGroupBy(processedResult, selectedRow, params);
-                    } else {
-                        processedResult.push(selectedRow);
+                    if (applyWhere(row, params)) {
+                        var selectedRow = applySelect(row, params);
+                        if (params.groupBy) {
+                            applyGroupBy(processedResult, selectedRow, params);
+                        } else {
+                            processedResult.push(selectedRow);
+                        }
                     }
                 });
             }
@@ -718,6 +851,30 @@ servicesModule.factory('dataService', ['$q', function($q) {
             return processedResult;
         };
 
+        function applyWhere(row, params) {
+            var keepRecord = true;
+            if (params.where) {
+                angular.forEach(params.where, function(value, key) {
+                    if (typeof value === 'object') {
+                        angular.forEach(value, function(comparisonValue, operator) {
+                            if (operators[operator] && !operators[operator](row[key], comparisonValue)) {
+                                keepRecord = false;
+                                return;
+                            }
+                        });
+                        if (!keepRecord) {
+                            return;
+                        }
+                    } else {
+                        if (row[key] !== value) {
+                            keepRecord = false;
+                            return;
+                        }
+                    }
+                });
+            }
+            return keepRecord;
+        }
 
 
         function applySelect(row, params) {
@@ -857,6 +1014,48 @@ servicesModule.factory('dataService', ['$q', function($q) {
             }
             return resultIndex;
         }
+
+        dataService.select = {
+            //Year
+            year: function(value, row) {
+                var returnValue = "";
+                if (value && value.getFullYear) {
+                    returnValue = value.getFullYear();
+                }
+                return returnValue;
+            },
+            //MonthName
+            monthName: function(value, row) {
+                var returnValue = "";
+                if (value && value.getFullyear) {
+                    returnValue = this.$filter('date')(value, 'MMMM');
+                }
+                return returnValue;
+            }.bind({$filter: $filter}),
+            //Month
+            month: function(value, row) {
+                var returnValue = "";
+                if (value && value.getFullyear) {
+                    returnValue = value.getMonth() + 1;
+                }
+                return returnValue;
+            },
+            //getBloodGlucose
+            getBloodGlucose: function(value, row) {
+                var returnValue = 0;
+                if (row.code && row.code === 1) {
+                    returnValue = value;
+                }
+                return returnValue;
+            }
+        };
+
+        dataService.where = {
+            //add code of filter functions
+        };
+
+
+
         return dataService;
     }]);
 
@@ -866,11 +1065,11 @@ servicesModule.factory('overViewService', ['$q', '$filter', 'UserService', 'Peri
 
         function getBloodGlucoseReadingsBetweenDates(beginDate, endDate, params) {
             //{dateTime:{$gt: {__type: "Date", iso: beginDate.toISOString()},$lt: {__type: "Date", iso: endDate.toISOString()}}}
-                //JSON.stringify(angular.extend(params.where, {dateTime:{$gt: {__type: "Date", iso: beginDate.toISOString()},$lt: {__type: "Date", iso: endDate.toISOString()}}}))               
-            var where = ModelUtil.addClauseToFilter({dateTime:{$gt: {__type: "Date", iso: beginDate.toISOString()},$lt: {__type: "Date", iso: endDate.toISOString()}}}, params.where);
+            //JSON.stringify(angular.extend(params.where, {dateTime:{$gt: {__type: "Date", iso: beginDate.toISOString()},$lt: {__type: "Date", iso: endDate.toISOString()}}}))               
+            var where = ModelUtil.addClauseToFilter({dateTime: {$gt: {__type: "Date", iso: beginDate.toISOString()}, $lt: {__type: "Date", iso: endDate.toISOString()}}}, params.where);
             delete params.where;
             var queryParams = angular.extend({
-                include: 'unit', 
+                include: 'unit',
                 where: where,
                 limit: 1000
             }, params);
@@ -889,12 +1088,47 @@ servicesModule.factory('overViewService', ['$q', '$filter', 'UserService', 'Peri
                 case 'year':
                     analysisPeriodPromise = getYearAnalysisPeriod(timeInterval);
                     break;
+                case 'day':
+                    analysisPeriodPromise = getDayAnalysisPeriod(timeInterval);
+                    break;
                 default:
                     analysisPeriodPromise = getWeekAnalysisPeriod(timeInterval);
                     break;
             }
             return analysisPeriodPromise;
         }
+
+        function getDayAnalysisPeriod(timeInterval) {
+            var analysisPeriods = [];
+            var deferred = $q.defer();
+            var baseDate = new Date(timeInterval.begin);
+            baseDate.setHours(0);
+            baseDate.setMinutes(0);
+            baseDate.setSeconds(0);
+            baseDate.setMilliseconds(0);
+            var endDate = new Date(timeInterval.end);
+            endDate.setHours(23);
+            endDate.setMinutes(59);
+            endDate.setSeconds(59);
+            endDate.setMilliseconds(999);
+            while (baseDate < endDate) {
+                var periodEndDate = new Date(baseDate);
+                periodEndDate.setHours(23);
+                periodEndDate.setMinutes(59);
+                periodEndDate.setSeconds(59);
+                periodEndDate.setMilliseconds(999);
+                var analysisPeriod = {
+                    name: $filter('date')(baseDate, 'EEEE d MMMM yyyy'),
+                    begin: new Date(baseDate),
+                    end: new Date(periodEndDate)
+                };
+                analysisPeriods.push(analysisPeriod);
+                baseDate.setDate(baseDate.getDate() + 1);
+            }
+            deferred.resolve(analysisPeriods);
+            return deferred.promise;
+        }
+
 
 
         function getYearAnalysisPeriod(timeInterval) {
@@ -995,6 +1229,9 @@ servicesModule.factory('overViewService', ['$q', '$filter', 'UserService', 'Peri
         overViewService.getTimeInterval = function(intervalName, date) {
             var timeInterval = null;
             switch (intervalName) {
+                case 'day':
+                    timeInterval = dateUtil.getDateDayBeginAndEndDate(date);
+                    break;
                 case 'week':
                     timeInterval = dateUtil.getDateWeekBeginAndEndDate(date, UserService.getFirstDayOfWeek());
                     break;
@@ -1016,8 +1253,10 @@ servicesModule.factory('overViewService', ['$q', '$filter', 'UserService', 'Peri
         overViewService.getTableData = function(timeInterval, params) {
             var dataPromise = null;
             var dataParams = angular.extend({}, params);
-            
             switch (timeInterval.name) {
+                case 'day':
+                    dataPromise = overViewService.getDayData(timeInterval, dataParams);
+                    break;
                 case 'week':
                     dataPromise = overViewService.getWeekData(timeInterval, dataParams);
                     break;
@@ -1135,6 +1374,36 @@ servicesModule.factory('overViewService', ['$q', '$filter', 'UserService', 'Peri
                 return dataArray;
             });
         };
+
+        overViewService.getDayData = function(timeInterval, params) {
+            return $q.all([
+                getBloodGlucoseReadingsBetweenDates(timeInterval.begin, timeInterval.end, params),
+                getAnalysisPeriods(timeInterval)
+            ]).then(function(result) {
+                var bloodGlucoseReadings = result[0];
+                var analysisPeriods = result[1];
+                var dataArray = [];
+                dataArray[0] = [];
+                //init column headers
+                for (var indexOfWeek = 0; indexOfWeek < analysisPeriods.length; indexOfWeek++) {
+                    dataArray[0][indexOfWeek] = analysisPeriods[indexOfWeek];
+                }
+                //init row header                
+                dataArray[1] = [];
+                dataArray[1][0] = [];
+
+                var indexOfRow = 1;
+                //put blood glucose readings in right row and column
+                bloodGlucoseReadings.forEach(function(bloodGlucoseReading) {
+                    var indexOfColumn = getBloodGlucoseReadingColumnByDate(timeInterval, analysisPeriods, bloodGlucoseReading.dateTime);
+                    if (Array.isArray(dataArray[indexOfRow][indexOfColumn])) {
+                        dataArray[indexOfRow][indexOfColumn].push(bloodGlucoseReading);
+                    }
+                });
+                return dataArray;
+            });
+        };
+
         return overViewService;
     }]);
 
@@ -1158,6 +1427,301 @@ servicesModule.factory('printService', [function() {
     }]);
 
 
+
+servicesModule.factory('indexeddbService', ['$window', '$q', 'Database', function($window, $q, Database) {
+        var indexedDB = $window.indexedDB;
+        var db = null;
+        var databaseName = 'bloglu';
+        var indexeddbService = {};
+
+        function openDatabase() {
+            var deferred = $q.defer();
+            if (db === null) {
+                var version = 1;
+                var request = indexedDB.open(databaseName, version);
+                request.onupgradeneeded = function(e) {
+                    db = e.target.result;
+                    e.target.transaction.onerror = indexedDB.onerror;
+                    recreateDatabaseSchema(db, Database.schema);
+                };
+                request.onsuccess = function(e) {
+                    db = e.target.result;
+                    deferred.resolve(db);
+                };
+                request.onblocked = function(error) {
+                    deferred.reject(error);
+                };
+                request.onerror = function(error) {
+                    deferred.reject(error);
+                };
+            } else {
+                deferred.resolve(db);
+            }
+            return deferred.promise;
+        }
+        ;
+
+        function recreateDatabaseSchema(database, resourceNames) {
+            resourceNames.forEach(function(resourceName) {
+                if (database.objectStoreNames.contains(resourceName)) {
+                    database.deleteObjectStore(resourceName);
+                }
+                database.createObjectStore(resourceName, {keyPath: 'objectId'});
+            });
+        }
+        indexeddbService.dropDatabase = function() {
+            var deferred = $q.defer();
+            if (db) {
+                db.close();
+            }
+            var req = indexedDB.deleteDatabase(databaseName);
+            req.onsuccess = function(result) {
+                deferred.resolve(result);
+            };
+            req.onerror = function(error) {
+                deferred.reject(error);
+            };
+            req.onblocked = function(error) {
+                deferred.reject(error);
+            };
+            return deferred.promise;
+        };
+
+        indexeddbService.getData = function(collection) {
+            var deferred = $q.defer();
+            openDatabase().then(function(db) {
+                var trans = db.transaction([collection], 'readonly');
+                var store = trans.objectStore(collection);
+                var dataArray = [];
+                var keyRange = IDBKeyRange.lowerBound(0);
+                var cursorRequest = store.openCursor(keyRange);
+                cursorRequest.onsuccess = function(e) {
+                    var result = e.target.result;
+                    if (result === null || result === undefined) {
+                        deferred.resolve(dataArray);
+                    }
+                    else {
+                        dataArray.push(result.value);
+                        result.continue();
+                    }
+                };
+                cursorRequest.onerror = function(e) {
+                    deferred.reject(e);
+                };
+            }, deferred.reject);
+            return deferred.promise;
+        };
+
+        indexeddbService.getWholeDatabase = function() {
+            var deferred = $q.defer();
+            var promiseArray = [];
+            Database.schema.forEach(function(collectionName) {
+                promiseArray.push(indexeddbService.getData(collectionName));
+            });
+            $q.all(promiseArray).then(function resolve(result) {
+                var allData = {};
+                for (var i = 0; i < result.length; i++) {
+                    allData[Database.schema[i]] = result[i];
+                }
+                deferred.resolve(allData);
+            }, deferred.reject);
+            return deferred.promise;
+        };
+
+        indexeddbService.clear = function(collection) {
+            var deferred = $q.defer();
+            openDatabase().then(function(db) {
+                var trans = db.transaction([collection], 'readwrite');
+                var store = trans.objectStore(collection);
+                store.clear();
+                deferred.resolve();
+            });
+            return deferred.promise;
+        };
+
+        indexeddbService.addRecord = function(collection, record) {
+            var deferred = $q.defer();
+            openDatabase().then(function(db) {
+                var trans = db.transaction([collection], 'readwrite');
+                var store = trans.objectStore(collection);
+                var request = store.put(record);
+                request.onsuccess = function(e) {
+                    deferred.resolve(e);
+                };
+                request.onerror = function(e) {
+                    deferred.reject(e);
+                };
+            }, deferred.reject);
+            return deferred.promise;
+        };
+
+        indexeddbService.addRecords = function(collection, records) {
+            var deferred = $q.defer();
+            var i = 0;
+            openDatabase().then(function(db) {
+                var transaction = db.transaction(collection, 'readwrite');
+                var itemStore = transaction.objectStore(collection);
+                putNext();
+                function putNext() {
+                    if (i < records.length) {
+                        itemStore.put(records[i]).onsuccess = putNext;
+                        itemStore.put(records[i]).onerror = function(error) {
+                            deferred.reject(error);
+                        };
+                        ++i;
+                    } else {
+                        deferred.resolve();
+                    }
+                }
+            }, deferred.reject);
+            return deferred.promise;
+        };
+
+
+
+        indexeddbService.deleteRecord = function(collection, record) {
+            var deferred = $q.defer();
+            openDatabase().then(function(db) {
+                var trans = db.transaction([collection], 'readwrite');
+                var store = trans.objectStore(collection);
+                var id = record;
+                if (record.objectId) {
+                    id = record.objectId;
+                }
+                var request = store.delete(id);
+                request.onsuccess = function(e) {
+                    deferred.resolve(e);
+                };
+                request.onerror = function(e) {
+                    deferred.reject(e);
+                };
+            }, deferred.reject);
+            return deferred.promise;
+        };
+        return indexeddbService;
+    }]);
+
+servicesModule.factory('syncService', ['$q', '$http', '$injector', 'Database', 'dataService', 'ServerService', 'UserService', 'indexeddbService', function($q, $http, $injector, Database, dataService, ServerService, UserService, indexeddbService) {
+        var syncService = {};
+        var dataTimeField = 'updatedAt';
+
+        function getLocalDataInfos() {
+            return dataService.init().then(function(result) {
+                var localDataInfos = {};
+                angular.forEach(result, function(value, key) {
+                    localDataInfos[key] = {};
+                    localDataInfos[key].count = value.length;
+                    localDataInfos[key].date = getMaximumValue(value, dataTimeField);
+                });
+                return localDataInfos;
+            });
+        }
+
+        function getMaximumValue(array, field) {
+            var maxValue = '';
+            array.forEach(function(value) {
+                if (value[field] && value[field] > maxValue) {
+                    maxValue = value[field];
+                }
+            });
+            return maxValue;
+        }
+
+        function compareSyncStatus(remoteDataStatus, localDataStatus) {
+            var syncStatus = {};
+            angular.forEach(remoteDataStatus, function(value, key) {
+                if (localDataStatus[key] && localDataStatus[key].count === value.count && localDataStatus[key].date === value.date) {
+                    syncStatus[key] = 'upToDate';
+                } else {
+                    syncStatus[key] = 'outOfDate';
+                }
+            });
+            return syncStatus;
+        }
+
+
+        function getParseDataInfos() {
+            var promiseArray = [];
+            var parseDataInfos = {};
+            Database.schema.forEach(function(collectionName) {
+                promiseArray.push($http(
+                        {
+                            headers: UserService.headers(),
+                            method: 'GET',
+                            url: ServerService.baseUrl + "classes/" + collectionName,
+                            params: {
+                                count: '1',
+                                order: '-' + dataTimeField,
+                                limit: '1'
+                            }
+                        }
+                ));
+            });
+            return $q.all(promiseArray).then(function(result) {
+                for (var i = 0; i < result.length; i++) {
+                    parseDataInfos[Database.schema[i]] = {};
+                    var lastDate = "";
+                    if (result[i].data.results && result[i].data.results.length > 0) {
+                        lastDate = result[i].data.results[0][dataTimeField];
+                    }
+                    parseDataInfos[Database.schema[i]].date = lastDate;
+                    parseDataInfos[Database.schema[i]].count = result[i].data.count;
+                }
+                return parseDataInfos;
+            });
+        }
+
+        function syncCollection(collection) {
+            var deferred = $q.defer();
+            var resource = $injector.get(collection);
+            if (resource && resource.query) {
+                resource.query({limit: 1000}).$promise.then(function(result) {
+                    indexeddbService.clear(collection);
+                    indexeddbService.addRecords(collection, result).then(deferred.resolve, deferred.reject);
+                }, deferred.reject);
+            } else {
+                deferred.reject("No resource found for " + collection);
+            }
+            return deferred.promise;
+        }
+
+
+        syncService.checkSyncStatus = function() {
+            return $q.all([
+                getParseDataInfos(),
+                getLocalDataInfos()
+            ]).then(function(result) {
+                var parseDataStatus = {};
+                var localDataStatus = {};
+                if (result.length > 0 && result[0]) {
+                    parseDataStatus = result[0];
+                }
+                if (result.length > 1 && result[1]) {
+                    localDataStatus = result[1];
+                }
+                return compareSyncStatus(parseDataStatus, localDataStatus);
+            });
+        };
+
+        syncService.sync = function() {
+            var deferred = $q.defer();
+            var promiseArray = [];
+            syncService.checkSyncStatus().then(function(syncStatus) {
+                angular.forEach(syncStatus, function(value, key) {
+                    if (value === 'outOfDate') {
+                        promiseArray.push(syncCollection(key));
+                    }
+                });
+                $q.all(promiseArray).then(function(result) {
+                    dataService.init(true).then(deferred.resolve, deferred.reject);
+                }, deferred.reject);
+            }, deferred.reject);
+            return deferred.promise;
+        };
+
+
+        return syncService;
+    }]);
 
 servicesModule.factory('importService', ['Event', 'dateUtil', '$upload', '$http', '$q', 'ServerService', function(Event, dateUtil, $upload, $http, $q, ServerService) {
         var importService = {};
