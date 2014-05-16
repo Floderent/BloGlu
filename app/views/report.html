@@ -1,0 +1,36 @@
+<div class="panel panel-default content-panel">
+    <div class="panel-heading">
+        <h3 class="panel-title">Analyse your data</h3>
+    </div>
+
+    <select class="input-medium form-inline" data-ng-model="selectedMeasure" data-ng-options="measure.title for measure in measures"></select>
+    <button class="btn btn-default" ng-click="addQueryElement(selectedMeasure)">Add measure</button>
+
+    <select class="input-medium form-inline" data-ng-model="selectedLevel" data-ng-options="level.title for level in levels"></select>
+    <button class="btn btn-default" ng-click="addQueryElement(selectedLevel)">Add level</button>
+
+
+    <div>
+        <span data-ng-repeat="selectedElement in selectedQueryElements">
+            {{selectedElement.title}}
+        </span>
+    </div>
+
+    <button class="btn-large btn-primary" ng-click="executeQuery()">Execute</button>
+
+    <div class="table-responsive">
+        <table class="table">    
+            <th ng-repeat="header in headers">
+                {{header}}
+            </th>
+
+            <tr ng-repeat="line in reportData">
+                <td ng-repeat="item in line track by $index">
+                    {{line[headers[$index]]}}                
+                </td>
+            </tr>
+
+        </table>
+    </div>
+
+</div>

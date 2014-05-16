@@ -23,6 +23,7 @@ mainModule.config(['$routeProvider',
         $routeProvider.when('/inputPeriod', {controller: 'inputPeriodController', templateUrl: 'views/inputPeriod.html'});
         $routeProvider.when('/inputBgTarget', {controller: 'bloodGlucoseTargetController', templateUrl: 'views/inputBloodGlucoseTarget.html'});
         $routeProvider.when('/charts', {controller: 'chartController', templateUrl: 'views/charts.html'});
+        $routeProvider.when('/report', {controller: 'reportController', templateUrl: 'views/report.html'});
         $routeProvider.when('/import', {controller: 'importController', templateUrl: 'views/import.html'});
         $routeProvider.when('/userPreferences', {controller: 'userPreferencesController', templateUrl: 'views/userPreferences.html'});
         $routeProvider.when('/index', {controller: 'indexController', templateUrl: 'views/index.html'});
@@ -30,11 +31,31 @@ mainModule.config(['$routeProvider',
     }]);
 
 
-mainModule.run(['$rootScope', '$modal', 'UserService', 'MessageService', 'syncService', 'dataService', function($scope, $modal, UserService, MessageService, syncService, dataService) {
+mainModule.run(['$rootScope', '$modal', 'UserService', 'MessageService', 'syncService', 'dataService', 'queryService', function($scope, $modal, UserService, MessageService, syncService, dataService, queryService) {
         $scope.currentUser = UserService.currentUser();
         $scope.messages = [];
         $scope.pending = 0;
         var modal = null;
+
+        //============TEST==================
+        /*
+        var testReportQuery = {
+            select: ['month', 'averageBgReading'],
+            where: [
+                {code: 1},
+                {dateTime: {type: 'function', value: 'getCurrentYearParseFilter'}}
+            ]
+        };
+        queryService.executeReportQuery(testReportQuery).then(function(result) {
+            debugger;
+            console.log("Generated query = ");
+            console.log(result);
+
+        }, function(error) {
+
+        });
+        */
+        //===================================
 
         $scope.displaySignUpModal = function() {
             $scope.messages = [];
@@ -56,21 +77,11 @@ mainModule.run(['$rootScope', '$modal', 'UserService', 'MessageService', 'syncSe
             if (form) {
                 $scope.pending++;
                 UserService.logIn(form.username, form.password)
-                        .success(function(result) {
+                        .success(function(authenticatedUser) {
                             $scope.pending--;
-                            $scope.currentUser = result;
-
-                            //======TEST=========
-                            syncService.sync().then(function(result) {                                
-                                debugger;
-                                dataService.init().then(function(result) {
-                                    debugger;
-                                }, function(error) {
-                                    debugger;
-                                });
-                            });
-                            //===================
-
+                            $scope.currentUser = authenticatedUser;
+                            //sync
+                            syncService.sync().finally(function(result) {});
 
                         })
                         .error(function(error) {

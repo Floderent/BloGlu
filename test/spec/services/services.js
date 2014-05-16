@@ -175,7 +175,7 @@ describe('Services: dataService', function() {
             {truc: "2", toto1: "4", test: "3", toto3: 4}
         ];
         var expectedResult = [
-            {toto1: "2", toto3: 1}            
+            {toto1: "2", toto3: 1}
         ];
         var params = {
             select: [
@@ -189,8 +189,8 @@ describe('Services: dataService', function() {
         var processedResult = dataServ.processResult(testResult, params);
         expect(processedResult).toEqual(expectedResult);
     });
-    
-    
+
+
     it('should filter the result with $in operator', function() {
         var testResult = [
             {truc: "1", toto1: "2", test: "3", toto3: 4},
@@ -208,24 +208,27 @@ describe('Services: dataService', function() {
                 {field: 'toto3'}
             ],
             where: {
-                toto3: {$in:[1,2]}
+                toto3: {$in: [1, 2]}
             }
         };
         var processedResult = dataServ.processResult(testResult, params);
         expect(processedResult).toEqual(expectedResult);
     });
+
+    //Date {Sun Dec 01 2013 00:00:00 GMT+0100}
+    //Date {Tue Dec 31 2013 00:00:00 GMT+0100}
     
     
     it('should filter between date', function() {
         var testResult = [
-            {name: "test1", dateTime: new Date(2010,1,1)},
-            {name: "test2", dateTime: new Date(2010,3,1)},
-            {name: "test3", dateTime: new Date(2010,5,1)},
-            {name: "test4", dateTime: new Date(2011,3,1)}
+            {name: "test1", dateTime: new Date(2010, 1, 1)},
+            {name: "test2", dateTime: new Date(2010, 3, 1)},
+            {name: "test3", dateTime: new Date(2010, 5, 1)},
+            {name: "test4", dateTime: new Date(2011, 3, 1)}
         ];
         var expectedResult = [
-            {name: "test1", dateTime: new Date(2010,1,1)},
-            {name: "test2", dateTime: new Date(2010,3,1)}
+            {name: "test1", dateTime: new Date(2010, 1, 1)},
+            {name: "test2", dateTime: new Date(2010, 3, 1)}
         ];
         var params = {
             select: [
@@ -233,19 +236,96 @@ describe('Services: dataService', function() {
                 {field: 'dateTime'}
             ],
             where: {
-                dateTime: {$gt:new Date(2010,1,1),$lt:new Date(2010,3,2)}
+                dateTime: {$gt: new Date(2010, 1, 1), $lt: new Date(2010, 4, 31)}
             }
         };
         var processedResult = dataServ.processResult(testResult, params);
         expect(processedResult).toEqual(expectedResult);
     });
-    
-    
+
+
 
 
 
 
 });
+
+
+describe('Services: queryService', function() {
+    
+    beforeEach(module('BloGlu'));
+    var querySvc;
+    var scope;
+    beforeEach(inject(function($injector) {
+        querySvc = $injector.get('queryService');    
+        scope = $injector.get('$rootScope');
+    }));    
+    
+    var testReportQuery = {
+        select: ['month', 'averageBgReading'],
+        where: {code: 1}
+    };
+    
+    /*
+    it('should generate executable query', function() {
+        var res;
+        querySvc.executeReportQuery(testReportQuery).then(function(result) {
+            res = result;
+            console.log("Resolved promise !");
+        }, function(error) {
+            res = error;
+            console.log("Promise error !");
+        }).finally(function(){            
+            
+        });        
+        scope.$apply();
+        expect(res).toBe("toto");
+        
+    });
+    */
+});
+
+/*
+ 
+*/
+
+describe('Services: ModelUtil', function() {
+
+    // load the controller's module
+    beforeEach(module('BloGlu'));
+
+    var modelUtil;
+
+    // Initialize the controller and a mock scope
+    beforeEach(inject(function(ModelUtil) {
+        modelUtil = ModelUtil;
+    }));
+
+    var testWhere = {
+        where: {
+            code: 1,
+            dateTime: {type: 'function', value: 'getCurrentYearParseFilter'}
+        }
+    };
+
+    var testAdditionnalWhere = {
+        where: {code: 2}
+
+    };
+    var expected = {
+        code: {$in: [1, 2]},
+        dateTime: {type: 'function', value: 'getCurrentYearParseFilter'}
+    };
+
+    it('should add clause to where expression', function() {
+        var generatedWhere = modelUtil.addClauseToFilter(testWhere.where, testAdditionnalWhere.where);
+        expect(generatedWhere.code[0]).toBe(expected.code[0]);
+        expect(generatedWhere.code[1]).toBe(expected.code[1]);
+        expect(generatedWhere.dateTime.type).toBe(expected.dateTime.type);
+        expect(generatedWhere.dateTime.function).toBe(expected.dateTime.function);
+    });
+});
+
 
 
 
@@ -373,7 +453,7 @@ describe('Services: indexeddbService', function() {
                 expect('getDataSuccess').toBe('getDataSuccess');
 
                 var testRecord = null;
-                result.forEach(function(record) {                    
+                result.forEach(function(record) {
                     if (record.objectId === testRecord.objectId && record.description === testRecord.description) {
                         testRecord = record;
                     }
@@ -387,19 +467,22 @@ describe('Services: indexeddbService', function() {
                 }, function reject(error) {
                     console.log(error);
                     expect('deleteRecordError').toBe('deleteRecordSuccess');
+                   
                 });
 
             }, function reject(error) {
                 console.log(error);
                 expect('getDataError').toBe('getDataSuccess');
+                
             });
 
         }, function reject(error) {
             console.log(error);
             expect('addRecordError').toBe('addRecordSuccess');
+            done();
         });
 
-    });
+    }, 15000);
 
 
 });

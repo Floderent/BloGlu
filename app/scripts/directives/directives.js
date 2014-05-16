@@ -1,5 +1,36 @@
 var DirectivesModule = angular.module("BloGlu.directives", []);
 
+
+
+
+
+DirectivesModule.directive('dataviz', function() {
+    
+    var directiveFunction = function(scope, element, attrs, ngModel) {
+        //build DOM
+       
+    };
+    
+
+    return {
+        restrict: 'E', // only activate on element
+        // require: '?ngModel', // get a hold of NgModelController
+        //link: directiveFunction,
+        compile: function(element) {
+            directiveFunction(null, element);
+
+            return function(scope) {
+                scope.world = 'World';
+                //$compile()(scope);
+            };
+        }
+    };
+
+
+});
+
+
+
 DirectivesModule.directive('equals', function() {
     return {
         restrict: 'A', // only activate on element attribute
@@ -29,6 +60,8 @@ DirectivesModule.directive('equals', function() {
         }
     };
 });
+
+
 
 
 

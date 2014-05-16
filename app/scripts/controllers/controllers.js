@@ -1,5 +1,5 @@
-"use strict";
-var ControllersModule = angular.module("BloGlu.controllers", []);
+'use strict';
+var ControllersModule = angular.module('BloGlu.controllers', []);
 
 ControllersModule.controller('confirmModalController', ['$scope', '$modalInstance', function Controller($scope, $modalInstance) {
         $scope.ok = function() {
@@ -10,7 +10,7 @@ ControllersModule.controller('confirmModalController', ['$scope', '$modalInstanc
         };
     }]);
 
-ControllersModule.controller('eventController', ['$scope', '$rootScope', '$routeParams', '$q', '$window', '$modal','ResourceCode', 'dateUtil', 'Unit', 'UserService', 'MessageService', 'Event', function Controller($scope, $rootScope, $routeParams, $q, $window, $modal, ResourceCode, dateUtil, Unit, UserService, MessageService, Event) {
+ControllersModule.controller('eventController', ['$scope', '$rootScope', '$routeParams', '$q', '$window', '$modal', 'ResourceCode', 'dateUtil', 'UserService', 'MessageService', 'dataService', function Controller($scope, $rootScope, $routeParams, $q, $window, $modal, ResourceCode, dateUtil, UserService, MessageService, dataService) {
         $rootScope.messages = [];
         $rootScope.pending = 0;
 
@@ -19,20 +19,20 @@ ControllersModule.controller('eventController', ['$scope', '$rootScope', '$route
 
         $scope.isEdit = $routeParams && $routeParams.objectId;
         var isPrefilledDateAndTime = $routeParams && $routeParams.day && $routeParams.time;
-        
+
         var eventType = 'other';
-        if($routeParams.eventType){
+        if ($routeParams.eventType) {
             eventType = $routeParams.eventType;
-        }         
+        }
         $scope.eventCode = ResourceCode[eventType];
-        
+
         $rootScope.pending++;
         $q.all([
             getEvent(),
-            Unit.query({where:JSON.stringify({code: $scope.eventCode})}).$promise
+            dataService.queryLocal('Unit', {where: {code: $scope.eventCode}})
         ]).then(function resolve(results) {
             $rootScope.pending--;
-            $scope.event = results[0];            
+            $scope.event = results[0];
             $scope.units = results[1];
             //=====handle date
             var currentDate = new Date();
@@ -60,8 +60,8 @@ ControllersModule.controller('eventController', ['$scope', '$rootScope', '$route
                             return;
                         }
                     });
-                } 
-                if(!$scope.currentUnit && $scope.units.length > 0){
+                }
+                if (!$scope.currentUnit && $scope.units.length > 0) {
                     $scope.currentUnit = $scope.units[0];
                 }
             }
@@ -89,13 +89,18 @@ ControllersModule.controller('eventController', ['$scope', '$rootScope', '$route
             $rootScope.pending++;
             var deferred = $q.defer();
             if ($scope.isEdit) {
-                Event.get({Id: $routeParams.objectId, include: "unit"}, function(result) {                    
+                dataService.queryLocal('Event', {where: {objectId: $routeParams.objectId}}).then(function(result) {
                     $rootScope.pending--;
-                    deferred.resolve(result);
+                    var event = {};
+                    if (result && result.length === 1) {
+                        event = result[0];
+                    }
+                    deferred.resolve(event);
                 }, function(error) {
                     $scope.isEdit = false;
                     deferred.reject(error);
                 });
+
             } else {
                 if (isPrefilledDateAndTime) {
                     var rgbDate = new Date($routeParams.day);
@@ -126,9 +131,9 @@ ControllersModule.controller('eventController', ['$scope', '$rootScope', '$route
             event.code = $scope.eventCode;
             var savingPromise = null;
             if ($scope.isEdit) {
-                savingPromise = Event.update({'Id': event.objectId}, event).$promise;
+                savingPromise = dataService.update('Event', event.objectId, event);
             } else {
-                savingPromise = Event.save({}, event).$promise;
+                savingPromise = dataService.save('Event', event);
             }
             savingPromise.then(function resolve(result) {
                 $rootScope.messages.push(MessageService.successMessage('Blood glucose reading saved', 2000));
@@ -160,16 +165,68 @@ ControllersModule.controller('eventController', ['$scope', '$rootScope', '$route
                 //exit
             });
         };
-
         $scope.$on("$routeChangeStart", function() {
             //cancel promise
             MessageService.cancelAll($rootScope.messages);
             //clear messages
             $rootScope.messages = [];
         });
-
-
     }]);
+
+
+ControllersModule.controller('reportController', ['$scope', '$rootScope', 'queryService', function Controller($scope, $rootScope, queryService) {
+
+        $scope.measures = [];
+        $scope.selectedMeasure = null;
+        $scope.levels = [];
+        $scope.selectedLevel = null;
+        $scope.selectedQueryElements = [];
+        
+        $scope.reportData = [];
+        $scope.headers = [];        
+
+        queryService.getMeasures().then(function(measures) {
+            $scope.measures = measures;
+        });
+        queryService.getLevels().then(function(levels) {
+            $scope.levels = levels;
+        });
+
+        $scope.addQueryElement = function(queryElement) {
+            if (queryElement) {                
+                $scope.selectedQueryElements.push(queryElement);
+            }
+        };
+        
+        $scope.executeQuery = function(){
+            if($scope.selectedQueryElements && $scope.selectedQueryElements.length > 0){
+                
+                
+                var select = [];
+                $scope.selectedQueryElements.forEach(function(selectElement){
+                    select.push(selectElement.name);
+                });
+                var query = {
+                    select: select
+                };
+                
+                queryService.executeReportQuery(query).then(function(queryResult){                    
+                    $scope.selectedQueryElements.forEach(function(element){                        
+                        $scope.headers.push(element.title);                        
+                    });                    
+                    $scope.reportData = queryResult;
+                });
+            }
+        };
+        
+        
+
+        $scope.$on("$routeChangeStart", function() {
+            //cancel promise            
+            //clear messages            
+        });
+    }]);
+
 
 
 
@@ -368,12 +425,12 @@ ControllersModule.controller('resetPasswordController', ['$scope', '$modalInstan
     }]);
 
 
-ControllersModule.controller('inputPeriodController', ['$rootScope', '$scope', '$modal', 'dateUtil', 'Period', 'MessageService', function Controller($rootScope, $scope, $modal, dateUtil, Period, MessageService) {
+ControllersModule.controller('inputPeriodController', ['$rootScope', '$scope', '$modal', 'dateUtil', 'Period', 'MessageService', 'dataService', function Controller($rootScope, $scope, $modal, dateUtil, Period, MessageService, dataService) {
         $rootScope.messages = [];
         $rootScope.pending = 0;
         $scope.arePeriodsOnMoreThanOneDay = true;
         $rootScope.pending++;
-        Period.query().$promise.then(function(result) {
+        dataService.queryLocal('Period').then(function(result) {            
             $scope.periods = result;
             processPeriods($scope.periods);
             $scope.$watch('periods', function(newValue, oldValue) {
@@ -431,12 +488,6 @@ ControllersModule.controller('inputPeriodController', ['$rootScope', '$scope', '
                     }
                 }
             }
-            /*
-             if (dateUtil.arePeriodsOnMoreThanOneDay(periodArray) > 1) {
-             $rootScope.messages.push(MessageService.errorMessage("Durations too long. Must be 24 hours at max.", 2000));
-             periodValid = false;
-             }
-             */
             if (dateUtil.arePeriodsIntersecting(periodArray)) {
                 $rootScope.messages.push(MessageService.errorMessage("The period is intersecting with another.", 2000));
                 periodValid = false;
@@ -449,12 +500,13 @@ ControllersModule.controller('inputPeriodController', ['$rootScope', '$scope', '
             if (period && period.begin && period.end) {
                 //check periods => length, intersection
                 if (checkPeriods($scope.periods, period)) {
+
                     $rootScope.pending++;
-                    Period.save({
+                    dataService.save('Period', {
                         name: period.name,
                         begin: period.begin,
                         end: period.end
-                    }, function(result) {
+                    }).then(function(result) {
                         angular.extend(period, result);
                         $scope.periods.push(period);
                         processPeriods($scope.periods);
@@ -462,6 +514,7 @@ ControllersModule.controller('inputPeriodController', ['$rootScope', '$scope', '
                         $rootScope.messages.push(MessageService.successMessage("Period created.", 2000));
                         $rootScope.pending--;
                     }, function(error) {
+                        debugger;
                         $rootScope.messages.push(MessageService.errorMessage("Error creating period.", 2000));
                         $rootScope.pending--;
                     });
@@ -486,12 +539,20 @@ ControllersModule.controller('inputPeriodController', ['$rootScope', '$scope', '
                 if (confirmed) {
                     if (period.objectId) {
                         $rootScope.pending++;
-                        Period.delete({"periodId": period.objectId}, function(result) {
-                            $scope.periods.splice($scope.periods.indexOf(period), 1);
+                        dataService.delete('Period', period.objectId).then(function(result) {
+                            var periodIndex = -1;
+                            $scope.periods.forEach(function(per, index) {
+                                if (per.objectId && per.objectId === period.objectId) {
+                                    periodIndex = index;
+                                }
+                            });
+                            if (periodIndex !== -1) {
+                                $scope.periods.splice(periodIndex, 1);
+                            }
                             processPeriods($scope.periods);
                             $rootScope.pending--;
                         }, function(error) {
-                            $rootScope.messages.push(MessageService.errorMessage("Problem deleting period", 2000));
+                            $rootScope.messages.push(MessageService.errorMessage('Problem deleting period', 2000));
                             $rootScope.pending--;
                         });
                     }
@@ -522,11 +583,11 @@ ControllersModule.controller('inputPeriodController', ['$rootScope', '$scope', '
             } else {
                 if (period.objectId) {
                     $rootScope.pending++;
-                    Period.update({"periodId": period.objectId}, {
+                    dataService.update('Period', period.objectId, {
                         name: period.name,
                         begin: period.begin,
                         end: period.end
-                    }, function(result) {
+                    }).then(function(result) {
                         period.isEdit = false;
                         processPeriods($scope.periods);
                         $rootScope.pending--;
@@ -534,6 +595,7 @@ ControllersModule.controller('inputPeriodController', ['$rootScope', '$scope', '
                         $scope.cancelEditPeriod(period);
                         $rootScope.pending--;
                     });
+
                 }
             }
         };
@@ -633,13 +695,13 @@ ControllersModule.controller('overviewController', ['$scope', '$rootScope', '$lo
         }
         if ($routeParams && $routeParams.interval) {
             $scope.interval = $routeParams.interval;
-        }        
-        $scope.timeInterval = overViewService.getTimeInterval($scope.interval, currentDate);
+        }
+        $scope.timeInterval = overViewService.getTimeInterval($scope.interval, currentDate);        
         
-        var params = {where: {code:[1]}};
-        
+        //display only blood glucose readings
+        var params = {where: {code: [1]}};
 
-        $rootScope.pending++;
+        $rootScope.pending++;        
         overViewService.getTableData($scope.timeInterval, params).then(
                 function resolve(result) {
                     $rootScope.pending--;
@@ -670,9 +732,9 @@ ControllersModule.controller('overviewController', ['$scope', '$rootScope', '$lo
                         if (this.interval === 'week') {
                             valueToDisplay = $filter('date')(cellData.date, 'EEEE d MMM');
                         } else {
-                            if(cellData.text){
+                            if (cellData.text) {
                                 valueToDisplay = cellData.text;
-                            }                            
+                            }
                         }
                     } else {
                         if (this.interval === 'week') {
@@ -694,8 +756,6 @@ ControllersModule.controller('overviewController', ['$scope', '$rootScope', '$lo
             return valueToDisplay;
         }
 
-
-        
         /**
          * Change grouping
          */
@@ -705,18 +765,19 @@ ControllersModule.controller('overviewController', ['$scope', '$rootScope', '$lo
 
 
         //view reading by id
-        $scope.viewEvent = function(code, objectId) {            
-            $location.path('event/'+ResourceCode[code]+"/"+objectId);
+        $scope.viewEvent = function(code, objectId) {
+            var path = 'event/' + ResourceCode[code] + "/" + objectId;
+            $location.path(path);
         };
 
         //create new reading with prefilled date and time
         $scope.addEvent = function(day, period) {
             //TODO display modal window to choose the type of event
-            
-            
-            
+
+
+
             $location
-                    .path('event')                    
+                    .path('event')
                     .search('day', day.date.toISOString())
                     .search('time', period.begin.toISOString());
         };
