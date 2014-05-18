@@ -1,6 +1,6 @@
 'use strict';
 
-var servicesModule = angular.module('BloGlu.modelServices', ['ngResource']);
+var servicesModule = angular.module('BloGlu.services');
 
 
 servicesModule.factory('ModelUtil', [function() {

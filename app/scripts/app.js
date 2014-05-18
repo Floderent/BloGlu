@@ -1,5 +1,10 @@
 'use strict';
 
+angular.module('BloGlu.services', ['ngResource']);
+angular.module('BloGlu.controllers', []);
+angular.module('BloGlu.directives', []);
+
+
 var mainModule = angular
         .module('BloGlu', [
             'ngCookies',
@@ -9,8 +14,7 @@ var mainModule = angular
             'ui.bootstrap',
             'highcharts-ng',
             'angularFileUpload',
-            'BloGlu.services',
-            'BloGlu.modelServices',
+            'BloGlu.services',            
             'BloGlu.controllers',
             'BloGlu.directives'
         ]);
@@ -32,6 +36,9 @@ mainModule.config(['$routeProvider',
 
 
 mainModule.run(['$rootScope', '$modal', 'UserService', 'MessageService', 'syncService', 'dataService', 'queryService', function($scope, $modal, UserService, MessageService, syncService, dataService, queryService) {
+        
+        
+        
         $scope.currentUser = UserService.currentUser();
         $scope.messages = [];
         $scope.pending = 0;

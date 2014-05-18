@@ -3,34 +3,64 @@
         <h3 class="panel-title">Analyse your data</h3>
     </div>
 
-    <select class="input-medium form-inline" data-ng-model="selectedMeasure" data-ng-options="measure.title for measure in measures"></select>
-    <button class="btn btn-default" ng-click="addQueryElement(selectedMeasure)">Add measure</button>
 
-    <select class="input-medium form-inline" data-ng-model="selectedLevel" data-ng-options="level.title for level in levels"></select>
-    <button class="btn btn-default" ng-click="addQueryElement(selectedLevel)">Add level</button>
+    <div class="panel-body">
+        <input type="text" required  placeholder="Report title" ng-model="report.title">
+        <div class="input-group">
+            <h5>Comment</h5>
+            <textarea class="form-control" ng-model="report.description">
+            </textarea>
+        </div>
+
+        <select class="input-medium form-inline" data-ng-model="selectedMeasure" data-ng-options="measure.title for measure in measures"></select>
+        <button class="btn btn-default" ng-click="addQueryElement(selectedMeasure)">Add measure</button>
+
+        <select class="input-medium form-inline" data-ng-model="selectedLevel" data-ng-options="level.title for level in levels"></select>
+        <button class="btn btn-default" ng-click="addQueryElement(selectedLevel)">Add level</button>
+
+        <!-- title as value.title for (key, value) in filters -->
+        <select class="input-medium form-inline" data-ng-model="selectedFilter" data-ng-options="key as value.title for (key, value) in filters"></select>    
 
 
-    <div>
-        <span data-ng-repeat="selectedElement in selectedQueryElements">
-            {{selectedElement.title}}
-        </span>
+
+        <div>
+            <span data-ng-repeat="selectedElement in selectedQueryElements">
+                {{selectedElement.title}}
+            </span>
+        </div>
+
+        <button class="btn-large btn-primary" ng-click="executeQuery()">Execute</button>
+        <button class="btn-large btn-primary" ng-click="clear()">Clear</button>
+
+        <button class="btn btn-primary btn-lg active pull-right" ng-show="isEdit" ng-click="delete()">Delete</button>
+        <button class="btn btn-primary btn-lg active pull-right" ng-click="update()">Save</button>
+
     </div>
 
-    <button class="btn-large btn-primary" ng-click="executeQuery()">Execute</button>
+
+
 
     <div class="table-responsive">
+        <!--
         <table class="table">    
-            <th ng-repeat="header in headers">
-                {{header}}
+            <th ng-repeat="queryElement in selectedQueryElements">
+                {{queryElement.title}}
             </th>
 
             <tr ng-repeat="line in reportData">
                 <td ng-repeat="item in line track by $index">
-                    {{line[headers[$index]]}}                
+                    {{line[selectedQueryElements[$index].title]}}                
                 </td>
             </tr>
 
         </table>
+        -->
+        <table-dataviz dataviz-config="{{datavizConfig}}"></table-dataviz>
+        
+        
     </div>
+
+
+
 
 </div>

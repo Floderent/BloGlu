@@ -26,6 +26,21 @@ describe('Services: dataService', function() {
         var processedResult = dataServ.processResult(testResult, params);
         expect(processedResult).toEqual(expectedResult);
     });
+    
+    
+    it('should select sub-object fields', function() {
+        var testResult = [{truc: "truc0.0", toto1: {name:'totoRow1'}, test: "testTest0.2", toto3: "value0.3"}, {truc: "truc0.1", toto1: {name:'totoRow2'}, test: "testTest0.2", toto3: "value1.3"}];
+        var expectedResult = [{'toto1.name': 'totoRow1', toto3: "value0.3"}, {'toto1.name': "totoRow2", toto3: "value1.3"}];
+        var params = {
+            select: [
+                {field: 'toto1.name'},
+                {field: 'toto3'}
+            ]
+        };
+        var processedResult = dataServ.processResult(testResult, params);
+        expect(processedResult).toEqual(expectedResult);
+    });
+    
 
 
     it('should transform the selection', function() {
@@ -114,6 +129,50 @@ describe('Services: dataService', function() {
         var processedResult = dataServ.processResult(testResult, params);
         expect(processedResult).toEqual(expectedResult);
     });
+
+
+    it('should do a sum with only one field', function() {
+        var testResult = [
+            {truc: "1", toto1: "2", test: "3", toto3: 4},
+            {truc: "1", toto1: "2", test: "3", toto3: 4}];
+        var expectedResult = [
+            {field2: 8}
+        ];
+        var params = {
+            select: [                
+                {
+                    field: 'toto3',
+                    aggregate: 'sum',
+                    alias: 'field2'
+                }
+            ],
+            groupBy: ['field1']
+        };
+        var processedResult = dataServ.processResult(testResult, params);
+        expect(processedResult).toEqual(expectedResult);
+    });
+    
+    it('should do a sum with only one field and no group by', function() {
+        var testResult = [
+            {truc: "1", toto1: "2", test: "3", toto3: 4},
+            {truc: "1", toto1: "2", test: "3", toto3: 4}];
+        var expectedResult = [
+            {field2: 8}
+        ];
+        var params = {
+            select: [                
+                {
+                    field: 'toto3',
+                    aggregate: 'sum',
+                    alias: 'field2'
+                }
+            ]//,
+            //groupBy: ['field1']
+        };
+        var processedResult = dataServ.processResult(testResult, params);
+        expect(processedResult).toEqual(expectedResult);
+    });
+
 
 
     it('should do a count and group by result', function() {

@@ -1,20 +1,17 @@
-var DirectivesModule = angular.module("BloGlu.directives", []);
-
-
-
+var DirectivesModule = angular.module("BloGlu.directives");
 
 
 DirectivesModule.directive('dataviz', function() {
-    
     var directiveFunction = function(scope, element, attrs, ngModel) {
         //build DOM
-       
-    };
-    
 
+    };
     return {
         restrict: 'E', // only activate on element
-        // require: '?ngModel', // get a hold of NgModelController
+        replace: true,
+        scope: {
+            config: '@datavizConfig'
+        },
         //link: directiveFunction,
         compile: function(element) {
             directiveFunction(null, element);
@@ -25,9 +22,128 @@ DirectivesModule.directive('dataviz', function() {
             };
         }
     };
-
-
 });
+
+
+
+DirectivesModule.directive('tableDataviz', function() {
+    var compileFunction = function(scope, element, attrs, ngModel) {
+        //build DOM
+    };
+
+    var linkFunction = function(scope, element, attrs) {        
+        scope.$watch('config', function(newValue, oldValue) {            
+            element.empty();
+            if (newValue) {
+                var config = angular.fromJson(newValue);
+                var htmlElement = null;
+                if (config && config.data) {
+                    if (config.headers && config.headers.length === 1 && config.data && config.data.length === 1) {
+                        htmlElement = buildSingleValueTable(config);
+                    } else {
+                        htmlElement = buildMultipleValueTable(config);
+                    }
+                }
+                angular.element(element).append(htmlElement);
+            }
+        });
+    };
+
+    function buildSingleValueTable(config) {
+        var div = document.createElement('div');
+        
+        var title = document.createElement('h1');
+        var value = document.createElement('span');
+        
+        title.appendChild(document.createTextNode(config.headers[0].title + ": "));
+        value.appendChild(document.createTextNode(config.data[0][config.headers[0].title]));
+        
+        title.appendChild(value);
+        div.appendChild(title);
+        
+        return div;
+    }
+
+    function buildMultipleValueTable(config) {
+        var table = document.createElement('table');
+        table.className = 'table';
+        config.headers.forEach(function(header) {
+            var th = document.createElement('th');
+            th.appendChild(document.createTextNode(header.title));
+            table.appendChild(th);
+        });
+        config.data.forEach(function(row) {
+            var tr = document.createElement('tr');
+            config.headers.forEach(function(header) {
+                var td = document.createElement('td');
+                td.appendChild(document.createTextNode(row[header.title]));
+                tr.appendChild(td);
+            });
+            table.appendChild(tr);
+        });
+        return table;
+    }
+
+    return {
+        restrict: 'E', // only activate on element
+        replace: true,
+        scope: {
+            config: '@datavizConfig'
+        },
+        link: linkFunction/*,
+         compile: function(element) {
+         compileFunction(null, element);
+         return function(scope) {
+         $compile()(scope);
+         };
+         }*/
+    };
+});
+
+
+
+DirectivesModule.directive('chartDataviz', function() {
+    var compileFunction = function(scope, element, attrs, ngModel) {
+        //build DOM
+    };
+
+    var linkFunction = function(scope, element, attrs) {        
+        scope.$watch('config', function(newValue, oldValue) {            
+            element.empty();
+            if (newValue) {
+                var config = angular.fromJson(newValue);                
+                //<highchart id="chart1" config="chartConfig" class="span10"></highchart>
+                var chartTag = document.createElement('highchart');
+                chartTag.config = 'chartConfig';
+                
+                angular.element(element).append(chartTag);
+            }
+        });
+    };
+
+    function computeChartData(scope, config){
+        
+        
+    }
+
+    return {
+        restrict: 'E', // only activate on element
+        replace: true,
+        scope: {
+            config: '@datavizConfig'
+        },
+        link: linkFunction/*,
+         compile: function(element) {
+         compileFunction(null, element);
+         return function(scope) {
+         $compile()(scope);
+         };
+         }*/
+    };
+});
+
+
+
 
 
 
