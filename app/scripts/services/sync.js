@@ -6,7 +6,7 @@ servicesModule.factory('syncService', ['$q', '$http', '$injector', 'Database', '
         var syncService = {};
         var dataTimeField = 'updatedAt';
 
-        function getLocalDataInfos() {
+        function getLocalDataInfos() {           
             return dataService.init().then(function(result) {
                 var localDataInfos = {};
                 angular.forEach(result, function(value, key) {
@@ -15,7 +15,8 @@ servicesModule.factory('syncService', ['$q', '$http', '$injector', 'Database', '
                     localDataInfos[key].date = getMaximumValue(value, dataTimeField);
                 });
                 return localDataInfos;
-            });
+            });            
+           
         }
 
         function getMaximumValue(array, field) {
@@ -75,11 +76,12 @@ servicesModule.factory('syncService', ['$q', '$http', '$injector', 'Database', '
         function syncCollection(collection) {
             var deferred = $q.defer();
             var resource = $injector.get(collection);
-            if (resource && resource.query) {
+            if (resource && resource.query) {                
                 resource.query({limit: 1000}).$promise.then(function(result) {
-                    indexeddbService.clear(collection);
-                    indexeddbService.addRecords(collection, result).then(deferred.resolve, deferred.reject);
-                }, deferred.reject);
+                    indexeddbService.clear(collection).then(function() {
+                        indexeddbService.addRecords(collection, result).then(deferred.resolve, deferred.reject);
+                    }, deferred.reject);
+                }, deferred.reject);                           
             } else {
                 deferred.reject("No resource found for " + collection);
             }

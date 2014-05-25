@@ -36,15 +36,29 @@ servicesModule.factory('ResourceCode', [function() {
         };
     }]);
 
+servicesModule.factory('ResourceName', [function() {
+        return {            
+            0: 'Other',
+            1: 'Blood Glucose',
+            2: 'Medication',
+            3: 'Weight',
+            4: 'Blood Pressure',
+            5: 'a1c',
+            6: 'Exercise'
+        };
+    }]);
+
+
 servicesModule.factory('Database', [function() {
         return {
             schema: [
                 'Event',
                 'Period',
                 'Report',
+                'Dashboard',
                 'Target',
                 'Metadatamodel',
-                //'Type',
+                'Category',
                 'Unit'
             ]
         };

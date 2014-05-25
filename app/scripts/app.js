@@ -14,55 +14,35 @@ var mainModule = angular
             'ui.bootstrap',
             'highcharts-ng',
             'angularFileUpload',
-            'BloGlu.services',            
+            'BloGlu.services',
             'BloGlu.controllers',
             'BloGlu.directives'
         ]);
 
 mainModule.config(['$routeProvider',
     function($routeProvider) {
-        $routeProvider.when('/event/:eventType/:objectId', {controller: 'eventController', templateUrl: 'views/inputGly.html'});
-        $routeProvider.when('/event/:eventType', {controller: 'eventController', templateUrl: 'views/inputGly.html'});
+        $routeProvider.when('/event/:eventType/:objectId', {controller: 'eventController', templateUrl: 'views/event.html'});
+        $routeProvider.when('/event/:eventType', {controller: 'eventController', templateUrl: 'views/event.html'});
         $routeProvider.when('/overview', {controller: 'overviewController', templateUrl: 'views/overView.html'});
-        $routeProvider.when('/inputPeriod', {controller: 'inputPeriodController', templateUrl: 'views/inputPeriod.html'});
+        $routeProvider.when('/period', {controller: 'periodController', templateUrl: 'views/period.html'});
+        $routeProvider.when('/category', {controller: 'categoryController', templateUrl: 'views/category.html'});
         $routeProvider.when('/inputBgTarget', {controller: 'bloodGlucoseTargetController', templateUrl: 'views/inputBloodGlucoseTarget.html'});
         $routeProvider.when('/charts', {controller: 'chartController', templateUrl: 'views/charts.html'});
         $routeProvider.when('/report', {controller: 'reportController', templateUrl: 'views/report.html'});
         $routeProvider.when('/import', {controller: 'importController', templateUrl: 'views/import.html'});
         $routeProvider.when('/userPreferences', {controller: 'userPreferencesController', templateUrl: 'views/userPreferences.html'});
+        $routeProvider.when('/dashboard', {controller: 'dashboardController', templateUrl: 'views/dashboard.html'});
         $routeProvider.when('/index', {controller: 'indexController', templateUrl: 'views/index.html'});
         $routeProvider.otherwise({redirectTo: '/'});
     }]);
 
 
-mainModule.run(['$rootScope', '$modal', 'UserService', 'MessageService', 'syncService', 'dataService', 'queryService', function($scope, $modal, UserService, MessageService, syncService, dataService, queryService) {
-        
-        
-        
+mainModule.run(['$rootScope', '$modal', '$location', 'UserService', 'MessageService', 'syncService', 'dataService', 'queryService', function($scope, $modal, $location, UserService, MessageService, syncService, dataService, queryService) {
+
         $scope.currentUser = UserService.currentUser();
         $scope.messages = [];
         $scope.pending = 0;
         var modal = null;
-
-        //============TEST==================
-        /*
-        var testReportQuery = {
-            select: ['month', 'averageBgReading'],
-            where: [
-                {code: 1},
-                {dateTime: {type: 'function', value: 'getCurrentYearParseFilter'}}
-            ]
-        };
-        queryService.executeReportQuery(testReportQuery).then(function(result) {
-            debugger;
-            console.log("Generated query = ");
-            console.log(result);
-
-        }, function(error) {
-
-        });
-        */
-        //===================================
 
         $scope.displaySignUpModal = function() {
             $scope.messages = [];
@@ -88,8 +68,9 @@ mainModule.run(['$rootScope', '$modal', 'UserService', 'MessageService', 'syncSe
                             $scope.pending--;
                             $scope.currentUser = authenticatedUser;
                             //sync
-                            syncService.sync().finally(function(result) {});
-
+                            syncService.sync().finally(function(result) {
+                            });                            
+                            $location.path('dashboard');
                         })
                         .error(function(error) {
                             $scope.pending--;

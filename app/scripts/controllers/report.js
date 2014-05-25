@@ -1,7 +1,7 @@
 'use strict';
 var ControllersModule = angular.module('BloGlu.controllers');
 
-ControllersModule.controller('reportController', ['$scope', '$rootScope', '$q', '$routeParams', '$modal', 'queryService', 'dataService', 'Report', 'MessageService', function Controller($scope, $rootScope, $q, $routeParams, $modal, queryService, dataService, Report, MessageService) {
+ControllersModule.controller('reportController', ['$scope', '$rootScope', '$q', '$routeParams', '$modal', 'reportService', 'dataService','queryService', 'MessageService', function Controller($scope, $rootScope, $q, $routeParams, $modal, reportService, dataService,queryService, MessageService) {
 
         $rootScope.messages = [];
         $rootScope.pending = 0;
@@ -50,7 +50,19 @@ ControllersModule.controller('reportController', ['$scope', '$rootScope', '$q', 
             $scope.selectedQueryElements = [];
             $scope.reportData = [];
             $scope.selectedFilter = null;
-        };
+            $scope.datavizConfig = null;
+        };       
+        
+        
+        
+        $scope.$watch('selectedQueryElements', function(newValue, oldValue) {            
+            var query = getQuery();
+            if(newValue && oldValue && query && newValue !== oldValue){
+                executeReportQuery(query).then(function(datavizConfig){
+                    $scope.datavizConfig = datavizConfig;
+                });
+            }
+        },true);
 
 
         $scope.executeQuery = function() {
@@ -70,19 +82,49 @@ ControllersModule.controller('reportController', ['$scope', '$rootScope', '$q', 
                     $scope.report.query.where = {
                         dateTime: filterClause
                     };
-                }                
-                queryService.executeReportQuery($scope.report.query).then(function(queryResult) {
-                    //$scope.reportData = queryResult;
-                    
-                    $scope.datavizConfig = {
-                        headers: $scope.selectedQueryElements,
-                        data: queryResult
-                    };
-                    
-                    
+                }
+                reportService.executeReportQuery($scope.report.query).then(function(queryResult) {
+                    $scope.datavizConfig = queryResult;
                 });
             }
         };
+        function executeReportQuery(query) {
+            return reportService.executeReportQuery(query).then(function(queryResult) {
+                return queryResult;
+            });
+        }
+        
+
+        function getQuery() {
+            var query = null;            
+            if ($scope.isEdit) {
+                
+            } else {
+                if ($scope.selectedQueryElements && $scope.selectedQueryElements.length > 0) {
+                    var select = [];
+                    $scope.selectedQueryElements.forEach(function(selectElement) {
+                        select.push(selectElement.name);
+                    });
+                    query = {
+                        select: select
+                    };
+                    if ($scope.selectedFilter) {
+                        var filterClause = {
+                            type: 'function',
+                            value: $scope.selectedFilter
+                        };
+                        query.where = {
+                            dateTime: filterClause
+                        };
+                    }                    
+                }
+            }
+            return query;
+        }
+
+
+        
+
 
 
         function getReport() {

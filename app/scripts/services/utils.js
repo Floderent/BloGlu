@@ -116,7 +116,7 @@ servicesModule.factory('dateUtil', ['$filter', function($filter) {
         dateUtil.getDateHourAndMinuteToMillis = function(date) {
             var hourCoef = 60 * 60 * 1000;
             var minuteCoef = 60 * 1000;
-            return date.getHours() * hourCoef + date.getMinutes() * minuteCoef;
+            return date.getUTCHours() * hourCoef + date.getUTCMinutes() * minuteCoef;
         };
 
         dateUtil.getMonthWeek = function(date) {

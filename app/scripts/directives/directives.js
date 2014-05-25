@@ -1,10 +1,29 @@
 var DirectivesModule = angular.module("BloGlu.directives");
 
 
-DirectivesModule.directive('dataviz', function() {
-    var directiveFunction = function(scope, element, attrs, ngModel) {
-        //build DOM
-
+DirectivesModule.directive('dataviz', function($compile) {
+    var linkFunction = function(scope, element, attrs) {
+        scope.$watch('config', function(newValue, oldValue) {           
+            element.empty();
+            if (newValue) {
+                var config = angular.fromJson(newValue);                                
+                scope.datavizConfig = config;
+                var dataviz = null;
+                switch(config.type){
+                    case 'table':
+                        dataviz = $compile('<table-dataviz dataviz-config="{{datavizConfig}}"></table-dataviz>')(scope);
+                        break;
+                    case 'chart':
+                        dataviz = $compile('<chart-dataviz dataviz-config="{{datavizConfig}}"></chart-dataviz>')(scope);
+                        break;
+                    default:
+                        //dataviz = $compile('<chart-dataviz dataviz-config="{{datavizConfig}}"></chart-dataviz>')(scope);
+                        dataviz = $compile('<table-dataviz dataviz-config="{{datavizConfig}}"></table-dataviz>')(scope);
+                        break;
+                }
+                angular.element(element).append(dataviz);
+            }
+        });
     };
     return {
         restrict: 'E', // only activate on element
@@ -12,26 +31,14 @@ DirectivesModule.directive('dataviz', function() {
         scope: {
             config: '@datavizConfig'
         },
-        //link: directiveFunction,
-        compile: function(element) {
-            directiveFunction(null, element);
-
-            return function(scope) {
-                scope.world = 'World';
-                //$compile()(scope);
-            };
-        }
+        link: linkFunction
     };
 });
 
 
 
-DirectivesModule.directive('tableDataviz', function() {
-    var compileFunction = function(scope, element, attrs, ngModel) {
-        //build DOM
-    };
-
-    var linkFunction = function(scope, element, attrs) {        
+DirectivesModule.directive('tableDataviz', function() {    
+    var linkFunction = function(scope, element, attrs) {
         scope.$watch('config', function(newValue, oldValue) {            
             element.empty();
             if (newValue) {
@@ -51,16 +58,16 @@ DirectivesModule.directive('tableDataviz', function() {
 
     function buildSingleValueTable(config) {
         var div = document.createElement('div');
-        
+
         var title = document.createElement('h1');
         var value = document.createElement('span');
-        
+
         title.appendChild(document.createTextNode(config.headers[0].title + ": "));
         value.appendChild(document.createTextNode(config.data[0][config.headers[0].title]));
-        
+
         title.appendChild(value);
         div.appendChild(title);
-        
+
         return div;
     }
 
@@ -90,40 +97,82 @@ DirectivesModule.directive('tableDataviz', function() {
         scope: {
             config: '@datavizConfig'
         },
-        link: linkFunction/*,
-         compile: function(element) {
-         compileFunction(null, element);
-         return function(scope) {
-         $compile()(scope);
-         };
-         }*/
+        link: linkFunction
     };
 });
 
 
 
-DirectivesModule.directive('chartDataviz', function() {
-    var compileFunction = function(scope, element, attrs, ngModel) {
-        //build DOM
-    };
-
-    var linkFunction = function(scope, element, attrs) {        
+DirectivesModule.directive('chartDataviz', function($compile) {    
+    var linkFunction = function(scope, element, attrs) {
         scope.$watch('config', function(newValue, oldValue) {            
-            element.empty();
-            if (newValue) {
-                var config = angular.fromJson(newValue);                
-                //<highchart id="chart1" config="chartConfig" class="span10"></highchart>
-                var chartTag = document.createElement('highchart');
-                chartTag.config = 'chartConfig';
-                
-                angular.element(element).append(chartTag);
+            if (newValue && newValue!== oldValue) {
+                var config = angular.fromJson(newValue);
+                computeChartData(scope, config); 
+                debugger;
+                if(angular.element(element).find('highchart').length){
+                    $compile(element)(scope);
+                }else{
+                    element.empty();
+                    var chart = $compile('<highchart id="chart1" config="chartConfig" class="span10"></highchart>')(scope);
+                }
+                angular.element(element).append(chart);
             }
         });
     };
 
-    function computeChartData(scope, config){
-        
-        
+    function computeChartData(scope, config) {
+        scope.chartConfig = {
+            options: {
+                chart: {
+                    type: 'line',
+                    zoomType: 'x'
+                }
+            },
+            series: [],
+            title: {
+                text: ''
+            },
+            xAxis: {
+                categories: []
+                        /*
+                         type: 'datetime',
+                         dateTimeLabelFormats: {// don't display the dummy year
+                         month: '%e. %b',
+                         year: '%b'
+                         }*/
+            },
+            loading: false
+        };
+        config.headers.forEach(function(queryElement) {
+            if (queryElement.aggregate) {
+                scope.chartConfig.series.push({name: queryElement.title, data: []});
+            }
+        });
+        for (var lineIndex = 1; lineIndex < config.data.length; lineIndex++) {
+            var textValue = '';
+            for (var columnIndex = 0; columnIndex < config.headers.length; columnIndex++) {
+                var propertyName = config.headers[columnIndex].title;
+                if (config.headers[columnIndex].aggregate) {
+                    var serie = getSerieByName(scope.chartConfig.series, propertyName);
+                    serie.data.push(parseInt(config.data[lineIndex][propertyName]));
+                } else {
+                    textValue += " " + config.data[lineIndex][propertyName];
+                }
+            }
+            scope.chartConfig.xAxis.categories.push(textValue);
+        }
+    }
+
+    function getSerieByName(series, name) {
+        var foundSerie = null;
+        series.forEach(function(serie) {
+            if (serie.name === name) {
+                foundSerie = serie;
+                return;
+            }
+        });
+        return foundSerie;
     }
 
     return {
@@ -132,13 +181,7 @@ DirectivesModule.directive('chartDataviz', function() {
         scope: {
             config: '@datavizConfig'
         },
-        link: linkFunction/*,
-         compile: function(element) {
-         compileFunction(null, element);
-         return function(scope) {
-         $compile()(scope);
-         };
-         }*/
+        link: linkFunction
     };
 });
 
@@ -207,8 +250,6 @@ DirectivesModule.directive("test", function() {
 
         var hoursSelect = buildSelect(hours);
         var minutesSelect = buildSelect(minutes);
-
-        debugger;
 
         angular.element(element).append(hoursSelect);
         angular.element(element).append(minutesSelect);

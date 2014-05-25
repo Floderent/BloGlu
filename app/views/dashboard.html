@@ -1,0 +1,23 @@
+<div class="panel panel-default content-panel">
+    <div class="panel-heading">
+        <!--<h3 class="panel-title">Analyse your data</h3>-->
+    </div>
+
+    <div class="table-responsive">
+        <table class="table">
+            <tr ng-repeat="line in reportTab track by $index">
+                <td ng-repeat="reportConfig in reportTab[$index] track by $index">
+                    <!-- handle case of empty section -->
+                    <div ng-if="reportConfig.data && reportConfig.headers">                        
+                        <dataviz dataviz-config="{{reportConfig}}"></dataviz>
+                    </div>                                        
+                    <div ng-if="!reportConfig.data || !reportConfig.headers">
+                        <button type="button" class="btn btn-primary" ng-click="addBloodGlucoseReading(line[0], header[$index])">Add new report</button>
+                    </div>            
+                    
+            </td>
+            </tr>
+        </table>
+    </div>
+
+</div>

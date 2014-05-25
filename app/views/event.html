@@ -26,16 +26,22 @@
 
             <div class="input-group">                        
                 <input type="number" min="0" required  class="blood-glucose-input blood-glucose-input-field pull-left input-lg" placeholder="{{placeholder}}" ng-model="event.reading" ng-disabled="!currentUnit">
-                <select class="blood-glucose-select blood-glucose-input-field input-lg form-inline" data-ng-model="currentUnit" data-ng-options="unit.name for unit in units"></select>                        
-            </div>
-
-            <div ng-switch="eventCode">
+                <select class="blood-glucose-select blood-glucose-input-field input-lg form-inline" data-ng-model="currentUnit" data-ng-options="unit.name for unit in units"></select>
+            </div>            
+            
+            <div class="input-group" ng-switch="eventCode">
                 <div ng-switch-when="1" class="btn-group">
                     <button type="button" class="btn btn-primary" data-ng-model="event.preMeal" btn-checkbox>Before meal</button>
                     <button type="button" class="btn btn-primary" data-ng-model="event.postMeal" btn-checkbox>After meal</button>                
                 </div>
             </div>
-
+            
+            <div class="input-group">
+                <h5>Category</h5>
+                <select class="input-medium" data-ng-model="currentCategory" data-ng-options="category.name for category in categories"></select>
+            </div>
+            
+            
             <div class="input-group">
                 <h5>Comment</h5>
                 <textarea class="form-control" ng-model="event.comment">                    

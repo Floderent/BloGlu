@@ -85,7 +85,7 @@ servicesModule.factory('Report', ['$resource', 'ServerService', 'UserService', f
         {
             query: {
                 method: 'GET',
-                headers: ServerService.headers,
+                headers: UserService.headers(),
                 isArray: true,
                 transformResponse: function(data) {
                     var jsonResponse = angular.fromJson(data);
@@ -131,6 +131,60 @@ servicesModule.factory('Report', ['$resource', 'ServerService', 'UserService', f
     }]);
 
 
+servicesModule.factory('Dashboard', ['$resource', 'ServerService', 'UserService', function($resource, ServerService, UserService) {
+        var url = ServerService.baseUrl + 'classes/Dashboard/:Id';
+        return $resource(url,
+                {Id: '@Id'},
+        {
+            query: {
+                method: 'GET',
+                headers: UserService.headers(),
+                isArray: true,
+                transformResponse: function(data) {
+                    var jsonResponse = angular.fromJson(data);
+                    if (jsonResponse && jsonResponse.results) {
+                        jsonResponse = jsonResponse.results;
+                    }
+                    return jsonResponse;
+                }
+            },
+            count: {
+                method: 'GET',
+                headers: UserService.headers()
+            },
+            save: {
+                method: 'POST',
+                headers: UserService.headers(),
+                transformRequest: function(data) {
+                    if (data) {
+                        data.ACL = UserService.ownerReadWriteACL();
+                    }
+                    return angular.toJson(data);
+                }
+            },
+            get: {
+                method: 'GET',
+                headers: UserService.headers()
+            },
+            update: {
+                method: 'PUT',
+                headers: UserService.headers(),
+                transformRequest: function(data) {
+                    if (data) {
+                        data.ACL = UserService.ownerReadWriteACL();
+                    }
+                    return angular.toJson(data);
+                }
+            },
+            delete: {
+                method: 'DELETE',
+                headers: UserService.headers()
+            }
+        });
+    }]);
+
+
+
 servicesModule.factory('Metadatamodel', ['$resource', 'ServerService', 'UserService', function($resource, ServerService, UserService) {
         var url = ServerService.baseUrl + 'classes/Metadatamodel/:Id';
         return $resource(url,
@@ -162,7 +216,7 @@ servicesModule.factory('Metadatamodel', ['$resource', 'ServerService', 'UserServ
 servicesModule.factory('Event', ['$resource', 'ServerService', 'UserService', 'dateUtil', function($resource, ServerService, UserService, dateUtil) {
         var url = ServerService.baseUrl + "classes/Event/:Id";
         return $resource(url, {
-            include: 'unit'
+            include: 'unit,category'
         },
         {
             query: {
@@ -199,8 +253,8 @@ servicesModule.factory('Event', ['$resource', 'ServerService', 'UserService', 'd
                         if (data.unit && data.unit.objectId) {
                             data.unit = {__type: 'Pointer', className: 'Unit', objectId: data.unit.objectId};
                         }
-                        if (data.type && data.type.objectId) {
-                            data.unit = {__type: 'Pointer', className: 'Type', objectId: data.type.objectId};
+                        if (data.category && data.category.objectId) {
+                            data.category = {__type: 'Pointer', className: 'Category', objectId: data.category.objectId};
                         }
                     }
                     return angular.toJson(data);
@@ -231,8 +285,8 @@ servicesModule.factory('Event', ['$resource', 'ServerService', 'UserService', 'd
                         if (data.unit && data.unit.objectId) {
                             data.unit = {__type: 'Pointer', className: 'Unit', objectId: data.unit.objectId};
                         }
-                        if (data.type && data.type.objectId) {
-                            data.unit = {__type: 'Pointer', className: 'Type', objectId: data.type.objectId};
+                        if (data.category && data.category.objectId) {
+                            data.category = {__type: 'Pointer', className: 'Category', objectId: data.category.objectId};
                         }
                     }
                     return angular.toJson(data);
@@ -335,6 +389,53 @@ servicesModule.factory('Period', ['$resource', 'ServerService', 'UserService', '
                                     data.begin = dateUtil.convertToParseFormat(data.begin);
                                     data.end = dateUtil.convertToParseFormat(data.end);
                                 }
+                            }
+                            return angular.toJson(data);
+                        }
+                    },
+                    delete: {
+                        method: 'DELETE',
+                        headers: UserService.headers()
+                    }
+                });
+    }]);
+
+
+servicesModule.factory('Category', ['$resource', 'ServerService', 'UserService', 'dateUtil', function($resource, ServerService, UserService, dateUtil) {
+        var url = ServerService.baseUrl + 'classes/Category/:Id';
+        return $resource(url,
+                {
+                },
+                {
+                    query: {
+                        method: 'GET',
+                        headers: UserService.headers(),
+                        isArray: true,
+                        transformResponse: function(data) {
+                            var jsonResponse = angular.fromJson(data);
+                            if (jsonResponse && jsonResponse.results) {
+                                jsonResponse = jsonResponse.results;                                
+                            }
+                            return jsonResponse;
+                        }
+                    },
+                    save: {
+                        method: 'POST',
+                        headers: UserService.headers(),
+                        transformRequest: function(data) {
+                            if (data) {
+                                var dataToSave = angular.extend({}, data);
+                                dataToSave.ACL = UserService.ownerReadWriteACL();                               
+                            }
+                            return angular.toJson(dataToSave);
+                        }
+                    },
+                    update: {
+                        method: 'PUT',
+                        headers: UserService.headers(),
+                        transformRequest: function(data) {
+                            if (data) {
+                                data.ACL = UserService.ownerReadWriteACL();                                
                             }
                             return angular.toJson(data);
                         }

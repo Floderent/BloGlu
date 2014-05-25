@@ -343,6 +343,9 @@ servicesModule.factory('overViewService', ['$q', '$filter', 'UserService', 'Peri
                 var result = [];
                 if (analysisPeriods && Array.isArray(analysisPeriods) && analysisPeriods.length > 0) {
                     result = analysisPeriods;
+                    result.sort(function(a, b) {                        
+                        return (a.begin.getHours() * 60 + a.begin.getMinutes()) > (b.begin.getHours() * 60 + b.begin.getMinutes());
+                    });
                 } else {
                     //get default values
                 }
@@ -355,10 +358,33 @@ servicesModule.factory('overViewService', ['$q', '$filter', 'UserService', 'Peri
         function isDateInPeriod(timeIntervalName, date, period) {
             var isPeriodInDate = false;
             if (timeIntervalName === 'week') {
-                var dateMillis = dateUtil.getDateHourAndMinuteToMillis(date);
-                var periodBeginMillis = dateUtil.getDateHourAndMinuteToMillis(period.begin);
-                var periodEndMillis = dateUtil.getDateHourAndMinuteToMillis(period.end);
-                isPeriodInDate = dateMillis >= periodBeginMillis && dateMillis < periodEndMillis;
+                var dateHours = date.getHours();
+                var dateMinutes = date.getMinutes();
+
+                var beginDateHours = period.begin.getHours();
+                var beginDateMinutes = period.begin.getMinutes();
+
+                var endDateHours = period.end.getHours();
+                if (endDateHours === 0) {
+                    endDateHours = 23;
+                }
+                var endDateMinutes = period.end.getMinutes();
+                if (endDateHours === 23 && endDateMinutes === 0) {
+                    endDateMinutes = 59;
+                }
+                if (dateHours > beginDateHours && dateHours < endDateHours) {
+                    isPeriodInDate = true;
+                } else {
+                    if (dateHours === beginDateHours && dateMinutes >= beginDateMinutes && dateHours < endDateHours) {
+                        isPeriodInDate = true;
+                    } else {
+                        if (dateHours > beginDateHours && dateHours === endDateHours && dateMinutes <= endDateMinutes) {
+                            isPeriodInDate = true;
+                        } else {
+                            isPeriodInDate = false;
+                        }
+                    }
+                }
             } else {
                 isPeriodInDate = date >= period.begin && date <= period.end;
             }

@@ -1,0 +1,50 @@
+<div class="panel panel-primary content-panel">
+    <div class="panel-heading">
+        <h3 class="panel-title">View or modify the events categories</h3>
+    </div>
+    <div class="panel-body ">
+        
+        <div class="btn-group" ng-repeat="(key, value) in eventsTypes track by $index">            
+            <label class="btn btn-success" ng-model="code" ng-click="selectType(key,value)" btn-radio="{{key}}">{{value}}</label>
+        </div>
+
+    </div>
+
+    <form novalidate class="simple-form">
+        <div class="input-group">
+            <div class="table-responsive">
+                <table class="table table-striped">
+                    <th>New {{eventType}} category</th>
+                    <tr>
+                        <td>
+                            <input type="text" required class="input-sm" data-ng-model="newCategory.name">
+                        </td>
+                        <td>
+                            <button type="button" ng-click="saveCategory(newCategory)">Add</button>
+                        </td>
+                    </tr>
+                </table>
+            </div>                
+        </div>
+        <div class="table-responsive">
+            <table class="table table-striped">
+                <th>{{eventType}} category</th>
+                <th></th>
+                <tr ng-repeat="category in categories">
+                    <td>
+                        <div ng-show="!period.isEdit">{{category.name}}</div>
+                        <input type="text" required class="input-sm" ng-show="category.isEdit" data-ng-model="category.name">
+                    </td>
+                    <td>
+                        <button type="button" ng-click="deleteCategory(category)">Delete</button>
+                        <button type="button" ng-show="!category.isEdit" ng-click="editCategory(category)">Edit</button>
+                        <button type="button" ng-show="category.isEdit" ng-click="updateCategory(category)">Update</button>
+                        <button type="button" ng-show="category.isEdit" ng-click="cancelEditCategory(category)">Cancel</button>                            
+                    </td>
+                </tr>
+            </table>
+        </div>
+    </form>
+
+
+</div>

@@ -18,8 +18,12 @@ servicesModule.factory('indexeddbService', ['$window', '$q', 'Database', functio
                     e.target.transaction.onerror = indexedDB.onerror;
                     recreateDatabaseSchema(db, Database.schema);
                 };
+
                 request.onsuccess = function(e) {
                     db = e.target.result;
+                    db.onversionchange = function(event) {
+                        event.target.close();
+                    };
                     deferred.resolve(db);
                 };
                 request.onblocked = function(error) {
@@ -49,13 +53,16 @@ servicesModule.factory('indexeddbService', ['$window', '$q', 'Database', functio
                 db.close();
             }
             var req = indexedDB.deleteDatabase(databaseName);
-            req.onsuccess = function(result) {
+            req.onsuccess = function(result) {               
+                db = null;
                 deferred.resolve(result);
             };
-            req.onerror = function(error) {
+            req.onerror = function(error) {                
+                db = null;
                 deferred.reject(error);
             };
-            req.onblocked = function(error) {
+            req.onblocked = function(error) {                
+                db = null;
                 deferred.reject(error);
             };
             return deferred.promise;
@@ -107,7 +114,13 @@ servicesModule.factory('indexeddbService', ['$window', '$q', 'Database', functio
             openDatabase().then(function(db) {
                 var trans = db.transaction([collection], 'readwrite');
                 var store = trans.objectStore(collection);
-                store.clear();
+                var clearRequest = store.clear();
+                clearRequest.onsuccess = function(result) {
+                    deferred.resolve(result);
+                };
+                clearRequest.onerror = function(error) {
+                    deferred.reject(error);
+                };
                 deferred.resolve();
             });
             return deferred.promise;

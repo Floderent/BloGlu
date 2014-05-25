@@ -1,12 +1,14 @@
 'use strict';
 var ControllersModule = angular.module('BloGlu.controllers');
 
-ControllersModule.controller('inputPeriodController', ['$rootScope', '$scope', '$modal', 'dateUtil', 'Period', 'MessageService', 'dataService', function Controller($rootScope, $scope, $modal, dateUtil, Period, MessageService, dataService) {
+ControllersModule.controller('periodController', ['$rootScope', '$scope', '$modal', 'dateUtil', 'MessageService', 'dataService', function Controller($rootScope, $scope, $modal, dateUtil, MessageService, dataService) {
         $rootScope.messages = [];
         $rootScope.pending = 0;
         $scope.arePeriodsOnMoreThanOneDay = true;
         $rootScope.pending++;
-        dataService.queryLocal('Period').then(function(result) {
+        var resourceName = 'Period';
+        
+        dataService.queryLocal(resourceName).then(function(result) {
             $scope.periods = result;
             processPeriods($scope.periods);
             $scope.$watch('periods', function(newValue, oldValue) {
@@ -70,15 +72,20 @@ ControllersModule.controller('inputPeriodController', ['$rootScope', '$scope', '
             }
             return periodValid;
         }
-
+        
+        $scope.getBeginDateHours = function(period){
+            var beginDateHours = period.begin.getHours();
+            var beginDateMinutes = period.begin.getMinutes();
+            return beginDateHours * 60 + beginDateMinutes;
+        };
+        
 
         $scope.savePeriod = function(period) {
             if (period && period.begin && period.end) {
                 //check periods => length, intersection
                 if (checkPeriods($scope.periods, period)) {
-
                     $rootScope.pending++;
-                    dataService.save('Period', {
+                    dataService.save(resourceName, {
                         name: period.name,
                         begin: period.begin,
                         end: period.end
@@ -115,7 +122,7 @@ ControllersModule.controller('inputPeriodController', ['$rootScope', '$scope', '
                 if (confirmed) {
                     if (period.objectId) {
                         $rootScope.pending++;
-                        dataService.delete('Period', period.objectId).then(function(result) {
+                        dataService.delete(resourceName, period.objectId).then(function(result) {
                             var periodIndex = -1;
                             $scope.periods.forEach(function(per, index) {
                                 if (per.objectId && per.objectId === period.objectId) {
@@ -159,7 +166,7 @@ ControllersModule.controller('inputPeriodController', ['$rootScope', '$scope', '
             } else {
                 if (period.objectId) {
                     $rootScope.pending++;
-                    dataService.update('Period', period.objectId, {
+                    dataService.update(resourceName, period.objectId, {
                         name: period.name,
                         begin: period.begin,
                         end: period.end

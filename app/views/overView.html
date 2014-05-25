@@ -33,7 +33,7 @@
                 <tr ng-repeat="line in data track by $index" ng-if="$index != 0">
                     <td ng-repeat="bloodGlucoseReadings in line track by $index">
                         <!-- Row header -->
-                        <div ng-if="$index == 0">                            
+                        <div ng-if="$index == 0">
                             <div ng-if="interval == 'week'">
                                 <strong>{{bloodGlucoseReadings.date| date:'EEEE d MMM'}}</strong>
                             </div>

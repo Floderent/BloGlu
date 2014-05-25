@@ -20,22 +20,55 @@ ControllersModule.controller('eventController', ['$scope', '$rootScope', '$route
         $rootScope.pending++;
         $q.all([
             getEvent(),
-            dataService.queryLocal('Unit', {where: {code: $scope.eventCode}})
+            dataService.queryLocal('Unit', {where: {code: $scope.eventCode}}),
+            dataService.queryLocal('Category', {where: {code: $scope.eventCode}})
         ]).then(function resolve(results) {
             $rootScope.pending--;
             $scope.event = results[0];
             $scope.units = results[1];
+            $scope.categories = results[2];
+
+            handleDate();
+            handleCategory();
+            handleUnit();
+
+        }, function reject() {
+            $rootScope.pending--;
+            $rootScope.messages.push(MessageService.errorMessage('Cannot read informations from server', 2000));
+        });
+
+        $scope.open = function($event) {
+            $event.preventDefault();
+            $event.stopPropagation();
+            $scope.opened = true;
+        };
+
+
+        function handleDate() {
             //=====handle date
             var currentDate = new Date();
             if ($scope.event.dateTime) {
                 currentDate = $scope.event.dateTime;
-            } else {
-                if ($scope.event.dateTime) {
-                    currentDate = $scope.event.dateTime;
-                }
             }
             $scope.date = currentDate;
+        }
 
+        function handleCategory() {
+            //=====handle category
+            var currentCategory = null;
+            if ($scope.event.category) {
+                $scope.categories.forEach(function(category) {
+                    debugger;
+                    if (category.objectId === $scope.event.category.objectId) {
+                        currentCategory = category;
+                        return;
+                    }
+                });
+            }
+            $scope.currentCategory = currentCategory;
+        }
+
+        function handleUnit() {
             //=====handle units
             if ($scope.event.unit) {
                 $scope.units.forEach(function(unit) {
@@ -65,16 +98,8 @@ ControllersModule.controller('eventController', ['$scope', '$rootScope', '$route
                     }
                 }
             });
-        }, function reject() {
-            $rootScope.pending--;
-            $rootScope.messages.push(MessageService.errorMessage('Cannot read informations from server', 2000));
-        });
+        }
 
-        $scope.open = function($event) {
-            $event.preventDefault();
-            $event.stopPropagation();
-            $scope.opened = true;
-        };
 
         function getEvent() {
             $rootScope.pending++;
@@ -119,6 +144,7 @@ ControllersModule.controller('eventController', ['$scope', '$rootScope', '$route
         $scope.update = function(event) {
             event.dateTime = $scope.date;
             event.unit = $scope.currentUnit;
+            event.category = $scope.currentCategory;
             event.code = $scope.eventCode;
             var savingPromise = null;
             if ($scope.isEdit) {
