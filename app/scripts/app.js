@@ -14,6 +14,7 @@ var mainModule = angular
             'ui.bootstrap',
             'highcharts-ng',
             'angularFileUpload',
+            'angularSpectrumColorpicker',
             'BloGlu.services',
             'BloGlu.controllers',
             'BloGlu.directives'
@@ -26,6 +27,7 @@ mainModule.config(['$routeProvider',
         $routeProvider.when('/overview', {controller: 'overviewController', templateUrl: 'views/overView.html'});
         $routeProvider.when('/period', {controller: 'periodController', templateUrl: 'views/period.html'});
         $routeProvider.when('/category', {controller: 'categoryController', templateUrl: 'views/category.html'});
+        $routeProvider.when('/range', {controller: 'rangeController', templateUrl: 'views/range.html'});
         $routeProvider.when('/inputBgTarget', {controller: 'bloodGlucoseTargetController', templateUrl: 'views/inputBloodGlucoseTarget.html'});
         $routeProvider.when('/charts', {controller: 'chartController', templateUrl: 'views/charts.html'});
         $routeProvider.when('/report', {controller: 'reportController', templateUrl: 'views/report.html'});

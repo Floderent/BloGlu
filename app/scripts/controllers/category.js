@@ -1,7 +1,7 @@
 'use strict';
 var ControllersModule = angular.module('BloGlu.controllers');
 
-ControllersModule.controller('categoryController', ['$rootScope', '$scope', '$modal', 'MessageService', 'dataService','ResourceName', function Controller($rootScope, $scope, $modal, MessageService, dataService,ResourceName) {
+ControllersModule.controller('categoryController', ['$rootScope', '$scope', '$modal','$window', 'MessageService', 'dataService','ResourceName', function Controller($rootScope, $scope, $modal, $window, MessageService, dataService,ResourceName) {
         $rootScope.messages = [];
         $rootScope.pending = 0;
         
@@ -11,7 +11,7 @@ ControllersModule.controller('categoryController', ['$rootScope', '$scope', '$mo
         
         
         var resourceName = 'Category';
-        getCategories();
+        renderPage();
 
         $scope.$watch('code', function(newValue, oldValue) {            
             if(newValue !== oldValue){                
@@ -24,8 +24,13 @@ ControllersModule.controller('categoryController', ['$rootScope', '$scope', '$mo
             $scope.eventType = ResourceName[$scope.code];
         };
         
-        function getCategories() {
-            $rootScope.pending++;
+        function renderPage() {
+            getCategories();
+        }
+       
+       
+       function getCategories(){
+           $rootScope.pending++;
             dataService.queryLocal(resourceName, {where:{code: $scope.code}}).then(function(result) {
                 $scope.categories = result;                
                 $rootScope.pending--;
@@ -33,7 +38,7 @@ ControllersModule.controller('categoryController', ['$rootScope', '$scope', '$mo
                 $rootScope.messages.push(MessageService.errorMessage("Error loading categories.", 2000));
                 $rootScope.pending--;
             });
-        }
+       }
        
 
         $scope.saveCategory = function(category) {
@@ -124,6 +129,9 @@ ControllersModule.controller('categoryController', ['$rootScope', '$scope', '$mo
                 });
             }
         };
+        
+        $window.addEventListener('dataReady', renderPage);
+        
 
         $scope.$on('$routeChangeStart', function() {
             //cancel promise
@@ -131,6 +139,8 @@ ControllersModule.controller('categoryController', ['$rootScope', '$scope', '$mo
             $rootScope.pending = 0;
             //clear messages
             $rootScope.messages = [];
+            //clear events
+            $window.removeEventListener('dataReady',renderPage);
         });
 
 

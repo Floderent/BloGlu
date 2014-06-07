@@ -26,10 +26,10 @@ describe('Services: dataService', function() {
         var processedResult = dataServ.processResult(testResult, params);
         expect(processedResult).toEqual(expectedResult);
     });
-    
-    
+
+
     it('should select sub-object fields', function() {
-        var testResult = [{truc: "truc0.0", toto1: {name:'totoRow1'}, test: "testTest0.2", toto3: "value0.3"}, {truc: "truc0.1", toto1: {name:'totoRow2'}, test: "testTest0.2", toto3: "value1.3"}];
+        var testResult = [{truc: "truc0.0", toto1: {name: 'totoRow1'}, test: "testTest0.2", toto3: "value0.3"}, {truc: "truc0.1", toto1: {name: 'totoRow2'}, test: "testTest0.2", toto3: "value1.3"}];
         var expectedResult = [{'toto1.name': 'totoRow1', toto3: "value0.3"}, {'toto1.name': "totoRow2", toto3: "value1.3"}];
         var params = {
             select: [
@@ -40,7 +40,7 @@ describe('Services: dataService', function() {
         var processedResult = dataServ.processResult(testResult, params);
         expect(processedResult).toEqual(expectedResult);
     });
-    
+
 
 
     it('should transform the selection', function() {
@@ -139,7 +139,7 @@ describe('Services: dataService', function() {
             {field2: 8}
         ];
         var params = {
-            select: [                
+            select: [
                 {
                     field: 'toto3',
                     aggregate: 'sum',
@@ -151,7 +151,7 @@ describe('Services: dataService', function() {
         var processedResult = dataServ.processResult(testResult, params);
         expect(processedResult).toEqual(expectedResult);
     });
-    
+
     it('should do a sum with only one field and no group by', function() {
         var testResult = [
             {truc: "1", toto1: "2", test: "3", toto3: 4},
@@ -160,14 +160,14 @@ describe('Services: dataService', function() {
             {field2: 8}
         ];
         var params = {
-            select: [                
+            select: [
                 {
                     field: 'toto3',
                     aggregate: 'sum',
                     alias: 'field2'
                 }
             ]//,
-            //groupBy: ['field1']
+                    //groupBy: ['field1']
         };
         var processedResult = dataServ.processResult(testResult, params);
         expect(processedResult).toEqual(expectedResult);
@@ -227,6 +227,115 @@ describe('Services: dataService', function() {
         expect(processedResult).toEqual(expectedResult);
     });
 
+
+    it('should do several averages on same column', function() {
+        var testResult = [
+            {truc: "1", toto1: 3, test: "3", toto3: 4},
+            {truc: "1", toto1: 2, test: "3", toto3: 1},
+            {truc: "2", toto1: 4, test: "3", toto3: 4},
+            {truc: "2", toto1: 10, test: "3", toto3: 4},
+            {truc: "3", toto1: 20, test: "3", toto3: 4},
+            {truc: "3", toto1: 30, test: "3", toto3: 4}
+        ];
+        var expectedResult = [
+            {avg1: 2.5, avg2: 7, avg3: 25}
+        ];
+        var params = {
+            select: [
+                {
+                    field: 'toto1',
+                    aggregate: 'avg',
+                    alias: 'avg1',
+                    transform: function(value, row) {
+                        var returnValue = null;
+                        if (row.truc === "1") {
+                            returnValue = value;
+                        }
+                        return returnValue;
+                    }
+                },
+                {
+                    field: 'toto1',
+                    aggregate: 'avg',
+                    alias: 'avg2',
+                    transform: function(value, row) {
+                        var returnValue = null;
+                        if (row.truc === "2") {
+                            returnValue = value;
+                        }
+                        return returnValue;
+                    }
+                },
+                {
+                    field: 'toto1',
+                    aggregate: 'avg',
+                    alias: 'avg3',
+                    transform: function(value, row) {
+                        var returnValue = null;
+                        if (row.truc === "3") {
+                            returnValue = value;
+                        }
+                        return returnValue;
+                    }
+                }
+            ]
+        };
+        var processedResult = dataServ.processResult(testResult, params);
+        expect(processedResult).toEqual(expectedResult);
+    });
+
+
+    it('should do several averages on same column without displaying NaN', function() {
+        var testResult = [
+            {truc: "1", toto1: 3, test: "janvier", toto3: null},
+            {truc: "1", toto1: 2, test: "janvier", toto3: null},
+            {truc: "2", toto1: null, test: "fevrier", toto3: 4},
+            {truc: "2", toto1: 10, test: "juin", toto3: 4}            
+        ];
+        var expectedResult = [
+            {test: "janvier", avg1: 2.5, avg2: ""},
+            {test: "fevrier", avg1: "",avg2: ""},
+            {test: "juin", avg1: "", avg2: 10}
+        ];
+        var params = {
+            select: [               
+                {
+                  field: 'test'  
+                },
+                {
+                    field: 'toto1',
+                    aggregate: 'avg',
+                    alias: 'avg1',
+                    transform: function(value, row) {
+                        var returnValue = null;
+                        if (row.truc === "1") {
+                            returnValue = value;
+                        }
+                        return returnValue;
+                    }
+                },
+                {
+                    field: 'toto1',
+                    aggregate: 'avg',
+                    alias: 'avg2',
+                    transform: function(value, row) {
+                        var returnValue = null;
+                        if (row.truc === "2") {
+                            returnValue = value;
+                        }
+                        return returnValue;
+                    }
+                }
+
+            ],
+            groupBy: ['truc','test']
+        };
+        var processedResult = dataServ.processResult(testResult, params);
+        expect(processedResult).toEqual(expectedResult);
+    });
+
+
+
     it('should filter the result', function() {
         var testResult = [
             {truc: "1", toto1: "2", test: "3", toto3: 4},
@@ -276,8 +385,8 @@ describe('Services: dataService', function() {
 
     //Date {Sun Dec 01 2013 00:00:00 GMT+0100}
     //Date {Tue Dec 31 2013 00:00:00 GMT+0100}
-    
-    
+
+
     it('should filter between date', function() {
         var testResult = [
             {name: "test1", dateTime: new Date(2010, 1, 1)},
@@ -302,6 +411,119 @@ describe('Services: dataService', function() {
         expect(processedResult).toEqual(expectedResult);
     });
 
+    it('should order the result', function() {
+        var testResult = [
+            {name: "test1", value: 0},
+            {name: "test8", value: 8},
+            {name: "test4", value: 4},
+            {name: "test0", value: -1}
+        ];
+        var expectedResult = [
+            {name: "test0", value: -1},
+            {name: "test1", value: 0},
+            {name: "test4", value: 4},
+            {name: "test8", value: 8}
+        ];
+        var params = {
+            select: [
+                {field: 'name'},
+                {field: 'value'}
+            ],
+            orderBy: [{
+                    alias: 'value'
+                }]
+        };
+        var processedResult = dataServ.processResult(testResult, params);
+        expect(processedResult).toEqual(expectedResult);
+    });
+
+
+    it('should order the result by descending order', function() {
+        var testResult = [
+            {name: "test1", value: 0},
+            {name: "test8", value: 8},
+            {name: "test4", value: 4},
+            {name: "test0", value: -1}
+        ];
+        var expectedResult = [
+            {name: "test8", value: 8},
+            {name: "test4", value: 4},
+            {name: "test1", value: 0},
+            {name: "test0", value: -1}
+        ];
+        var params = {
+            select: [
+                {field: 'name'},
+                {field: 'value'}
+            ],
+            orderBy: [{
+                    alias: 'value',
+                    direction: 'desc'
+                }]
+        };
+        var processedResult = dataServ.processResult(testResult, params);
+        expect(processedResult).toEqual(expectedResult);
+    });
+
+
+    it('should order the result by multiple columns', function() {
+        var testResult = [
+            {name: "aaa", value: 8},
+            {name: "bb", value: 4},
+            {name: "zzz", value: -1},
+            {name: "aaa", value: 0}
+        ];
+        var expectedResult = [
+            {name: "aaa", value: 0},
+            {name: "aaa", value: 8},
+            {name: "bb", value: 4},
+            {name: "zzz", value: -1}
+        ];
+        var params = {
+            select: [
+                {field: 'name'},
+                {field: 'value'}
+            ],
+            orderBy: [{
+                    alias: 'name'
+                }
+                , {
+                    alias: 'value'
+                }]
+        };
+        var processedResult = dataServ.processResult(testResult, params);
+        expect(processedResult).toEqual(expectedResult);
+    });
+
+
+    it('should order the result by custom sorting function', function() {
+        var testResult = [
+            {name: "February", value: 8},
+            {name: "January", value: 4},
+            {name: "December", value: -1},
+            {name: "July", value: 0}
+        ];
+        var expectedResult = [
+            {name: "January", value: 4},
+            {name: "February", value: 8},
+            {name: "July", value: 0},
+            {name: "December", value: -1}
+        ];
+        var params = {
+            select: [
+                {field: 'name'},
+                {field: 'value'}
+            ],
+            orderBy: [{
+                    alias: 'name',
+                    sort: dataServ.sort.monthName
+                }
+            ]
+        };
+        var processedResult = dataServ.processResult(testResult, params);
+        expect(processedResult).toEqual(expectedResult);
+    });
+
 
 
 
@@ -311,42 +533,42 @@ describe('Services: dataService', function() {
 
 
 describe('Services: queryService', function() {
-    
+
     beforeEach(module('BloGlu'));
     var querySvc;
     var scope;
     beforeEach(inject(function($injector) {
-        querySvc = $injector.get('queryService');    
+        querySvc = $injector.get('queryService');
         scope = $injector.get('$rootScope');
-    }));    
-    
+    }));
+
     var testReportQuery = {
         select: ['month', 'averageBgReading'],
         where: {code: 1}
     };
-    
+
     /*
-    it('should generate executable query', function() {
-        var res;
-        querySvc.executeReportQuery(testReportQuery).then(function(result) {
-            res = result;
-            console.log("Resolved promise !");
-        }, function(error) {
-            res = error;
-            console.log("Promise error !");
-        }).finally(function(){            
-            
-        });        
-        scope.$apply();
-        expect(res).toBe("toto");
-        
-    });
-    */
+     it('should generate executable query', function() {
+     var res;
+     querySvc.executeReportQuery(testReportQuery).then(function(result) {
+     res = result;
+     console.log("Resolved promise !");
+     }, function(error) {
+     res = error;
+     console.log("Promise error !");
+     }).finally(function(){            
+     
+     });        
+     scope.$apply();
+     expect(res).toBe("toto");
+     
+     });
+     */
 });
 
 /*
  
-*/
+ */
 
 describe('Services: ModelUtil', function() {
 
@@ -526,13 +748,13 @@ describe('Services: indexeddbService', function() {
                 }, function reject(error) {
                     console.log(error);
                     expect('deleteRecordError').toBe('deleteRecordSuccess');
-                   
+
                 });
 
             }, function reject(error) {
                 console.log(error);
                 expect('getDataError').toBe('getDataSuccess');
-                
+
             });
 
         }, function reject(error) {

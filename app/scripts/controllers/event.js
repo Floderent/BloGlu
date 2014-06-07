@@ -1,7 +1,7 @@
 'use strict';
 var ControllersModule = angular.module('BloGlu.controllers');
 
-ControllersModule.controller('eventController', ['$scope', '$rootScope', '$routeParams', '$q', '$window', '$modal', 'ResourceCode', 'dateUtil', 'UserService', 'MessageService', 'dataService', function Controller($scope, $rootScope, $routeParams, $q, $window, $modal, ResourceCode, dateUtil, UserService, MessageService, dataService) {
+ControllersModule.controller('eventController', ['$scope', '$rootScope', '$routeParams', '$q', '$window', '$modal', 'ResourceCode', 'UserService', 'MessageService', 'dataService', function Controller($scope, $rootScope, $routeParams, $q, $window, $modal, ResourceCode, UserService, MessageService, dataService) {
         $rootScope.messages = [];
         $rootScope.pending = 0;
 
@@ -16,26 +16,34 @@ ControllersModule.controller('eventController', ['$scope', '$rootScope', '$route
             eventType = $routeParams.eventType;
         }
         $scope.eventCode = ResourceCode[eventType];
+        renderPage();
 
-        $rootScope.pending++;
-        $q.all([
-            getEvent(),
-            dataService.queryLocal('Unit', {where: {code: $scope.eventCode}}),
-            dataService.queryLocal('Category', {where: {code: $scope.eventCode}})
-        ]).then(function resolve(results) {
-            $rootScope.pending--;
-            $scope.event = results[0];
-            $scope.units = results[1];
-            $scope.categories = results[2];
+        function renderPage() {
+            $rootScope.pending++;
+            $q.all([
+                getEvent(),
+                dataService.queryLocal('Unit', {where: {code: $scope.eventCode}}),
+                dataService.queryLocal('Category', {where: {code: $scope.eventCode}})
+            ]).then(function resolve(results) {
+                $rootScope.pending--;
+                $scope.event = results[0];
+                $scope.units = results[1];
+                $scope.categories = results[2];
 
-            handleDate();
-            handleCategory();
-            handleUnit();
+                handleDate();
+                handleCategory();
+                handleUnit();
 
-        }, function reject() {
-            $rootScope.pending--;
-            $rootScope.messages.push(MessageService.errorMessage('Cannot read informations from server', 2000));
-        });
+            }, function reject() {
+                $rootScope.pending--;
+                $rootScope.messages.push(MessageService.errorMessage('Cannot read informations from server', 2000));
+            });
+        }
+
+
+
+
+
 
         $scope.open = function($event) {
             $event.preventDefault();
@@ -182,10 +190,15 @@ ControllersModule.controller('eventController', ['$scope', '$rootScope', '$route
                 //exit
             });
         };
+        
+        $window.addEventListener('dataReady', renderPage);
+        
         $scope.$on("$routeChangeStart", function() {
             //cancel promise
             MessageService.cancelAll($rootScope.messages);
             //clear messages
             $rootScope.messages = [];
+            //clear events
+            $window.removeEventListener('dataReady',renderPage);
         });
     }]);

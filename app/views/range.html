@@ -1,0 +1,92 @@
+<div class="panel panel-primary content-panel">
+    <div class="panel-heading">
+        <h3 class="panel-title">View or modify the blood glucose range(s)</h3>
+    </div>
+    <div class="panel-body ">
+
+    </div>
+
+    <form novalidate class="simple-form">
+        <div class="input-group">
+            <div class="table-responsive" ng-show="!arePeriodsOnMoreThanOneDay">
+                <table class="table table-striped">
+                    <th>Unit</th>
+                    <th>Lower limit</th>
+                    <th>Upper limit</th>
+                    <th>Normal range</th>
+                    <th>Color</th>
+                    <th></th>
+                    <tr>
+                        <td>
+                            <select class="blood-glucose-select blood-glucose-input-field input-lg form-inline" data-ng-model="newRangeUnit" data-ng-options="unit.name for unit in units"></select>
+                        </td>
+                        <td>
+                            <input type="number" min="0" required class="input-sm" data-ng-model="newRange.lowerLimit">
+                        </td>
+                        <td>
+                            <input type="number" min="0" required class="input-sm" data-ng-model="newRange.upperLimit">
+                        </td>
+                        <td>
+                            <input ng-model="newRange.normal" type="checkbox">
+                        </td>
+                        <td>
+                            <spectrum-colorpicker ng-model="newRange.color" options="{showPalette: true, preferredFormat: 'hex'}"></spectrum-colorpicker>
+                        </td>
+                        <td>
+                            <button type="button" ng-click="saveRange(newRange)">Add</button>
+                        </td>
+                    </tr>
+                </table>
+            </div>
+
+
+            <div class="alert alert-danger"  ng-show="errorMessage">                            
+                <strong>Error!</strong> {{errorMessage}}
+            </div>
+            <div class="alert alert-success"  ng-show="successMessage">                            
+                <strong>Success!</strong> {{successMessage}}
+            </div>
+        </div>
+        <div class="table-responsive">
+            <table class="table table-striped">
+                <th>Unit</th>
+                <th>Lower limit</th>
+                <th>Upper limit</th>
+                <th>Normal range</th>
+                <th>Color</th>
+                <th></th>
+                <tr ng-repeat="range in ranges | orderBy:getLowerLimit">
+                    <td>
+                        <div ng-show="!range.isEdit">{{range.unit.name}}</div>
+                        <select ng-controller="rangeUnitSelectController" ng-show="range.isEdit" class="blood-glucose-select blood-glucose-input-field input-lg form-inline" data-ng-model="editedRangeUnit" data-ng-options="unit.name for unit in units"></select>
+                    </td>
+                    <td>
+                        <div ng-show="!range.isEdit">{{range.lowerLimit}}</div>
+                        <input ng-show="range.isEdit" type="number" min="0" required class="input-sm" data-ng-model="range.lowerLimit">
+                    </td>
+                    <td>
+                        <div ng-show="!range.isEdit">{{range.upperLimit}}</div>
+                        <input ng-show="range.isEdit" type="number" min="0" required class="input-sm" data-ng-model="range.upperLimit">
+                    </td>
+                    <td>
+                        <input ng-model="range.normal" ng-disabled="!range.isEdit" type="checkbox">
+                    </td>                    
+                    
+                    <td ng-show="!range.isEdit" style="background-color: {{range.color}};">
+                    </td>
+                    <td ng-show="range.isEdit">    
+                        <spectrum-colorpicker ng-model="range.color" options="{showPalette: true, preferredFormat: 'hex'}"></spectrum-colorpicker>
+                    </td>
+                    <td>
+                        <button type="button" ng-click="deleteRange(range)">Delete</button>
+                        <button type="button" ng-show="!range.isEdit" ng-click="editRange(range)">Edit</button>
+                        <button type="button" ng-show="range.isEdit" ng-click="updateRange(range)">Update</button>
+                        <button type="button" ng-show="range.isEdit" ng-click="cancelEditRange(range)">Cancel</button>                            
+                    </td>
+                </tr>
+            </table>
+        </div>
+    </form>
+
+
+</div>

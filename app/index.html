@@ -17,6 +17,10 @@
         <!-- build:css({.tmp,app}) styles/main.css -->
         <link rel="stylesheet" href="styles/main.css">
         <!-- endbuild -->
+        
+        <!-- spectrum CSS -->
+        <link rel="stylesheet" href="bower_components/spectrum/spectrum.css">
+        
     </head>
 
     <!--[if lt IE 7]>
@@ -79,7 +83,8 @@
                         <a href="#" class="dropdown-toggle" data-toggle="dropdown"><b>Blood Glucose</b> <b class="caret"></b></a>
                         <ul class="dropdown-menu">
                             <li><a href="#event/bloodGlucose">Enter blood glucose reading</a></li>
-                            <li><a href="#inputBgTarget">Enter blood glucose target</a></li>                            
+                            <li><a href="#inputBgTarget">Enter blood glucose target</a></li>
+                            <li><a href="#range">Enter blood glucose range</a></li>
                             <li><a href="#overview">View your notebook</a></li>
                             <li><a href="#charts">See charts</a></li>
                             <li><a href="#import">Import</a></li>
@@ -207,6 +212,9 @@
         <script src="bower_components/jspdf/dist/jspdf.min.js"></script>
         <script src="bower_components/jspdf/dist/jspdf.plugin.cell.js"></script>
         
+        <!-- Spectrum -->       
+        <script src="bower_components/spectrum/spectrum.js"></script>
+        <script src="bower_components/spectrum/dist/angular-spectrum-colorpicker.min.js"></script>
 
         <!-- endbower -->
         <!-- endbuild -->
@@ -223,6 +231,7 @@
         <script src="scripts/controllers/logBook.js"></script>
         <script src="scripts/controllers/category.js"></script>
         <script src="scripts/controllers/dashboard.js"></script>
+        <script src="scripts/controllers/range.js"></script>
         <!-- Services -->
         <script src="scripts/services/services.js"></script>
         <script src="scripts/services/common.js"></script>

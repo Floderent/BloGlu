@@ -1,6 +1,35 @@
 'use strict';
 var ControllersModule = angular.module('BloGlu.controllers');
 
+
+
+ControllersModule.controller('rangeUnitSelectController', ['$scope', function Controller($scope) {
+        
+        $scope.$watch('range.isEdit', function(newValue, oldValue){            
+            if(newValue){
+                $scope.units.forEach(function(unit){
+                    if(unit.objectId === $scope.range.unit.objectId){
+                        $scope.editedRangeUnit = unit;
+                    }
+                });
+            }
+        });
+        
+        $scope.$watch('editedRangeUnit', function(newValue, oldValue) {             
+            if (newValue && oldValue && newValue !== oldValue) {
+                if ($scope.range && $scope.range.lowerLimit !== null) {
+                    $scope.range.lowerLimit = $scope.range.lowerLimit * oldValue.coefficient / newValue.coefficient;
+                } 
+                if ($scope.range && $scope.range.upperLimit !== null) {
+                    $scope.range.upperLimit = $scope.range.upperLimit * oldValue.coefficient / newValue.coefficient;
+                }
+                $scope.range.unit = newValue;
+            }
+        });
+    }]);
+
+
+
 ControllersModule.controller('confirmModalController', ['$scope', '$modalInstance', function Controller($scope, $modalInstance) {
         $scope.ok = function() {
             $modalInstance.close(1);
@@ -9,7 +38,6 @@ ControllersModule.controller('confirmModalController', ['$scope', '$modalInstanc
             $modalInstance.dismiss(0);
         };
     }]);
-
 
 ControllersModule.controller('inputUserController', ['$scope', '$rootScope', '$modalInstance', 'UserService', 'MessageService', function Controller($scope, $rootScope, $modalInstance, UserService, MessageService) {
         $scope.user = {};

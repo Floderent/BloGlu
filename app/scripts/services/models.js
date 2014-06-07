@@ -29,14 +29,14 @@ servicesModule.factory('ModelUtil', [function() {
                     if (Array.isArray(value) && Array.isArray(existingValue)) {
                         newValue = {$in: existingValue.concat(value)};
                     } else {
-                        if(Array.isArray(value)){
+                        if (Array.isArray(value)) {
                             value.push(existingValue);
                             newValue = {$in: value};
-                        }else{
-                            if(Array.isArray(existingValue)){
+                        } else {
+                            if (Array.isArray(existingValue)) {
                                 existingValue.push(value);
                                 newValue = {$in: existingValue};
-                            }else{
+                            } else {
                                 newValue = {$in: [existingValue, value]};
                             }
                         }
@@ -414,7 +414,7 @@ servicesModule.factory('Category', ['$resource', 'ServerService', 'UserService',
                         transformResponse: function(data) {
                             var jsonResponse = angular.fromJson(data);
                             if (jsonResponse && jsonResponse.results) {
-                                jsonResponse = jsonResponse.results;                                
+                                jsonResponse = jsonResponse.results;
                             }
                             return jsonResponse;
                         }
@@ -425,7 +425,7 @@ servicesModule.factory('Category', ['$resource', 'ServerService', 'UserService',
                         transformRequest: function(data) {
                             if (data) {
                                 var dataToSave = angular.extend({}, data);
-                                dataToSave.ACL = UserService.ownerReadWriteACL();                               
+                                dataToSave.ACL = UserService.ownerReadWriteACL();
                             }
                             return angular.toJson(dataToSave);
                         }
@@ -435,7 +435,7 @@ servicesModule.factory('Category', ['$resource', 'ServerService', 'UserService',
                         headers: UserService.headers(),
                         transformRequest: function(data) {
                             if (data) {
-                                data.ACL = UserService.ownerReadWriteACL();                                
+                                data.ACL = UserService.ownerReadWriteACL();
                             }
                             return angular.toJson(data);
                         }
@@ -508,4 +508,60 @@ servicesModule.factory('UserPreferences', ['$resource', 'ServerService', 'UserSe
                     }
 
                 });
+    }]);
+
+
+servicesModule.factory('Range', ['$resource', 'ServerService', 'UserService', 'dateUtil', function($resource, ServerService, UserService, dateUtil) {
+        var url = ServerService.baseUrl + 'classes/Range/:Id';
+        return $resource(url,
+                {
+                    include: 'unit'
+                },
+        {
+            query: {
+                method: 'GET',
+                headers: UserService.headers(),
+                isArray: true,
+                transformResponse: function(data) {
+                    var jsonResponse = angular.fromJson(data);
+                    if (jsonResponse && jsonResponse.results) {
+                        jsonResponse = jsonResponse.results;
+                    }
+                    return jsonResponse;
+                }
+            },
+            save: {
+                method: 'POST',
+                headers: UserService.headers(),
+                transformRequest: function(data) {
+                    if (data) {
+                        var dataToSave = angular.extend({}, data);
+                        dataToSave.ACL = UserService.ownerReadWriteACL();
+
+                        if (data.unit && data.unit.objectId) {
+                            dataToSave.unit = {__type: 'Pointer', className: 'Unit', objectId: data.unit.objectId};
+                        }
+
+                    }
+                    return angular.toJson(dataToSave);
+                }
+            },
+            update: {
+                method: 'PUT',
+                headers: UserService.headers(),
+                transformRequest: function(data) {
+                    if (data) {
+                        data.ACL = UserService.ownerReadWriteACL();
+                    }
+                    if (data.unit && data.unit.objectId) {
+                        data.unit = {__type: 'Pointer', className: 'Unit', objectId: data.unit.objectId};
+                    }
+                    return angular.toJson(data);
+                }
+            },
+            delete: {
+                method: 'DELETE',
+                headers: UserService.headers()
+            }
+        });
     }]);

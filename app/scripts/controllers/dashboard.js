@@ -49,9 +49,7 @@ ControllersModule.controller('dashboardController', ['$scope', '$rootScope', '$w
             }
         }
 
-        $window.addEventListener('dataReady', function(eventInfo){            
-            renderPage();
-        });
+        $window.addEventListener('dataReady', renderPage);
 
 
         $scope.$on("$routeChangeStart", function() {
@@ -60,6 +58,6 @@ ControllersModule.controller('dashboardController', ['$scope', '$rootScope', '$w
             //clear messages
             $rootScope.messages = [];
             //clear events
-
+            $window.removeEventListener('dataReady',renderPage);
         });
     }]);

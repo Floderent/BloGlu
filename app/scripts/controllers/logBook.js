@@ -1,14 +1,13 @@
 'use strict';
 var ControllersModule = angular.module('BloGlu.controllers');
 
-ControllersModule.controller('overviewController', ['$scope', '$rootScope', '$location', '$routeParams', '$filter', 'ResourceCode', 'dateUtil', 'UserService', 'overViewService', 'MessageService', 'printService', function Controller($scope, $rootScope, $location, $routeParams, $filter, ResourceCode, dateUtil, UserService, overViewService, MessageService, printService) {
+ControllersModule.controller('overviewController', ['$scope', '$rootScope', '$location', '$routeParams', '$filter', '$window', 'ResourceCode', 'overViewService', 'MessageService', 'printService', function Controller($scope, $rootScope, $location, $routeParams, $filter, $window, ResourceCode, overViewService, MessageService, printService) {
 
         $rootScope.messages = [];
         $rootScope.pending = 0;
         $scope.data = [];
 
-        var beginDate = null;
-        var endDate = null;
+
         var currentDate = null;
         $scope.interval = 'week';
 
@@ -24,19 +23,26 @@ ControllersModule.controller('overviewController', ['$scope', '$rootScope', '$lo
 
         //display only blood glucose readings
         var params = {where: {code: [1]}};
+        renderPage();
 
-        $rootScope.pending++;
-        overViewService.getTableData($scope.timeInterval, params).then(
-                function resolve(result) {
-                    $rootScope.pending--;
-                    $scope.header = result[0];
-                    $scope.data = result;
-                },
-                function reject(error) {
-                    $rootScope.pending--;
-                    $scope.header = [];
-                    $scope.data = [];
-                });
+
+        function renderPage() {
+            $rootScope.pending++;
+            overViewService.getTableData($scope.timeInterval, params).then(
+                    function resolve(result) {
+                        $rootScope.pending--;
+                        $scope.header = result[0];
+                        $scope.data = result;
+                    },
+                    function reject(error) {
+                        $rootScope.pending--;
+                        $scope.header = [];
+                        $scope.data = [];
+                    });
+        }
+
+
+
 
         $scope.printToPDF = function() {
             printService.convertTableToPDF($scope.data, renderCell.bind({
@@ -135,7 +141,7 @@ ControllersModule.controller('overviewController', ['$scope', '$rootScope', '$lo
                     newInterval = 'month';
                     break;
                 default:
-                    newInterval = $$scope.interval;
+                    newInterval = $scope.interval;
                     break;
             }
             $location.path('overview').search('weekDate', date.toISOString()).search('interval', newInterval);
@@ -155,11 +161,15 @@ ControllersModule.controller('overviewController', ['$scope', '$rootScope', '$lo
             changeInterval(currentDate, $scope.interval, 0);
         };
 
+        $window.addEventListener('dataReady', renderPage);
+
         $scope.$on("$routeChangeStart", function() {
             //cancel promise
             MessageService.cancelAll($rootScope.messages);
             //clear messages
             $rootScope.messages = [];
+            //clear events
+            $window.removeEventListener('dataReady', renderPage);
         });
     }]);
 

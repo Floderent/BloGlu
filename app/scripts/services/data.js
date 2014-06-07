@@ -3,8 +3,12 @@
 var servicesModule = angular.module('BloGlu.services');
 
 servicesModule.factory('queryService', ['$q', 'dataService', 'ModelUtil', function($q, dataService, ModelUtil) {
-        var queryService = {};        
-
+        var queryService = {};
+        
+        queryService.getMetadatamodel = function(){
+            return dataService.queryLocal('Metadatamodel');
+        };        
+        
         queryService.getMeasures = function() {
             var measures = [];
             return dataService.queryLocal('Metadatamodel').then(function(mdm) {
@@ -37,7 +41,7 @@ servicesModule.factory('queryService', ['$q', 'dataService', 'ModelUtil', functi
     }]);
 
 
-servicesModule.factory('dataService', ['$q', '$filter', '$injector', 'indexeddbService', 'UserService', function($q, $filter, $injector, indexeddbService) {
+servicesModule.factory('dataService', ['$q', '$filter', '$injector', '$locale', 'indexeddbService', 'UserService', function($q, $filter, $injector, $locale, indexeddbService) {
         var dataService = {};
         var localData = null;
         var maxResult = 1000;
@@ -140,8 +144,20 @@ servicesModule.factory('dataService', ['$q', '$filter', '$injector', 'indexeddbS
         };
 
         dataService.queryLocal = function(collection, params) {
-            return dataService.init().then(function(localData) {                
+            return dataService.init().then(function(localData) {
                 return dataService.processResult(localData[collection], params);
+            });
+        };
+
+        dataService.get = function(collection, objectId) {
+            return dataService.init().then(function(localData) {
+                return dataService.processResult(localData[collection], {where: {objectId: objectId}}).then(function(results) {
+                    var result = null;
+                    if (results && results.length === 1) {
+                        result = results[0];
+                    }
+                    return result;
+                });
             });
         };
 
@@ -234,7 +250,7 @@ servicesModule.factory('dataService', ['$q', '$filter', '$injector', 'indexeddbS
             });
         }
 
-        dataService.processResult = function(queryResult, params) {            
+        dataService.processResult = function(queryResult, params) {
             var processedResult = queryResult;
             processedResult = [];
             queryResult.forEach(function(row) {
@@ -249,6 +265,9 @@ servicesModule.factory('dataService', ['$q', '$filter', '$injector', 'indexeddbS
             });
             //TODO add having here            
             postProcess(processedResult, params);
+
+            applyOrderBy(processedResult, params);
+
             return processedResult;
         };
 
@@ -308,7 +327,7 @@ servicesModule.factory('dataService', ['$q', '$filter', '$injector', 'indexeddbS
                             splittedField.forEach(function(fieldPart) {
                                 if (typeof value[fieldPart] !== 'undefined') {
                                     value = value[fieldPart];
-                                }else{
+                                } else {
                                     value = '';
                                     return;
                                 }
@@ -328,7 +347,7 @@ servicesModule.factory('dataService', ['$q', '$filter', '$injector', 'indexeddbS
             return resultRow;
         }
 
-        function applyGroupBy(rows, currentRow, params) {
+        function applyGroupBy(rows, currentRow, params) {            
             var rowToAdd = currentRow;
             var indexOfRow = getIndexOfRowInResult(rows, currentRow, params);
             if (indexOfRow !== -1) {
@@ -348,12 +367,20 @@ servicesModule.factory('dataService', ['$q', '$filter', '$injector', 'indexeddbS
                     var existingValue = newRow[alias];
                     switch (selectElement.aggregate) {
                         case 'count':
-                            newRow[alias] = 1;
+                            if (existingValue) {
+                                newRow[alias] = 1;
+                            }else{
+                                newRow[alias] = null;
+                            }
                             break;
                         case 'avg':
                             var existingValue = newRow[alias];
                             newRow[alias] = {};
-                            newRow[alias].count = 1;
+                            if(existingValue){
+                                newRow[alias].count = 1;
+                            }else{
+                                newRow[alias].count = null;
+                            }
                             newRow[alias].sum = existingValue;
                             break;
                     }
@@ -377,9 +404,11 @@ servicesModule.factory('dataService', ['$q', '$filter', '$injector', 'indexeddbS
                             existingRow[alias] = existingRow[alias] + 1;
                             break;
                         case 'avg':
-                            existingRow[alias] = {};
-                            existingRow[alias].count = existingValue.count + 1;
-                            existingRow[alias].sum = newValue + existingValue.sum;
+                            if (newValue) {                                
+                                existingRow[alias] = {};                                
+                                existingRow[alias].count = existingValue.count + 1;                                
+                                existingRow[alias].sum = newValue + existingValue.sum;
+                            }
                             break;
                         case 'sum':
                             existingRow[alias] = existingValue + newValue;
@@ -410,12 +439,57 @@ servicesModule.factory('dataService', ['$q', '$filter', '$injector', 'indexeddbS
                             alias = selectElement.alias;
                         }
                         var existingValue = processedResult[indexOfRow][alias];
-                        processedResult[indexOfRow][alias] = existingValue.sum / existingValue.count;
+                        if(existingValue.count){
+                            processedResult[indexOfRow][alias] = existingValue.sum / existingValue.count;
+                        }else{
+                            processedResult[indexOfRow][alias] = '';
+                        }
+                        
                     });
                 }
             }
             return processedResult;
         }
+
+
+        function applyOrderBy(processedResult, params) {
+            var result = processedResult;
+            if (params && params.orderBy && Array.isArray(params.orderBy) && params.orderBy.length > 0)
+                processedResult.sort(function(rowA, rowB) {
+                    var sortResult = 0;
+                    for (var i = 0; i < params.orderBy.length; i++) {
+                        var orderClause = params.orderBy[i];
+                        var sortValueA = rowA[orderClause.alias];
+                        var sortValueB = rowB[orderClause.alias];
+                        if (orderClause.sort) {
+                            sortResult = orderClause.sort(sortValueA, sortValueB);
+                        } else {
+                            sortResult = defaultSort(sortValueA, sortValueB);
+                        }
+                        if (orderClause.direction && orderClause.direction.toUpperCase() === 'DESC') {
+                            sortResult = -sortResult;
+                        }
+                        if (sortResult !== 0) {
+                            break;
+                        }
+                    }
+                    return sortResult;
+                });
+            return result;
+        }
+
+        function defaultSort(valueA, valueB) {
+            var sortResult = 0;
+            if (valueA > valueB) {
+                sortResult = 1;
+            } else {
+                if (valueA < valueB) {
+                    sortResult = -1;
+                }
+            }
+            return sortResult;
+        }
+
 
         function getAvgFieldsFromParams(params) {
             var avgFields = [];
@@ -429,10 +503,9 @@ servicesModule.factory('dataService', ['$q', '$filter', '$injector', 'indexeddbS
             return avgFields;
         }
 
-
         function getIndexOfRowInResult(rows, currentRow, params) {
             var resultIndex = -1;
-            if (containsOnlyAggregates(params)) {
+            if (containsOnlyAggregates(params) && (!params.groupBy || params.groupBy.length === 0)) {
                 if (rows.length === 0) {
                     resultIndex = -1;
                 } else {
@@ -456,6 +529,13 @@ servicesModule.factory('dataService', ['$q', '$filter', '$injector', 'indexeddbS
             }
             return resultIndex;
         }
+
+
+        dataService.orderBy = function(data, orderBy) {
+            var params = {};
+            params.orderBy = orderBy;
+            return applyOrderBy(data, params);
+        };
 
         dataService.select = {
             //Year
@@ -482,14 +562,30 @@ servicesModule.factory('dataService', ['$q', '$filter', '$injector', 'indexeddbS
                 }
                 return returnValue;
             },
+            //weekDay
+            weekDay: function(value, row) {
+                var returnValue = "";
+                if (value && value.getFullYear) {
+                    returnValue = this.$filter('date')(value, 'EEEE');
+                }
+                return returnValue;
+            }.bind({$filter: $filter}),
             //getBloodGlucose
             getBloodGlucose: function(value, row) {
-                var returnValue = 0;
+                var returnValue = null;
                 if (row.code && row.code === 1) {
                     returnValue = value;
                 }
                 return returnValue;
             }.bind({$injector: $injector}),
+            //get weight
+            getWeight: function(value, row) {
+                var returnValue = null;
+                if (row.code && row.code === 3) {
+                    returnValue = value;
+                }
+                return returnValue;
+            },
             getAnalysisPeriod: function(dateTime, row, localData) {
                 var returnValue = '';
                 var periods = localData.Period;
@@ -526,8 +622,19 @@ servicesModule.factory('dataService', ['$q', '$filter', '$injector', 'indexeddbS
                     }
                 });
                 return returnValue;
+            },
+            getBloodGlucoseRange: function(reading, row, localData) {
+                var ranges = localData.Range;
+                var convertedReading = reading * row.unit.coefficient;
+                var returnValue = '';
+                ranges.forEach(function(range) {
+                    if (convertedReading >= range.lowerLimit * range.unit.coefficient && convertedReading < range.upperLimit * range.unit.coefficient) {
+                        returnValue = " >= " + range.lowerLimit + " < " + range.upperLimit;
+                        return;
+                    }
+                });
+                return returnValue;
             }
-
 
         };
 
@@ -550,6 +657,17 @@ servicesModule.factory('dataService', ['$q', '$filter', '$injector', 'indexeddbS
                     return {$gt: beginDate, $lt: endDate};
                 }
             }
+        };
+
+
+        dataService.sort = {
+            monthName: function(a, b) {
+                var datetime = this.$locale.DATETIME_FORMATS;
+                var months = datetime.MONTH;
+                var indexOfA = months.indexOf(a);
+                var indexOfB = months.indexOf(b);
+                return indexOfA - indexOfB;
+            }.bind({$locale: $locale})
         };
 
 

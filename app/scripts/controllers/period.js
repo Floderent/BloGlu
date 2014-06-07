@@ -1,26 +1,30 @@
 'use strict';
 var ControllersModule = angular.module('BloGlu.controllers');
 
-ControllersModule.controller('periodController', ['$rootScope', '$scope', '$modal', 'dateUtil', 'MessageService', 'dataService', function Controller($rootScope, $scope, $modal, dateUtil, MessageService, dataService) {
+ControllersModule.controller('periodController', ['$rootScope', '$scope', '$modal','$window', 'dateUtil', 'MessageService', 'dataService', function Controller($rootScope, $scope, $modal, $window, dateUtil, MessageService, dataService) {
         $rootScope.messages = [];
         $rootScope.pending = 0;
         $scope.arePeriodsOnMoreThanOneDay = true;
-        $rootScope.pending++;
-        var resourceName = 'Period';
         
-        dataService.queryLocal(resourceName).then(function(result) {
-            $scope.periods = result;
-            processPeriods($scope.periods);
-            $scope.$watch('periods', function(newValue, oldValue) {
-                processPeriods($scope.periods);
-                checkPeriods($scope.periods);
-            }, true);
-            $rootScope.pending--;
-        }, function(error) {
-            $rootScope.messages.push(MessageService.errorMessage("Error loading periods.", 2000));
-            $rootScope.pending--;
-        });
+        var resourceName = 'Period';
 
+        renderPage();
+        
+        function renderPage() {
+            $rootScope.pending++;
+            dataService.queryLocal(resourceName).then(function(result) {
+                $scope.periods = result;
+                processPeriods($scope.periods);
+                $scope.$watch('periods', function(newValue, oldValue) {
+                    processPeriods($scope.periods);
+                    checkPeriods($scope.periods);
+                }, true);
+                $rootScope.pending--;
+            }, function(error) {
+                $rootScope.messages.push(MessageService.errorMessage("Error loading periods.", 2000));
+                $rootScope.pending--;
+            });
+        }
 
         function processPeriods(periodArray) {
             $scope.arePeriodsOnMoreThanOneDay = (dateUtil.arePeriodsOnMoreThanOneDay(periodArray) >= 1);
@@ -72,13 +76,13 @@ ControllersModule.controller('periodController', ['$rootScope', '$scope', '$moda
             }
             return periodValid;
         }
-        
-        $scope.getBeginDateHours = function(period){
+
+        $scope.getBeginDateHours = function(period) {
             var beginDateHours = period.begin.getHours();
             var beginDateMinutes = period.begin.getMinutes();
             return beginDateHours * 60 + beginDateMinutes;
         };
-        
+
 
         $scope.savePeriod = function(period) {
             if (period && period.begin && period.end) {
@@ -182,13 +186,17 @@ ControllersModule.controller('periodController', ['$rootScope', '$scope', '$moda
                 }
             }
         };
-
+        
+        $window.addEventListener('dataReady', renderPage);
+        
         $scope.$on('$routeChangeStart', function() {
             //cancel promise
             MessageService.cancelAll($rootScope.messages);
             $rootScope.pending = 0;
             //clear messages
             $rootScope.messages = [];
+            //clear events
+            $window.removeEventListener('dataReady',renderPage);
         });
 
 

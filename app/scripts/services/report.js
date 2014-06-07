@@ -6,36 +6,57 @@ var servicesModule = angular.module('BloGlu.services');
 servicesModule.factory('reportService', ['$q', 'ModelUtil', 'dataService', 'queryService', function($q, ModelUtil, dataService, queryService) {
 
         var reportService = {};
- 
-        
-        reportService.executeReport = function(report){
+
+
+        reportService.executeReport = function(report) {
             var deferred = $q.defer();
-            if(report && report.query){
+            if (report && report.query) {
                 reportService.executeReportQuery(report.query).then(deferred.resolve, deferred.reject);
-            }else{
+            } else {
                 deferred.reject('Wrong report format: no query');
-            }            
+            }
             return deferred.promise;
         };
-        
+
 
         reportService.executeReportQuery = function(query) {
             var deferred = $q.defer();
-            var resultQuery = {};        
+            var resultQuery = {};
             if (query && query.select) {
-                var selectElementsPromiseArray = [];
-                query.select.forEach(function(selectElementName) {
-                    selectElementsPromiseArray.push(getMDMElement(selectElementName));
-                });
-                $q.all(selectElementsPromiseArray).then(function(mdmSelectElements) {
+                dataService.queryLocal('Metadatamodel').then(function(mdm) {                    
+                    var selectElements = [];
+                    var orderByElements = [];
+                    query.select.forEach(function(selectElementName) {
+                        selectElements.push(getMDMElement(mdm, selectElementName));
+                    });
+                    if (query.orderBy && Array.isArray(query.orderBy)) {
+                        query.orderBy.forEach(function(orderElement) {
+                            orderByElements.push(getMDMElement(mdm, orderElement.name));
+                        });
+                    }
+
                     var select = [];
                     var groupBy = [];
+                    var orderBy = [];
                     var where = {};
-                    mdmSelectElements.forEach(function(queryElement) {
+
+                    selectElements.forEach(function(queryElement) {
                         computeSelectExpression(select, queryElement);
                         computeGroupByExpression(groupBy, queryElement);
                         computeWhereExpression(where, queryElement.filter);
                     });
+                    
+                    for(var i = 0; i < orderByElements.length; i++){
+                        var queryElement = orderByElements[i];
+                        var orderClauseElement = query.orderBy[i];                        
+                        var orderElement = {};
+                        orderElement.alias = queryElement.name;
+                        orderElement.direction = orderClauseElement.direction;
+                        if(queryElement.sort){
+                            orderElement.sort = queryElement.sort;
+                        }
+                    }
+
                     if (query.where) {
                         computeWhereExpression(where, query.where);
                     }
@@ -46,16 +67,21 @@ servicesModule.factory('reportService', ['$q', 'ModelUtil', 'dataService', 'quer
                     if (groupBy.length > 0) {
                         resultQuery.groupBy = groupBy;
                     }
+                    if(orderBy.length > 0){
+                        resultQuery.orderBy = orderBy;
+                    }
                     if (where) {
                         resultQuery.where = where;
                     }
+                    
                     dataService.queryLocal('Event', resultQuery).then(function(queryResult) {
                         deferred.resolve({
-                            headers: mdmSelectElements,
+                            headers: selectElements,
                             data: queryResult
                         });
                     }, deferred.reject);
-                }, deferred.reject);
+                });
+
             } else {
                 deferred.resolve(resultQuery);
             }
@@ -67,7 +93,7 @@ servicesModule.factory('reportService', ['$q', 'ModelUtil', 'dataService', 'quer
             var fieldSelect = {};
             if (queryElement.field) {
                 fieldSelect.field = queryElement.field;
-                fieldSelect.alias = queryElement.title;
+                fieldSelect.alias = queryElement.name;
                 fieldSelect.transform = dataService.select[queryElement.expression];
                 if (queryElement.aggregate) {
                     fieldSelect.aggregate = queryElement.aggregate;
@@ -79,8 +105,8 @@ servicesModule.factory('reportService', ['$q', 'ModelUtil', 'dataService', 'quer
         function computeGroupByExpression(groupBy, queryElement) {
             if (queryElement.field && !queryElement.aggregate) {
                 var alias = queryElement.field;
-                if (queryElement.title) {
-                    alias = queryElement.title;
+                if (queryElement.name) {
+                    alias = queryElement.name;
                 }
                 groupBy.push(alias);
             }
@@ -98,16 +124,15 @@ servicesModule.factory('reportService', ['$q', 'ModelUtil', 'dataService', 'quer
             }
         }
 
-        function getMDMElement(elementName) {
-            return dataService.queryLocal('Metadatamodel').then(function(mdm) {
-                var result = null;
-                mdm.forEach(function(mdmElement) {
-                    if (mdmElement.name === elementName) {
-                        result = mdmElement;
-                    }
-                });
-                return result;
+
+        function getMDMElement(mdm, elementName) {
+            var result = null;
+            mdm.forEach(function(mdmElement) {
+                if (mdmElement.name === elementName) {
+                    result = mdmElement;
+                }
             });
+            return result;
         }
 
 

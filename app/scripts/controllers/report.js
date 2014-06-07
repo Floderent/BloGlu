@@ -1,7 +1,7 @@
 'use strict';
 var ControllersModule = angular.module('BloGlu.controllers');
 
-ControllersModule.controller('reportController', ['$scope', '$rootScope', '$q', '$routeParams', '$modal', 'reportService', 'dataService','queryService', 'MessageService', function Controller($scope, $rootScope, $q, $routeParams, $modal, reportService, dataService,queryService, MessageService) {
+ControllersModule.controller('reportController', ['$scope', '$rootScope', '$q', '$routeParams', '$modal', '$window', 'reportService', 'dataService', 'queryService', 'MessageService', 'DataVisualization', function Controller($scope, $rootScope, $q, $routeParams, $modal, $window, reportService, dataService, queryService, MessageService, DataVisualization) {
 
         $rootScope.messages = [];
         $rootScope.pending = 0;
@@ -12,36 +12,52 @@ ControllersModule.controller('reportController', ['$scope', '$rootScope', '$q', 
         $scope.selectedLevel = null;
         $scope.selectedQueryElements = [];
 
+
+        $scope.queryElements = [];
+
         $scope.filters = [];
         $scope.selectedFilter = null;
+
+        $scope.orderBy = [];
 
         $scope.reportData = [];
         $scope.headers = [];
 
         $scope.isEdit = $routeParams && $routeParams.objectId;
 
+        $scope.datavizTypes = DataVisualization;
+        $scope.currentDataviz = null;
 
-        $rootScope.pending++;
-        $q.all([
-            getReport(),
-            queryService.getMeasures(),
-            queryService.getLevels(),
-            queryService.getFilters()
-        ]).then(function resolve(results) {
-            $scope.report = results[0];
-            $scope.measures = results[1];
-            $scope.levels = results[2];
-            $scope.filters = results[3];
-            $rootScope.pending--;
-        }, function reject() {
-            $rootScope.messages.push(MessageService.errorMessage('Cannot read informations from server', 2000));
-            $rootScope.pending--;
-        });
+        $scope.columnOrder = [];
 
+        renderPage();
 
-        $scope.addQueryElement = function(queryElement) {
-            if (queryElement) {
+        function renderPage() {
+            $rootScope.pending++;
+            $q.all([
+                getReport(),
+                queryService.getMetadatamodel(),
+                queryService.getFilters()
+            ]).then(function resolve(results) {
+                $scope.report = results[0];
+                $scope.queryElements = results[1];
+                $scope.filters = results[2];
+                $rootScope.pending--;
+            }, function reject() {
+                $rootScope.messages.push(MessageService.errorMessage('Cannot read informations from server', 2000));
+                $rootScope.pending--;
+            });
+        }
+
+        $scope.addQueryElement = function(queryElement) {            
+            if (queryElement && $scope.selectedQueryElements.indexOf(queryElement) === -1) {
                 $scope.selectedQueryElements.push(queryElement);
+            }
+        };
+
+        $scope.removeQueryElement = function(queryElement) {
+            if (queryElement && $scope.selectedQueryElements.indexOf(queryElement) !== -1) {
+                $scope.selectedQueryElements.splice($scope.selectedQueryElements.indexOf(queryElement), 1);
             }
         };
 
@@ -51,18 +67,18 @@ ControllersModule.controller('reportController', ['$scope', '$rootScope', '$q', 
             $scope.reportData = [];
             $scope.selectedFilter = null;
             $scope.datavizConfig = null;
-        };       
-        
-        
-        
-        $scope.$watch('selectedQueryElements', function(newValue, oldValue) {            
+        };
+
+
+        $scope.$watch('selectedQueryElements', function(newValue, oldValue) {
             var query = getQuery();
-            if(newValue && oldValue && query && newValue !== oldValue){
-                executeReportQuery(query).then(function(datavizConfig){
+            if (newValue && oldValue && query && newValue !== oldValue) {
+                executeReportQuery(query).then(function(datavizConfig) {
                     $scope.datavizConfig = datavizConfig;
                 });
             }
-        },true);
+        }, true);
+
 
 
         $scope.executeQuery = function() {
@@ -93,12 +109,12 @@ ControllersModule.controller('reportController', ['$scope', '$rootScope', '$q', 
                 return queryResult;
             });
         }
-        
+
 
         function getQuery() {
-            var query = null;            
+            var query = null;
             if ($scope.isEdit) {
-                
+
             } else {
                 if ($scope.selectedQueryElements && $scope.selectedQueryElements.length > 0) {
                     var select = [];
@@ -116,19 +132,14 @@ ControllersModule.controller('reportController', ['$scope', '$rootScope', '$q', 
                         query.where = {
                             dateTime: filterClause
                         };
-                    }                    
+                    }
                 }
             }
             return query;
         }
 
 
-        
-
-
-
         function getReport() {
-            $rootScope.pending++;
             var deferred = $q.defer();
             if ($scope.isEdit) {
                 dataService.queryLocal('Report', {where: {objectId: $routeParams.objectId}}).then(function(result) {
@@ -136,7 +147,6 @@ ControllersModule.controller('reportController', ['$scope', '$rootScope', '$q', 
                     if (result && result.length === 1) {
                         report = result[0];
                     }
-                    $rootScope.pending--;
                     deferred.resolve(report);
                 }, function(error) {
                     $scope.isEdit = false;
@@ -144,7 +154,6 @@ ControllersModule.controller('reportController', ['$scope', '$rootScope', '$q', 
                     deferred.reject(error);
                 });
             } else {
-                $rootScope.pending--;
                 deferred.resolve({});
             }
             return deferred.promise;
@@ -190,11 +199,13 @@ ControllersModule.controller('reportController', ['$scope', '$rootScope', '$q', 
             });
         };
 
-
+        $window.addEventListener('dataReady', renderPage);
 
         $scope.$on("$routeChangeStart", function() {
-            //cancel promise            
-            //clear messages            
+            //cancel promise
+            //clear messages
+            //clear events
+            $window.removeEventListener('dataReady', renderPage);
         });
     }]);
 

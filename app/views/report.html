@@ -11,12 +11,10 @@
             <textarea class="form-control" ng-model="report.description">
             </textarea>
         </div>
-
-        <select class="input-medium form-inline" data-ng-model="selectedMeasure" data-ng-options="measure.title for measure in measures"></select>
-        <button class="btn btn-default" ng-click="addQueryElement(selectedMeasure)">Add measure</button>
-
-        <select class="input-medium form-inline" data-ng-model="selectedLevel" data-ng-options="level.title for level in levels"></select>
-        <button class="btn btn-default" ng-click="addQueryElement(selectedLevel)">Add level</button>
+        
+        
+        <select class="input-medium form-inline" data-ng-model="selectedQueryElement" data-ng-options="queryElement.title group by queryElement.group for queryElement in queryElements"></select>
+        <button class="btn btn-default" ng-click="addQueryElement(selectedQueryElement)">Add element</button>
 
         <!-- title as value.title for (key, value) in filters -->
         <select class="input-medium form-inline" data-ng-model="selectedFilter" data-ng-options="key as value.title for (key, value) in filters"></select>    
@@ -26,8 +24,14 @@
         <div>
             <span data-ng-repeat="selectedElement in selectedQueryElements">
                 {{selectedElement.title}}
+                <button class="btn-mini glyphicon glyphicon-remove" ng-click="removeQueryElement(selectedElement)"></button>
             </span>
         </div>
+
+
+        <p>
+            <select class="input-medium form-inline" data-ng-model="currentDataviz" data-ng-options="key as value for (key, value) in datavizTypes"></select>
+        </p>
 
         <button class="btn-large btn-primary" ng-click="executeQuery()">Execute</button>
         <button class="btn-large btn-primary" ng-click="clear()">Clear</button>
@@ -41,26 +45,7 @@
 
 
     <div class="table-responsive">
-        <!--
-        <table class="table">    
-            <th ng-repeat="queryElement in selectedQueryElements">
-                {{queryElement.title}}
-            </th>
-
-            <tr ng-repeat="line in reportData">
-                <td ng-repeat="item in line track by $index">
-                    {{line[selectedQueryElements[$index].title]}}                
-                </td>
-            </tr>
-
-        </table>
-        -->
-        <!--<table-dataviz dataviz-config="{{datavizConfig}}"></table-dataviz>-->
-        
-        <dataviz dataviz-config="{{datavizConfig}}"></dataviz>
-        
-        
-        
+        <table-dataviz config="datavizConfig" column-order="columnOrder"></table-dataviz>
     </div>
 
 

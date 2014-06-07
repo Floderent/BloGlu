@@ -48,6 +48,14 @@ servicesModule.factory('ResourceName', [function() {
         };
     }]);
 
+servicesModule.factory('DataVisualization', [function() {
+        return {            
+            table: 'Table',
+            chart: 'Chart'            
+        };
+    }]);
+
+
 
 servicesModule.factory('Database', [function() {
         return {
@@ -59,6 +67,7 @@ servicesModule.factory('Database', [function() {
                 'Target',
                 'Metadatamodel',
                 'Category',
+                'Range',
                 'Unit'
             ]
         };
