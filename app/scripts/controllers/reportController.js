@@ -5,30 +5,18 @@ ControllersModule.controller('reportController', ['$scope', '$rootScope', '$q', 
 
         $rootScope.messages = [];
         $rootScope.pending = 0;
-
-        $scope.measures = [];
-        $scope.selectedMeasure = null;
-        $scope.levels = [];
-        $scope.selectedLevel = null;
-        $scope.selectedQueryElements = [];
-
-
-        $scope.queryElements = [];
-
-        $scope.filters = [];
-        $scope.selectedFilter = null;
-
-        $scope.orderBy = [];
-
-        $scope.reportData = [];
-        $scope.headers = [];
-
         $scope.isEdit = $routeParams && $routeParams.objectId;
-
+        $scope.report = {};
+        //all available query elements
+        $scope.queryElements = [];
+        //selected query elements
+        $scope.selectedQueryElements = [];
+        //available filters
+        $scope.filters = [];
+        //selected filter
+        $scope.selectedFilter = null;
         $scope.datavizTypes = DataVisualization;
         $scope.currentDataviz = null;
-
-        $scope.columnOrder = [];
 
         renderPage();
 
@@ -42,6 +30,9 @@ ControllersModule.controller('reportController', ['$scope', '$rootScope', '$q', 
                 $scope.report = results[0];
                 $scope.queryElements = results[1];
                 $scope.filters = results[2];
+                debugger;
+                setQuery();
+
                 $rootScope.pending--;
             }, function reject() {
                 $rootScope.messages.push(MessageService.errorMessage('Cannot read informations from server', 2000));
@@ -49,7 +40,54 @@ ControllersModule.controller('reportController', ['$scope', '$rootScope', '$q', 
             });
         }
 
-        $scope.addQueryElement = function(queryElement) {            
+        function getQuery() {
+            var query = null;
+            if ($scope.selectedQueryElements && $scope.selectedQueryElements.length > 0) {
+                var select = [];
+                $scope.selectedQueryElements.forEach(function(selectElement) {
+                    select.push(selectElement.name);
+                });
+                query = {
+                    select: select
+                };
+                if ($scope.selectedFilter) {
+                    var filterClause = {
+                        type: 'function',
+                        value: $scope.selectedFilter
+                    };
+                    query.where = {
+                        dateTime: filterClause
+                    };
+                }
+            }
+            return query;
+        }
+
+        function setQuery() {
+            if ($scope.report && $scope.report.query) {
+                reportService.getFullQuery($scope.report.query).then(function(result) {
+                    $scope.selectedQueryElements = result.headers;                    
+                });
+            }
+        }
+
+        function getReport() {
+            $rootScope.pending++;
+            var deferred = $q.defer();
+            if ($scope.isEdit) {
+                reportService.getReport($routeParams.objectId).then(function(result) {
+                    $rootScope.pending--;
+                    deferred.resolve(result);
+                });
+            } else {
+                $rootScope.pending--;
+                deferred.resolve({});
+            }
+            return deferred.promise;
+        }
+
+
+        $scope.addQueryElement = function(queryElement) {
             if (queryElement && $scope.selectedQueryElements.indexOf(queryElement) === -1) {
                 $scope.selectedQueryElements.push(queryElement);
             }
@@ -64,7 +102,6 @@ ControllersModule.controller('reportController', ['$scope', '$rootScope', '$q', 
 
         $scope.clear = function() {
             $scope.selectedQueryElements = [];
-            $scope.reportData = [];
             $scope.selectedFilter = null;
             $scope.datavizConfig = null;
         };
@@ -72,8 +109,9 @@ ControllersModule.controller('reportController', ['$scope', '$rootScope', '$q', 
 
         $scope.$watch('selectedQueryElements', function(newValue, oldValue) {
             var query = getQuery();
-            if (newValue && oldValue && query && newValue !== oldValue) {
-                executeReportQuery(query).then(function(datavizConfig) {
+            $scope.report.query = query;
+            if (newValue && oldValue && query) {
+                reportService.executeReportQuery(query).then(function(datavizConfig) {
                     $scope.datavizConfig = datavizConfig;
                 });
             }
@@ -99,65 +137,13 @@ ControllersModule.controller('reportController', ['$scope', '$rootScope', '$q', 
                         dateTime: filterClause
                     };
                 }
+                debugger;
                 reportService.executeReportQuery($scope.report.query).then(function(queryResult) {
                     $scope.datavizConfig = queryResult;
                 });
             }
         };
-        function executeReportQuery(query) {
-            return reportService.executeReportQuery(query).then(function(queryResult) {
-                return queryResult;
-            });
-        }
 
-
-        function getQuery() {
-            var query = null;
-            if ($scope.isEdit) {
-
-            } else {
-                if ($scope.selectedQueryElements && $scope.selectedQueryElements.length > 0) {
-                    var select = [];
-                    $scope.selectedQueryElements.forEach(function(selectElement) {
-                        select.push(selectElement.name);
-                    });
-                    query = {
-                        select: select
-                    };
-                    if ($scope.selectedFilter) {
-                        var filterClause = {
-                            type: 'function',
-                            value: $scope.selectedFilter
-                        };
-                        query.where = {
-                            dateTime: filterClause
-                        };
-                    }
-                }
-            }
-            return query;
-        }
-
-
-        function getReport() {
-            var deferred = $q.defer();
-            if ($scope.isEdit) {
-                dataService.queryLocal('Report', {where: {objectId: $routeParams.objectId}}).then(function(result) {
-                    var report = {};
-                    if (result && result.length === 1) {
-                        report = result[0];
-                    }
-                    deferred.resolve(report);
-                }, function(error) {
-                    $scope.isEdit = false;
-                    $rootScope.pending--;
-                    deferred.reject(error);
-                });
-            } else {
-                deferred.resolve({});
-            }
-            return deferred.promise;
-        }
 
 
         $scope.update = function() {
@@ -203,7 +189,10 @@ ControllersModule.controller('reportController', ['$scope', '$rootScope', '$q', 
 
         $scope.$on("$routeChangeStart", function() {
             //cancel promise
+            MessageService.cancelAll($rootScope.messages);
+            $rootScope.pending = 0;
             //clear messages
+            $rootScope.messages = [];
             //clear events
             $window.removeEventListener('dataReady', renderPage);
         });

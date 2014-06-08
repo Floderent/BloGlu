@@ -8,6 +8,7 @@ servicesModule.factory('indexeddbService', ['$window', '$q', 'Database', functio
         var databaseName = 'bloglu';
         var indexeddbService = {};
 
+
         function openDatabase() {
             var deferred = $q.defer();
             if (db === null) {
@@ -44,7 +45,8 @@ servicesModule.factory('indexeddbService', ['$window', '$q', 'Database', functio
                 if (database.objectStoreNames.contains(resourceName)) {
                     database.deleteObjectStore(resourceName);
                 }
-                database.createObjectStore(resourceName, {keyPath: 'objectId'});
+                var objectStore = database.createObjectStore(resourceName, {keyPath: 'objectId'});
+                objectStore.createIndex('userIndex', 'userId', {uniques: false});
             });
         }
         indexeddbService.dropDatabase = function() {
@@ -53,29 +55,33 @@ servicesModule.factory('indexeddbService', ['$window', '$q', 'Database', functio
                 db.close();
             }
             var req = indexedDB.deleteDatabase(databaseName);
-            req.onsuccess = function(result) {               
+            req.onsuccess = function(result) {
                 db = null;
                 deferred.resolve(result);
             };
-            req.onerror = function(error) {                
+            req.onerror = function(error) {
                 db = null;
                 deferred.reject(error);
             };
-            req.onblocked = function(error) {                
+            req.onblocked = function(error) {
                 db = null;
                 deferred.reject(error);
             };
             return deferred.promise;
         };
 
-        indexeddbService.getData = function(collection) {
+        indexeddbService.getData = function(collection, userId) {
             var deferred = $q.defer();
             openDatabase().then(function(db) {
                 var trans = db.transaction([collection], 'readonly');
                 var store = trans.objectStore(collection);
                 var dataArray = [];
-                var keyRange = IDBKeyRange.lowerBound(0);
-                var cursorRequest = store.openCursor(keyRange);
+
+                var range = IDBKeyRange.only(userId);
+                var index = store.index('userIndex');
+
+                //var keyRange = IDBKeyRange.lowerBound(0);
+                var cursorRequest = index.openCursor(range);
                 cursorRequest.onsuccess = function(e) {
                     var result = e.target.result;
                     if (result === null || result === undefined) {
@@ -89,22 +95,6 @@ servicesModule.factory('indexeddbService', ['$window', '$q', 'Database', functio
                 cursorRequest.onerror = function(e) {
                     deferred.reject(e);
                 };
-            }, deferred.reject);
-            return deferred.promise;
-        };
-
-        indexeddbService.getWholeDatabase = function() {
-            var deferred = $q.defer();
-            var promiseArray = [];
-            Database.schema.forEach(function(collectionName) {
-                promiseArray.push(indexeddbService.getData(collectionName));
-            });
-            $q.all(promiseArray).then(function resolve(result) {
-                var allData = {};
-                for (var i = 0; i < result.length; i++) {
-                    allData[Database.schema[i]] = result[i];
-                }
-                deferred.resolve(allData);
             }, deferred.reject);
             return deferred.promise;
         };
@@ -125,6 +115,7 @@ servicesModule.factory('indexeddbService', ['$window', '$q', 'Database', functio
             });
             return deferred.promise;
         };
+        
 
         indexeddbService.addRecord = function(collection, record) {
             var deferred = $q.defer();

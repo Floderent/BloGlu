@@ -2,46 +2,7 @@
 
 var servicesModule = angular.module('BloGlu.services');
 
-servicesModule.factory('queryService', ['$q', 'dataService', 'ModelUtil', function($q, dataService, ModelUtil) {
-        var queryService = {};
-        
-        queryService.getMetadatamodel = function(){
-            return dataService.queryLocal('Metadatamodel');
-        };        
-        
-        queryService.getMeasures = function() {
-            var measures = [];
-            return dataService.queryLocal('Metadatamodel').then(function(mdm) {
-                mdm.forEach(function(mdmElement) {
-                    if (mdmElement.aggregate) {
-                        measures.push(mdmElement);
-                    }
-                });
-                return measures;
-            });
-        };
-
-        queryService.getLevels = function() {
-            var levels = [];
-            return dataService.queryLocal('Metadatamodel').then(function(mdm) {
-                mdm.forEach(function(mdmElement) {
-                    if (!mdmElement.aggregate) {
-                        levels.push(mdmElement);
-                    }
-                });
-                return levels;
-            });
-        };
-
-        queryService.getFilters = function() {
-            return dataService.where;
-        };
-
-        return queryService;
-    }]);
-
-
-servicesModule.factory('dataService', ['$q', '$filter', '$injector', '$locale', 'indexeddbService', 'UserService', function($q, $filter, $injector, $locale, indexeddbService) {
+servicesModule.factory('dataService', ['$q', '$filter', '$injector', '$locale', 'indexeddbService', 'Database', 'UserService', function($q, $filter, $injector, $locale, indexeddbService, Database, UserService) {
         var dataService = {};
         var localData = null;
         var maxResult = 1000;
@@ -69,7 +30,7 @@ servicesModule.factory('dataService', ['$q', '$filter', '$injector', '$locale', 
         dataService.init = function(forceRefresh) {
             var deferred = $q.defer();
             if (localData === null || forceRefresh) {
-                indexeddbService.getWholeDatabase().then(function(result) {
+                dataService.getWholeDatabase().then(function(result) {
                     localData = result;
                     deferred.resolve(result);
                 }, deferred.reject);
@@ -79,6 +40,45 @@ servicesModule.factory('dataService', ['$q', '$filter', '$injector', '$locale', 
             return deferred.promise;
         };
 
+        dataService.clear = function(collection) {
+            var deferred = $q.defer();
+            indexeddbService.getData(collection, UserService.currentUser().objectId).then(function(userDatas) {
+                var deletePromiseArray = [];
+                userDatas.forEach(function(record) {
+                    deletePromiseArray.push(indexeddbService.deleteRecord(collection, record));
+                });
+                $q.all(deletePromiseArray).then(deferred.resolve, deferred.reject);
+            }, deferred.reject);
+            return deferred.promise;
+
+        };
+
+        dataService.addRecords = function(collection, records) {
+            var userId = UserService.currentUser().objectId;
+            records.forEach(function(record) {
+                record.userId = userId;
+            });
+            return indexeddbService.addRecords(collection, records);
+        };
+
+
+        dataService.getWholeDatabase = function() {
+            var deferred = $q.defer();
+            var promiseArray = [];
+            Database.schema.forEach(function(collectionName) {
+                promiseArray.push(indexeddbService.getData(collectionName, UserService.currentUser().objectId));
+            });
+            $q.all(promiseArray).then(function resolve(result) {
+                var allData = {};
+                for (var i = 0; i < result.length; i++) {
+                    allData[Database.schema[i]] = result[i];
+                }
+                deferred.resolve(allData);
+            }, deferred.reject);
+            return deferred.promise;
+        };
+
+
         dataService.save = function(collection, data, params) {
             return dataService.init().then(function(localData) {
                 //save to indexedDB and to the cloud
@@ -87,6 +87,7 @@ servicesModule.factory('dataService', ['$q', '$filter', '$injector', '$locale', 
                 return resource.save(data).$promise.then(function(result) {
                     createdObject[idField] = result[idField];
                     //save in local data
+                    updateObjectInfos(createdObject, true);
                     if (localData && localData[collection]) {
                         localData[collection].push(createdObject);
                     }
@@ -105,12 +106,14 @@ servicesModule.factory('dataService', ['$q', '$filter', '$injector', '$locale', 
                     localData[collection].forEach(function(record, index) {
                         if (record[idField] === objectId) {
                             updatedObject = angular.extend(localData[collection][index], data);
+                            updateObjectInfos(updatedObject, false);
                             localData[collection][index] = updatedObject;
                         }
                     });
                 }
                 //save to indexedDB add to the cloud
                 var resource = $injector.get(collection);
+
                 return $q.all([
                     indexeddbService.addRecord(collection, updatedObject),
                     resource.update({'Id': objectId}, data).$promise
@@ -119,6 +122,17 @@ servicesModule.factory('dataService', ['$q', '$filter', '$injector', '$locale', 
                 });
             });
         };
+
+        function updateObjectInfos(object, isCreate) {
+            var currentDate = new Date();
+            if (object) {
+                if (isCreate) {
+                    object.createdAt = currentDate.toISOString();
+                }
+                object.updatedAt = currentDate.toISOString();
+            }
+        }
+
 
         dataService.delete = function(collection, objectId, params) {
             return dataService.init().then(function(localData) {
@@ -250,6 +264,38 @@ servicesModule.factory('dataService', ['$q', '$filter', '$injector', '$locale', 
             });
         }
 
+        dataService.queryParse = function(collection, resourceCount, params) {
+            var queryPromise = null;
+            var resourceObject = $injector.get(collection);
+            if (resourceCount <= maxResult) {
+                queryPromise = doParseQuery(resourceObject, params);
+            } else {                
+                var requestArray = [];
+                var requestNumber = Math.floor(resourceCount / maxResult);
+                var lastRequestCount = resourceCount % maxResult;
+                if (lastRequestCount > 0) {
+                    requestNumber++;
+                }
+                for (var requestIndex = 0; requestIndex < requestNumber; requestIndex++) {
+                    var requestParams = angular.extend({}, params);
+                    requestParams.limit = maxResult;
+                    requestParams.skip = requestIndex * maxResult;
+                    var request = doParseQuery(resourceObject, params);
+                    requestArray.push(request);
+                }
+                queryPromise = $q.all(requestArray).then(function(results) {
+                    var resultArray = [];
+                    for (var resultIndex = 0; resultIndex < results.length; resultIndex++) {
+                        resultArray = resultArray.concat(results[resultIndex]);
+                    }
+                    return resultArray;
+                });
+            }
+            return queryPromise;
+        };
+
+
+
         dataService.processResult = function(queryResult, params) {
             var processedResult = queryResult;
             processedResult = [];
@@ -325,7 +371,7 @@ servicesModule.factory('dataService', ['$q', '$filter', '$injector', '$locale', 
                             value = row;
                             var splittedField = selectElement.field.split('.');
                             splittedField.forEach(function(fieldPart) {
-                                if (typeof value[fieldPart] !== 'undefined') {
+                                if (value[fieldPart] && typeof value[fieldPart] !== 'undefined') {
                                     value = value[fieldPart];
                                 } else {
                                     value = '';
@@ -347,7 +393,7 @@ servicesModule.factory('dataService', ['$q', '$filter', '$injector', '$locale', 
             return resultRow;
         }
 
-        function applyGroupBy(rows, currentRow, params) {            
+        function applyGroupBy(rows, currentRow, params) {
             var rowToAdd = currentRow;
             var indexOfRow = getIndexOfRowInResult(rows, currentRow, params);
             if (indexOfRow !== -1) {
@@ -369,16 +415,16 @@ servicesModule.factory('dataService', ['$q', '$filter', '$injector', '$locale', 
                         case 'count':
                             if (existingValue) {
                                 newRow[alias] = 1;
-                            }else{
+                            } else {
                                 newRow[alias] = null;
                             }
                             break;
                         case 'avg':
                             var existingValue = newRow[alias];
                             newRow[alias] = {};
-                            if(existingValue){
+                            if (existingValue) {
                                 newRow[alias].count = 1;
-                            }else{
+                            } else {
                                 newRow[alias].count = null;
                             }
                             newRow[alias].sum = existingValue;
@@ -404,9 +450,9 @@ servicesModule.factory('dataService', ['$q', '$filter', '$injector', '$locale', 
                             existingRow[alias] = existingRow[alias] + 1;
                             break;
                         case 'avg':
-                            if (newValue) {                                
-                                existingRow[alias] = {};                                
-                                existingRow[alias].count = existingValue.count + 1;                                
+                            if (newValue) {
+                                existingRow[alias] = {};
+                                existingRow[alias].count = existingValue.count + 1;
                                 existingRow[alias].sum = newValue + existingValue.sum;
                             }
                             break;
@@ -439,12 +485,12 @@ servicesModule.factory('dataService', ['$q', '$filter', '$injector', '$locale', 
                             alias = selectElement.alias;
                         }
                         var existingValue = processedResult[indexOfRow][alias];
-                        if(existingValue.count){
+                        if (existingValue.count) {
                             processedResult[indexOfRow][alias] = existingValue.sum / existingValue.count;
-                        }else{
+                        } else {
                             processedResult[indexOfRow][alias] = '';
                         }
-                        
+
                     });
                 }
             }

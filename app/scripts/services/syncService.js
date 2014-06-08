@@ -2,11 +2,11 @@
 
 var servicesModule = angular.module('BloGlu.services');
 
-servicesModule.factory('syncService', ['$q', '$http', '$injector', 'Database', 'dataService', 'ServerService', 'UserService', 'indexeddbService', function($q, $http, $injector, Database, dataService, ServerService, UserService, indexeddbService) {
+servicesModule.factory('syncService', ['$q', '$http', '$injector', 'Database', 'dataService', 'ServerService', 'UserService', function($q, $http, $injector, Database, dataService, ServerService, UserService) {
         var syncService = {};
         var dataTimeField = 'updatedAt';
 
-        function getLocalDataInfos() {           
+        function getLocalDataInfos() {
             return dataService.init().then(function(result) {
                 var localDataInfos = {};
                 angular.forEach(result, function(value, key) {
@@ -15,8 +15,8 @@ servicesModule.factory('syncService', ['$q', '$http', '$injector', 'Database', '
                     localDataInfos[key].date = getMaximumValue(value, dataTimeField);
                 });
                 return localDataInfos;
-            });            
-           
+            });
+
         }
 
         function getMaximumValue(array, field) {
@@ -33,9 +33,18 @@ servicesModule.factory('syncService', ['$q', '$http', '$injector', 'Database', '
             var syncStatus = {};
             angular.forEach(remoteDataStatus, function(value, key) {
                 if (localDataStatus[key] && localDataStatus[key].count === value.count && localDataStatus[key].date === value.date) {
-                    syncStatus[key] = 'upToDate';
+                    syncStatus[key] = {
+                        status: 'upToDate',
+                        localCount: localDataStatus[key].count,
+                        remoteCount: value.count
+                    };
                 } else {
-                    syncStatus[key] = 'outOfDate';
+                    syncStatus[key] =
+                            {
+                                status: 'outOfDate',
+                                localCount: localDataStatus[key].count,
+                                remoteCount: value.count
+                            };
                 }
             });
             return syncStatus;
@@ -73,15 +82,16 @@ servicesModule.factory('syncService', ['$q', '$http', '$injector', 'Database', '
             });
         }
 
-        function syncCollection(collection) {
+        function syncCollection(collection, syncStatus) {
             var deferred = $q.defer();
             var resource = $injector.get(collection);
-            if (resource && resource.query) {                
-                resource.query({limit: 1000}).$promise.then(function(result) {
-                    indexeddbService.clear(collection).then(function() {
-                        indexeddbService.addRecords(collection, result).then(deferred.resolve, deferred.reject);
+            if (resource && resource.query) {
+                //resource.query({limit: 1000}).$promise
+                dataService.queryParse(collection, syncStatus.remoteCount, {limit: 1000}).then(function(result) {
+                    dataService.clear(collection).then(function() {
+                        dataService.addRecords(collection, result).then(deferred.resolve, deferred.reject);
                     }, deferred.reject);
-                }, deferred.reject);                           
+                }, deferred.reject);
             } else {
                 deferred.reject("No resource found for " + collection);
             }
@@ -111,8 +121,8 @@ servicesModule.factory('syncService', ['$q', '$http', '$injector', 'Database', '
             var promiseArray = [];
             syncService.checkSyncStatus().then(function(syncStatus) {
                 angular.forEach(syncStatus, function(value, key) {
-                    if (value === 'outOfDate') {
-                        promiseArray.push(syncCollection(key));
+                    if (value.status === 'outOfDate') {
+                        promiseArray.push(syncCollection(key,value));
                     }
                 });
                 $q.all(promiseArray).then(function(result) {
@@ -144,7 +154,5 @@ servicesModule.factory('syncService', ['$q', '$http', '$injector', 'Database', '
                 document.fireEvent("on" + event.eventType, event);
             }
         }
-
-
         return syncService;
     }]);

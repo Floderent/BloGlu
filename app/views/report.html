@@ -11,22 +11,33 @@
             <textarea class="form-control" ng-model="report.description">
             </textarea>
         </div>
-        
-        
+
+
         <select class="input-medium form-inline" data-ng-model="selectedQueryElement" data-ng-options="queryElement.title group by queryElement.group for queryElement in queryElements"></select>
         <button class="btn btn-default" ng-click="addQueryElement(selectedQueryElement)">Add element</button>
 
         <!-- title as value.title for (key, value) in filters -->
-        <select class="input-medium form-inline" data-ng-model="selectedFilter" data-ng-options="key as value.title for (key, value) in filters"></select>    
+        <select class="input-medium form-inline" data-ng-model="selectedFilter" data-ng-options="{key: value} as value.title for (key, value) in filters"></select>    
 
 
-
-        <div>
-            <span data-ng-repeat="selectedElement in selectedQueryElements">
-                {{selectedElement.title}}
-                <button class="btn-mini glyphicon glyphicon-remove" ng-click="removeQueryElement(selectedElement)"></button>
-            </span>
+        <div class="panel panel-default">
+            <div class="panel-body">
+                <span data-ng-repeat="selectedElement in selectedQueryElements">
+                    {{selectedElement.title}}
+                    <button class="btn-mini glyphicon glyphicon-remove" ng-click="removeQueryElement(selectedElement)"></button>
+                </span>
+            </div>
         </div>
+
+        <div class="panel panel-default">
+            <div class="panel-body">
+                <span>
+                    {{selectedFilter}}
+                    <button class="btn-mini glyphicon glyphicon-remove" ng-click="removeFilter()"></button>
+                </span>
+            </div>
+        </div>
+        
 
 
         <p>
@@ -45,7 +56,7 @@
 
 
     <div class="table-responsive">
-        <table-dataviz config="datavizConfig" column-order="columnOrder"></table-dataviz>
+        <table-dataviz config="datavizConfig" column-order="report.sort"></table-dataviz>
     </div>
 
 

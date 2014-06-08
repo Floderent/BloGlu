@@ -3,10 +3,23 @@
 var servicesModule = angular.module('BloGlu.services');
 
 
-servicesModule.factory('reportService', ['$q', 'ModelUtil', 'dataService', 'queryService', function($q, ModelUtil, dataService, queryService) {
+servicesModule.factory('reportService', ['$q', 'ModelUtil', 'dataService', function($q, ModelUtil, dataService) {
 
         var reportService = {};
 
+        reportService.getReports = function() {
+            return dataService.queryLocal('Report');
+        };
+
+        reportService.deleteReport = function(report) {
+            var reportId = null;
+            if (report && report.objectId) {
+                reportId = report.objectId;
+            } else {
+                reportId = report;
+            }
+            return dataService.delete('Report', reportId);
+        };
 
         reportService.executeReport = function(report) {
             var deferred = $q.defer();
@@ -18,12 +31,22 @@ servicesModule.factory('reportService', ['$q', 'ModelUtil', 'dataService', 'quer
             return deferred.promise;
         };
 
+        reportService.getReport = function(objectId) {
+            return dataService.queryLocal('Report', {where: {objectId: objectId}}).then(function(result) {
+                var report = {};
+                if (result && result.length === 1) {
+                    report = result[0];
+                }
+                return report;
+            });
+        };
 
-        reportService.executeReportQuery = function(query) {
-            var deferred = $q.defer();
+
+        reportService.getFullQuery = function(query) {
             var resultQuery = {};
+            var deferred = $q.defer();
             if (query && query.select) {
-                dataService.queryLocal('Metadatamodel').then(function(mdm) {                    
+                dataService.queryLocal('Metadatamodel').then(function(mdm) {
                     var selectElements = [];
                     var orderByElements = [];
                     query.select.forEach(function(selectElementName) {
@@ -34,7 +57,6 @@ servicesModule.factory('reportService', ['$q', 'ModelUtil', 'dataService', 'quer
                             orderByElements.push(getMDMElement(mdm, orderElement.name));
                         });
                     }
-
                     var select = [];
                     var groupBy = [];
                     var orderBy = [];
@@ -45,14 +67,14 @@ servicesModule.factory('reportService', ['$q', 'ModelUtil', 'dataService', 'quer
                         computeGroupByExpression(groupBy, queryElement);
                         computeWhereExpression(where, queryElement.filter);
                     });
-                    
-                    for(var i = 0; i < orderByElements.length; i++){
+
+                    for (var i = 0; i < orderByElements.length; i++) {
                         var queryElement = orderByElements[i];
-                        var orderClauseElement = query.orderBy[i];                        
+                        var orderClauseElement = query.orderBy[i];
                         var orderElement = {};
                         orderElement.alias = queryElement.name;
                         orderElement.direction = orderClauseElement.direction;
-                        if(queryElement.sort){
+                        if (queryElement.sort) {
                             orderElement.sort = queryElement.sort;
                         }
                     }
@@ -67,25 +89,30 @@ servicesModule.factory('reportService', ['$q', 'ModelUtil', 'dataService', 'quer
                     if (groupBy.length > 0) {
                         resultQuery.groupBy = groupBy;
                     }
-                    if(orderBy.length > 0){
+                    if (orderBy.length > 0) {
                         resultQuery.orderBy = orderBy;
                     }
                     if (where) {
                         resultQuery.where = where;
                     }
-                    
-                    dataService.queryLocal('Event', resultQuery).then(function(queryResult) {
-                        deferred.resolve({
-                            headers: selectElements,
-                            data: queryResult
-                        });
-                    }, deferred.reject);
+                    deferred.resolve({query: resultQuery, headers: selectElements});
                 });
-
             } else {
-                deferred.resolve(resultQuery);
+                deferred.reject("invalid query");
             }
             return deferred.promise;
+        };
+
+
+        reportService.executeReportQuery = function(query) {
+            return reportService.getFullQuery(query).then(function(result) {
+                return dataService.queryLocal('Event', result.query).then(function(queryResult) {
+                    return {
+                        headers: result.headers,
+                        data: queryResult
+                    };
+                });
+            });
         };
 
 
@@ -134,9 +161,6 @@ servicesModule.factory('reportService', ['$q', 'ModelUtil', 'dataService', 'quer
             });
             return result;
         }
-
-
-
 
         return reportService;
     }]);

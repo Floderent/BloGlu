@@ -27,10 +27,11 @@ mainModule.config(['$routeProvider',
         $routeProvider.when('/overview', {controller: 'overviewController', templateUrl: 'views/overView.html'});
         $routeProvider.when('/period', {controller: 'periodController', templateUrl: 'views/period.html'});
         $routeProvider.when('/category', {controller: 'categoryController', templateUrl: 'views/category.html'});
-        $routeProvider.when('/range', {controller: 'rangeController', templateUrl: 'views/range.html'});
-        $routeProvider.when('/inputBgTarget', {controller: 'bloodGlucoseTargetController', templateUrl: 'views/inputBloodGlucoseTarget.html'});
+        $routeProvider.when('/range', {controller: 'rangeController', templateUrl: 'views/range.html'});        
         $routeProvider.when('/charts', {controller: 'chartController', templateUrl: 'views/charts.html'});
+        $routeProvider.when('/report/:objectId', {controller: 'reportController', templateUrl: 'views/report.html'});
         $routeProvider.when('/report', {controller: 'reportController', templateUrl: 'views/report.html'});
+        $routeProvider.when('/reportList', {controller: 'reportListController', templateUrl: 'views/reportList.html'});
         $routeProvider.when('/import', {controller: 'importController', templateUrl: 'views/import.html'});
         $routeProvider.when('/userPreferences', {controller: 'userPreferencesController', templateUrl: 'views/userPreferences.html'});
         $routeProvider.when('/dashboard', {controller: 'dashboardController', templateUrl: 'views/dashboard.html'});

@@ -94,6 +94,7 @@
                     <li class="dropdown">
                         <a href="#" class="dropdown-toggle" data-toggle="dropdown"><b>Report</b> <b class="caret"></b></a>
                         <ul class="dropdown-menu">
+                            <li><a href="#reportList">View the report list</a></li>
                             <li><a href="#report">Create a report</a></li>
                         </ul> 
                     </li>
@@ -224,23 +225,29 @@
         <script src="scripts/app.js"></script>
         
         <!-- Controllers -->
+        <script src="scripts/controllers/categoryController.js"></script>        
         <script src="scripts/controllers/controllers.js"></script>
-        <script src="scripts/controllers/event.js"></script>
-        <script src="scripts/controllers/report.js"></script>
-        <script src="scripts/controllers/period.js"></script>
-        <script src="scripts/controllers/logBook.js"></script>
-        <script src="scripts/controllers/category.js"></script>
-        <script src="scripts/controllers/dashboard.js"></script>
-        <script src="scripts/controllers/range.js"></script>
+        <script src="scripts/controllers/dashboardController.js"></script>
+        <script src="scripts/controllers/eventController.js"></script>
+        <script src="scripts/controllers/logBookController.js"></script>
+        <script src="scripts/controllers/periodController.js"></script>
+        <script src="scripts/controllers/rangeController.js"></script>
+        <script src="scripts/controllers/reportController.js"></script>
+        <script src="scripts/controllers/reportListController.js"></script>        
+        
         <!-- Services -->
-        <script src="scripts/services/services.js"></script>
-        <script src="scripts/services/common.js"></script>
+        <script src="scripts/services/commonService.js"></script>
+        <script src="scripts/services/dataService.js"></script>
+        <script src="scripts/services/indexedDBService.js"></script>
+        <script src="scripts/services/modelsService.js"></script>
+        <script src="scripts/services/queryService.js"></script>
+        <script src="scripts/services/reportService.js"></script>
+        <script src="scripts/services/services.js"></script>                
+        <script src="scripts/services/syncService.js"></script>
+        <script src="scripts/services/userService.js"></script>
         <script src="scripts/services/utils.js"></script>
-        <script src="scripts/services/data.js"></script>
-        <script src="scripts/services/indexedDB.js"></script>
-        <script src="scripts/services/sync.js"></script>
-        <script src="scripts/services/models.js"></script>
-        <script src="scripts/services/report.js"></script>
+        
+        
         <!-- Directives -->
         <script src="scripts/directives/directives.js"></script>
 

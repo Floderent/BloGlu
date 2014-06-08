@@ -1,0 +1,40 @@
+<div class="panel panel-primary content-panel">
+    <div class="panel-heading">
+        <h3 class="panel-title">View the report list</h3>
+    </div>
+
+    <div class="panel-body">
+        <a class="btn" href="#report">Create a new report</a>        
+    </div>
+
+    <div class="table-responsive">
+        <table class="table table-striped">
+            <th>Title</th>
+            <th>Description</th>
+            <th>Last modification date</th>
+            <th>Creation Date</th>
+            <th></th>
+
+            <tr ng-repeat="report in reports" ng-dblclick="editReport(report)">
+                <td>
+                    <span>{{report.title}}</span>
+                </td>
+                <td>
+                    <span>{{report.description}}</span>
+                </td>
+                <td>
+                    <span>{{report.updatedAt| date:'dd/MM/yyyy'}}</span>
+                </td>
+                <td>
+                    <span>{{report.createdAt| date:'dd/MM/yyyy'}}</span>
+                </td>
+                <td>
+                    <button type="button" ng-click="deleteReport(report)">Delete</button>                    
+                </td>
+            </tr>
+
+        </table>
+    </div>
+
+
+</div>

@@ -37,7 +37,7 @@ servicesModule.factory('ResourceCode', [function() {
     }]);
 
 servicesModule.factory('ResourceName', [function() {
-        return {            
+        return {
             0: 'Other',
             1: 'Blood Glucose',
             2: 'Medication',
@@ -49,9 +49,9 @@ servicesModule.factory('ResourceName', [function() {
     }]);
 
 servicesModule.factory('DataVisualization', [function() {
-        return {            
+        return {
             table: 'Table',
-            chart: 'Chart'            
+            chart: 'Chart'
         };
     }]);
 
