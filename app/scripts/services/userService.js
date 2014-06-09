@@ -2,7 +2,7 @@
 
 var servicesModule = angular.module('BloGlu.services');
 
-servicesModule.factory('UserService', ['$http', '$cookieStore', 'ServerService', 'indexeddbService', function($http, $cookieStore, ServerService, indexeddbService) {
+servicesModule.factory('UserService', ['$http', '$cookieStore', '$q', 'indexeddbService', 'ServerService', 'Database', function($http, $cookieStore, $q, indexeddbService, ServerService, Database) {
         var UserService = {};
         var user;
         UserService.signUp = function(user) {
@@ -31,7 +31,7 @@ servicesModule.factory('UserService', ['$http', '$cookieStore', 'ServerService',
                         }
                     }
             ).success(function(result) {
-                $cookieStore.put('user', result);                
+                $cookieStore.put('user', result);
                 $cookieStore.put('sessionToken', result.sessionToken);
                 user = result;
                 //headers["X-Parse-Session-Token"] = result.sessionToken;
@@ -44,18 +44,12 @@ servicesModule.factory('UserService', ['$http', '$cookieStore', 'ServerService',
         };
         UserService.logOut = function() {
             user = null;
-            indexeddbService.dropDatabase().then(function() {
-                $cookieStore.remove('user');
-                $cookieStore.remove('sessionToken');
-            }, function(error) {
-                $cookieStore.remove('user');
-                $cookieStore.remove('sessionToken');
-            });
+            $cookieStore.remove('user');
+            $cookieStore.remove('sessionToken');
         };
 
 
         UserService.requestPasswordReset = function(email) {
-            debugger;
             return $http({
                 method: 'POST',
                 url: ServerService.baseUrl + 'requestPasswordReset',

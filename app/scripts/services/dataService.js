@@ -25,7 +25,15 @@ servicesModule.factory('dataService', ['$q', '$filter', '$injector', '$locale', 
                 return value < comparison;
             }
         };
-
+        
+        
+        dataService.logOut = function(){
+            localData = null;
+            return dataService.clearWholeDatabase().then(function(){
+                return UserService.logOut();
+            });
+        };
+        
 
         dataService.init = function(forceRefresh) {
             var deferred = $q.defer();
@@ -60,7 +68,17 @@ servicesModule.factory('dataService', ['$q', '$filter', '$injector', '$locale', 
             });
             return indexeddbService.addRecords(collection, records);
         };
-
+        
+        dataService.clearWholeDatabase = function(){
+            var deferred = $q.defer();
+            var promiseArray = [];            
+            Database.schema.forEach(function(collectionName) {
+                promiseArray.push(indexeddbService.clear(collectionName, UserService.currentUser().objectId));
+            });
+            $q.all(promiseArray).then(deferred.resolve, deferred.reject);
+            return deferred.promise;
+        };
+        
 
         dataService.getWholeDatabase = function() {
             var deferred = $q.defer();
@@ -69,7 +87,7 @@ servicesModule.factory('dataService', ['$q', '$filter', '$injector', '$locale', 
                 promiseArray.push(indexeddbService.getData(collectionName, UserService.currentUser().objectId));
             });
             $q.all(promiseArray).then(function resolve(result) {
-                var allData = {};
+                var allData = {};                
                 for (var i = 0; i < result.length; i++) {
                     allData[Database.schema[i]] = result[i];
                 }
@@ -158,7 +176,7 @@ servicesModule.factory('dataService', ['$q', '$filter', '$injector', '$locale', 
         };
 
         dataService.queryLocal = function(collection, params) {
-            return dataService.init().then(function(localData) {
+            return dataService.init().then(function(localData) {                
                 return dataService.processResult(localData[collection], params);
             });
         };

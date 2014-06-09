@@ -39,6 +39,19 @@ ControllersModule.controller('confirmModalController', ['$scope', '$modalInstanc
         };
     }]);
 
+
+ControllersModule.controller('chooseEventController', ['$scope', '$modalInstance', function Controller($scope, $modalInstance) {
+        $scope.ok = function() {
+            debugger;
+            $modalInstance.close($scope.code);
+        };
+        $scope.cancel = function() {
+            $modalInstance.dismiss(0);
+        };
+    }]);
+
+
+
 ControllersModule.controller('inputUserController', ['$scope', '$rootScope', '$modalInstance', 'UserService', 'MessageService', function Controller($scope, $rootScope, $modalInstance, UserService, MessageService) {
         $scope.user = {};
         $scope.cancel = function() {

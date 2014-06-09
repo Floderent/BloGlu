@@ -5,7 +5,7 @@ ControllersModule.controller('categoryController', ['$rootScope', '$scope', '$mo
         $rootScope.messages = [];
         $rootScope.pending = 0;
         
-        $scope.eventsTypes = ResourceName;        
+        $scope.eventsTypes = ResourceName;
         $scope.code = 1;
         $scope.eventType = ResourceName[$scope.code];
         

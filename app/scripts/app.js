@@ -92,8 +92,11 @@ mainModule.run(['$rootScope', '$modal', '$location', 'UserService', 'MessageServ
         };
 
         $scope.logOut = function() {
-            UserService.logOut();
-            $scope.currentUser = null;
+            $scope.pending++;
+            dataService.logOut().then(function(){                
+                $scope.currentUser = null;
+                $scope.pending--;
+            });
         };
 
         $scope.$on("$routeChangeStart", function() {

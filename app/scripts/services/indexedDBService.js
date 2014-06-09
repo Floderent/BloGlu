@@ -115,7 +115,37 @@ servicesModule.factory('indexeddbService', ['$window', '$q', 'Database', functio
             });
             return deferred.promise;
         };
-        
+
+
+        indexeddbService.clear = function(collection, userId) {
+            var deferred = $q.defer();
+            openDatabase().then(function(db) {
+                var trans = db.transaction([collection], 'readwrite');
+                var store = trans.objectStore(collection);
+
+                var range = IDBKeyRange.only(userId);
+                var index = store.index('userIndex');
+
+                var cursorRequest = index.openCursor(range);
+                cursorRequest.onsuccess = function() {
+                    var cursor = cursorRequest.result;
+                    if (cursor) {                        
+                        store.delete(cursor.primaryKey);
+                        cursor.continue;
+                    }else{
+                        deferred.resolve();
+                    }
+                };
+                cursorRequest.onerror = function(error) {
+                    deferred.reject(error);
+                };
+                deferred.resolve();
+            });
+            return deferred.promise;
+        };
+
+
+
 
         indexeddbService.addRecord = function(collection, record) {
             var deferred = $q.defer();
