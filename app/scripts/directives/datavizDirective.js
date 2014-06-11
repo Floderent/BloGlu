@@ -86,7 +86,7 @@ DirectivesModule.directive('tableDataviz', ['$compile', 'dataService', function(
         function buildMultipleValueTable(scope) {
             var table = document.createElement('table');
             table.className = 'table';
-            scope.config.headers.forEach(function(header) {
+            angular.forEach(scope.config.headers, function(header) {
                 var th = document.createElement('th');
                 th.addEventListener('click', headerClicked.bind({scope: scope, header: header}));
                 var headerLink = document.createElement('a');
@@ -105,7 +105,7 @@ DirectivesModule.directive('tableDataviz', ['$compile', 'dataService', function(
             function getHeaderDirection(headerName) {
                 var headerDirection = '';
                 if (scope.columnOrder && Array.isArray(scope.columnOrder)) {
-                    scope.columnOrder.forEach(function(columnOrder) {
+                    angular.forEach(scope.columnOrder, function(columnOrder) {
                         if (columnOrder.alias === headerName) {
                             if (columnOrder.direction) {
                                 if (columnOrder.direction.toUpperCase() === 'ASC') {
@@ -123,9 +123,9 @@ DirectivesModule.directive('tableDataviz', ['$compile', 'dataService', function(
             }            
             dataService.orderBy(scope.config.data, scope.columnOrder);
 
-            scope.config.data.forEach(function(row) {
+            angular.forEach(scope.config.data, function(row) {
                 var tr = document.createElement('tr');
-                scope.config.headers.forEach(function(header) {
+                angular.forEach(scope.config.headers, function(header) {
                     var td = document.createElement('td');
                     td.appendChild(document.createTextNode(row[header.name]));
                     tr.appendChild(td);
@@ -142,7 +142,7 @@ DirectivesModule.directive('tableDataviz', ['$compile', 'dataService', function(
                 this.scope.columnOrder = [];
             } else {
                 var that = this;
-                this.scope.columnOrder.forEach(function(orderClause, index) {
+                angular.forEach(this.scope.columnOrder, function(orderClause, index) {
                     if (orderClause.alias === that.header.name) {
                         containsClause = true;
                         if (orderClause.direction === 'ASC') {
@@ -223,7 +223,7 @@ DirectivesModule.directive('chartDataviz', function($compile) {
             },
             loading: false
         };
-        config.headers.forEach(function(queryElement) {
+        angular.forEach(config.headers, function(queryElement) {
             if (queryElement.aggregate) {
                 scope.chartConfig.series.push({name: queryElement.title, data: []});
             }
@@ -245,7 +245,7 @@ DirectivesModule.directive('chartDataviz', function($compile) {
 
     function getSerieByName(series, name) {
         var foundSerie = null;
-        series.forEach(function(serie) {
+        angular.forEach(series, function(serie) {
             if (serie.name === name) {
                 foundSerie = serie;
                 return;

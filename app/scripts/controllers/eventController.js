@@ -65,7 +65,7 @@ ControllersModule.controller('eventController', ['$scope', '$rootScope', '$route
             //=====handle category
             var currentCategory = null;
             if ($scope.event.category) {
-                $scope.categories.forEach(function(category) {
+                angular.forEach($scope.categories, function(category) {
                     debugger;
                     if (category.objectId === $scope.event.category.objectId) {
                         currentCategory = category;
@@ -79,14 +79,14 @@ ControllersModule.controller('eventController', ['$scope', '$rootScope', '$route
         function handleUnit() {
             //=====handle units
             if ($scope.event.unit) {
-                $scope.units.forEach(function(unit) {
+                angular.forEach($scope.units, function(unit) {
                     if (unit.objectId === $scope.event.unit.objectId) {
                         $scope.currentUnit = unit;
                     }
                 });
             } else {
                 if (UserService.currentUser().preferences && UserService.currentUser().preferences.defaultUnit) {
-                    $scope.units.forEach(function(unit) {
+                    angular.forEach($scope.units, function(unit) {
                         if (unit.objectId === UserService.currentUser().preferences.defaultUnit.objectId) {
                             $scope.currentUnit = unit;
                             return;

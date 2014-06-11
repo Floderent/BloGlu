@@ -36,7 +36,7 @@ servicesModule.factory('dateUtil', ['$filter', function($filter) {
         dateUtil.getPeriodMaxDate = function(periodArray, dateField) {
             var maxDate = null;
             if (Array.isArray(periodArray)) {
-                periodArray.forEach(function(period) {
+                angular.forEach(periodArray, function(period) {
                     if (maxDate === null || maxDate < period[dateField]) {
                         maxDate = period[dateField];
                     }

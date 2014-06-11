@@ -41,7 +41,7 @@ servicesModule.factory('indexeddbService', ['$window', '$q', 'Database', functio
         ;
 
         function recreateDatabaseSchema(database, resourceNames) {
-            resourceNames.forEach(function(resourceName) {
+            angular.forEach(resourceNames, function(resourceName) {
                 if (database.objectStoreNames.contains(resourceName)) {
                     database.deleteObjectStore(resourceName);
                 }

@@ -44,7 +44,7 @@ ControllersModule.controller('reportController', ['$scope', '$rootScope', '$q', 
             var query = null;
             if ($scope.selectedQueryElements && $scope.selectedQueryElements.length > 0) {
                 var select = [];
-                $scope.selectedQueryElements.forEach(function(selectElement) {
+                angular.forEach($scope.selectedQueryElements, function(selectElement) {
                     select.push(selectElement.name);
                 });
                 query = {
@@ -122,7 +122,7 @@ ControllersModule.controller('reportController', ['$scope', '$rootScope', '$q', 
         $scope.executeQuery = function() {
             if ($scope.selectedQueryElements && $scope.selectedQueryElements.length > 0) {
                 var select = [];
-                $scope.selectedQueryElements.forEach(function(selectElement) {
+                angular.forEach($scope.selectedQueryElements, function(selectElement) {
                     select.push(selectElement.name);
                 });
                 $scope.report.query = {

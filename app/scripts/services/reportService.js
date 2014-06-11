@@ -49,11 +49,11 @@ servicesModule.factory('reportService', ['$q', 'ModelUtil', 'dataService', funct
                 dataService.queryLocal('Metadatamodel').then(function(mdm) {
                     var selectElements = [];
                     var orderByElements = [];
-                    query.select.forEach(function(selectElementName) {
+                    angular.forEach(query.select, function(selectElementName) {
                         selectElements.push(getMDMElement(mdm, selectElementName));
                     });
                     if (query.orderBy && Array.isArray(query.orderBy)) {
-                        query.orderBy.forEach(function(orderElement) {
+                        angular.forEach(query.orderBy, function(orderElement) {
                             orderByElements.push(getMDMElement(mdm, orderElement.name));
                         });
                     }
@@ -62,7 +62,7 @@ servicesModule.factory('reportService', ['$q', 'ModelUtil', 'dataService', funct
                     var orderBy = [];
                     var where = {};
 
-                    selectElements.forEach(function(queryElement) {
+                    angular.forEach(selectElements, function(queryElement) {
                         computeSelectExpression(select, queryElement);
                         computeGroupByExpression(groupBy, queryElement);
                         computeWhereExpression(where, queryElement.filter);
@@ -154,7 +154,7 @@ servicesModule.factory('reportService', ['$q', 'ModelUtil', 'dataService', funct
 
         function getMDMElement(mdm, elementName) {
             var result = null;
-            mdm.forEach(function(mdmElement) {
+            angular.forEach(mdm, function(mdmElement) {
                 if (mdmElement.name === elementName) {
                     result = mdmElement;
                 }

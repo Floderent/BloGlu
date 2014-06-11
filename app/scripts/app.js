@@ -71,7 +71,9 @@ mainModule.run(['$rootScope', '$modal', '$location', 'UserService', 'MessageServ
                             $scope.pending--;
                             $scope.currentUser = authenticatedUser;
                             //sync
+                            $scope.pending++;
                             syncService.sync().finally(function(result) {
+                                $scope.pending--;
                             });                            
                             $location.path('dashboard');
                         })

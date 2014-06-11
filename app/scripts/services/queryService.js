@@ -12,7 +12,7 @@ servicesModule.factory('queryService', ['$q', 'dataService', 'ModelUtil', functi
         queryService.getMeasures = function() {
             var measures = [];
             return dataService.queryLocal('Metadatamodel').then(function(mdm) {
-                mdm.forEach(function(mdmElement) {
+                angular.forEach(mdm, function(mdmElement) {
                     if (mdmElement.aggregate) {
                         measures.push(mdmElement);
                     }
@@ -24,7 +24,7 @@ servicesModule.factory('queryService', ['$q', 'dataService', 'ModelUtil', functi
         queryService.getLevels = function() {
             var levels = [];
             return dataService.queryLocal('Metadatamodel').then(function(mdm) {
-                mdm.forEach(function(mdmElement) {
+                angular.forEach(mdm, function(mdmElement) {
                     if (!mdmElement.aggregate) {
                         levels.push(mdmElement);
                     }

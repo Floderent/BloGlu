@@ -21,7 +21,7 @@ servicesModule.factory('syncService', ['$q', '$http', '$injector', 'Database', '
 
         function getMaximumValue(array, field) {
             var maxValue = '';
-            array.forEach(function(value) {
+            angular.forEach(array, function(value) {
                 if (value[field] && value[field] > maxValue) {
                     maxValue = value[field];
                 }
@@ -54,7 +54,7 @@ servicesModule.factory('syncService', ['$q', '$http', '$injector', 'Database', '
         function getParseDataInfos() {
             var promiseArray = [];
             var parseDataInfos = {};
-            Database.schema.forEach(function(collectionName) {
+            angular.forEach(Database.schema, function(collectionName) {
                 promiseArray.push($http(
                         {
                             headers: UserService.headers(),

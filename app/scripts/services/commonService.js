@@ -120,7 +120,7 @@ servicesModule.factory('MessageService', ['$timeout', function($timeout) {
         };
         messageService.cancelAll = function(messages) {
             if (messages && Array.isArray(messages)) {
-                messages.forEach(function(message) {
+                angular.forEach(messages, function(message) {
                     messageService.cancel(message);
                 });
             }

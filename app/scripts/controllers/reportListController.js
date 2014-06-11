@@ -39,7 +39,7 @@ ControllersModule.controller('reportListController', ['$scope', '$rootScope', '$
                         $rootScope.pending++;                        
                         reportService.deleteReport(report).then(function(result) {
                             var reportIndex = -1;
-                            $scope.reports.forEach(function(rep, index) {
+                            angular.forEach($scope.reports, function(rep, index) {
                                 if (rep.objectId && rep.objectId === report.objectId) {
                                     reportIndex = index;
                                 }

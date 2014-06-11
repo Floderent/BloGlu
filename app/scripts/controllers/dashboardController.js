@@ -38,7 +38,7 @@ ControllersModule.controller('dashboardController', ['$scope', '$rootScope', '$w
 
         function executeDashboard(dashboard) {
             if (dashboard && dashboard.reports) {                
-                dashboard.reports.forEach(function(report) {                    
+                angular.forEach(dashboard.reports, function(report) {                    
                     dataService.queryLocal('Report',{where: {objectId:report.report}}).then(function(completeReports) {
                         reportService.executeReport(completeReports[0]).then(function(reportQueryResult) {
                             $scope.reportTab[report.row][report.column] = reportQueryResult;

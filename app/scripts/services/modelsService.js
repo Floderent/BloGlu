@@ -213,6 +213,47 @@ servicesModule.factory('Metadatamodel', ['$resource', 'ServerService', 'UserServ
         });
     }]);
 
+
+servicesModule.factory('Batch', ['$resource', 'ServerService', 'UserService','dateUtil', function($resource, ServerService, UserService, dateUtil) {
+        var url = "dummyUrl";
+                //ServerService.baseUrl + 'batch';
+        
+        return $resource(url,
+                {},
+                {
+                    batchEvent: {
+                        method: 'POST',
+                        headers: UserService.headers(),
+                        transformRequest: function(data) {
+                            var dataToSend = [];
+                            angular.forEach(data, function(event) {
+                                var postEvent = {};
+                                if (event) {
+                                    event.ACL = UserService.ownerReadWriteACL();
+                                    if (event.dateTime) {
+                                        event.dateTime = dateUtil.convertToParseFormat(event.dateTime);
+                                    }
+                                    if (event.unit && event.unit.objectId) {
+                                        event.unit = {__type: 'Pointer', className: 'Unit', objectId: event.unit.objectId};
+                                    }
+                                    if (event.category && event.category.objectId) {
+                                        event.category = {__type: 'Pointer', className: 'Category', objectId: event.category.objectId};
+                                    }
+                                }
+                                postEvent.method = 'POST';
+                                postEvent.path = ServerService.baseUrl + 'classes/Event';
+                                postEvent.body = event;
+
+                                dataToSend.push(postEvent);
+                            });
+                            debugger;
+                            return angular.toJson(dataToSend);
+                        }
+                    }
+                });
+    }]);
+
+
 servicesModule.factory('Event', ['$resource', 'ServerService', 'UserService', 'dateUtil', function($resource, ServerService, UserService, dateUtil) {
         var url = ServerService.baseUrl + "classes/Event/:Id";
         return $resource(url, {
@@ -298,6 +339,9 @@ servicesModule.factory('Event', ['$resource', 'ServerService', 'UserService', 'd
             }
         });
     }]);
+
+
+
 
 
 servicesModule.factory('Target', ['$resource', 'ServerService', 'UserService', function($resource, ServerService, UserService) {

@@ -8,7 +8,7 @@ servicesModule.factory('chartService', ['$q', 'overViewService', 'dataService', 
         chartService.getGlucoseReadingData = function(readingGlucoseList) {
             var dataSerie = [];
             if (readingGlucoseList && Array.isArray(readingGlucoseList)) {
-                readingGlucoseList.forEach(function(readingGlucose) {
+                angular.forEach(readingGlucoseList, function(readingGlucose) {
                     var row = [];
                     row[0] = readingGlucose.dateTime.getTime();
                     row[1] = readingGlucose.reading * readingGlucose.unit.coefficient;
@@ -89,7 +89,7 @@ servicesModule.factory('statsService', ['$filter', function($filter) {
                 nb: bloodGlucoseReadings.length,
                 _total: 0
             };
-            bloodGlucoseReadings.forEach(function(bloodGlucoseReading) {
+            angular.forEach(bloodGlucoseReadings, function(bloodGlucoseReading) {
                 var reading = bloodGlucoseReading.reading * bloodGlucoseReading.unit.coefficient;
                 if (stats.maximum === null || reading > stats.maximum) {
                     stats.maximum = reading;
@@ -372,7 +372,7 @@ servicesModule.factory('overViewService', ['$q', '$filter', 'UserService', 'Peri
                     }
                 }
                 //put blood glucose readings in right row and column
-                bloodGlucoseReadings.forEach(function(bloodGlucoseReading) {
+                angular.forEach(bloodGlucoseReadings, function(bloodGlucoseReading) {
                     var indexOfRow = 1;
                     var indexOfColumn = getBloodGlucoseReadingColumnByDate(timeInterval, analysisPeriods, bloodGlucoseReading.dateTime);
                     if (Array.isArray(dataArray[indexOfRow][indexOfColumn])) {
@@ -433,7 +433,7 @@ servicesModule.factory('overViewService', ['$q', '$filter', 'UserService', 'Peri
                     }
                 }
                 //put blood glucose readings in right row and column
-                bloodGlucoseReadings.forEach(function(bloodGlucodeReading) {
+                angular.forEach(bloodGlucoseReadings, function(bloodGlucodeReading) {
                     var indexOfRow = getBloodGlucoseReadingRowByDate(days, bloodGlucodeReading.dateTime) + 1;
                     //var indexOfRow = dateUtil.convertToNormalFormat(bloodGlucodeReading.dateTime).getDay() + 1;
                     var indexOfColumn = getBloodGlucoseReadingColumnByDate(timeInterval, analysisPeriods, bloodGlucodeReading.dateTime) + 1;
@@ -464,7 +464,7 @@ servicesModule.factory('overViewService', ['$q', '$filter', 'UserService', 'Peri
 
                 var indexOfRow = 1;
                 //put blood glucose readings in right row and column
-                bloodGlucoseReadings.forEach(function(bloodGlucoseReading) {
+                angular.forEach(bloodGlucoseReadings, function(bloodGlucoseReading) {
                     var indexOfColumn = getBloodGlucoseReadingColumnByDate(timeInterval, analysisPeriods, bloodGlucoseReading.dateTime);
                     if (Array.isArray(dataArray[indexOfRow][indexOfColumn])) {
                         dataArray[indexOfRow][indexOfColumn].push(bloodGlucoseReading);
@@ -498,203 +498,3 @@ servicesModule.factory('printService', [function() {
 
 
 
-servicesModule.factory('importService', ['Event', 'dateUtil', '$upload', '$http', '$q', 'ServerService', function(Event, dateUtil, $upload, $http, $q, ServerService) {
-        var importService = {};
-        var uploadUrl = ServerService.baseUrl + 'files/';
-        var fileHeaders = angular.extend({'Content-Type': 'text/plain'}, ServerService.headers);
-
-        function processDateTime(dateStr) {
-            var date = null;
-            if (dateStr) {
-                var splittedDateTime = dateStr.split(' ');
-                var datePart = splittedDateTime[0];
-                var timePart = splittedDateTime[1];
-
-                var d = processDate(datePart);
-                var t = processTime(timePart);
-
-                date = new Date();
-                date.setFullYear(d.getFullYear());
-                date.setMonth(d.getMonth());
-                date.setDate(d.getDate());
-
-                date.setHours(t.getHours());
-                date.setMinutes(t.getMinutes());
-                date.setSeconds(t.getSeconds());
-
-                date.setMilliseconds(0);
-
-            }
-            return date;
-        }
-
-        function processDate(dateStr) {
-            var date = null;
-            if (dateStr) {
-                var splittedDate = dateStr.split("/");
-                var day = parseInt(splittedDate[0]);
-                var month = parseInt(splittedDate[1]);
-                var year = parseInt(splittedDate[2]);
-                if (splittedDate[2].length === 2) {
-                    year = 2000 + parseInt(splittedDate[2]);
-                }
-                date = new Date();
-                date.setFullYear(year);
-                date.setMonth(month - 1);
-                date.setDate(day);
-            }
-            return date;
-        }
-
-        function processTime(timeStr) {
-            var date = null;
-            if (timeStr) {
-                var splittedDate = timeStr.split(":");
-                var hours = parseInt(splittedDate[0]);
-                var minutes = parseInt(splittedDate[1]);
-                var seconds = parseInt(splittedDate[2]);
-                date = new Date(0, 0, 0, hours, minutes, seconds);
-            }
-            return date;
-        }
-
-
-        importService.uploadFile = function(file) {
-            uploadUrl = uploadUrl + file.name;
-            return $upload.upload({
-                url: uploadUrl,
-                method: 'POST',
-                headers: fileHeaders,
-                // withCredentials: true,
-                //data: {myObj: $scope.myModelObj},
-                file: file // or list of files: $files for html5 only
-                        /* set the file formData name ('Content-Desposition'). Default is 'file' */
-                        //fileFormDataName: myFile, //or a list of names for multiple files (html5).
-                        /* customize how data is added to formData. See #40#issuecomment-28612000 for sample code */
-                        //formDataAppender: function(formData, key, val){}
-            });
-            //.error(...)
-            //.then(success, error, progress); 
-            //.xhr(function(xhr){xhr.upload.addEventListener(...)})// access and attach any event listener to XMLHttpRequest.
-        };
-
-
-        importService.downloadFile = function(fileLocation) {
-            return $http.get(fileLocation);
-        };
-
-
-        importService.processFile = function(file) {
-            var dataArray = CSVToArray(file, ";");
-            var promiseArray = [];
-            dataArray.forEach(function(line) {
-                var promise = importService.processLine(line);
-                if (promise) {
-                    promiseArray.push(promise);
-                }
-            });
-
-            $q.all(promiseArray).then(function resolve(result) {
-                debugger;
-            },
-                    function reject(error) {
-                        debugger;
-                    },
-                    function progress(progress) {
-                        debugger;
-                    }
-            );
-        };
-
-        importService.processLine = function(dataArray) {
-            //gly => 29
-            //dateTime => 3          
-            var returnValue = null;
-            var event = {};
-            if (dataArray.length >= 29 && dataArray[29] && dataArray[3] && dataArray[0] !== "Index") {
-                event.reading = parseInt(dataArray[29]);
-                event.dateTime = processDateTime(dataArray[3]);
-                event.unit = {objectId: "0Erp4POX9d"};
-                event.code = 1;
-                returnValue = Event.save({}, event);
-            }
-            return returnValue;
-        };
-
-        // This will parse a delimited string into an array of
-        // arrays. The default delimiter is the comma, but this
-        // can be overriden in the second argument.
-        function CSVToArray(strData, strDelimiter) {
-            // Check to see if the delimiter is defined. If not,
-            // then default to comma.
-            strDelimiter = (strDelimiter || ",");
-
-            // Create a regular expression to parse the CSV values.
-            var objPattern = new RegExp(
-                    (
-                            // Delimiters.
-                            "(\\" + strDelimiter + "|\\r?\\n|\\r|^)" +
-                            // Quoted fields.
-                            "(?:\"([^\"]*(?:\"\"[^\"]*)*)\"|" +
-                            // Standard fields.
-                            "([^\"\\" + strDelimiter + "\\r\\n]*))"
-                            ),
-                    "gi"
-                    );
-
-
-            // Create an array to hold our data. Give the array
-            // a default empty first row.
-            var arrData = [[]];
-
-            // Create an array to hold our individual pattern
-            // matching groups.
-            var arrMatches = null;
-
-
-            // Keep looping over the regular expression matches
-            // until we can no longer find a match.
-            while (arrMatches = objPattern.exec(strData)) {
-                // Get the delimiter that was found.
-                var strMatchedDelimiter = arrMatches[ 1 ];
-                // Check to see if the given delimiter has a length
-                // (is not the start of string) and if it matches
-                // field delimiter. If id does not, then we know
-                // that this delimiter is a row delimiter.
-                if (strMatchedDelimiter.length && (strMatchedDelimiter != strDelimiter)) {
-                    // Since we have reached a new row of data,
-                    // add an empty row to our data array.
-                    arrData.push([]);
-                }
-
-
-                // Now that we have our delimiter out of the way,
-                // let's check to see which kind of value we
-                // captured (quoted or unquoted).
-                if (arrMatches[ 2 ]) {
-
-                    // We found a quoted value. When we capture
-                    // this value, unescape any double quotes.
-                    var strMatchedValue = arrMatches[ 2 ].replace(
-                            new RegExp("\"\"", "g"),
-                            "\""
-                            );
-
-                } else {
-
-                    // We found a non-quoted value.
-                    var strMatchedValue = arrMatches[ 3 ];
-
-                }
-
-
-                // Now that we have our value string, let's add
-                // it to the data array.
-                arrData[ arrData.length - 1 ].push(strMatchedValue);
-            }
-
-            // Return the parsed data.
-            return(arrData);
-        }
-        return importService;
-    }]);

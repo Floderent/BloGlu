@@ -1,7 +1,7 @@
 'use strict';
 var ControllersModule = angular.module('BloGlu.controllers');
 
-ControllersModule.controller('overviewController', ['$scope', '$rootScope', '$location', '$routeParams', '$filter', '$window','$modal', 'ResourceName', 'overViewService', 'MessageService', 'printService', function Controller($scope, $rootScope, $location, $routeParams, $filter, $window,$modal, ResourceName, overViewService, MessageService, printService) {
+ControllersModule.controller('overviewController', ['$scope', '$rootScope', '$location', '$routeParams', '$filter', '$window', '$modal', 'ResourceName', 'ResourceCode', 'overViewService', 'MessageService', 'printService', function Controller($scope, $rootScope, $location, $routeParams, $filter, $window, $modal, ResourceName, ResourceCode, overViewService, MessageService, printService) {
 
         $rootScope.messages = [];
         $rootScope.pending = 0;
@@ -12,28 +12,6 @@ ControllersModule.controller('overviewController', ['$scope', '$rootScope', '$lo
 
         //default display blood glucose
         $scope.resource = {1: true};
-
-
-        $scope.$watch('resource', function(newValue, oldValue) {
-            if (newValue !== oldValue) {
-                var resourceCodes = [];
-                angular.forEach(newValue, function(value, key) {
-                    if (value) {
-                        resourceCodes.push(key);
-                    }
-                });
-                $scope.display = resourceCodes;
-                renderPage();
-            }
-        }, true);
-
-        function getEventTypes() {
-            var eventTypes = {};
-            angular.forEach($scope.display, function(value, key) {                  
-                  eventTypes[value] = ResourceName[value];
-            });
-            return eventTypes;
-        }
 
 
         var currentDate = null;
@@ -51,15 +29,58 @@ ControllersModule.controller('overviewController', ['$scope', '$rootScope', '$lo
             $scope.display = $routeParams.display;
         }
 
+        if ($routeParams && $routeParams.display) {
+            var intStrArray = $routeParams.display.split(',');
+            var intArray = [];
+            var resource = {};
+            angular.forEach(intStrArray, function(value, key) {
+                intArray.push(parseInt(value));
+                resource[key] = true;
+            });
+            $scope.resource = resource;
+            $scope.display = intArray;
+        }
+
+        $scope.$watch('resource', function(newValue, oldValue) {
+            if (newValue !== oldValue) {
+                var resourceCodes = [];
+                angular.forEach(newValue, function(value, key) {
+                    if (value) {
+                        resourceCodes.push(parseInt(key));
+                    }
+                });
+                $scope.display = resourceCodes;
+                renderPage();
+            }
+        }, true);
+
+        function getEventTypes() {
+            var eventTypes = {};
+            angular.forEach($scope.display, function(value, key) {
+                eventTypes[value] = ResourceName[value];
+            });
+            return eventTypes;
+        }
+
+        function getDisplayParam(array) {
+            var result = '';
+            angular.forEach(array, function(value, key) {
+                result += value;
+                if (key !== array.length - 1) {
+                    result += ',';
+                }
+            });
+            return result;
+        }
+
 
         $scope.timeInterval = overViewService.getTimeInterval($scope.interval, currentDate);
 
-        //display only blood glucose readings        
         renderPage();
 
         function renderPage() {
             $rootScope.pending++;
-            var params = {where: {code: $scope.display}};
+            var params = {where: {code: {$in: $scope.display}}};
             overViewService.getTableData($scope.timeInterval, params).then(
                     function resolve(result) {
                         $rootScope.pending--;
@@ -99,13 +120,13 @@ ControllersModule.controller('overviewController', ['$scope', '$rootScope', '$lo
                     } else {
                         if (this.interval === 'week') {
                             if (cellData && Array.isArray(cellData)) {
-                                cellData.forEach(function(element) {
+                                angular.forEach(cellData, function(element) {
                                     valueToDisplay += $filter('date')(element.dateTime, 'HH:mm') + " " + element.reading + " ";
                                 });
                             }
                         } else {
                             if (cellData && Array.isArray(cellData)) {
-                                cellData.forEach(function(element) {
+                                angular.forEach(cellData, function(element) {
                                     valueToDisplay = "Maximum: " + element.maximum + " / Minimum: " + element.minimum + " / Average: " + element.average + " / Number: " + element.nb;
                                 });
                             }
@@ -125,34 +146,36 @@ ControllersModule.controller('overviewController', ['$scope', '$rootScope', '$lo
 
         //create new reading with prefilled date and time
         $scope.addEvent = function(day, period) {
-            //TODO display modal window to choose the type of event
-            var $modalScope = $rootScope.$new(true);
-            $modalScope.eventsTypes = getEventTypes();
-            var modalInstance = $modal.open({
-                templateUrl: "views/modal/chooseEvent.html",
-                controller: "chooseEventController",
-                scope: $modalScope,
-                resolve: {
-                    confirmed: function() {                        
-                        return $scope.confirmed;
+            //if only one event type selected, add this one
+            if ($scope.display.length === 1) {
+                goToaddEvent($scope.display[0], day, period);
+            } else {
+                //display modal window to choose the type of event
+                var $modalScope = $rootScope.$new(true);
+                $modalScope.eventsTypes = getEventTypes();
+                var modalInstance = $modal.open({
+                    templateUrl: "views/modal/chooseEvent.html",
+                    controller: "chooseEventController",
+                    scope: $modalScope,
+                    resolve: {
+                        confirmed: function() {
+                            return $scope.code;
+                        }
                     }
-                }
-            });
-            modalInstance.result.then(function(confirmed) {
-                debugger;
-                if (confirmed) {                    
-                }
-            }, function() {
-                //exit
-            });
-            
-            /*
-            $location
-                    .path('event')
-                    .search('day', day.date.toISOString())
-                    .search('time', period.begin.toISOString());
-                    */
+                });
+                modalInstance.result.then(function(eventCode) {                    
+                    if (eventCode) {
+                        goToaddEvent(eventCode, day, period);
+                    }
+                }, function() {
+                    //exit
+                });
+            }
         };
+
+        function goToaddEvent(eventCode, day, period) {
+            $location.path('event/' + ResourceCode[eventCode]).search('day', day.date.toISOString()).search('time', period.begin.toISOString());
+        }
 
 
 
@@ -175,7 +198,7 @@ ControllersModule.controller('overviewController', ['$scope', '$rootScope', '$lo
                         $rootScope.pending++;
                         dataService.delete(resourceName, period.objectId).then(function(result) {
                             var periodIndex = -1;
-                            $scope.periods.forEach(function(per, index) {
+                            angular.forEach($scope.periods, function(per, index) {
                                 if (per.objectId && per.objectId === period.objectId) {
                                     periodIndex = index;
                                 }
@@ -217,7 +240,7 @@ ControllersModule.controller('overviewController', ['$scope', '$rootScope', '$lo
                     newDate.setFullYear(newDate.getFullYear() + (1 * coef));
                     break;
             }
-            $location.path('overview').search('weekDate', newDate.toISOString()).search('interval', interval).search('display', $scope.display);
+            $location.path('overview').search('weekDate', newDate.toISOString()).search('interval', interval).search('display', getDisplayParam($scope.display));
         }
 
         $scope.zoomInInterval = function(date) {
@@ -235,6 +258,9 @@ ControllersModule.controller('overviewController', ['$scope', '$rootScope', '$lo
             }
             $location.path('overview').search('weekDate', date.toISOString()).search('interval', newInterval);
         };
+
+
+
 
 
         $scope.advance = function() {

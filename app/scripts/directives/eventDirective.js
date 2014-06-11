@@ -64,7 +64,7 @@ DirectivesModule.directive('blogluEvent', ['$compile', '$injector', '$q', '$loca
             var resultRange = null;
             if (event && event.reading && event.unit && ranges && Array.isArray(ranges)) {
                 var convertedReading = event.reading * event.unit.coefficient;
-                ranges.forEach(function(range) {
+                angular.forEach(ranges, function(range) {
                     if (convertedReading >= range.lowerLimit * range.unit.coefficient && convertedReading < range.upperLimit * range.unit.coefficient) {
                         resultRange = range;
                         return;

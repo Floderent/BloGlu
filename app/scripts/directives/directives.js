@@ -64,7 +64,7 @@ DirectivesModule.directive("test", function() {
 
         var buildSelect = function(optionsTab) {
             var select = document.createElement("select");
-            optionsTab.forEach(function(optionVal) {
+            angular.forEach(optionsTab, function(optionVal) {
                 var option = document.createElement("option");
                 option.value = optionVal;
                 option.appendChild(document.createTextNode(optionVal));

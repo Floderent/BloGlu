@@ -80,7 +80,7 @@ ControllersModule.controller('categoryController', ['$rootScope', '$scope', '$mo
                         $rootScope.pending++;
                         dataService.delete(resourceName, category.objectId).then(function(result) {
                             var categoryIndex = -1;
-                            $scope.categories.forEach(function(cat, index) {
+                            angular.forEach($scope.categories,function(cat, index) {
                                 if (cat.objectId && cat.objectId === category.objectId) {
                                     categoryIndex = index;
                                 }

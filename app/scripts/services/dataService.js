@@ -52,7 +52,7 @@ servicesModule.factory('dataService', ['$q', '$filter', '$injector', '$locale', 
             var deferred = $q.defer();
             indexeddbService.getData(collection, UserService.currentUser().objectId).then(function(userDatas) {
                 var deletePromiseArray = [];
-                userDatas.forEach(function(record) {
+                angular.forEach(userDatas, function(record) {
                     deletePromiseArray.push(indexeddbService.deleteRecord(collection, record));
                 });
                 $q.all(deletePromiseArray).then(deferred.resolve, deferred.reject);
@@ -63,7 +63,7 @@ servicesModule.factory('dataService', ['$q', '$filter', '$injector', '$locale', 
 
         dataService.addRecords = function(collection, records) {
             var userId = UserService.currentUser().objectId;
-            records.forEach(function(record) {
+            angular.forEach(records, function(record) {
                 record.userId = userId;
             });
             return indexeddbService.addRecords(collection, records);
@@ -72,7 +72,7 @@ servicesModule.factory('dataService', ['$q', '$filter', '$injector', '$locale', 
         dataService.clearWholeDatabase = function(){
             var deferred = $q.defer();
             var promiseArray = [];            
-            Database.schema.forEach(function(collectionName) {
+            angular.forEach(Database.schema, function(collectionName) {
                 promiseArray.push(indexeddbService.clear(collectionName, UserService.currentUser().objectId));
             });
             $q.all(promiseArray).then(deferred.resolve, deferred.reject);
@@ -83,7 +83,7 @@ servicesModule.factory('dataService', ['$q', '$filter', '$injector', '$locale', 
         dataService.getWholeDatabase = function() {
             var deferred = $q.defer();
             var promiseArray = [];
-            Database.schema.forEach(function(collectionName) {
+            angular.forEach(Database.schema, function(collectionName) {
                 promiseArray.push(indexeddbService.getData(collectionName, UserService.currentUser().objectId));
             });
             $q.all(promiseArray).then(function resolve(result) {
@@ -121,7 +121,7 @@ servicesModule.factory('dataService', ['$q', '$filter', '$injector', '$locale', 
                 //save in local data
                 var updatedObject = null;
                 if (localData && localData[collection]) {
-                    localData[collection].forEach(function(record, index) {
+                    angular.forEach(localData[collection], function(record, index) {
                         if (record[idField] === objectId) {
                             updatedObject = angular.extend(localData[collection][index], data);
                             updateObjectInfos(updatedObject, false);
@@ -156,7 +156,7 @@ servicesModule.factory('dataService', ['$q', '$filter', '$injector', '$locale', 
             return dataService.init().then(function(localData) {
                 //save in local data
                 if (localData && localData[collection]) {
-                    localData[collection].forEach(function(record, index) {
+                    angular.forEach(localData[collection], function(record, index) {
                         if (record[idField] === objectId) {
                             localData[collection].splice(index, 1);
                         }
@@ -317,7 +317,7 @@ servicesModule.factory('dataService', ['$q', '$filter', '$injector', '$locale', 
         dataService.processResult = function(queryResult, params) {
             var processedResult = queryResult;
             processedResult = [];
-            queryResult.forEach(function(row) {
+            angular.forEach(queryResult, function(row) {
                 if (applyWhere(row, params)) {
                     var selectedRow = applySelect(row, params);
                     if (params && params.groupBy || containsOnlyAggregates(params)) {
@@ -338,7 +338,7 @@ servicesModule.factory('dataService', ['$q', '$filter', '$injector', '$locale', 
         function containsOnlyAggregates(params) {
             var containsOnlyAggregates = true;
             if (params && params.select) {
-                params.select.forEach(function(queryElement) {
+                angular.forEach(params.select, function(queryElement) {
                     if (!queryElement.aggregate) {
                         containsOnlyAggregates = false;
                         return;
@@ -382,13 +382,13 @@ servicesModule.factory('dataService', ['$q', '$filter', '$injector', '$locale', 
             if (!params || !params.select) {
                 resultRow = angular.extend(resultRow, row);
             } else {
-                params.select.forEach(function(selectElement) {
+                angular.forEach(params.select, function(selectElement) {
                     if ((selectElement.field && typeof (row[selectElement.field]) !== 'undefined') || selectElement.field.indexOf('.') !== -1) {
                         var value = row[selectElement.field];
                         if (selectElement.field.indexOf('.') !== -1) {
                             value = row;
                             var splittedField = selectElement.field.split('.');
-                            splittedField.forEach(function(fieldPart) {
+                            angular.forEach(splittedField, function(fieldPart) {
                                 if (value[fieldPart] && typeof value[fieldPart] !== 'undefined') {
                                     value = value[fieldPart];
                                 } else {
@@ -422,7 +422,7 @@ servicesModule.factory('dataService', ['$q', '$filter', '$injector', '$locale', 
         }
 
         function initNewRow(params, newRow) {
-            params.select.forEach(function(selectElement) {
+            angular.forEach(params.select, function(selectElement) {
                 if (selectElement.aggregate) {
                     var alias = selectElement.field;
                     if (selectElement.alias) {
@@ -455,7 +455,7 @@ servicesModule.factory('dataService', ['$q', '$filter', '$injector', '$locale', 
 
 
         function groupRow(params, currentRow, existingRow) {
-            params.select.forEach(function(selectElement) {
+            angular.forEach(params.select, function(selectElement) {
                 if (selectElement.aggregate) {
                     var alias = selectElement.field;
                     if (selectElement.alias) {
@@ -497,7 +497,7 @@ servicesModule.factory('dataService', ['$q', '$filter', '$injector', '$locale', 
             var avgFields = getAvgFieldsFromParams(params);
             if (params && params.having || avgFields.length > 0) {
                 for (var indexOfRow = 0; indexOfRow < processedResult.length; indexOfRow++) {
-                    avgFields.forEach(function(selectElement) {
+                    angular.forEach(avgFields, function(selectElement) {
                         var alias = selectElement.field;
                         if (selectElement.alias) {
                             alias = selectElement.alias;
@@ -558,7 +558,7 @@ servicesModule.factory('dataService', ['$q', '$filter', '$injector', '$locale', 
         function getAvgFieldsFromParams(params) {
             var avgFields = [];
             if (params && params.select) {
-                params.select.forEach(function(selectElement) {
+                angular.forEach(params.select, function(selectElement) {
                     if (selectElement.aggregate && selectElement.aggregate === 'avg') {
                         avgFields.push(selectElement);
                     }
@@ -579,7 +579,7 @@ servicesModule.factory('dataService', ['$q', '$filter', '$injector', '$locale', 
                 var groupBy = params.groupBy;
                 for (var indexOfRow = 0; indexOfRow < rows.length; indexOfRow++) {
                     var rowEquals = true;
-                    groupBy.forEach(function(groupByField) {
+                    angular.forEach(groupBy, function(groupByField) {
                         if (currentRow[groupByField] !== rows[indexOfRow][groupByField]) {
                             rowEquals = false;
                             return;
@@ -653,7 +653,7 @@ servicesModule.factory('dataService', ['$q', '$filter', '$injector', '$locale', 
             getAnalysisPeriod: function(dateTime, row, localData) {
                 var returnValue = '';
                 var periods = localData.Period;
-                periods.forEach(function(period) {
+                angular.forEach(periods, function(period) {
                     var dateHours = dateTime.getHours();
                     var dateMinutes = dateTime.getMinutes();
 
@@ -691,7 +691,7 @@ servicesModule.factory('dataService', ['$q', '$filter', '$injector', '$locale', 
                 var ranges = localData.Range;
                 var convertedReading = reading * row.unit.coefficient;
                 var returnValue = '';
-                ranges.forEach(function(range) {
+                angular.forEach(ranges, function(range) {
                     if (convertedReading >= range.lowerLimit * range.unit.coefficient && convertedReading < range.upperLimit * range.unit.coefficient) {
                         returnValue = " >= " + range.lowerLimit + " < " + range.upperLimit;
                         return;

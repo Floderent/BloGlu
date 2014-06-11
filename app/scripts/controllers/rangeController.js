@@ -40,14 +40,14 @@ ControllersModule.controller('rangeController', ['$scope', '$rootScope', '$q', '
 
         function handleNewRangeUnit() {
             if ($scope.newRange.unit) {
-                $scope.units.forEach(function(unit) {
+                angular.forEach($scope.units, function(unit) {
                     if (unit.objectId === $scope.newRange.unit.objectId) {
                         $scope.newRangeUnit = unit;
                     }
                 });
             } else {
                 if (UserService.currentUser().preferences && UserService.currentUser().preferences.defaultUnit) {
-                    $scope.units.forEach(function(unit) {
+                    angular.forEach($scope.units, function(unit) {
                         if (unit.objectId === UserService.currentUser().preferences.defaultUnit.objectId) {
                             $scope.newRangeUnit = unit;
                             return;
@@ -78,7 +78,7 @@ ControllersModule.controller('rangeController', ['$scope', '$rootScope', '$q', '
 
         function getNewRange(rangeArray) {
             var maxUpperLimit = 0;
-            rangeArray.forEach(function(range) {
+            angular.forEach(rangeArray, function(range) {
                 if (range.upperLimit > maxUpperLimit) {
                     maxUpperLimit = range.upperLimit;
                 }
@@ -151,7 +151,7 @@ ControllersModule.controller('rangeController', ['$scope', '$rootScope', '$q', '
                         $rootScope.pending++;
                         dataService.delete(resourceName, range.objectId).then(function(result) {
                             var rangeIndex = -1;
-                            $scope.periods.forEach(function(rg, index) {
+                            angular.forEach($scope.periods, function(rg, index) {
                                 if (rg.objectId && rg.objectId === range.objectId) {
                                     rangeIndex = index;
                                 }

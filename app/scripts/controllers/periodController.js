@@ -128,7 +128,7 @@ ControllersModule.controller('periodController', ['$rootScope', '$scope', '$moda
                         $rootScope.pending++;
                         dataService.delete(resourceName, period.objectId).then(function(result) {
                             var periodIndex = -1;
-                            $scope.periods.forEach(function(per, index) {
+                            angular.forEach($scope.periods, function(per, index) {
                                 if (per.objectId && per.objectId === period.objectId) {
                                     periodIndex = index;
                                 }

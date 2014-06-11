@@ -7,14 +7,13 @@ ControllersModule.controller('rangeUnitSelectController', ['$scope', function Co
         
         $scope.$watch('range.isEdit', function(newValue, oldValue){            
             if(newValue){
-                $scope.units.forEach(function(unit){
+                angular.forEach($scope.units,function(unit){
                     if(unit.objectId === $scope.range.unit.objectId){
                         $scope.editedRangeUnit = unit;
                     }
                 });
             }
-        });
-        
+        });        
         $scope.$watch('editedRangeUnit', function(newValue, oldValue) {             
             if (newValue && oldValue && newValue !== oldValue) {
                 if ($scope.range && $scope.range.lowerLimit !== null) {
@@ -30,8 +29,8 @@ ControllersModule.controller('rangeUnitSelectController', ['$scope', function Co
 
 
 
-ControllersModule.controller('confirmModalController', ['$scope', '$modalInstance', function Controller($scope, $modalInstance) {
-        $scope.ok = function() {
+ControllersModule.controller('confirmModalController', ['$scope', '$modalInstance', function Controller($scope, $modalInstance) {                
+        $scope.ok = function() {            
             $modalInstance.close(1);
         };
         $scope.cancel = function() {
@@ -40,9 +39,12 @@ ControllersModule.controller('confirmModalController', ['$scope', '$modalInstanc
     }]);
 
 
-ControllersModule.controller('chooseEventController', ['$scope', '$modalInstance', function Controller($scope, $modalInstance) {
-        $scope.ok = function() {
-            debugger;
+ControllersModule.controller('chooseEventController', ['$scope', '$modalInstance', function Controller($scope, $modalInstance) {        
+        $scope.code = null;
+        $scope.selectType = function(key){
+            $scope.code = parseInt(key);            
+        };
+        $scope.ok = function() {            
             $modalInstance.close($scope.code);
         };
         $scope.cancel = function() {
@@ -286,7 +288,7 @@ ControllersModule.controller('userPreferencesController', ['$rootScope', '$scope
                 if (!$scope.user.preferences.defaultUnit) {
                     $scope.user.preferences.defaultUnit = result[0];
                 } else {
-                    result.forEach(function(unit) {
+                    angular.forEach(result,function(unit) {
                         if (unit.objectId === $scope.user.preferences.defaultUnit.objectId) {
                             $scope.user.preferences.defaultUnit = unit;
                         }
@@ -314,45 +316,20 @@ ControllersModule.controller('userPreferencesController', ['$rootScope', '$scope
 
 
 
-
-
-
-
-ControllersModule.controller("importController", ["$scope", "importService", function Controller($scope, importService) {
-        $scope.onFileSelect = function($files) {
-            if (Array.isArray($files) && $files.length > 0) {
-                importService.uploadFile($files[0]).then(function resolve(result) {
-                    if (result && result.data && result.data.url) {
-                        importService.downloadFile(result.data.url).then(function resolve(result) {
-                            importService.processFile(result.data);
-                        }, function reject() {
-                            debugger;
-                        });
-                    }
-                }, function reject(error) {
-                    debugger;
-                }, function progress(evt) {
-                    console.log('percent: ' + parseInt(100.0 * evt.loaded / evt.total));
-                });
-            }
-        };
-    }]);
-
-
 ControllersModule.controller('bloodGlucoseTargetController', ['$scope', 'BloodGlucoseTarget', 'Unit', 'UserService', function Controller($scope, BloodGlucoseTarget, Unit, UserService) {
         $scope.target = {};
         Unit.query().$promise.then(function(results) {
             $scope.units = results;
             //=====handle units
             if ($scope.target.unit) {
-                $scope.units.forEach(function(unit) {
+                angular.forEach($scope.units,function(unit) {
                     if (unit.objectId === $scope.target.unit.objectId) {
                         $scope.currentUnit = unit;
                     }
                 });
             } else {
                 if (UserService.currentUser().preferences && UserService.currentUser().preferences.defaultUnit) {
-                    $scope.units.forEach(function(unit) {
+                    angular.forEach($scope.units, function(unit) {
                         if (unit.objectId === UserService.currentUser().preferences.defaultUnit.objectId) {
                             $scope.currentUnit = unit;
                         }
