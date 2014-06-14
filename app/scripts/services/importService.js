@@ -2,7 +2,7 @@
 
 var servicesModule = angular.module('BloGlu.services');
 
-servicesModule.factory('importService', ['$upload', '$http', '$q', 'ServerService', 'Event', 'Batch', function($upload, $http, $q, ServerService, Event, Batch) {
+servicesModule.factory('importService', ['$upload', '$http', '$q', 'ServerService', 'Event', 'Batch', 'dataService', 'Utils', function($upload, $http, $q, ServerService, Event, Batch, dataService, Utils) {
         var importService = {};
         var uploadUrl = ServerService.baseUrl + 'files/';
         var fileHeaders = angular.extend({'Content-Type': 'text/plain'}, ServerService.headers);
@@ -62,8 +62,62 @@ servicesModule.factory('importService', ['$upload', '$http', '$q', 'ServerServic
             return date;
         }
 
+        importService.getImports = function() {
+            return dataService.queryLocal('Import');
+        };
 
-        importService.uploadFile = function(file) {
+        importService.saveImport = function(importObject, isEdit) {
+            var savingPromise = null;
+            if (isEdit) {
+                savingPromise = dataService.update('Import', importObject.objectId, importObject);
+            } else {
+                savingPromise = dataService.save('Import', importObject);
+            }
+            return savingPromise;
+        };
+
+
+
+        importService.deleteImport = function(impor) {
+            var importId = null;
+            if (impor && impor.objectId) {
+                importId = impor.objectId;
+            } else {
+                importId = impor;
+            }
+            return dataService.delete('Report', importId);
+        };
+
+        importService.importData = function(importObject,file, options) {
+            var resultData = {};
+            var deferred = $q.defer();
+            importService.saveImport(importObject).then(function(savedImport) {
+                importService.uploadFile(file).then(function resolve(result) {
+                    if (result && result.data && result.data.url) {
+                        resultData.fileUrl = result.data.url;                        
+                        importService.downloadFile(result.data.url).then(function resolve(result) {
+                            importService.processFile(result.data,savedImport.objectId).then(function(result) {                                
+                                resultData = angular.extend(resultData, result);
+                                savedImport.file = resultData.fileUrl;
+                                resultData.import = savedImport;
+                                deferred.resolve(resultData);
+                            });
+                        }, deferred.reject);
+                    } else {
+                        deferred.reject('file not uploaded');
+                    }
+                }, deferred.reject, function progress(evt) {
+                    console.log('percent: ' + parseInt(100.0 * evt.loaded / evt.total));
+                });
+            }, deferred.reject);
+
+
+
+            return deferred.promise;
+        };
+
+
+        importService.uploadFile = function(file) {            
             uploadUrl = uploadUrl + file.name;
             return $upload.upload({
                 url: uploadUrl,
@@ -88,21 +142,17 @@ servicesModule.factory('importService', ['$upload', '$http', '$q', 'ServerServic
         };
 
 
-        importService.processFile = function(file) {
+        importService.processFile = function(file, dataset) {
+            var resultData = {};
+            resultData.dataset = dataset;            
             var dataArray = CSVToArray(file, ";");
-            debugger;
+            resultData.fileLines = dataArray.length;            
             var promiseArray = importService.batchRequestProcess(dataArray);
-
-            $q.all(promiseArray).then(function resolve(result) {
-                debugger;
-            },
-                    function reject(error) {
-                        debugger;
-                    },
-                    function progress(progress) {
-                        debugger;
-                    }
-            );
+            resultData.processedRecords = promiseArray.length;
+            return $q.all(promiseArray).then(function(result) {                
+                resultData.remoteimportResult = result;
+                return resultData;
+            });
         };
 
         function getEventFromData(dataArray) {
@@ -113,6 +163,7 @@ servicesModule.factory('importService', ['$upload', '$http', '$q', 'ServerServic
                 event = {};
                 event.reading = parseInt(dataArray[29]);
                 event.dateTime = processDateTime(dataArray[3]);
+                //TODO remove hard coded unit
                 event.unit = {objectId: "0Erp4POX9d"};
                 event.code = 1;
             }
@@ -132,10 +183,10 @@ servicesModule.factory('importService', ['$upload', '$http', '$q', 'ServerServic
             return promiseArray;
         };
 
-        importService.batchRequestProcess = function(data) {
+        importService.batchRequestProcess = function(data, importUUID) {
             var batchSize = 50;
             var promiseArray = [];
-            var batchData = [];            
+            var batchData = [];
             for (var i in data) {
                 var event = getEventFromData(data[i]);
                 if (event) {
@@ -145,8 +196,7 @@ servicesModule.factory('importService', ['$upload', '$http', '$q', 'ServerServic
                         batchData = [];
                     }
                 }
-            }
-            debugger;
+            }            
             if (batchData.length > 0) {
                 promiseArray.push(Batch.batchEvent({}, batchData));
             }

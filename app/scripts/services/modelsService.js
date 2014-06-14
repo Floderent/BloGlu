@@ -3,7 +3,7 @@
 var servicesModule = angular.module('BloGlu.services');
 
 
-servicesModule.factory('ModelUtil', [function() {
+servicesModule.factory('ModelUtil', ['dateUtil', function(dateUtil) {
         var ModelUtil = {};
         ModelUtil.addClauseToFilter = function(existingClause, additionnalClauses) {
             var whereClause = {};
@@ -52,6 +52,57 @@ servicesModule.factory('ModelUtil', [function() {
             });
             return parseCondition;
         }
+        /*
+         * params format = [{field:"beginDate",type:"date"},{field:"unit", type: "pointer", className:"Unit"}]
+         * 
+         */
+        ModelUtil.transformToParseFormat = function(data, params, ACL){
+            return changeDataFormat(data, params, ACL);
+        };
+        
+        ModelUtil.transformToNormalFormat = function(data, params, ACL){
+            return changeDataFormat(data, params, ACL, true);
+        };
+        
+        
+        function changeDataFormat(data, params, ACL,convertToNormalFormat) {
+            if (data) {
+                if (ACL) {
+                    data.ACL = ACL;
+                }
+                if (params && Array.isArray(params) && params.length > 0) {
+                    for (var i in params) {
+                        var clause = params[i];
+                        if (clause.field && clause.type && data[clause.field]) {
+                            switch (clause.type) {
+                                case 'date':
+                                    if(convertToNormalFormat){
+                                        data[clause.field] = dateUtil.convertToNormalFormat(data[clause.field]);
+                                    }else{
+                                        data[clause.field] = dateUtil.convertToParseFormat(data[clause.field]);
+                                    }                                    
+                                    break;
+                                case 'pointer':
+                                    if (clause.className && data[clause.field].objectId) {
+                                        data[clause.field] = {__type: 'Pointer', className: clause.className, objectId: data[clause.field].objectId};
+                                    }
+                                    break;
+                                case 'file':
+                                    if(convertToNormalFormat){
+                                        data[clause.field] = data[clause.field].name;
+                                    }else{
+                                        data[clause.field] = {__type: 'File', name: data[clause.field]};
+                                    }
+                                    break;
+                            }
+                        }
+                    }
+                }
+            }
+            return data;
+        }
+        
+
         return ModelUtil;
 
     }]);
@@ -129,6 +180,55 @@ servicesModule.factory('Report', ['$resource', 'ServerService', 'UserService', f
             }
         });
     }]);
+
+
+servicesModule.factory('Import', ['$resource', 'ServerService', 'UserService', 'ModelUtil', function($resource, ServerService, UserService, ModelUtil) {
+        var url = ServerService.baseUrl + 'classes/Import/:Id';
+        return $resource(url,
+                {Id: '@Id'},
+        {
+            query: {
+                method: 'GET',
+                headers: UserService.headers(),
+                isArray: true,
+                transformResponse: function(data) {
+                    var jsonResponse = angular.fromJson(data);
+                    if (jsonResponse && jsonResponse.results) {
+                        jsonResponse = jsonResponse.results;
+                        jsonResponse = jsonResponse.map(function(element) {                            
+                            return ModelUtil.transformToNormalFormat(element, [{field: 'beginDate', type:'date'},{field: 'endDate', type:'date'},{field: 'dateTime', type:'date'},{field: 'file', type:'file'}]);
+                        });
+                    }
+                    return jsonResponse;
+                }
+            },
+            count: {
+                method: 'GET',
+                headers: UserService.headers()
+            },
+            save: {
+                method: 'POST',
+                headers: UserService.headers(),
+                transformRequest: function(data) {                                           
+                    data = ModelUtil.transformToParseFormat(data, [{field: 'beginDate', type:'date'},{field: 'endDate', type:'date'},{field: 'dateTime', type:'date'},{field: 'bgUnit', type:'pointer', className:'Unit'},{field: 'file', type:'file'}],UserService.ownerReadWriteACL());                    
+                    return angular.toJson(data);
+                }
+            },
+            update: {
+                method: 'PUT',
+                headers: UserService.headers(),
+                transformRequest: function(data) {
+                    data = ModelUtil.transformToParseFormat(data, [{field: 'beginDate', type:'date'},{field: 'endDate', type:'date'},{field: 'dateTime', type:'date'},{field: 'bgUnit', type:'pointer', className:'Unit'},{field: 'file', type:'file'}],UserService.ownerReadWriteACL());
+                    return angular.toJson(data);
+                }
+            },
+            delete: {
+                method: 'DELETE',
+                headers: UserService.headers()
+            }
+        });
+    }]);
+
 
 
 servicesModule.factory('Dashboard', ['$resource', 'ServerService', 'UserService', function($resource, ServerService, UserService) {
@@ -214,16 +314,16 @@ servicesModule.factory('Metadatamodel', ['$resource', 'ServerService', 'UserServ
     }]);
 
 
-servicesModule.factory('Batch', ['$resource', 'ServerService', 'UserService','dateUtil', function($resource, ServerService, UserService, dateUtil) {
-        var url = "dummyUrl";
-                //ServerService.baseUrl + 'batch';
-        
+servicesModule.factory('Batch', ['$resource', 'ServerService', 'UserService', 'dateUtil', function($resource, ServerService, UserService, dateUtil) {
+        var url = ServerService.baseUrl + 'batch';
+
         return $resource(url,
                 {},
                 {
                     batchEvent: {
                         method: 'POST',
                         headers: UserService.headers(),
+                        isArray: true,
                         transformRequest: function(data) {
                             var dataToSend = [];
                             angular.forEach(data, function(event) {
@@ -241,13 +341,11 @@ servicesModule.factory('Batch', ['$resource', 'ServerService', 'UserService','da
                                     }
                                 }
                                 postEvent.method = 'POST';
-                                postEvent.path = ServerService.baseUrl + 'classes/Event';
+                                postEvent.path = '/1/classes/Event';
                                 postEvent.body = event;
-
                                 dataToSend.push(postEvent);
                             });
-                            debugger;
-                            return angular.toJson(dataToSend);
+                            return angular.toJson({requests: dataToSend});
                         }
                     }
                 });

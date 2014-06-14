@@ -1,7 +1,7 @@
 'use strict';
 var ControllersModule = angular.module('BloGlu.controllers');
 
-ControllersModule.controller('reportController', ['$scope', '$rootScope', '$q', '$routeParams', '$modal', '$window', 'reportService', 'dataService', 'queryService', 'MessageService', 'DataVisualization', function Controller($scope, $rootScope, $q, $routeParams, $modal, $window, reportService, dataService, queryService, MessageService, DataVisualization) {
+ControllersModule.controller('reportController', ['$scope', '$rootScope', '$q', '$routeParams', '$modal', '$window', 'reportService', 'queryService', 'MessageService', 'DataVisualization', function Controller($scope, $rootScope, $q, $routeParams, $modal, $window, reportService, queryService, MessageService, DataVisualization) {
 
         $rootScope.messages = [];
         $rootScope.pending = 0;
@@ -146,20 +146,12 @@ ControllersModule.controller('reportController', ['$scope', '$rootScope', '$q', 
 
 
 
-        $scope.update = function() {
-            var report = $scope.report;
-            var savingPromise = null;
-            if ($scope.isEdit) {
-                savingPromise = dataService.update('Report', report.objectId, report);
-            } else {
-                savingPromise = dataService.save('Report', report);
-            }
-            savingPromise.then(function resolve(result) {
+        $scope.update = function() {            
+            reportService.save($scope.report, $scope.isEdit).then(function resolve(result) {
                 $rootScope.messages.push(MessageService.successMessage('Report saved', 2000));
             }, function reject(error) {
                 $rootScope.messages.push(MessageService.errorMessage('Problem saving the report', 2000));
             });
-
         };
 
         $scope.delete = function() {
@@ -174,7 +166,7 @@ ControllersModule.controller('reportController', ['$scope', '$rootScope', '$q', 
             });
             modalInstance.result.then(function(confirmed) {
                 if (confirmed) {
-                    dataService.delete('Report', $scope.report.objectId).then(function(result) {
+                    reportService.deleteReport($scope.report).then(function(result) {
                         $window.history.back();
                     }, function(error) {
                         $rootScope.messages.push(MessageService.errorMessage("Problem deleting report", 2000));

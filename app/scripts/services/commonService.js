@@ -68,7 +68,8 @@ servicesModule.factory('Database', [function() {
                 'Metadatamodel',
                 'Category',
                 'Range',
-                'Unit'
+                'Unit',
+                'Import'
             ]
         };
     }]);

@@ -38,7 +38,7 @@ servicesModule.factory('dataService', ['$q', '$filter', '$injector', '$locale', 
         dataService.init = function(forceRefresh) {
             var deferred = $q.defer();
             if (localData === null || forceRefresh) {
-                dataService.getWholeDatabase().then(function(result) {
+                dataService.getWholeDatabase().then(function(result) {                   
                     localData = result;
                     deferred.resolve(result);
                 }, deferred.reject);
@@ -65,7 +65,7 @@ servicesModule.factory('dataService', ['$q', '$filter', '$injector', '$locale', 
             var userId = UserService.currentUser().objectId;
             angular.forEach(records, function(record) {
                 record.userId = userId;
-            });
+            });            
             return indexeddbService.addRecords(collection, records);
         };
         
@@ -118,6 +118,7 @@ servicesModule.factory('dataService', ['$q', '$filter', '$injector', '$locale', 
 
         dataService.update = function(collection, objectId, data, params) {
             return dataService.init().then(function(localData) {
+                debugger;
                 //save in local data
                 var updatedObject = null;
                 if (localData && localData[collection]) {
@@ -136,7 +137,7 @@ servicesModule.factory('dataService', ['$q', '$filter', '$injector', '$locale', 
                     indexeddbService.addRecord(collection, updatedObject),
                     resource.update({'Id': objectId}, data).$promise
                 ]).then(function(results) {
-                    return results[1];
+                    return updatedObject;
                 });
             });
         };
@@ -175,7 +176,7 @@ servicesModule.factory('dataService', ['$q', '$filter', '$injector', '$locale', 
             });
         };
 
-        dataService.queryLocal = function(collection, params) {
+        dataService.queryLocal = function(collection, params) {            
             return dataService.init().then(function(localData) {                
                 return dataService.processResult(localData[collection], params);
             });
@@ -220,26 +221,23 @@ servicesModule.factory('dataService', ['$q', '$filter', '$injector', '$locale', 
 
         function doParseQuery(resourceObject, params) {
             var parseParams = {};
-            var promise = null;
-
-            if (params.include) {
+            var promise = null;            
+            if (params && params.include) {
                 parseParams.include = params.include;
             }
-            if (params.where) {
+            if (params && params.where) {
                 parseParams.where = params.where;
             }
-            if (params.limit || params.limit === 0) {
+            if (params && (params.limit || params.limit === 0)) {
                 parseParams.limit = params.limit;
             } else {
                 parseParams.limit = maxResult;
             }
-            if (params.skip) {
+            if (params && params.skip) {
                 parseParams.skip = params.skip;
             }
-            if (params.count) {
+            if (params && params.count) {
                 parseParams.count = params.count;
-            }
-            if (params.count) {
                 promise = resourceObject.count(parseParams).$promise;
             } else {
                 promise = resourceObject.query(parseParams).$promise;
@@ -282,11 +280,12 @@ servicesModule.factory('dataService', ['$q', '$filter', '$injector', '$locale', 
             });
         }
 
-        dataService.queryParse = function(collection, resourceCount, params) {
-            var queryPromise = null;
+        dataService.queryParse = function(collection, resourceCount, params) {            
+            var deferred = $q.defer();
+            
             var resourceObject = $injector.get(collection);
             if (resourceCount <= maxResult) {
-                queryPromise = doParseQuery(resourceObject, params);
+                doParseQuery(resourceObject, params).then(deferred.resolve, deferred.reject);
             } else {                
                 var requestArray = [];
                 var requestNumber = Math.floor(resourceCount / maxResult);
@@ -298,18 +297,18 @@ servicesModule.factory('dataService', ['$q', '$filter', '$injector', '$locale', 
                     var requestParams = angular.extend({}, params);
                     requestParams.limit = maxResult;
                     requestParams.skip = requestIndex * maxResult;
-                    var request = doParseQuery(resourceObject, params);
+                    var request = doParseQuery(resourceObject, requestParams);
                     requestArray.push(request);
                 }
-                queryPromise = $q.all(requestArray).then(function(results) {
+                $q.all(requestArray).then(function(results) {
                     var resultArray = [];
                     for (var resultIndex = 0; resultIndex < results.length; resultIndex++) {
                         resultArray = resultArray.concat(results[resultIndex]);
-                    }
-                    return resultArray;
-                });
+                    }                   
+                    deferred.resolve(resultArray);
+                }, deferred.reject);
             }
-            return queryPromise;
+            return deferred.promise;
         };
 
 

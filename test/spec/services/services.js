@@ -290,17 +290,17 @@ describe('Services: dataService', function() {
             {truc: "1", toto1: 3, test: "janvier", toto3: null},
             {truc: "1", toto1: 2, test: "janvier", toto3: null},
             {truc: "2", toto1: null, test: "fevrier", toto3: 4},
-            {truc: "2", toto1: 10, test: "juin", toto3: 4}            
+            {truc: "2", toto1: 10, test: "juin", toto3: 4}
         ];
         var expectedResult = [
             {test: "janvier", avg1: 2.5, avg2: ""},
-            {test: "fevrier", avg1: "",avg2: ""},
+            {test: "fevrier", avg1: "", avg2: ""},
             {test: "juin", avg1: "", avg2: 10}
         ];
         var params = {
-            select: [               
+            select: [
                 {
-                  field: 'test'  
+                    field: 'test'
                 },
                 {
                     field: 'toto1',
@@ -328,7 +328,7 @@ describe('Services: dataService', function() {
                 }
 
             ],
-            groupBy: ['truc','test']
+            groupBy: ['truc', 'test']
         };
         var processedResult = dataServ.processResult(testResult, params);
         expect(processedResult).toEqual(expectedResult);
@@ -547,23 +547,7 @@ describe('Services: queryService', function() {
         where: {code: 1}
     };
 
-    /*
-     it('should generate executable query', function() {
-     var res;
-     querySvc.executeReportQuery(testReportQuery).then(function(result) {
-     res = result;
-     console.log("Resolved promise !");
-     }, function(error) {
-     res = error;
-     console.log("Promise error !");
-     }).finally(function(){            
-     
-     });        
-     scope.$apply();
-     expect(res).toBe("toto");
-     
-     });
-     */
+
 });
 
 /*
@@ -605,6 +589,83 @@ describe('Services: ModelUtil', function() {
         expect(generatedWhere.dateTime.type).toBe(expected.dateTime.type);
         expect(generatedWhere.dateTime.function).toBe(expected.dateTime.function);
     });
+
+
+    var nowDate = new Date();
+
+
+
+    it('should transform data to parse format', function() {
+
+        var data = {
+            date: nowDate,
+            unit: {objectId: 'toto'},
+            date2: nowDate,
+            otherObject: {objectId: 'titi'}
+        };
+
+
+        var transformedData = modelUtil.transformToParseFormat(data, [
+            {field: 'date', type: 'date'},
+            {field: 'unit', type: 'pointer', className: 'Unit'},
+            {field: 'date2', type: 'date'},
+            {field: 'otherObject', type: 'pointer', className: 'OtherObject'}
+        ]);
+
+        expect(transformedData.date.__type).toBe('Date');
+        expect(transformedData.date.iso).toBe(nowDate.toISOString());
+
+        expect(transformedData.date2.__type).toBe('Date');
+        expect(transformedData.date2.iso).toBe(nowDate.toISOString());
+
+        expect(transformedData.unit.__type).toBe('Pointer');
+        expect(transformedData.unit.className).toBe('Unit');
+        expect(transformedData.unit.objectId).toBe('toto');
+
+        expect(transformedData.otherObject.__type).toBe('Pointer');
+        expect(transformedData.otherObject.className).toBe('OtherObject');
+        expect(transformedData.otherObject.objectId).toBe('titi');
+
+    });
+
+
+
+
+
+    it('should not crash with null date', function() {
+        var data = {
+            date: null
+        };
+        
+        var transformedData = modelUtil.transformToParseFormat(data, [
+            {field: 'date', type: 'date'}
+        ]);
+        expect(transformedData.date).toBe(null);
+        
+        data = {};
+        transformedData = modelUtil.transformToParseFormat(data, [
+            {field: 'date', type: 'date'}
+        ]);        
+        expect(transformedData.date).toBe(undefined);
+        
+    });
+    
+    it('should convert date to normal format', function() {
+        var data = {
+            "dateTime":{"__type":"Date","iso":"2014-06-14T13:36:46.355Z"}
+        };
+        
+        var transformedData = modelUtil.transformToNormalFormat(data, [
+            {field: 'dateTime', type: 'date'}
+        ]);
+        expect(transformedData.dateTime.getFullYear()).toBe(2014);        
+    });
+    
+
+
+
+
+
 });
 
 

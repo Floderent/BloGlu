@@ -1,9 +1,27 @@
-<div class="panel panel-default content-panel">
+<div class="panel panel-primary content-panel">
     <div class="panel-heading">
         <h3 class="panel-title">Import your blood glucose readings</h3>
     </div>
     <div class="panel-body ">
-        <input type="file" ng-file-select="onFileSelect($files)" >
+
+        <ng-form name="nameDialog" novalidate role="form">
+            <div class="form-group input-group-lg" ng-class="">
+                <label class="control-label" for="importName">Name</label>
+                <input type="text" class="form-control" name="importName" id="importName" ng-model="import.name" ng-keyup="hitEnter($event)" required>
+
+                <label class="control-label" for="importFile">File</label>
+                <input type="file" name="importFile" ng-file-select="onFileSelect($files)" >
+                
+                <button class="btn btn-primary btn-lg active pull-right" ng-disabled="pending > 0" ng-click="importData()">Import data</button>
+                
+            </div>
+        </ng-form>
+
+
+
+
+
+
     </div>
 </div>
 

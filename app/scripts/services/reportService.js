@@ -10,7 +10,18 @@ servicesModule.factory('reportService', ['$q', 'ModelUtil', 'dataService', funct
         reportService.getReports = function() {
             return dataService.queryLocal('Report');
         };
-
+        
+        
+        reportService.saveReport = function(report, isEdit){            
+            var savingPromise = null;
+            if (isEdit) {
+                savingPromise = dataService.update('Report', report.objectId, report);
+            } else {
+                savingPromise = dataService.save('Report', report);
+            }
+            return savingPromise;
+        };
+        
         reportService.deleteReport = function(report) {
             var reportId = null;
             if (report && report.objectId) {

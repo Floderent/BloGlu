@@ -35,8 +35,8 @@ ControllersModule.controller('overviewController', ['$scope', '$rootScope', '$lo
             var resource = {};
             angular.forEach(intStrArray, function(value, key) {
                 intArray.push(parseInt(value));
-                resource[key] = true;
-            });
+                resource[parseInt(value)] = true;
+            });            
             $scope.resource = resource;
             $scope.display = intArray;
         }
@@ -52,26 +52,7 @@ ControllersModule.controller('overviewController', ['$scope', '$rootScope', '$lo
                 $scope.display = resourceCodes;
                 renderPage();
             }
-        }, true);
-
-        function getEventTypes() {
-            var eventTypes = {};
-            angular.forEach($scope.display, function(value, key) {
-                eventTypes[value] = ResourceName[value];
-            });
-            return eventTypes;
-        }
-
-        function getDisplayParam(array) {
-            var result = '';
-            angular.forEach(array, function(value, key) {
-                result += value;
-                if (key !== array.length - 1) {
-                    result += ',';
-                }
-            });
-            return result;
-        }
+        }, true);       
 
 
         $scope.timeInterval = overViewService.getTimeInterval($scope.interval, currentDate);
@@ -96,46 +77,12 @@ ControllersModule.controller('overviewController', ['$scope', '$rootScope', '$lo
 
 
         $scope.printToPDF = function() {
-            printService.convertTableToPDF($scope.data, renderCell.bind({
+            printService.convertTableToPDF($scope.data, printService.renderCell.bind({
                 interval: $scope.interval
             }));
         };
 
-        function renderCell(rowIndex, columnIndex, cellData, tableData) {
-            var valueToDisplay = "";
-            if (cellData) {
-                if (rowIndex === 0) {
-                    if (cellData.name) {
-                        valueToDisplay = cellData.name;
-                    }
-                } else {
-                    if (columnIndex === 0) {
-                        if (this.interval === 'week') {
-                            valueToDisplay = $filter('date')(cellData.date, 'EEEE d MMM');
-                        } else {
-                            if (cellData.text) {
-                                valueToDisplay = cellData.text;
-                            }
-                        }
-                    } else {
-                        if (this.interval === 'week') {
-                            if (cellData && Array.isArray(cellData)) {
-                                angular.forEach(cellData, function(element) {
-                                    valueToDisplay += $filter('date')(element.dateTime, 'HH:mm') + " " + element.reading + " ";
-                                });
-                            }
-                        } else {
-                            if (cellData && Array.isArray(cellData)) {
-                                angular.forEach(cellData, function(element) {
-                                    valueToDisplay = "Maximum: " + element.maximum + " / Minimum: " + element.minimum + " / Average: " + element.average + " / Number: " + element.nb;
-                                });
-                            }
-                        }
-                    }
-                }
-            }
-            return valueToDisplay;
-        }
+        
 
         /**
          * Change grouping
@@ -152,7 +99,7 @@ ControllersModule.controller('overviewController', ['$scope', '$rootScope', '$lo
             } else {
                 //display modal window to choose the type of event
                 var $modalScope = $rootScope.$new(true);
-                $modalScope.eventsTypes = getEventTypes();
+                $modalScope.eventsTypes = overViewService.getEventTypes($scope.display);
                 var modalInstance = $modal.open({
                     templateUrl: "views/modal/chooseEvent.html",
                     controller: "chooseEventController",
@@ -177,53 +124,6 @@ ControllersModule.controller('overviewController', ['$scope', '$rootScope', '$lo
             $location.path('event/' + ResourceCode[eventCode]).search('day', day.date.toISOString()).search('time', period.begin.toISOString());
         }
 
-
-
-        $scope.deletePeriod = function(period) {
-            var $modalScope = $rootScope.$new(true);
-            $modalScope.message = "the " + period.name + " period";
-            var modalInstance = $modal.open({
-                templateUrl: "views/modal/confirm.html",
-                controller: "confirmModalController",
-                scope: $modalScope,
-                resolve: {
-                    confirmed: function() {
-                        return $scope.confirmed;
-                    }
-                }
-            });
-            modalInstance.result.then(function(confirmed) {
-                if (confirmed) {
-                    if (period.objectId) {
-                        $rootScope.pending++;
-                        dataService.delete(resourceName, period.objectId).then(function(result) {
-                            var periodIndex = -1;
-                            angular.forEach($scope.periods, function(per, index) {
-                                if (per.objectId && per.objectId === period.objectId) {
-                                    periodIndex = index;
-                                }
-                            });
-                            if (periodIndex !== -1) {
-                                $scope.periods.splice(periodIndex, 1);
-                            }
-                            processPeriods($scope.periods);
-                            $rootScope.pending--;
-                        }, function(error) {
-                            $rootScope.messages.push(MessageService.errorMessage('Problem deleting period', 2000));
-                            $rootScope.pending--;
-                        });
-                    }
-                }
-            }, function() {
-                //exit
-            });
-
-        };
-
-
-
-
-
         function changeInterval(currentDate, interval, coef) {
             var newDate = new Date(currentDate.getTime());
             switch (interval) {
@@ -240,7 +140,7 @@ ControllersModule.controller('overviewController', ['$scope', '$rootScope', '$lo
                     newDate.setFullYear(newDate.getFullYear() + (1 * coef));
                     break;
             }
-            $location.path('overview').search('weekDate', newDate.toISOString()).search('interval', interval).search('display', getDisplayParam($scope.display));
+            $location.path('overview').search('weekDate', newDate.toISOString()).search('interval', interval).search('display', overViewService.getDisplayParam($scope.display));
         }
 
         $scope.zoomInInterval = function(date) {
@@ -258,10 +158,6 @@ ControllersModule.controller('overviewController', ['$scope', '$rootScope', '$lo
             }
             $location.path('overview').search('weekDate', date.toISOString()).search('interval', newInterval);
         };
-
-
-
-
 
         $scope.advance = function() {
             changeInterval(currentDate, $scope.interval, +1);

@@ -222,7 +222,7 @@ servicesModule.factory('overViewService', ['$q', '$filter', 'UserService', 'Peri
                 var result = [];
                 if (analysisPeriods && Array.isArray(analysisPeriods) && analysisPeriods.length > 0) {
                     result = analysisPeriods;
-                    result.sort(function(a, b) {                        
+                    result.sort(function(a, b) {
                         return (a.begin.getHours() * 60 + a.begin.getMinutes()) > (b.begin.getHours() * 60 + b.begin.getMinutes());
                     });
                 } else {
@@ -296,6 +296,27 @@ servicesModule.factory('overViewService', ['$q', '$filter', 'UserService', 'Peri
             return days.indexOf(date.getDate());
         }
 
+
+        overViewService.getEventTypes = function(display) {
+            var eventTypes = {};
+            angular.forEach(display, function(value, key) {
+                eventTypes[value] = ResourceName[value];
+            });
+            return eventTypes;
+        };
+        
+        overViewService.getDisplayParam = function(array) {
+            var result = '';
+            angular.forEach(array, function(value, key) {
+                result += value;
+                if (key !== array.length - 1) {
+                    result += ',';
+                }
+            });
+            return result;
+        };
+        
+        
 
         overViewService.getTimeInterval = function(intervalName, date) {
             var timeInterval = null;
@@ -477,24 +498,7 @@ servicesModule.factory('overViewService', ['$q', '$filter', 'UserService', 'Peri
         return overViewService;
     }]);
 
-servicesModule.factory('printService', [function() {
-        var printService = {};
-        printService.convertTableToPDF = function(tableData, renderCellFunction) {
-            debugger;
-            var doc = new jsPDF('l', 'pt', 'a4', true);
-            doc.cellInitialize();
-            for (var rowIndex = 0; rowIndex < tableData.length; rowIndex++) {
-                var row = tableData[rowIndex];
-                for (var columnIndex = 0; columnIndex < row.length; columnIndex++) {
-                    var cell = row[columnIndex];
-                    doc.cell(10, 50, 120, 50, renderCellFunction(rowIndex, columnIndex, cell, tableData), rowIndex);
-                }
-                ;
-            }
-            doc.save('sample-file.pdf');
-        };
-        return printService;
-    }]);
+
 
 
 

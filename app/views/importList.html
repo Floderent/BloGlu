@@ -1,0 +1,35 @@
+<div class="panel panel-primary content-panel">
+    <div class="panel-heading">
+        <h3 class="panel-title">View the import list</h3>
+    </div>
+
+    <div class="panel-body">
+        <a class="btn" href="#import">Create a new import</a>        
+    </div>
+
+    <div class="table-responsive">
+        <table class="table table-striped">
+            <th>Name</th>
+            <th>Date</th>
+            <th>File</th>            
+            <th></th>
+            <tr ng-repeat="import in imports" ng-dblclick="editImport(import)">
+                <td>
+                    <span>{{import.name}}</span>
+                </td>
+                <td>
+                    <span>{{import.dateTime | date:'dd/MM/yyyy'}}</span>
+                </td>
+                <td>
+                    <span>{{import.file}}</span>
+                </td>              
+                <td>
+                    <button type="button" ng-click="deleteImportt(import)">Delete</button>                    
+                </td>
+            </tr>
+
+        </table>
+    </div>
+
+
+</div>

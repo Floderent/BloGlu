@@ -33,6 +33,8 @@ mainModule.config(['$routeProvider',
         $routeProvider.when('/report', {controller: 'reportController', templateUrl: 'views/report.html'});
         $routeProvider.when('/reportList', {controller: 'reportListController', templateUrl: 'views/reportList.html'});
         $routeProvider.when('/import', {controller: 'importController', templateUrl: 'views/import.html'});
+        $routeProvider.when('/import/:objectId', {controller: 'importController', templateUrl: 'views/import.html'});
+        $routeProvider.when('/importList', {controller: 'importListController', templateUrl: 'views/importList.html'});
         $routeProvider.when('/userPreferences', {controller: 'userPreferencesController', templateUrl: 'views/userPreferences.html'});
         $routeProvider.when('/dashboard', {controller: 'dashboardController', templateUrl: 'views/dashboard.html'});
         $routeProvider.when('/index', {controller: 'indexController', templateUrl: 'views/index.html'});

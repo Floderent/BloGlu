@@ -24,11 +24,15 @@ DirectivesModule.directive('blogluEvent', ['$compile', '$injector', '$q', '$loca
                         promiseArray.push(dataService.queryLocal('Range'));
                     }
                     var dom = angular.element
-                            (
+                            (/*
                             '<div ng-dblclick="viewEvent(resource, objectId)" style="border-left:3px solid;border-color:{{color}};">\n\
-                                <span>{{reading}} {{unit.name}}</span>\n\
+                                <span style="margin-left:5px;">{{reading}} {{unit.name}}</span>\n\
                             </div>'
-                                    );
+                               */
+                             
+                            '<div ng-dblclick="viewEvent(resource, objectId)" class="panel panel-default"><div style="border-left:5px solid;border-color:{{color}};" class="panel-body">{{reading}} {{unit.name}}</div></div>'
+                            
+                            );
                     $q.all(promiseArray).then(function(results) {
                         var range = getEventRange(event, results[1]);
                         var unit = null;

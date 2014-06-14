@@ -1,22 +1,48 @@
 'use strict';
 var ControllersModule = angular.module('BloGlu.controllers');
 
-ControllersModule.controller("importController", ["$scope", "importService", function Controller($scope, importService) {
-        $scope.onFileSelect = function($files) {
-            if (Array.isArray($files) && $files.length > 0) {
-                importService.uploadFile($files[0]).then(function resolve(result) {
-                    if (result && result.data && result.data.url) {
-                        importService.downloadFile(result.data.url).then(function resolve(result) {
-                            importService.processFile(result.data);
-                        }, function reject() {
-                            debugger;
-                        });
-                    }
-                }, function reject(error) {
-                    debugger;
-                }, function progress(evt) {
-                    console.log('percent: ' + parseInt(100.0 * evt.loaded / evt.total));
-                });
+ControllersModule.controller('importController', ['$rootScope', '$scope', '$window', 'importService', 'MessageService', function Controller($rootScope, $scope, $window, importService, MessageService) {
+
+        $scope.file = null;
+        $scope.import = {};
+
+
+        $scope.onFileSelect = function(files) {
+            if (Array.isArray(files) && files.length > 0) {                
+                $scope.file = files[0];
             }
         };
+
+        $scope.importData = function() {            
+            $rootScope.pending++;            
+            $scope.import.dateTime = new Date();
+            importService.importData($scope.import, $scope.file).then(function(importResult) {                
+                importService.saveImport(importResult.import,true).then(function(saveResult){                    
+                    $rootScope.pending--;
+                },function(error){
+                    $rootScope.pending--;
+                });
+                
+                
+            }, function(error) {
+                $rootScope.pending--;
+            });
+
+        };
+
+
+        function renderPage() {
+        }
+
+
+        $scope.$on("$routeChangeStart", function() {
+            //cancel promise
+            MessageService.cancelAll($rootScope.messages);
+            //clear messages
+            $rootScope.messages = [];
+            //clear events
+            $window.removeEventListener('dataReady', renderPage);
+        });
+
+
     }]);

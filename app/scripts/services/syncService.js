@@ -87,8 +87,8 @@ servicesModule.factory('syncService', ['$q', '$http', '$injector', 'Database', '
             var resource = $injector.get(collection);
             if (resource && resource.query) {
                 //resource.query({limit: 1000}).$promise
-                dataService.queryParse(collection, syncStatus.remoteCount, {limit: 1000}).then(function(result) {
-                    dataService.clear(collection).then(function() {
+                dataService.queryParse(collection, syncStatus.remoteCount, {limit: 1000}).then(function(result) {                    
+                    dataService.clear(collection).then(function() {                        
                         dataService.addRecords(collection, result).then(deferred.resolve, deferred.reject);
                     }, deferred.reject);
                 }, deferred.reject);

@@ -2,6 +2,23 @@
 
 var servicesModule = angular.module('BloGlu.services');
 
+servicesModule.factory('Utils', [function() {
+        var Utils = {};
+        Utils.guid = (function() {
+            function s4() {
+                return Math.floor((1 + Math.random()) * 0x10000)
+                        .toString(16)
+                        .substring(1);
+            }
+            return function() {
+                return s4() + s4() + '-' + s4() + '-' + s4() + '-' +
+                        s4() + '-' + s4() + s4() + s4();
+            };
+        })();
+        return Utils;
+    }]);
+
+
 servicesModule.factory('dateUtil', ['$filter', function($filter) {
         var dateUtil = {};
 
