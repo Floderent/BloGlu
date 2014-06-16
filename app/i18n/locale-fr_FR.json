@@ -1,0 +1,195 @@
+{
+    "appName": "BloGlu",
+    "mainScreenMessage": "Gérer votre glycémie",
+    "signUp": "S'enregistrer",
+    "forgotPwd": "Mot de passe oublié",
+    "or": "ou",
+    "logIn": "Se connecter",
+    "logOut": "Se déconnecter",
+    "welcome": "Bienvenue",
+    "preferences": "Mes réglages",
+    
+    "otherEvent": "Autre",
+    "bloodGlucoseEvent": "Glycémie",
+    "medicationEvent": "Traitement",
+    "weightEvent": "Poids",
+    "bloodPressureEvent": "Pression artérielle",
+    "a1cEvent": "Hba1c",
+    "exerciseEvent": "Activité physique",
+    
+    "tableDataviz" : "Tableau",
+    "chartDataviz" : "Graphique",
+    
+    "menu": {
+        "bloodGlucose": "Glycémie",
+        "bgReading": "Entrer une mesure de glycémie",
+        "bgRange": "Entrer un intervalle de glycémie",
+        "bgNotebook": "Voir le carnet",
+        "bgCharts": "Voir les graphique",
+        "bgImportList": "Voir les import",
+        "bgImport": "Import",
+        "report": "Rapport",
+        "reportList": "Voir la liste des rapports",
+        "createReport": "Créer un rapport",
+        "weight": "Poids",
+        "newWeight": "Entrer un poid",
+        "medication": "Traitement",
+        "newMedication": "Entrer un traitement",
+        "settings": "Réglages",
+        "settingsPeriods": "Périodes",
+        "settingsCategories": "Catégories"
+    },
+    "category": {
+        "pageTitle": "Voir ou modifier les catégories d'évènement",
+        "new": "Nouveau",
+        "category": "catégorie",
+        "delete": "Supprimer",
+        "edit": "Modifier",
+        "update": "Mettre à jour",
+        "cancel": "Annuler",
+        "add": "Ajouter"
+    },
+    "charts": {
+        "pageTitle": "Voir les graphiques",
+        "viewBy": "Voir par",
+        "week": "Semaine",
+        "month": "Mois",
+        "year": "Année",
+        "calendarClose": "Fermer"
+    },
+    "dashboard": {
+        "addnewReport": "Ajouter un nouveau rapport"
+    },
+    "event": {
+        "bgTitle": "Saisir une mesure de glycémie",        
+        "medicationTitle": "Saisir un traitement",
+        "weightTitle": "Saisir un poids",
+        "bgBeforeMeal": "Pré prandial",
+        "bgAfterMeal": "Post prandial",
+        "category": "Catégorie",
+        "comment": "Commentaire",
+        "delete": "Supprimer",
+        "save": "Enregistrer"
+    },
+    "import": {
+        "pageTitle": "Importer des glycémies",
+        "name": "Nom",
+        "file": "Fichier",
+        "importData": "Importer des données"
+    },
+    "importList": {
+        "pageTitle": "Voir la liste des imports",
+        "newImport": "Créer un nouveau rapport",
+        "name": "Nom",
+        "date": "Date",
+        "file": "Fichier",
+        "delete": "Supprimer"
+    },
+    "logBook": {
+        "day": "Jour",
+        "week": "Semaine",
+        "month": "Mois",
+        "year": "Année",
+        "print": "Imprimer",
+        "from" : "Du",
+        "to" : "au"
+    },
+    "period": {
+        "pageTitle": "Voir ou modifier les périodes d'analyse",
+        "name": "Nom",
+        "startTime": "Heure de début",
+        "endTime": "Heure de fin",
+        "duration": "Durée",
+        "add": "Ajouter",
+        "delete": "Supprimer",
+        "update": "Mettre à jour",
+        "edit": "Modifier",
+        "cancel": "Annuler",
+        "error": "Erreur",
+        "success": "Réussite"
+    },
+    "range": {
+        "pageTitle": "Voir ou modifier les intervalles de glycémie",
+        "unit": "Unité",
+        "lowerLimit": "Limite inférieure",
+        "upperLimit": "Limite supérieure",
+        "normalRange": "Zone normale",
+        "color": "Couleur",
+        "error": "Erreur",
+        "success": "Réussite",
+        "add": "Ajouter",
+        "delete": "Supprimer",
+        "update": "Mettre à jour",
+        "edit": "Modifier",
+        "cancel": "Annuler"
+    },
+    "report": {
+        "pageTitle": "Analyser vos données",
+        "comment": "Commentaire",
+        "addElement": "Ajouter un élément",
+        "reportTitle": "Titre du rapport",
+        "execute": "Exécuter",
+        "clear": "Vider",
+        "delete": "Supprimer",
+        "save": "Enregistrer"
+    },
+    "reportList": {
+        "pageTitle": "Voir la liste des rapports",
+        "newReport": "Créer un nouveau rapport",
+        "title": "Titre",
+        "description": "Description",
+        "lastModificationDate": "Date de dernière modification",
+        "creationDate": "Date de création",
+        "delete": "Supprimer"
+    },
+    "userPreferences": {
+        "pageTitle": "Voir ou modifier vos réglages",
+        "name": "Nom",
+        "password": "Mot de passe",
+        "confirmPassword": "Confirmation du mot de passe",
+        "email": "Email",
+        "error": "Erreur",
+        "success": "Réussite",
+        "invalidEmail": "Email invalide",
+        "passwordMismatched": "Pas de correspondance des mots de passe",
+        "defaultUnit": "Unité par défaut",
+        "firstDayOfWeek": "Premier jour de la semaine",
+        "save": "Enregistrer"
+    },
+    "chooseEvent": {
+        "pageTitle": "Choix de l'évènement à ajouter",
+        "add": "Ajouter",
+        "cancel": "Annuler"
+    },
+    "confirm": {
+        "pageTitle": "Confirmer la suppression",
+        "deletionMessage1": "Voulez-vous vraiment supprimer",
+        "deletionMessage2": "cet élément",
+        "yes": "Oui",
+        "no": "Non"
+    },
+    "inputUser": {
+        "pageTitle": "Nouvel utilisateur",
+        "name": "Nom",
+        "password": "Mot de passe",
+        "confirmPassword": "Confirmation du mot de passe",
+        "email": "Email",
+        "error": "Erreur",
+        "success": "Réussite",
+        "invalidEmail": "Email invalide",
+        "passwordMismatched": "Pas de correspondance des mots de passe",
+        "cancel": "Annuler",
+        "save": "Enregistrer"
+    },
+    "resetPassword": {
+        "pageTitle": "Mot de passe oublié",
+        "error": "Erreur",
+        "success": "Réussite",
+        "email": "Email",
+        "invalidEmail": "Email invalide",
+        "cancel": "Annuler",
+        "resetPassword": "Réinitialiser le mot de passe"
+    }
+
+
+}

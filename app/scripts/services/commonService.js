@@ -36,22 +36,22 @@ servicesModule.factory('ResourceCode', [function() {
         };
     }]);
 
-servicesModule.factory('ResourceName', [function() {
+servicesModule.factory('ResourceName', ['$translate', function($translate) {
         return {
-            0: 'Other',
-            1: 'Blood Glucose',
-            2: 'Medication',
-            3: 'Weight',
-            4: 'Blood Pressure',
-            5: 'a1c',
-            6: 'Exercise'
+            0: $translate.instant('otherEvent'),
+            1: $translate.instant('bloodGlucoseEvent'),
+            2: $translate.instant('medicationEvent'),
+            3: $translate.instant('weightEvent'),
+            4: $translate.instant('bloodPressureEvent'),
+            5: $translate.instant('a1cEvent'),
+            6: $translate.instant('exerciseEvent')
         };
     }]);
 
-servicesModule.factory('DataVisualization', [function() {
+servicesModule.factory('DataVisualization', ['$translate', function($translate) {
         return {
-            table: 'Table',
-            chart: 'Chart'
+            table: $translate.instant('tableDataviz'),
+            chart: $translate.instant('chartDataviz')
         };
     }]);
 

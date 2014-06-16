@@ -1,18 +1,18 @@
 <div class="panel panel-primary content-panel">
     <div class="panel-heading">
-        <h3 class="panel-title">Import your blood glucose readings</h3>
+        <h3 class="panel-title">{{ 'import.pageTitle' | translate }}</h3>
     </div>
     <div class="panel-body ">
 
         <ng-form name="nameDialog" novalidate role="form">
             <div class="form-group input-group-lg" ng-class="">
-                <label class="control-label" for="importName">Name</label>
+                <label class="control-label" for="importName">{{ 'import.name' | translate }}</label>
                 <input type="text" class="form-control" name="importName" id="importName" ng-model="import.name" ng-keyup="hitEnter($event)" required>
 
-                <label class="control-label" for="importFile">File</label>
+                <label class="control-label" for="importFile">{{ 'import.file' | translate }}</label>
                 <input type="file" name="importFile" ng-file-select="onFileSelect($files)" >
                 
-                <button class="btn btn-primary btn-lg active pull-right" ng-disabled="pending > 0" ng-click="importData()">Import data</button>
+                <button class="btn btn-primary btn-lg active pull-right" ng-disabled="pending > 0" ng-click="importData()">{{ 'import.importData' | translate }}</button>
                 
             </div>
         </ng-form>

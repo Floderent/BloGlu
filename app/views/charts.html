@@ -1,12 +1,12 @@
 <div class="panel panel-primary content-panel">
     <div class="panel-heading">
-        <h3 class="panel-title">View charts</h3>
+        <h3 class="panel-title">{{ 'charts.pageTitle' | translate }}</h3>
 
-        View by
+        {{ 'charts.viewBy' | translate }}
         <select ng-model="interval" ng-change="change()">
-            <option value="week">Week</option>
-            <option value="month">Month</option>
-            <option value="year">Year</option>
+            <option value="week">{{ 'charts.week' | translate }}</option>
+            <option value="month">{{ 'charts.month' | translate }}</option>
+            <option value="year">{{ 'charts.year' | translate }}</option>
         </select>
 
 
@@ -14,14 +14,14 @@
     <div class="panel-body ">
 
         <p class="input-group">                
-            <input type="text" class="form-control" datepicker-popup="dd/MM/yyyy" is-open="beginDateOpened" ng-model="beginDate" ng-required="true" close-text="Close" />               
+            <input type="text" class="form-control" datepicker-popup="dd/MM/yyyy" is-open="beginDateOpened" ng-model="beginDate" ng-required="true" close-text="{{ 'charts.calendarClose' | translate }}" />               
             <span class="input-group-btn">                    
                 <button class="btn btn-default" ng-click="openBeginDate($event)"><i class="glyphicon glyphicon-calendar"></i></button>
             </span>
         </p>
 
         <p class="input-group">                
-            <input type="text" class="form-control" datepicker-popup="dd/MM/yyyy" is-open="endDateOpened" ng-model="endDate" ng-required="true" close-text="Close" />               
+            <input type="text" class="form-control" datepicker-popup="dd/MM/yyyy" is-open="endDateOpened" ng-model="endDate" ng-required="true" close-text="{{ 'charts.calendarClose' | translate }}" />               
             <span class="input-group-btn">                    
                 <button class="btn btn-default" ng-click="openEndDate($event)"><i class="glyphicon glyphicon-calendar"></i></button>
             </span>

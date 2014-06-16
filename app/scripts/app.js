@@ -15,6 +15,8 @@ var mainModule = angular
             'highcharts-ng',
             'angularFileUpload',
             'angularSpectrumColorpicker',
+            'pascalprecht.translate',
+            'tmh.dynamicLocale',
             'BloGlu.services',
             'BloGlu.controllers',
             'BloGlu.directives'
@@ -27,7 +29,7 @@ mainModule.config(['$routeProvider',
         $routeProvider.when('/overview', {controller: 'overviewController', templateUrl: 'views/overView.html'});
         $routeProvider.when('/period', {controller: 'periodController', templateUrl: 'views/period.html'});
         $routeProvider.when('/category', {controller: 'categoryController', templateUrl: 'views/category.html'});
-        $routeProvider.when('/range', {controller: 'rangeController', templateUrl: 'views/range.html'});        
+        $routeProvider.when('/range', {controller: 'rangeController', templateUrl: 'views/range.html'});
         $routeProvider.when('/charts', {controller: 'chartController', templateUrl: 'views/charts.html'});
         $routeProvider.when('/report/:objectId', {controller: 'reportController', templateUrl: 'views/report.html'});
         $routeProvider.when('/report', {controller: 'reportController', templateUrl: 'views/report.html'});
@@ -41,14 +43,30 @@ mainModule.config(['$routeProvider',
         $routeProvider.otherwise({redirectTo: '/'});
     }]);
 
+mainModule.config(['$translateProvider', function($translateProvider) {
+        $translateProvider.useStaticFilesLoader({
+            prefix: 'i18n/locale-',
+            suffix: '.json'
+        });
+        
+        //$translateProvider.preferredLanguage('en_US');
+        $translateProvider.preferredLanguage('fr_FR');
+        
+    }]);
 
-mainModule.run(['$rootScope', '$modal', '$location', 'UserService', 'MessageService', 'syncService', 'dataService', 'queryService', function($scope, $modal, $location, UserService, MessageService, syncService, dataService, queryService) {
+
+mainModule.run(['$rootScope', '$modal', '$location', 'UserService', 'MessageService', 'syncService', 'dataService', 'queryService','tmhDynamicLocale', function($scope, $modal, $location, UserService, MessageService, syncService, dataService, queryService, tmhDynamicLocale) {
 
         $scope.currentUser = UserService.currentUser();
         $scope.messages = [];
         $scope.pending = 0;
         var modal = null;
-
+                    
+        tmhDynamicLocale.set('fr').then(function(result){            
+        },function(error){
+        });
+        
+        
         $scope.displaySignUpModal = function() {
             $scope.messages = [];
             modal = $modal.open({
@@ -76,7 +94,7 @@ mainModule.run(['$rootScope', '$modal', '$location', 'UserService', 'MessageServ
                             $scope.pending++;
                             syncService.sync().finally(function(result) {
                                 $scope.pending--;
-                            });                            
+                            });
                             $location.path('dashboard');
                         })
                         .error(function(error) {
@@ -97,7 +115,7 @@ mainModule.run(['$rootScope', '$modal', '$location', 'UserService', 'MessageServ
 
         $scope.logOut = function() {
             $scope.pending++;
-            dataService.logOut().then(function(){                
+            dataService.logOut().then(function() {
                 $scope.currentUser = null;
                 $scope.pending--;
             });

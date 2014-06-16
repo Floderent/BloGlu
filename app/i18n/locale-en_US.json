@@ -1,0 +1,200 @@
+{
+    "appName": "BloGlu",
+    "mainScreenMessage": "Handle your blood glucose",
+    "signUp": "Sign up",
+    "forgotPwd": "Forgot your password",
+    "or": "or",
+    "logIn": "Log in",
+    "logOut": "Log out",
+    "welcome": "Welcome",
+    "preferences": "Preferences",
+    
+    "otherEvent": "Other",
+    "bloodGlucoseEvent": "Blood Glucose",
+    "medicationEvent": "Medication",
+    "weightEvent": "Weight",
+    "bloodPressureEvent": "Blood Pressure",
+    "a1cEvent": "a1c",
+    "exerciseEvent": "Exercise",
+    
+    "tableDataviz" : "Table",
+    "chartDataviz" : "Chart",
+    
+    
+    
+    
+            
+    
+    "menu": {
+        "bloodGlucose": "Blood Glucose",
+        "bgReading": "Enter blood glucose reading",
+        "bgRange": "Enter blood glucose range",
+        "bgNotebook": "View your notebook",
+        "bgCharts": "See charts",
+        "bgImportList": "View the import list",
+        "bgImport": "Import",
+        "report": "Report",
+        "reportList": "View the report list",
+        "createReport": "Create a report",
+        "weight": "Weight",
+        "newWeight": "Enter weight",
+        "medication": "Medication",
+        "newMedication": "Enter medication",
+        "settings": "Settings",
+        "settingsPeriods": "Periods",
+        "settingsCategories": "Categories"
+    },
+    "category": {
+        "pageTitle": "View or modify the events categories",
+        "new": "New",
+        "category": "category",
+        "delete": "Delete",
+        "edit": "Edit",
+        "update": "Update",
+        "cancel": "Cancel",
+        "add": "Add"
+    },
+    "charts": {
+        "pageTitle": "View charts",
+        "viewBy": "View by",
+        "week": "Week",
+        "month": "Month",
+        "year": "Year",
+        "calendarClose": "Close"
+    },
+    "dashboard": {
+        "addnewReport": "Add new report"
+    },
+    "event": {
+        "bgTitle": "Enter a blood glucose reading",
+        "medicationTitle": "Enter a medication",        
+        "weightTitle": "Enter a weight",
+        "bgBeforeMeal": "Before meal",
+        "bgAfterMeal": "After meal",
+        "category": "Category",
+        "comment": "Comment",
+        "delete": "Delete",
+        "save": "Save"
+    },
+    "import": {
+        "pageTitle": "Import your blood glucose readings",
+        "name": "Name",
+        "file": "File",
+        "importData": "Import data"
+    },
+    "importList": {
+        "pageTitle": "View the import list",
+        "newImport": "Create a new import",
+        "name": "Name",
+        "date": "Date",
+        "file": "File",
+        "delete": "Delete"
+    },
+    "logBook": {
+        "day": "Day",
+        "week": "Week",
+        "month": "Month",
+        "year": "Year",
+        "print": "Print",
+        "from" : "From",
+        "to" : "to"
+    },
+    "period": {
+        "pageTitle": "View or modify the analysis period(s)",
+        "name": "Name",
+        "startTime": "Start time",
+        "endTime": "End time",
+        "duration": "Duration",
+        "add": "Add",
+        "delete": "Delete",
+        "update": "Update",
+        "edit": "Edit",
+        "cancel": "Cancel",
+        "error": "Error",
+        "success": "Success"
+    },
+    "range": {
+        "pageTitle": "View or modify the blood glucose range(s)",
+        "unit": "Unit",
+        "lowerLimit": "Lower limit",
+        "upperLimit": "Upper limit",
+        "normalRange": "Normal range",
+        "color": "Color",
+        "error": "Error",
+        "success": "Success",
+        "add": "Add",
+        "delete": "Delete",
+        "update": "Update",
+        "edit": "Edit",
+        "cancel": "Cancel"
+    },
+    "report": {
+        "pageTitle": "Analyse your data",
+        "comment": "Comment",
+        "addElement": "Add element",
+        "reportTitle": "Report title",
+        "execute": "Execute",
+        "clear": "Clear",
+        "delete": "Delete",
+        "save": "Save"
+    },
+    "reportList": {
+        "pageTitle": "View the report list",
+        "newReport": "Create a new report",
+        "title": "Title",
+        "description": "Description",
+        "lastModificationDate": "Last modification date",
+        "creationDate": "Creation Date",
+        "delete": "Delete"
+    },
+    "userPreferences": {
+        "pageTitle": "View or modify your settings",
+        "name": "Name",
+        "password": "Password",
+        "confirmPassword": "Confirm password",
+        "email": "Email",
+        "error": "Error",
+        "success": "Success",
+        "invalidEmail": "Invalid email",
+        "passwordMismatched": "Password mismatched",
+        "defaultUnit": "Default unit",
+        "firstDayOfWeek": "First day of week",
+        "save": "Save"
+    },
+    "chooseEvent": {
+        "pageTitle": "Choose the event to add",
+        "add": "Add",
+        "cancel": "Cancel"
+    },
+    "confirm": {
+        "pageTitle": "Confirm deletion",
+        "deletionMessage1": "Would you really delete",
+        "deletionMessage2": "this item",
+        "yes": "Yes",
+        "no": "No"
+    },
+    "inputUser": {
+        "pageTitle": "New user",
+        "name": "Name",
+        "password": "Password",
+        "confirmPassword": "Confirm password",
+        "email": "Email",
+        "error": "Error",
+        "success": "Success",
+        "invalidEmail": "Invalid email",
+        "passwordMismatched": "Password mismatched",
+        "cancel": "Cancel",
+        "save": "Save"
+    },
+    "resetPassword": {
+        "pageTitle": "Forgot Password",
+        "error": "Error",
+        "success": "Success",
+        "email": "Email",
+        "invalidEmail": "Invalid email",
+        "cancel": "Cancel",
+        "resetPassword": "Reset password"
+    }
+
+
+}

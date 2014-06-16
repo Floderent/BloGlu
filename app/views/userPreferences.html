@@ -1,36 +1,34 @@
-<div class="panel panel-default content-panel">
+<div class="panel panel-primary content-panel">
     <div class="panel-heading">
-        <h3 class="panel-title">View or modify your settings</h3>
+        <h3 class="panel-title">{{ 'userPreferences.pageTitle' | translate }}</h3>
     </div>
     <div class="panel-body ">
-
-
         <tabset>
             <tab heading="Account">
                 <ng-form name="nameDialog" novalidate role="form">
                     <div class="form-group input-group-lg" ng-class="{
                         true: 'has-error'}
                             [nameDialog.username.$dirty && nameDialog.username.$invalid]">
-                        <label class="control-label" for="username">Name</label>
+                        <label class="control-label" for="username">{{ 'userPreferences.name' | translate }}</label>
                         <input type="text" class="form-control" name="username" id="username" ng-model="user.username" ng-keyup="hitEnter($event)" required>
-                        <label class="control-label" for="password">Password</label>
+                        <label class="control-label" for="password">{{ 'userPreferences.password' | translate }}</label>
                         <input type="password" class="form-control" name="password" id="password" ng-model="user.password" equals="{{confirmedPassword}}" ng-keyup="hitEnter($event)" required>                                 
-                        <label class="control-label" for="confirmPassword">Confirm password</label>
+                        <label class="control-label" for="confirmPassword">{{ 'userPreferences.confirmPassword' | translate }}</label>
                         <input type="password" class="form-control" name="confirmPassword" id="confirmPassword" ng-model="confirmedPassword" equals="{{user.password}}" ng-keyup="hitEnter($event)" required>                                 
-                        <label class="control-label" for="email">Email</label>
+                        <label class="control-label" for="email">{{ 'userPreferences.email' | translate }}</label>
                         <input type="email" class="form-control" name="email" id="email" ng-model="user.email" ng-keyup="hitEnter($event)" required>
 
                         <div class="alert alert-danger"  ng-show="nameDialog.email.$invalid && nameDialog.email.$dirty">                            
-                            <strong>Error!</strong> Invalid email
+                            <strong>{{ 'userPreferences.error' | translate }}!</strong> {{ 'userPreferences.invalidEmail' | translate }}
                         </div>
                         <div class="alert alert-danger"  ng-show="(nameDialog.password.$invalid && nameDialog.password.$dirty) && (nameDialog.confirmPassword.$invalid && nameDialog.confirmPassword.$dirty)">                            
-                            <strong>Error!</strong> Password mismatched
+                            <strong>{{ 'userPreferences.error' | translate }}!</strong> {{ 'userPreferences.passwordMismatched' | translate }}
                         </div>                        
                         <div class="alert alert-danger"  ng-show="errorMessage">                            
-                            <strong>Error!</strong> {{errorMessage}}
+                            <strong>{{ 'userPreferences.error' | translate }}!</strong> {{errorMessage}}
                         </div>
                         <div class="alert alert-success"  ng-show="successMessage">                            
-                            <strong>Success!</strong> {{successMessage}}
+                            <strong>{{ 'userPreferences.success' | translate }}!</strong> {{successMessage}}
                         </div>
                     </div>
 
@@ -43,10 +41,10 @@
 
                 <!-- Application preferences -->
                 <ng-form name="applicationSettings" novalidate role="form">                
-                    <label class="control-label" for="unitSelect">Default unit</label>
+                    <label class="control-label" for="unitSelect">{{ 'userPreferences.defaultUnit' | translate }}</label>
                     <select name="unitSelect" class="blood-glucose-select blood-glucose-input-field form-inline" data-ng-model="user.preferences.defaultUnit" data-ng-options="unit.name for unit in units"></select>
 
-                    <label class="control-label" for="daySelect">First day of week</label>                                        
+                    <label class="control-label" for="daySelect">{{ 'userPreferences.firstDayOfWeek' | translate }}</label>                                        
                     <select name="daySelect" class="blood-glucose-select blood-glucose-input-field form-inline" data-ng-model="user.preferences.firstDayOfWeek" data-ng-options="day.index as day.date for day in days">
                     </select>
                     
@@ -56,6 +54,6 @@
             </tab>            
         </tabset>
 
-        <button class="btn btn-primary btn-lg active pull-right" ng-disabled="pending > 0" ng-click="update(user)">Save</button>
+        <button class="btn btn-primary btn-lg active pull-right" ng-disabled="pending > 0" ng-click="update(user)">{{ 'userPreferences.save' | translate }}</button>
     </div>
 </div>

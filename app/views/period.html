@@ -1,6 +1,6 @@
 <div class="panel panel-primary content-panel">
     <div class="panel-heading">
-        <h3 class="panel-title">View or modify the analysis period(s)</h3>
+        <h3 class="panel-title">{{ 'period.pageTitle' | translate }}</h3>
     </div>
     <div class="panel-body ">
         
@@ -10,10 +10,10 @@
             <div class="input-group">
                 <div class="table-responsive" ng-show="!arePeriodsOnMoreThanOneDay">
                     <table class="table table-striped">
-                        <th>Name</th>
-                        <th>Start time</th>
-                        <th>End time</th>
-                        <th>Duration</th>
+                        <th>{{ 'period.name' | translate }}</th>
+                        <th>{{ 'period.startTime' | translate }}</th>
+                        <th>{{ 'period.endTime' | translate }}</th>
+                        <th>{{ 'period.duration' | translate }}</th>
                         <th></th>
                         <tr>
                             <td>
@@ -31,7 +31,7 @@
                             </td>
                             <td>{{newPeriod.end - newPeriod.begin - 3600000| date:'HH:mm'}}</td>                            
                             <td>
-                                <button type="button" ng-click="savePeriod(newPeriod)">Add</button>
+                                <button type="button" ng-click="savePeriod(newPeriod)">{{ 'period.add' | translate }}</button>
                             </td>
 
                         </tr>
@@ -42,18 +42,18 @@
 
 
                 <div class="alert alert-danger"  ng-show="errorMessage">                            
-                    <strong>Error!</strong> {{errorMessage}}
+                    <strong>{{ 'period.error' | translate }}!</strong> {{errorMessage}}
                 </div>
                 <div class="alert alert-success"  ng-show="successMessage">                            
-                    <strong>Success!</strong> {{successMessage}}
+                    <strong>{{ 'period.success' | translate }}!</strong> {{successMessage}}
                 </div>
             </div>
             <div class="table-responsive">
                 <table class="table table-striped">
-                    <th>Name</th>
-                    <th>Start time</th>
-                    <th>End time</th>
-                    <th>Duration</th>
+                    <th>{{ 'period.name' | translate }}</th>
+                    <th>{{ 'period.startTime' | translate }}</th>
+                    <th>{{ 'period.endTime' | translate }}</th>
+                    <th>{{ 'period.duration' | translate }}</th>
                     <th></th>
                     <tr ng-repeat="period in periods | orderBy:getBeginDateHours">
                         <td>
@@ -75,9 +75,9 @@
                         <td>{{period.end - period.begin - 3600000| date:'HH:mm'}}</td>
                         <td>
                             <button type="button" ng-click="deletePeriod(period)">Delete</button>
-                            <button type="button" ng-show="!period.isEdit" ng-click="editPeriod(period)">Edit</button>
-                            <button type="button" ng-show="period.isEdit" ng-click="updatePeriod(period)">Update</button>
-                            <button type="button" ng-show="period.isEdit" ng-click="cancelEditPeriod(period)">Cancel</button>                            
+                            <button type="button" ng-show="!period.isEdit" ng-click="editPeriod(period)">{{ 'period.edit' | translate }}</button>
+                            <button type="button" ng-show="period.isEdit" ng-click="updatePeriod(period)">{{ 'period.update' | translate }}</button>
+                            <button type="button" ng-show="period.isEdit" ng-click="cancelEditPeriod(period)">{{ 'period.cancel' | translate }}</button>                            
                         </td>
                     </tr>
                 </table>

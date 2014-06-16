@@ -1,33 +1,33 @@
 <div class="modal-header">
-    <h4 class="modal-title">New user</h4></div>
+    <h4 class="modal-title">{{ 'inputUser.pageTitle' | translate }}</h4></div>
 <div class="modal-body">
     <ng-form name="nameDialog" novalidate role="form">
         <div class="form-group input-group-lg" ng-class="{true: 'has - error'}[nameDialog.username.$dirty && nameDialog.username.$invalid]">
-            <label class="control-label" for="username">Name</label>
+            <label class="control-label" for="username">{{ 'inputUser.name' | translate }}</label>
             <input type="text" class="form-control" name="username" id="username" ng-model="user.username" ng-keyup="hitEnter($event)" required>
-            <label class="control-label" for="password">Password</label>
+            <label class="control-label" for="password">{{ 'inputUser.password' | translate }}</label>
             <input type="password" class="form-control" name="password" id="password" ng-model="user.password" equals="{{confirmedPassword}}" ng-keyup="hitEnter($event)" required>                                 
-            <label class="control-label" for="confirmPassword">Confirm password</label>
+            <label class="control-label" for="confirmPassword">{{ 'inputUser.confirmPassword' | translate }}</label>
             <input type="password" class="form-control" name="confirmPassword" id="confirmPassword" ng-model="confirmedPassword" equals="{{user.password}}" ng-keyup="hitEnter($event)" required>                                 
-            <label class="control-label" for="email">Email</label>
+            <label class="control-label" for="email">{{ 'inputUser.email' | translate }}</label>
             <input type="email" class="form-control" name="email" id="email" ng-model="user.email" ng-keyup="hitEnter($event)" required>
 
             <div class="alert alert-danger"  ng-show="nameDialog.email.$invalid && nameDialog.email.$dirty">                            
-                <strong>Error!</strong> Invalid email
+                <strong>{{ 'inputUser.error' | translate }}!</strong> {{ 'inputUser.invalidEmail' | translate }}
             </div>
             <div class="alert alert-danger"  ng-show="(nameDialog.password.$invalid && nameDialog.password.$dirty) && (nameDialog.confirmPassword.$invalid && nameDialog.confirmPassword.$dirty)">                            
-                <strong>Error!</strong> Password mismatched
+                <strong>{{ 'inputUser.error' | translate }}!</strong> {{ 'inputUser.passwordMismatched' | translate }}
             </div>                        
             <div class="alert alert-danger"  ng-show="errorMessage">                            
-                <strong>Error!</strong> {{errorMessage}}
+                <strong>{{ 'inputUser.error' | translate }}!</strong> {{errorMessage}}
             </div>
             <div class="alert alert-success"  ng-show="successMessage">                            
-                <strong>Success!</strong> {{successMessage}}
+                <strong>{{ 'inputUser.success' | translate }}!</strong> {{successMessage}}
             </div>
         </div>
     </ng-form>
 </div>
 <div class="modal-footer">
-    <button type="button" class="btn btn-default" ng-click="cancel()">Cancel</button>
-    <button type="button" class="btn btn-primary" ng-click="signUp(user)" ng-disabled="((nameDialog.$dirty && nameDialog.$invalid) || nameDialog.$pristine) || creatingUser">Save</button>
+    <button type="button" class="btn btn-default" ng-click="cancel()">{{ 'inputUser.cancel' | translate }}</button>
+    <button type="button" class="btn btn-primary" ng-click="signUp(user)" ng-disabled="((nameDialog.$dirty && nameDialog.$invalid) || nameDialog.$pristine) || creatingUser">{{ 'inputUser.save' | translate }}</button>
 </div>

@@ -1,25 +1,18 @@
 <div class="panel panel-primary content-panel">
     <div class="panel-heading">
-        <h3 class="panel-title">Analyse your data</h3>
+        <h3 class="panel-title">{{ 'report.pageTitle' | translate }}</h3>
     </div>
-
-
     <div class="panel-body">
-        <input type="text" required  placeholder="Report title" ng-model="report.title">
+        <input type="text" required  placeholder="{{ 'report.reportTitle' | translate }}" ng-model="report.title">
         <div class="input-group">
-            <h5>Comment</h5>
+            <h5>{{ 'report.comment' | translate }}</h5>
             <textarea class="form-control" ng-model="report.description">
             </textarea>
         </div>
-
-
         <select class="input-medium form-inline" data-ng-model="selectedQueryElement" data-ng-options="queryElement.title group by queryElement.group for queryElement in queryElements"></select>
-        <button class="btn btn-default" ng-click="addQueryElement(selectedQueryElement)">Add element</button>
-
+        <button class="btn btn-default" ng-click="addQueryElement(selectedQueryElement)">{{ 'report.addElement' | translate }}</button>
         <!-- title as value.title for (key, value) in filters -->
-        <select class="input-medium form-inline" data-ng-model="selectedFilter" data-ng-options="{key: value} as value.title for (key, value) in filters"></select>    
-
-
+        <select class="input-medium form-inline" data-ng-model="selectedFilter" data-ng-options="{key: value} as value.title for (key, value) in filters"></select>
         <div class="panel panel-default">
             <div class="panel-body">
                 <span data-ng-repeat="selectedElement in selectedQueryElements">
@@ -37,29 +30,15 @@
                 </span>
             </div>
         </div>
-        
-
-
         <p>
             <select class="input-medium form-inline" data-ng-model="currentDataviz" data-ng-options="key as value for (key, value) in datavizTypes"></select>
         </p>
-
-        <button class="btn-large btn-primary" ng-click="executeQuery()">Execute</button>
-        <button class="btn-large btn-primary" ng-click="clear()">Clear</button>
-
-        <button class="btn btn-primary btn-lg active pull-right" ng-show="isEdit" ng-click="delete()">Delete</button>
-        <button class="btn btn-primary btn-lg active pull-right" ng-click="update()">Save</button>
-
+        <button class="btn-large btn-primary" ng-click="executeQuery()">{{ 'report.execute' | translate }}</button>
+        <button class="btn-large btn-primary" ng-click="clear()">{{ 'report.clear' | translate }}</button>
+        <button class="btn btn-primary btn-lg active pull-right" ng-show="isEdit" ng-click="delete()">{{ 'report.delete' | translate }}</button>
+        <button class="btn btn-primary btn-lg active pull-right" ng-click="update()">{{ 'report.save' | translate }}</button>
     </div>
-
-
-
-
     <div class="table-responsive">
         <table-dataviz config="datavizConfig" column-order="report.sort"></table-dataviz>
     </div>
-
-
-
-
 </div>

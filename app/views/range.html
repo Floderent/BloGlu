@@ -1,20 +1,18 @@
 <div class="panel panel-primary content-panel">
     <div class="panel-heading">
-        <h3 class="panel-title">View or modify the blood glucose range(s)</h3>
+        <h3 class="panel-title">{{ 'range.pageTitle' | translate }}</h3>
     </div>
     <div class="panel-body ">
 
     </div>
-
-    
         <div class="input-group">
             <div class="table-responsive">
                 <table class="table table-striped">
-                    <th>Unit</th>
-                    <th>Lower limit</th>
-                    <th>Upper limit</th>
-                    <th>Normal range</th>
-                    <th>Color</th>
+                    <th>{{ 'range.unit' | translate }}</th>
+                    <th>{{ 'range.lowerLimit' | translate }}</th>
+                    <th>{{ 'range.upperLimit' | translate }}</th>
+                    <th>{{ 'range.normalRange' | translate }}</th>
+                    <th>{{ 'range.color' | translate }}</th>
                     <th></th>
                     <tr>
                         <td>
@@ -33,7 +31,7 @@
                             <spectrum-colorpicker ng-model="newRange.color" options="{showPalette: true, preferredFormat: 'hex'}"></spectrum-colorpicker>
                         </td>
                         <td>
-                            <button type="button" ng-click="saveRange(newRange)">Add</button>
+                            <button type="button" ng-click="saveRange(newRange)">{{ 'range.add' | translate }}</button>
                         </td>
                     </tr>
                 </table>
@@ -41,19 +39,19 @@
 
 
             <div class="alert alert-danger"  ng-show="errorMessage">                            
-                <strong>Error!</strong> {{errorMessage}}
+                <strong>{{ 'range.error' | translate }}!</strong> {{errorMessage}}
             </div>
             <div class="alert alert-success"  ng-show="successMessage">                            
-                <strong>Success!</strong> {{successMessage}}
+                <strong>{{ 'range.success' | translate }}!</strong> {{successMessage}}
             </div>
         </div>
         <div class="table-responsive">
             <table class="table table-striped">
-                <th>Unit</th>
-                <th>Lower limit</th>
-                <th>Upper limit</th>
-                <th>Normal range</th>
-                <th>Color</th>
+                <th>{{ 'range.unit' | translate }}</th>
+                <th>{{ 'range.lowerLimit' | translate }}</th>
+                <th>{{ 'range.upperLimit' | translate }}</th>
+                <th>{{ 'range.normalRange' | translate }}</th>
+                <th>{{ 'range.color' | translate }}</th>
                 <th></th>
                 <tr ng-repeat="range in ranges | orderBy:getLowerLimit">
                     <td>
@@ -78,10 +76,10 @@
                         <spectrum-colorpicker ng-model="range.color" options="{showPalette: true, preferredFormat: 'hex'}"></spectrum-colorpicker>
                     </td>
                     <td>
-                        <button type="button" ng-click="deleteRange(range)">Delete</button>
-                        <button type="button" ng-show="!range.isEdit" ng-click="editRange(range)">Edit</button>
-                        <button type="button" ng-show="range.isEdit" ng-click="updateRange(range)">Update</button>
-                        <button type="button" ng-show="range.isEdit" ng-click="cancelEditRange(range)">Cancel</button>                            
+                        <button type="button" ng-click="deleteRange(range)">{{ 'range.delete' | translate }}</button>
+                        <button type="button" ng-show="!range.isEdit" ng-click="editRange(range)"></button>
+                        <button type="button" ng-show="range.isEdit" ng-click="updateRange(range)">{{ 'range.update' | translate }}</button>
+                        <button type="button" ng-show="range.isEdit" ng-click="cancelEditRange(range)">{{ 'range.cancel' | translate }}</button>                            
                     </td>
                 </tr>
             </table>

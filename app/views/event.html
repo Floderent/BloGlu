@@ -1,9 +1,9 @@
 <div class="panel panel-primary content-panel">
     <div class="panel-heading">
         <dv ng-switch="eventCode">
-            <h3 ng-switch-when="1" class="panel-title">Enter a blood glucose reading</h3>
-            <h3 ng-switch-when="2" class="panel-title">Enter a medication</h3>
-            <h3 ng-switch-when="3" class="panel-title">Enter a weight</h3>
+            <h3 ng-switch-when="1" class="panel-title">{{ 'event.bgTitle' | translate }}</h3>
+            <h3 ng-switch-when="2" class="panel-title">{{ 'event.medicationTitle' | translate }}</h3>
+            <h3 ng-switch-when="3" class="panel-title">{{ 'event.weightTitle' | translate }}</h3>
         </dv>
 
 
@@ -32,25 +32,25 @@
             
             <div class="input-group" ng-switch="eventCode">
                 <div ng-switch-when="1" class="btn-group">
-                    <button type="button" class="btn btn-primary" data-ng-model="event.preMeal" btn-checkbox>Before meal</button>
-                    <button type="button" class="btn btn-primary" data-ng-model="event.postMeal" btn-checkbox>After meal</button>                
+                    <button type="button" class="btn btn-primary" data-ng-model="event.preMeal" btn-checkbox>{{ 'event.bgBeforeMeal' | translate }}</button>
+                    <button type="button" class="btn btn-primary" data-ng-model="event.postMeal" btn-checkbox>{{ 'event.bgAfterMeal' | translate }}</button>                
                 </div>
             </div>
             
             <div class="input-group">
-                <h5>Category</h5>
+                <h5>{{ 'event.category' | translate }}</h5>
                 <select class="input-medium" data-ng-model="currentCategory" data-ng-options="category.name for category in categories"></select>
             </div>
             
             
             <div class="input-group">
-                <h5>Comment</h5>
+                <h5>{{ 'event.comment' | translate }}</h5>
                 <textarea class="form-control" ng-model="event.comment">                    
                 </textarea>
             </div>
 
-            <button class="btn btn-primary btn-lg active pull-right" ng-show="isEdit" ng-click="delete()">Delete</button>
-            <button class="btn btn-primary btn-lg active pull-right" ng-click="update(event)">Save</button>
+            <button class="btn btn-primary btn-lg active pull-right" ng-show="isEdit" ng-click="delete()">{{ 'event.delete' | translate }}</button>
+            <button class="btn btn-primary btn-lg active pull-right" ng-click="update(event)">{{ 'event.save' | translate }}</button>
         </form>
     </div>
 </div>

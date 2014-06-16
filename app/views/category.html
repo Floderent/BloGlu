@@ -1,6 +1,6 @@
 <div class="panel panel-primary content-panel">
     <div class="panel-heading">
-        <h3 class="panel-title">View or modify the events categories</h3>
+        <h3 class="panel-title">{{ 'category.pageTitle' | translate }}</h3>
     </div>
     <div class="panel-body ">
         
@@ -14,13 +14,13 @@
         <div class="input-group">
             <div class="table-responsive">
                 <table class="table table-striped">
-                    <th>New {{eventType}} category</th>
+                    <th>{{ 'category.new' | translate }} {{eventType}} {{ 'category.category' | translate }}</th>
                     <tr>
                         <td>
                             <input type="text" required class="input-sm" data-ng-model="newCategory.name">
                         </td>
                         <td>
-                            <button type="button" ng-click="saveCategory(newCategory)">Add</button>
+                            <button type="button" ng-click="saveCategory(newCategory)">{{ 'category.add' | translate }}</button>
                         </td>
                     </tr>
                 </table>
@@ -28,7 +28,7 @@
         </div>
         <div class="table-responsive">
             <table class="table table-striped">
-                <th>{{eventType}} category</th>
+                <th>{{eventType}} {{ 'category.category' | translate }}</th>
                 <th></th>
                 <tr ng-repeat="category in categories">
                     <td>
@@ -36,10 +36,10 @@
                         <input type="text" required class="input-sm" ng-show="category.isEdit" data-ng-model="category.name">
                     </td>
                     <td>
-                        <button type="button" ng-click="deleteCategory(category)">Delete</button>
-                        <button type="button" ng-show="!category.isEdit" ng-click="editCategory(category)">Edit</button>
-                        <button type="button" ng-show="category.isEdit" ng-click="updateCategory(category)">Update</button>
-                        <button type="button" ng-show="category.isEdit" ng-click="cancelEditCategory(category)">Cancel</button>                            
+                        <button type="button" ng-click="deleteCategory(category)">{{ 'category.delete' | translate }}</button>
+                        <button type="button" ng-show="!category.isEdit" ng-click="editCategory(category)">{{ 'category.edit' | translate }}</button>
+                        <button type="button" ng-show="category.isEdit" ng-click="updateCategory(category)">{{ 'category.update' | translate }}</button>
+                        <button type="button" ng-show="category.isEdit" ng-click="cancelEditCategory(category)">{{ 'category.cancel' | translate }}</button>                            
                     </td>
                 </tr>
             </table>

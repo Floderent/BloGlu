@@ -32,7 +32,8 @@
 
         <div class="container" ng-hide="currentUser">
             <div class="page-header">
-                <h1>Bloglu <small>Handle your blood glucose</small></h1>
+                
+                <h1>{{ 'appName' | translate }} <small>{{ 'mainScreenMessage' | translate }}</small></h1>
             </div>
             <!-- Page feedback -->
             <div ng-show="pending > 0">
@@ -64,8 +65,8 @@
                     <h2 class="form-signin-heading">Log in</h2>
                     <input id="name" class="form-control" placeholder="User name" required autofocus type="text" value="" name="name" ng-model="user.username" />
                     <input id="email" class="form-control" placeholder="Password" required type="password" value="" name="password" ng-model="user.password" />
-                    <a href="#" ng-click="displaySignUpModal()">Sign up</a> or <a href="#" class="pull-right" ng-click="displayResetPasswordModal()">Forgot your password ?</a>
-                    <button class="btn btn-primary btn-lg btn-block" ng-disabled="pending > 0" ng-click="logIn(user)">Log in</button>
+                    <a href="#" ng-click="displaySignUpModal()">{{ 'signUp' | translate }}</a> {{ 'or' | translate }} <a href="#" class="pull-right" ng-click="displayResetPasswordModal()">{{ 'forgotPwd' | translate }} ?</a>
+                    <button class="btn btn-primary btn-lg btn-block" ng-disabled="pending > 0" ng-click="logIn(user)">{{ 'logIn' | translate }}</button>
                 </form>
             </div>
         </div>
@@ -76,51 +77,50 @@
             <div class="container-fluid">
                 <!-- Brand and toggle get grouped for better mobile display -->
                 <div class="navbar-header">                    
-                    <a class="navbar-brand" href="#dashboard">Bloglu</a>
+                    <a class="navbar-brand" href="#dashboard">{{ 'appName' | translate }}</a>
                 </div>
                 <ul class="nav navbar-nav">
                     <li class="dropdown">
-                        <a href="#" class="dropdown-toggle" data-toggle="dropdown"><b>Blood Glucose</b> <b class="caret"></b></a>
+                        <a href="#" class="dropdown-toggle" data-toggle="dropdown"><b>{{ 'menu.bloodGlucose' | translate }}</b> <b class="caret"></b></a>
                         <ul class="dropdown-menu">
-                            <li><a href="#event/bloodGlucose">Enter blood glucose reading</a></li>
-                            <li><a href="#inputBgTarget">Enter blood glucose target</a></li>
-                            <li><a href="#range">Enter blood glucose range</a></li>
-                            <li><a href="#overview">View your notebook</a></li>
-                            <li><a href="#charts">See charts</a></li>
-                            <li><a href="#importList">View the import list</a></li>
-                            <li><a href="#import">Import</a></li>
+                            <li><a href="#event/bloodGlucose">{{ 'menu.bgReading' | translate }}</a></li>                            
+                            <li><a href="#range">{{ 'menu.bgRange' | translate }}</a></li>
+                            <li><a href="#overview">{{ 'menu.bgNotebook' | translate }}</a></li>
+                            <li><a href="#charts">{{ 'menu.bgCharts' | translate }}</a></li>
+                            <li><a href="#importList">{{ 'menu.bgImportList' | translate }}</a></li>
+                            <li><a href="#import">{{ 'menu.bgImport' | translate }}</a></li>
                         </ul> 
                     </li>
                     
                     <li class="dropdown">
-                        <a href="#" class="dropdown-toggle" data-toggle="dropdown"><b>Report</b> <b class="caret"></b></a>
+                        <a href="#" class="dropdown-toggle" data-toggle="dropdown"><b>{{ 'menu.report' | translate }}</b> <b class="caret"></b></a>
                         <ul class="dropdown-menu">
-                            <li><a href="#reportList">View the report list</a></li>
-                            <li><a href="#report">Create a report</a></li>
-                        </ul> 
-                    </li>
-                    
-                    
-                    <li class="dropdown">
-                        <a href="#" class="dropdown-toggle" data-toggle="dropdown"><b>Weight</b> <b class="caret"></b></a>
-                        <ul class="dropdown-menu">
-                            <li><a href="#event/weight">Enter weight</a></li>                            
-                        </ul> 
-                    </li>
-                    
-                    <li class="dropdown">
-                        <a href="#" class="dropdown-toggle" data-toggle="dropdown"><b>Medication</b> <b class="caret"></b></a>
-                        <ul class="dropdown-menu">
-                            <li><a href="#event/medication">Enter medication</a></li>                            
+                            <li><a href="#reportList">{{ 'menu.reportList' | translate }}</a></li>
+                            <li><a href="#report">{{ 'menu.createReport' | translate }}</a></li>
                         </ul> 
                     </li>
                     
                     
                     <li class="dropdown">
-                        <a href="#" class="dropdown-toggle" data-toggle="dropdown"><b>Settings</b> <b class="caret"></b></a>
+                        <a href="#" class="dropdown-toggle" data-toggle="dropdown"><b>{{ 'menu.weight' | translate }}</b> <b class="caret"></b></a>
                         <ul class="dropdown-menu">
-                            <li><a href="#period">Periods</a></li>
-                            <li><a href="#category">Categories</a></li>
+                            <li><a href="#event/weight">{{ 'menu.newWeight' | translate }}</a></li>                            
+                        </ul> 
+                    </li>
+                    
+                    <li class="dropdown">
+                        <a href="#" class="dropdown-toggle" data-toggle="dropdown"><b>{{ 'menu.medication' | translate }}</b> <b class="caret"></b></a>
+                        <ul class="dropdown-menu">
+                            <li><a href="#event/medication">{{ 'menu.newMedication' | translate }}</a></li>                            
+                        </ul> 
+                    </li>
+                    
+                    
+                    <li class="dropdown">
+                        <a href="#" class="dropdown-toggle" data-toggle="dropdown"><b>{{ 'menu.settings' | translate }}</b> <b class="caret"></b></a>
+                        <ul class="dropdown-menu">
+                            <li><a href="#period">{{ 'menu.settingsPeriods' | translate }}</a></li>
+                            <li><a href="#category">{{ 'menu.settingsCategories' | translate }}</a></li>
                         </ul> 
                     </li>
                 </ul>
@@ -128,10 +128,10 @@
                 <div class="collapse navbar-collapse navbar-right" id="bs-example-navbar-collapse-1">
                     <ul class="nav navbar-nav">                        
                         <li class="dropdown">                            
-                            <a href="" class="dropdown-toggle" data-toggle="dropdown"><b>Welcome {{currentUser.username}}</b><b class="caret"></b></a>
+                            <a href="" class="dropdown-toggle" data-toggle="dropdown"><b>{{ 'welcome' | translate }} {{currentUser.username}}</b><b class="caret"></b></a>
                             <ul class="dropdown-menu">
-                                <li><a href="#userPreferences">Preferences</a></li>
-                                <li><a href="#" ng-click="logOut(user)">Log out</a></li>
+                                <li><a href="#userPreferences">{{ 'preferences' | translate }}</a></li>
+                                <li><a href="#" ng-click="logOut(user)">{{ 'logOut' | translate }}</a></li>
                             </ul>
                         </li>
                     </ul>                                        
@@ -216,7 +216,20 @@
         
         <!-- Spectrum -->       
         <script src="bower_components/spectrum/spectrum.js"></script>
-        <script src="bower_components/spectrum/dist/angular-spectrum-colorpicker.min.js"></script>
+        <!-- color picker -->
+        <script src="bower_components/angular-spectrum-colorpicker/dist/angular-spectrum-colorpicker.min.js"></script>        
+        
+        <!-- angular translate -->
+        <script src="bower_components/angular-translate/angular-translate.min.js"></script>
+        <script src="bower_components/angular-translate-loader-static-files/angular-translate-loader-static-files.min.js"></script>
+        
+        <!-- dynamic locale -->
+        <script src="bower_components/angular-dynamic-locale/src/tmhDynamicLocale.js"></script>
+        
+        
+        <!-- i18n file -->
+        <!--<script src="bower_components/angular-i18n/angular-locale_fr-fr.js"></script>-->
+        <!--<script src="bower_components/angular-i18n/angular-locale_en-us.js"></script>-->
 
         <!-- endbower -->
         <!-- endbuild -->
