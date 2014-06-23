@@ -1,22 +1,20 @@
 'use strict';
 var ControllersModule = angular.module('BloGlu.controllers');
 
-ControllersModule.controller('reportListController', ['$scope', '$rootScope', '$q', '$window','$location','$modal', 'reportService', 'MessageService', function Controller($scope, $rootScope, $q, $window,$location, $modal, reportService, MessageService) {
-
-        $rootScope.messages = [];
-        $rootScope.pending = 0;
+ControllersModule.controller('reportListController', ['$scope', '$rootScope', '$location','$modal', 'reportService', 'MessageService', function Controller($scope, $rootScope, $location, $modal, reportService, MessageService) {
+        
         $scope.reports = [];
 
         renderPage();
 
         function renderPage() {
-            $rootScope.pending++;
+            $rootScope.increasePending("processingMessage.loadingData");
             reportService.getReports().then(function(reports) {            
-                $scope.reports = reports;
-                $rootScope.pending--;
+                $scope.reports = reports;                
             }, function(error) {
-                $rootScope.messages.push(MessageService.errorMessage('Cannot get the reports', 2000));
-                $rootScope.pending--;
+                $rootScope.messages.push(MessageService.errorMessage('Cannot get the reports', 2000));                
+            }).finally(function(){
+                $rootScope.decreasePending("processingMessage.loadingData");
             });
         }
 
@@ -36,7 +34,7 @@ ControllersModule.controller('reportListController', ['$scope', '$rootScope', '$
             modalInstance.result.then(function(confirmed) {
                 if (confirmed) {
                     if (report.objectId) {
-                        $rootScope.pending++;                        
+                        $rootScope.increasePending("processingMessage.deletingData");
                         reportService.deleteReport(report).then(function(result) {
                             var reportIndex = -1;
                             angular.forEach($scope.reports, function(rep, index) {
@@ -46,11 +44,11 @@ ControllersModule.controller('reportListController', ['$scope', '$rootScope', '$
                             });
                             if (reportIndex !== -1) {
                                 $scope.reports.splice(reportIndex, 1);
-                            }                            
-                            $rootScope.pending--;
+                            }
                         }, function(error) {
-                            $rootScope.messages.push(MessageService.errorMessage('Problem deleting report', 2000));
-                            $rootScope.pending--;
+                            $rootScope.messages.push(MessageService.errorMessage('errorMessage.deletingError', 2000));
+                        }).finally(function(){
+                            $rootScope.decreasePending("processingMessage.deletingData");
                         });
                     }
                 }
@@ -63,20 +61,8 @@ ControllersModule.controller('reportListController', ['$scope', '$rootScope', '$
             var path = 'report/' + report.objectId;            
             $location.path(path);
         };
-
-        $window.addEventListener('dataReady', renderPage);
-
-        $scope.$on("$routeChangeStart", function() {
-            //cancel promise
-            MessageService.cancelAll($rootScope.messages);
-            $rootScope.pending = 0;
-            //clear messages
-            $rootScope.messages = [];
-            //clear events
-            $window.removeEventListener('dataReady', renderPage);
-        });
-
-
+        
+        $rootScope.$on('dataReady', renderPage);
 
     }]);
 

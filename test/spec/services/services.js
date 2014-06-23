@@ -829,4 +829,42 @@ describe('Services: indexeddbService', function() {
 
 });
 
+describe('Services: localizationService', function() {
 
+    // load the controller's module
+    beforeEach(module('BloGlu'));
+
+    var localizationSvc;
+
+    // Initialize the controller and a mock scope
+    beforeEach(inject(function(localizationService) {
+        localizationSvc = localizationService;
+    }));
+
+    it('should apply template on string', function() {        
+        var testString = "[{name}] is a test case person";
+        var expectedString = "toto is a test case person";
+        
+        var templatedString = localizationSvc.applyTemplate(testString, {name: 'toto'});        
+        expect(templatedString).toBe(expectedString);
+    });
+    
+    it('should apply template on string', function() {        
+        var testString = "test [{name}]";
+        var expectedString = "test toto";
+        
+        var templatedString = localizationSvc.applyTemplate(testString, {name: 'toto'});        
+        expect(templatedString).toBe(expectedString);
+    });
+    
+    it('should apply template on string', function() {        
+        var testString = "test [{name}], [{firstName}]";
+        var expectedString = "test toto, titi";
+        
+        var templatedString = localizationSvc.applyTemplate(testString, {name: 'toto', firstName: 'titi'});        
+        expect(templatedString).toBe(expectedString);
+    });
+    
+
+
+});

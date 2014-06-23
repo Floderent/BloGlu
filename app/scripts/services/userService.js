@@ -30,7 +30,7 @@ servicesModule.factory('UserService', ['$http', '$cookieStore', '$q', 'indexeddb
                             'password': password
                         }
                     }
-            ).success(function(result) {
+            ).success(function(result) {                
                 $cookieStore.put('user', result);
                 $cookieStore.put('sessionToken', result.sessionToken);
                 user = result;
@@ -58,7 +58,7 @@ servicesModule.factory('UserService', ['$http', '$cookieStore', '$q', 'indexeddb
             });
         };
 
-        UserService.currentUser = function() {
+        UserService.currentUser = function() {            
             return user || $cookieStore.get('user');
         };
 
@@ -73,6 +73,30 @@ servicesModule.factory('UserService', ['$http', '$cookieStore', '$q', 'indexeddb
                 }
                 $cookieStore.put('user', cookieUser);
             }
+        };
+        
+        UserService.isAuthenticated = function(){
+            return UserService.currentUser() && UserService.currentUser().sessionToken;
+        };
+        
+        UserService.isTokenValid = function(){
+            var deferred = $q.defer();
+            $http({
+                method: 'GET',
+                url: ServerService.baseUrl + 'users/me',                
+                headers: UserService.headers()
+            })
+            .success(function(user){
+                deferred.resolve(true);
+            })
+            .error(function(error){
+                var sessionValid = true;
+                if(error && error.code === 101){
+                    sessionValid = false;
+                }
+                deferred.resolve(sessionValid);                
+            });
+            return deferred.promise;
         };
 
 

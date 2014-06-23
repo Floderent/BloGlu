@@ -1,28 +1,24 @@
 'use strict';
 var ControllersModule = angular.module('BloGlu.controllers');
 
-ControllersModule.controller('importListController', ['$scope', '$rootScope', '$q', '$window','$location','$modal', 'importService', 'MessageService', function Controller($scope, $rootScope, $q, $window,$location, $modal, importService, MessageService) {
-
-        $rootScope.messages = [];
-        $rootScope.pending = 0;
-        $scope.imports = [];
-
+ControllersModule.controller('importListController', ['$scope', '$rootScope', '$modal', 'importService', 'MessageService', function Controller($scope, $rootScope, $modal, importService, MessageService) {
+        
         renderPage();
 
         function renderPage() {
-            $rootScope.pending++;
+            $rootScope.increasePending('processingMessage.loadingData');
             importService.getImports().then(function(imports) {
-                $scope.imports = imports;
-                $rootScope.pending--;
+                $scope.imports = imports;                
             }, function(error) {
-                $rootScope.messages.push(MessageService.errorMessage('Cannot get the imports', 2000));
-                $rootScope.pending--;
+                $rootScope.messages.push(MessageService.errorMessage('errorMessage.loadingError', 2000));
+            }).finally(function(){
+                $rootScope.decreasePending('processingMessage.loadingData');
             });
         }
 
         $scope.deleteImport = function(impor) {            
-            var $modalScope = $rootScope.$new(true);
-            $modalScope.message = "the " + impor.name + " import";
+             var $modalScope = $rootScope.$new(true);
+            $modalScope.message = impor.name;            
             var modalInstance = $modal.open({
                 templateUrl: "views/modal/confirm.html",
                 controller: "confirmModalController",
@@ -36,7 +32,7 @@ ControllersModule.controller('importListController', ['$scope', '$rootScope', '$
             modalInstance.result.then(function(confirmed) {
                 if (confirmed) {
                     if (impor.objectId) {
-                        $rootScope.pending++;                        
+                        $rootScope.increasePending("processingMessage.deletingData");
                         importService.deleteImport(impor).then(function(result) {
                             var importIndex = -1;
                             angular.forEach($scope.imports, function(imp, index) {
@@ -47,38 +43,17 @@ ControllersModule.controller('importListController', ['$scope', '$rootScope', '$
                             if (importIndex !== -1) {
                                 $scope.imports.splice(importIndex, 1);
                             }                            
-                            $rootScope.pending--;
                         }, function(error) {
-                            $rootScope.messages.push(MessageService.errorMessage('Problem deleting import', 2000));
-                            $rootScope.pending--;
+                            $rootScope.messages.push(MessageService.errorMessage('errorMessage.deletingError', 2000));
+                        }).finally(function(){
+                            $rootScope.decreasePending("processingMessage.deletingData");
                         });
                     }
                 }
             }, function() {
                 //exit
             });
-        };
-        /*
-        $scope.editReport = function(report) {
-            var path = 'report/' + report.objectId;            
-            $location.path(path);
-        };
-        */
+        };               
        
-       
-       
-        $window.addEventListener('dataReady', renderPage);
-
-        $scope.$on("$routeChangeStart", function() {
-            //cancel promise
-            MessageService.cancelAll($rootScope.messages);
-            $rootScope.pending = 0;
-            //clear messages
-            $rootScope.messages = [];
-            //clear events
-            $window.removeEventListener('dataReady', renderPage);
-        });
-
-
-
+        $rootScope.$on('dataReady', renderPage);
     }]);

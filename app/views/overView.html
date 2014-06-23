@@ -15,7 +15,7 @@
                       
 
             <div class="btn-group" ng-repeat="(key, value) in eventsTypes track by $index">            
-                <label class="btn btn-success" ng-model="resource[key]" ng-click="selectType(key, value)" btn-checkbox>{{value}}</label>
+                <label class="btn btn-success" ng-model="resource[key]" ng-click="selectType(key, value)" btn-checkbox>{{value | translate}}</label>
             </div>
 
             <button ng-click="printToPDF()" type="button" class="btn btn-lg">{{ 'logBook.print' | translate }}</button>
@@ -46,25 +46,15 @@
                         </div>                            
                     </div>
                     <div ng-if="($index != 0 && interval === 'week') || (interval === 'day')">
-                        <div ng-repeat="bloodGlucoseReading in bloodGlucoseReadings track by $index| orderBy:dateTime.iso">
-                            <!--<button type="button" class="btn btn-primary" ng-click="viewBloodGlucoseReading(bloodGlucoseReading.objectId)">{{bloodGlucoseReading.reading}} {{bloodGlucoseReading.unit.name}}</button>-->
-
-                            <!--
-                            <div class="panel panel-default">
-                                <div class="panel-body">
-                                    {{bloodGlucoseReading.dateTime| date:'HH:mm'}}
-                                    {{bloodGlucoseReading.reading}}
-                                    <button type="button" class="btn btn-primary" ng-click="viewEvent(bloodGlucoseReading.code, bloodGlucoseReading.objectId)">View</button>
-                                </div>
-                            </div>
-                            -->
+                        <div ng-repeat="bloodGlucoseReading in bloodGlucoseReadings track by $index">
+                            
                             <div>
                                 <bloglu-event bloglu-event="{{bloodGlucoseReading}}"></bloglu-event>
                             </div>
 
                         </div>    
                         <!-- handle case of empty section -->
-                        <div ng-if="bloodGlucoseReadings.length === 0">
+                        <div ng-if="bloodGlucoseReadings.length === 0" class="text-center">
 
                             <!--<button type="button" class="btn btn-primary" ng-click="addBloodGlucoseReading(line[0], header[$index])">Add new reading</button>-->
 

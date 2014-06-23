@@ -88,15 +88,15 @@ servicesModule.factory('importService', ['$upload', '$http', '$q', 'ServerServic
             return dataService.delete('Report', importId);
         };
 
-        importService.importData = function(importObject,file, options) {
+        importService.importData = function(importObject, file, options) {
             var resultData = {};
             var deferred = $q.defer();
             importService.saveImport(importObject).then(function(savedImport) {
                 importService.uploadFile(file).then(function resolve(result) {
                     if (result && result.data && result.data.url) {
-                        resultData.fileUrl = result.data.url;                        
+                        resultData.fileUrl = result.data.url;
                         importService.downloadFile(result.data.url).then(function resolve(result) {
-                            importService.processFile(result.data,savedImport.objectId).then(function(result) {                                
+                            importService.processFile(result.data, savedImport.objectId).then(function(result) {
                                 resultData = angular.extend(resultData, result);
                                 savedImport.file = resultData.fileUrl;
                                 resultData.import = savedImport;
@@ -117,7 +117,7 @@ servicesModule.factory('importService', ['$upload', '$http', '$q', 'ServerServic
         };
 
 
-        importService.uploadFile = function(file) {            
+        importService.uploadFile = function(file) {
             uploadUrl = uploadUrl + file.name;
             return $upload.upload({
                 url: uploadUrl,
@@ -144,12 +144,12 @@ servicesModule.factory('importService', ['$upload', '$http', '$q', 'ServerServic
 
         importService.processFile = function(file, dataset) {
             var resultData = {};
-            resultData.dataset = dataset;            
+            resultData.dataset = dataset;
             var dataArray = CSVToArray(file, ";");
-            resultData.fileLines = dataArray.length;            
+            resultData.fileLines = dataArray.length;
             var promiseArray = importService.batchRequestProcess(dataArray);
             resultData.processedRecords = promiseArray.length;
-            return $q.all(promiseArray).then(function(result) {                
+            return $q.all(promiseArray).then(function(result) {
                 resultData.remoteimportResult = result;
                 return resultData;
             });
@@ -159,13 +159,25 @@ servicesModule.factory('importService', ['$upload', '$http', '$q', 'ServerServic
             //gly => 29
             //dateTime => 3                      
             var event = null;
+            //blood glucose
             if (dataArray.length >= 29 && dataArray[29] && dataArray[3] && dataArray[0] !== "Index") {
                 event = {};
                 event.reading = parseInt(dataArray[29]);
                 event.dateTime = processDateTime(dataArray[3]);
                 //TODO remove hard coded unit
+                //mg/dL
                 event.unit = {objectId: "0Erp4POX9d"};
                 event.code = 1;
+            } else {
+                if (dataArray.length >= 29 && dataArray[10] && dataArray[11] && dataArray[3] && dataArray[0] !== "Index") {
+                    event = {};
+                    event.reading = parseInt(dataArray[11]);
+                    event.dateTime = processDateTime(dataArray[3]);
+                    //TODO remove hard coded unit
+                    //u
+                    event.unit = {objectId: "mGI1gkg1hF"};
+                    event.code = 2;
+                }
             }
             return event;
         }
@@ -196,7 +208,7 @@ servicesModule.factory('importService', ['$upload', '$http', '$q', 'ServerServic
                         batchData = [];
                     }
                 }
-            }            
+            }
             if (batchData.length > 0) {
                 promiseArray.push(Batch.batchEvent({}, batchData));
             }

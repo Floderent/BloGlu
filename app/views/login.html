@@ -1,0 +1,14 @@
+
+<div class="page-header">                
+     <h1>{{ 'appName' | translate }} <small>{{ 'mainScreenMessage' | translate }}</small></h1>
+</div>
+
+<div class="panel-default">
+    <form class="form-signin panel-body">
+        <h2 class="form-signin-heading">Log in</h2>
+        <input id="name" class="form-control" placeholder="User name" required autofocus type="text" value="" name="name" ng-model="user.username" />
+        <input id="email" class="form-control" placeholder="Password" required type="password" value="" name="password" ng-model="user.password" />
+        <a href="#" ng-click="displaySignUpModal()">{{ 'signUp' | translate }}</a> {{ 'or' | translate }} <a href="#" class="pull-right" ng-click="displayResetPasswordModal()">{{ 'forgotPwd' | translate }} ?</a>
+        <button class="btn btn-primary btn-lg btn-block" ng-disabled="pending > 0" ng-click="logIn(user)">{{ 'logIn' | translate }}</button>
+    </form>
+</div>

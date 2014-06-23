@@ -8,6 +8,7 @@
     "logOut": "Se déconnecter",
     "welcome": "Bienvenue",
     "preferences": "Mes réglages",
+    "loading": "Chargement...",
     
     "otherEvent": "Autre",
     "bloodGlucoseEvent": "Glycémie",
@@ -19,6 +20,69 @@
     
     "tableDataviz" : "Tableau",
     "chartDataviz" : "Graphique",
+    
+    "currentYear" : "Année en cours",
+    "currentMonth" : "Mois en cours",
+    
+    "averageWeight" : "Poids moyen",
+    "bgInterval" : "Intervalle de glycémie",
+    "weekDay" : "Jour de la semaine",
+    "comment" : "Commentaire",
+    "category" : "Catégorie",
+    "analysisPeriod" : "Période d'analyse",
+    "bgMinium" : "La glycémie minimum",
+    "bgMaximum" : "Glycémie maximum",
+    "bgNb" : "Nombre de glycémies",
+    "bgAverage" : "Glycémie moyenne",
+    "month" : "Mois",
+    "year" : "Année",
+    
+    "weight" : "Poids",
+    "bg" : "Glycémie",
+    "date" : "Date",
+    "event": "Evènement",
+    
+    "processingMessage":{
+        "connecting" : "Connexion...",
+        "loggingOut" : "Déconnexion...",
+        "synchronizing" : "Synchronisation...",
+        "loadingCategoriesData" : "Chargement des catégories...",
+        "loadingData" : "Chargement...",
+        "updatingData" : "Mise à jour...",
+        "savingData" : "Enregistrement...",
+        "deletingData": "Suppression...",
+        "importingData" : "Import en cours...",
+        "executingQuery" : "Exécution de la requête..."
+    },
+    
+    "errorMessage":{
+        "wrongCredentials" : "Identifiant et/ou mot de passe incorrect(s)",
+        "cannotLogin" : "Connexion impossible",
+        "synchronisationError" : "Erreur lors de la synchronisation",
+        "loadingError": "Erreur lors du chargement des données",
+        "creatingError" : "Erreur lors de l'enregistrement",
+        "updatingError" : "Erreur lors de la mise à jour",
+        "deletingError" : "Erreur lors de la suppression",
+        "errorImporting" : "Erreur lors de l'import",
+        "executingQueryError" : "Erreur pendant l'exécution de la requêtes"
+    },
+    
+    "successMessage":{
+      "categoryCreated" : "Catégorie créée",
+      "categoryUpdated" : "Catégorie mise à jour",
+      "bloodGlucoseCreated" : "Glycémie créée",
+      "bloodGlucoseUpdated" : "Glycémie mise à jour",
+      "periodCreated" : "Période créée",
+      "periodUpdated" : "Période mise à jour",
+      "reportCreated" : "Rapport créé",
+      "reportUpdated" : "Rapport mis à jour",        
+      "dataImported" : "Données importées"
+    },
+    
+    "resource":{
+        "category": "categorie"
+    },
+    
     
     "menu": {
         "bloodGlucose": "Glycémie",
@@ -163,8 +227,7 @@
     },
     "confirm": {
         "pageTitle": "Confirmer la suppression",
-        "deletionMessage1": "Voulez-vous vraiment supprimer",
-        "deletionMessage2": "cet élément",
+        "deletionMessage": "Voulez-vous vraiment supprimer",        
         "yes": "Oui",
         "no": "Non"
     },

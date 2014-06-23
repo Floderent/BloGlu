@@ -1,11 +1,8 @@
 'use strict';
 var ControllersModule = angular.module('BloGlu.controllers');
 
-ControllersModule.controller('rangeController', ['$scope', '$rootScope', '$q', '$routeParams', '$modal', '$window', 'dataService', 'MessageService', 'UserService', function Controller($scope, $rootScope, $q, $routeParams, $modal, $window, dataService, MessageService, UserService) {
-
-        $rootScope.messages = [];
-        $rootScope.pending = 0;
-
+ControllersModule.controller('rangeController', ['$scope', '$rootScope', '$q', '$modal', 'dataService', 'MessageService', 'UserService', 'unitService', function Controller($scope, $rootScope, $q, $modal, dataService, MessageService, UserService, unitService) {
+        
         $scope.newRange = {};
         var resourceName = 'Range';
         var eventCode = 1;
@@ -13,26 +10,23 @@ ControllersModule.controller('rangeController', ['$scope', '$rootScope', '$q', '
         renderPage();
 
         function renderPage() {
-            $rootScope.pending++;
-
+            $rootScope.increasePending("processingMessage.loading");
             $q.all([
                 dataService.queryLocal(resourceName),
-                dataService.queryLocal('Unit', {where: {code: eventCode}})
+                unitService.getUnitsByCode(eventCode)
             ]).then(function(results) {
                 $scope.ranges = results[0];
                 $scope.units = results[1];
-
                 handleNewRangeUnit();
-
                 processRanges($scope.ranges);
                 $scope.$watch('ranges', function(newValue, oldValue) {
                     processRanges($scope.ranges);
                     //checkRanges($scope.ranges);
-                }, true);
-                $rootScope.pending--;
+                }, true);                
             }, function(error) {
-                $rootScope.messages.push(MessageService.errorMessage("Error loading periods.", 2000));
-                $rootScope.pending--;
+                $rootScope.messages.push(MessageService.errorMessage("errorMessage.loadingError", 2000));
+            }).finally(function(){
+                $rootScope.decreasePending("processingMessage.loading");
             });
 
         }
@@ -98,17 +92,16 @@ ControllersModule.controller('rangeController', ['$scope', '$rootScope', '$q', '
             var rangeValid = true;
             return rangeValid;
         }
-        
-        $scope.getLowerLimit = function(range) {            
+
+        $scope.getLowerLimit = function(range) {
             return range.lowerLimit;
         };
-        
 
-        $scope.saveRange = function(range) {           
-            if (range && range.lowerLimit !== null && range.upperLimit !== null) {
-                //check periods => length, intersection
+
+        $scope.saveRange = function(range) {
+            if (range && range.lowerLimit !== null && range.upperLimit !== null) {                
                 if (checkRanges($scope.ranges, range)) {
-                    $rootScope.pending++;
+                    $rootScope.increasePending("processingMessage.savingData");
                     dataService.save(resourceName, {
                         unit: range.unit,
                         lowerLimit: range.lowerLimit,
@@ -119,26 +112,47 @@ ControllersModule.controller('rangeController', ['$scope', '$rootScope', '$q', '
                         angular.extend(range, result);
                         $scope.ranges.push(range);
                         processRanges($scope.ranges);
-                        $rootScope.messages.push(MessageService.successMessage("Range created.", 2000));
-                        $rootScope.pending--;
+                        $rootScope.messages.push(MessageService.successMessage("successMessage.rangeCreated", 2000));                        
+                    }, function(error) {                        
+                        $rootScope.messages.push(MessageService.errorMessage("errorMessage.creatingError", 2000));
+                    }).finally(function(){
+                        $rootScope.decreasePending("processingMessage.savingData");
+                    });
+                }
+            }
+        };
+        
+        $scope.updateRange = function(range) {
+            if (!checkRanges($scope.ranges)) {
+                $scope.cancelEditPeriod(range);
+            } else {
+                if (range.objectId) {
+                    $rootScope.increasePending("processingMessage.updatingData");
+                    dataService.update(resourceName, range.objectId, {
+                        unit: range.unit,
+                        lowerLimit: range.lowerLimit,
+                        upperLimit: range.upperLimit,
+                        normal: range.normal,
+                        color: range.color
+                    }).then(function(result) {
+                        range.isEdit = false;
+                        processRanges($scope.ranges);
+                        $rootScope.messages.push(MessageService.successMessage("successMessage.rangeUpdated", 2000));
                     }, function(error) {
-                        debugger;
-                        $rootScope.messages.push(MessageService.errorMessage("Error creating range.", 2000));
-                        $rootScope.pending--;
+                        $scope.cancelEditRange(range);
+                        $rootScope.messages.push(MessageService.errorMessage("errorMessage.updatingError", 2000));
+                    }).finally(function(){
+                        $rootScope.increasePending("processingMessage.updatingData");
                     });
                 }
             }
         };
 
 
-
-        $scope.deleteRange = function(range) {
-            var $modalScope = $rootScope.$new(true);
-            $modalScope.message = "the range";
+        $scope.deleteRange = function(range) {            
             var modalInstance = $modal.open({
                 templateUrl: "views/modal/confirm.html",
-                controller: "confirmModalController",
-                scope: $modalScope,
+                controller: "confirmModalController",                
                 resolve: {
                     confirmed: function() {
                         return $scope.confirmed;
@@ -148,7 +162,7 @@ ControllersModule.controller('rangeController', ['$scope', '$rootScope', '$q', '
             modalInstance.result.then(function(confirmed) {
                 if (confirmed) {
                     if (range.objectId) {
-                        $rootScope.pending++;
+                        $rootScope.increasePending("processingMessage.deletingData");
                         dataService.delete(resourceName, range.objectId).then(function(result) {
                             var rangeIndex = -1;
                             angular.forEach($scope.periods, function(rg, index) {
@@ -159,11 +173,11 @@ ControllersModule.controller('rangeController', ['$scope', '$rootScope', '$q', '
                             if (rangeIndex !== -1) {
                                 $scope.ranges.splice(rangeIndex, 1);
                             }
-                            processRanges($scope.ranges);
-                            $rootScope.pending--;
+                            processRanges($scope.ranges);                            
                         }, function(error) {
-                            $rootScope.messages.push(MessageService.errorMessage('Problem deleting range', 2000));
-                            $rootScope.pending--;
+                            $rootScope.messages.push(MessageService.errorMessage('errorMessage.deletingError', 2000));
+                        }).finally(function(){
+                            $rootScope.decreasePending("processingMessage.deletingData");
                         });
                     }
                 }
@@ -189,41 +203,9 @@ ControllersModule.controller('rangeController', ['$scope', '$rootScope', '$q', '
             delete range.original;
         };
 
-        $scope.updateRange = function(range) {
-            if (!checkRanges($scope.ranges)) {
-                $scope.cancelEditPeriod(range);
-            } else {
-                if (range.objectId) {
-                    $rootScope.pending++;
-                    dataService.update(resourceName, range.objectId, {
-                        unit: range.unit,
-                        lowerLimit: range.lowerLimit,
-                        upperLimit: range.upperLimit,
-                        normal: range.normal,
-                        color: range.color
-                    }).then(function(result) {
-                        range.isEdit = false;
-                        processRanges($scope.ranges);
-                        $rootScope.pending--;
-                    }, function(error) {
-                        $scope.cancelEditRange(range);
-                        $rootScope.pending--;
-                    });
-                }
-            }
-        };
+        
 
-
-
-
-        $window.addEventListener('dataReady', renderPage);
-
-        $scope.$on("$routeChangeStart", function() {
-            //cancel promise
-            //clear messages
-            //clear events
-            $window.removeEventListener('dataReady', renderPage);
-        });
+        $rootScope.$on('dataReady', renderPage);        
     }]);
 
 

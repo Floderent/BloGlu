@@ -14,54 +14,88 @@ DirectivesModule.directive('blogluEvent', ['$compile', '$injector', '$q', '$loca
                 //if (newValue && newValue !== oldValue) 
                 {
                     var event = angular.fromJson(newValue);
-                    var dataService = $injector.get('dataService');
-                    var resourceCode = $injector.get('ResourceCode');
-                    var userService = $injector.get('UserService');
+                   
+                    var resourceCode = $injector.get('ResourceCode');                   
 
-                    var promiseArray = [dataService.queryLocal('Unit', {where: {code: event.code}})];
-
-                    if (event.code === resourceCode['bloodGlucose']) {
-                        promiseArray.push(dataService.queryLocal('Range'));
-                    }
-                    var dom = angular.element
-                            (/*
-                            '<div ng-dblclick="viewEvent(resource, objectId)" style="border-left:3px solid;border-color:{{color}};">\n\
-                                <span style="margin-left:5px;">{{reading}} {{unit.name}}</span>\n\
-                            </div>'
-                               */
-                             
-                            '<div ng-dblclick="viewEvent(resource, objectId)" class="panel panel-default"><div style="border-left:5px solid;border-color:{{color}};" class="panel-body">{{reading}} {{unit.name}}</div></div>'
-                            
-                            );
-                    $q.all(promiseArray).then(function(results) {
-                        var range = getEventRange(event, results[1]);
-                        var unit = null;
-                        var reading = event.reading;
-                        if (userService.preferences && userService.preferences.defaultUnit) {
-                            unit = userService.preferences.defaultUnit;
-                            reading = reading * event.unit.coefficient / unit.coefficient;
-                        } else {
-                            unit = event.unit;
-                        }
-                        scope.reading = reading;
-                        scope.unit = unit;
-                        scope.resource = resourceCode[event.code];
+                    
+                    var template = getEventTemplate(event, resourceCode);
+                    var dom = angular.element('<div ng-dblclick="viewEvent(resource, objectId)" class="panel panel-default">' + template + '</div>');
+                    
+                    getScope(event, resourceCode).then(function(eventScope){
+                        scope = angular.extend(scope, eventScope);
                         scope.viewEvent = viewEvent;
-                        scope.objectId = event.objectId;
-                        
-                        if (range) {
-                            scope.color = range.color;
-                        }
                         var compiled = $compile(dom);
-
                         angular.element(element).append(dom);
-
                         compiled(scope);
                     });
-
                 }
             });
         };
+
+
+
+        function getEventTemplate(event, resourceCode) {
+            var template = "";
+            switch (event.code) {
+                case resourceCode['bloodGlucose']:
+                    template = '<div style="border-left:5px solid;border-color:{{color}};" class="panel-body"><span class="glyphicon glyphicon-tint"></span>{{dateTime | date:"HH:mm"}} <span>{{reading}}</span class="reading"> {{unit.name}}</div>';
+                    break;
+                case resourceCode['medication']:
+                    template = '<div class="panel-body"><span class="glyphicon glyphicon-briefcase"></span>{{dateTime | date:"HH:mm"}} <span class="reading">{{reading}}</span> {{unit.name}}</div>';
+                    break;
+            }
+            return template;
+        }
+
+        function getScope(event, resourceCode) {
+            var scopePromise = null;
+            switch (event.code) {
+                case resourceCode['bloodGlucose']:
+                    scopePromise = getBloodGlucoseScope(event);
+                    break;
+                default:
+                    scopePromise = getDefaultScope(event);
+                    break;
+            }
+            return scopePromise;
+        }
+
+
+        function getBloodGlucoseScope(event) {
+            var scope = {};
+            var dataService = $injector.get('dataService');
+            var resourceCode = $injector.get('ResourceCode');
+            var userService = $injector.get('UserService');
+            var promiseArray = [dataService.queryLocal('Unit', {where: {code: event.code}}), dataService.queryLocal('Range')];
+            return $q.all(promiseArray).then(function(results) {
+                var range = getEventRange(event, results[1]);
+                var unit = null;
+                var reading = event.reading;
+                if (userService.preferences && userService.preferences.defaultUnit) {
+                    unit = userService.preferences.defaultUnit;
+                    reading = reading * event.unit.coefficient / unit.coefficient;
+                } else {
+                    unit = event.unit;
+                }
+                scope.reading = reading;
+                scope.unit = unit;
+                scope.resource = resourceCode[event.code];                
+                scope.objectId = event.objectId;                
+                scope.dateTime = event.dateTime;
+
+                if (range) {
+                    scope.color = range.color;
+                }
+                return scope;
+            });
+        }
+        
+        function getDefaultScope(event){
+            var deferred = $q.defer();
+            deferred.resolve(event);
+            return deferred.promise;
+        }
+        
 
 
         function getEventRange(event, ranges) {
@@ -77,6 +111,8 @@ DirectivesModule.directive('blogluEvent', ['$compile', '$injector', '$q', '$loca
             }
             return resultRange;
         }
+
+
         return {
             restrict: 'E', // only activate on element
             replace: true,

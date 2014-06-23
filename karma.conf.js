@@ -26,7 +26,12 @@ module.exports = function(config) {
 	  'app/bower_components/ng-file-upload/angular-file-upload.min.js',
 	  
 	  'app/bower_components/spectrum/spectrum.js',
-	  'app/bower_components/spectrum/dist/angular-spectrum-colorpicker.min.js',
+	  'app/bower_components/angular-spectrum-colorpicker/dist/angular-spectrum-colorpicker.min.js',
+	  
+	  'app/bower_components/angular-translate/angular-translate.min.js',
+	  'app/bower_components/angular-translate-loader-static-files/angular-translate-loader-static-files.min.js',
+	  
+	  'app/bower_components/angular-dynamic-locale/src/tmhDynamicLocale.js',
 	  
 	  
       'app/scripts/*.js',

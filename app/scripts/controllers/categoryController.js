@@ -1,69 +1,77 @@
 'use strict';
 var ControllersModule = angular.module('BloGlu.controllers');
 
-ControllersModule.controller('categoryController', ['$rootScope', '$scope', '$modal','$window', 'MessageService', 'dataService','ResourceName', function Controller($rootScope, $scope, $modal, $window, MessageService, dataService,ResourceName) {
-        $rootScope.messages = [];
-        $rootScope.pending = 0;
+ControllersModule.controller('categoryController', ['$rootScope', '$scope', '$modal', 'MessageService', 'categoryService', 'ResourceName', function Controller($rootScope, $scope, $modal, MessageService, categoryService, ResourceName) {
         
         $scope.eventsTypes = ResourceName;
         $scope.code = 1;
-        $scope.eventType = ResourceName[$scope.code];
-        
-        
-        var resourceName = 'Category';
+        $scope.eventType = ResourceName[$scope.code];        
+
         renderPage();
 
-        $scope.$watch('code', function(newValue, oldValue) {            
-            if(newValue !== oldValue){                
+        $scope.$watch('code', function(newValue, oldValue) {
+            if (newValue !== oldValue) {
                 getCategories();
             }
         });
-        
-        $scope.selectType = function(key){            
+
+        $scope.selectType = function(key) {
             $scope.code = parseInt(key);
             $scope.eventType = ResourceName[$scope.code];
         };
-        
+
         function renderPage() {
             getCategories();
         }
-       
-       
-       function getCategories(){
-           $rootScope.pending++;
-            dataService.queryLocal(resourceName, {where:{code: $scope.code}}).then(function(result) {
-                $scope.categories = result;                
-                $rootScope.pending--;
+
+        function getCategories() {
+            $rootScope.increasePending("processingMessage.loadingCategoriesData");
+            categoryService.getCategoriesByCode($scope.code).then(function(result) {
+                $scope.categories = result;
             }, function(error) {
-                $rootScope.messages.push(MessageService.errorMessage("Error loading categories.", 2000));
-                $rootScope.pending--;
+                $rootScope.messages.push(MessageService.errorMessage("errorMessage.loadingError", 2000));
+            }).finally(function() {
+                $rootScope.decreasePending("processingMessage.loadingCategoriesData");
             });
-       }
-       
+        }
 
         $scope.saveCategory = function(category) {
             if (category && category.name) {
-                $rootScope.pending++;
-                dataService.save(resourceName, {
-                    name: category.name,
-                    code: $scope.code
-                }).then(function(result) {
+                $rootScope.increasePending("processingMessage.savingData");
+                category.code = $scope.code;
+                categoryService.saveCategory(category).then(function(result) {
                     angular.extend(category, result);
-                    $scope.categories.push(category);  
+                    $scope.categories.push(category);
                     $scope.newCategory = {};
-                    $rootScope.messages.push(MessageService.successMessage("Category created.", 2000));
-                    $rootScope.pending--;
+                    $rootScope.messages.push(MessageService.successMessage("successMessage.categoryCreated", 2000));
                 }, function(error) {
-                    $rootScope.messages.push(MessageService.errorMessage("Error creating category.", 2000));
-                    $rootScope.pending--;
+                    $rootScope.messages.push(MessageService.errorMessage("errorMessage.creatingError", 2000));
+                }).finally(function() {
+                    $rootScope.decreasePending();
                 });
-
             }
         };
 
+        $scope.updateCategory = function(category) {
+            if (category.objectId) {
+                $rootScope.increasePending("processingMessage.updatingData");
+                category.code = $scope.code;
+                categoryService.saveCategory(category, true).then(function(result) {
+                    category.isEdit = false;
+                    $rootScope.messages.push(MessageService.successMessage("successMessage.categoryUpdated", 2000));
+                }, function(error) {
+                    $scope.cancelEditPeriod(category);
+                    $rootScope.messages.push(MessageService.errorMessage("errorMessage.updatingError", 2000));
+                }).finally(function() {
+                    $rootScope.decreasePending("processingMessage.updatingData");
+                });
+            }
+        };
+
+
         $scope.deleteCategory = function(category) {
             var $modalScope = $rootScope.$new(true);
-            $modalScope.message = "the " + category.name + " category";
+            $modalScope.message = category.name;
             var modalInstance = $modal.open({
                 templateUrl: "views/modal/confirm.html",
                 controller: "confirmModalController",
@@ -77,21 +85,21 @@ ControllersModule.controller('categoryController', ['$rootScope', '$scope', '$mo
             modalInstance.result.then(function(confirmed) {
                 if (confirmed) {
                     if (category.objectId) {
-                        $rootScope.pending++;
-                        dataService.delete(resourceName, category.objectId).then(function(result) {
+                        $rootScope.increasePending("processingMessage.deletingData");
+                        categoryService.deleteCategory(category.objectId).then(function(result) {
                             var categoryIndex = -1;
-                            angular.forEach($scope.categories,function(cat, index) {
+                            angular.forEach($scope.categories, function(cat, index) {
                                 if (cat.objectId && cat.objectId === category.objectId) {
                                     categoryIndex = index;
                                 }
                             });
                             if (categoryIndex !== -1) {
                                 $scope.categories.splice(categoryIndex, 1);
-                            }                            
-                            $rootScope.pending--;
+                            }
                         }, function(error) {
-                            $rootScope.messages.push(MessageService.errorMessage('Problem deleting category', 2000));
-                            $rootScope.pending--;
+                            $rootScope.messages.push(MessageService.errorMessage('errorMessage.deletingError', 2000));
+                        }).finally(function() {
+                            $rootScope.decreasePending("processingMessage.deletingData");
                         });
                     }
                 }
@@ -114,34 +122,7 @@ ControllersModule.controller('categoryController', ['$rootScope', '$scope', '$mo
             delete category.original;
         };
 
-        $scope.updateCategory = function(category) {
-            if (category.objectId) {
-                $rootScope.pending++;
-                dataService.update(resourceName, category.objectId, {
-                    name: category.name,
-                    code: category.code
-                }).then(function(result) {
-                    category.isEdit = false;                    
-                    $rootScope.pending--;
-                }, function(error) {
-                    $scope.cancelEditPeriod(category);
-                    $rootScope.pending--;
-                });
-            }
-        };
-        
-        $window.addEventListener('dataReady', renderPage);
-        
 
-        $scope.$on('$routeChangeStart', function() {
-            //cancel promise
-            MessageService.cancelAll($rootScope.messages);
-            $rootScope.pending = 0;
-            //clear messages
-            $rootScope.messages = [];
-            //clear events
-            $window.removeEventListener('dataReady',renderPage);
-        });
-
+        $rootScope.$on('dataReady', renderPage);        
 
     }]);

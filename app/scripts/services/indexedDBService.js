@@ -122,28 +122,59 @@ servicesModule.factory('indexeddbService', ['$window', '$q', 'Database', functio
             openDatabase().then(function(db) {
                 var trans = db.transaction([collection], 'readwrite');
                 var store = trans.objectStore(collection);
-
                 var range = IDBKeyRange.only(userId);
-                var index = store.index('userIndex');
-
+                var index = store.index('userIndex');                
                 var cursorRequest = index.openCursor(range);
                 cursorRequest.onsuccess = function() {
-                    var cursor = cursorRequest.result;
-                    if (cursor) {                        
-                        store.delete(cursor.primaryKey);
-                        cursor.continue;
-                    }else{
+                    var cursor = cursorRequest.result;                    
+                    if (cursor) {
+                        store.delete(cursor.primaryKey);                        
+                        cursor.continue();
+                    } else {                        
                         deferred.resolve();
                     }
                 };
                 cursorRequest.onerror = function(error) {
                     deferred.reject(error);
-                };
-                deferred.resolve();
+                };               
             });
             return deferred.promise;
         };
 
+        indexeddbService.clearCollections = function(collections, userId) {
+            var deferred = $q.defer();
+            var promiseArray = [];
+            debugger;
+            openDatabase().then(function(db) {
+                var trans = db.transaction(collections, 'readwrite');
+                var def = $q.defer();
+                angular.forEach(collections, function(collection) {
+                    debugger;
+                    var store = trans.objectStore(collection);
+                    var range = IDBKeyRange.only(userId);
+                    var index = store.index('userIndex');
+
+                    var cursorRequest = index.openCursor(range);
+                    cursorRequest.onsuccess = function() {
+                        var cursor = cursorRequest.result;
+                        if (cursor) {
+                            store.delete(cursor.primaryKey);
+                            cursor.continue;
+                        } else {
+                            def.resolve();
+                        }
+                    };
+                    cursorRequest.onerror = function(error) {
+                        def.reject(error);
+                    };
+                    def.resolve();
+                    promiseArray.push(def.promise);                    
+                });
+            });   
+            debugger;
+            $q.all(promiseArray).then(deferred.resolve, deferred.reject);            
+            return deferred.promise;
+        };
 
 
 
@@ -172,6 +203,29 @@ servicesModule.factory('indexeddbService', ['$window', '$q', 'Database', functio
                 putNext();
                 function putNext() {
                     if (i < records.length) {
+                        itemStore.put(records[i]).onsuccess = putNext;
+                        itemStore.put(records[i]).onerror = function(error) {
+                            deferred.reject(error);
+                        };
+                        ++i;
+                    } else {
+                        deferred.resolve();
+                    }
+                }
+            }, deferred.reject);
+            return deferred.promise;
+        };
+
+        indexeddbService.addRecords = function(collection, userId, records) {
+            var deferred = $q.defer();
+            var i = 0;
+            openDatabase().then(function(db) {
+                var transaction = db.transaction(collection, 'readwrite');
+                var itemStore = transaction.objectStore(collection);
+                putNext();
+                function putNext() {
+                    if (i < records.length) {
+                        records[i].userId = userId;
                         itemStore.put(records[i]).onsuccess = putNext;
                         itemStore.put(records[i]).onerror = function(error) {
                             deferred.reject(error);

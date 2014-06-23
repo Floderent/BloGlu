@@ -17,10 +17,10 @@
         <!-- build:css({.tmp,app}) styles/main.css -->
         <link rel="stylesheet" href="styles/main.css">
         <!-- endbuild -->
-        
+
         <!-- spectrum CSS -->
         <link rel="stylesheet" href="bower_components/spectrum/spectrum.css">
-        
+
     </head>
 
     <!--[if lt IE 7]>
@@ -28,49 +28,7 @@
       <![endif]-->
 
 
-    <body ng-app="BloGlu">
-
-        <div class="container" ng-hide="currentUser">
-            <div class="page-header">
-                
-                <h1>{{ 'appName' | translate }} <small>{{ 'mainScreenMessage' | translate }}</small></h1>
-            </div>
-            <!-- Page feedback -->
-            <div ng-show="pending > 0">
-                Loading... <img alt="loading" src="images/spinnerLarge.gif" /> 
-            </div>           
-
-            <div ng-repeat="message in messages" ng-show="messages && messages.length > 0">
-                <!-- error message alert-dismissable-->
-                <div ng-if="message.type === 'error'">                
-                    <div class="alert alert-danger" ng-show="message.display">
-                        <!--<button type="button" class="close" data-dismiss="alert" aria-hidden="true">&times;</button>-->
-                        <strong>Error!</strong> {{message.text}}
-                    </div>
-                </div>
-                <!-- success message -->                
-                <div ng-if="message.type === 'success'">                
-                    <div class="alert alert-success" ng-show="message.display">
-                        <button type="button" class="close" data-dismiss="alert" aria-hidden="true">&times;</button>
-                        {{message.text}}
-                    </div>
-                </div>                
-            </div>
-
-
-
-            <!-- login form -->
-            <div class="panel-default">
-                <form class="form-signin panel-body">
-                    <h2 class="form-signin-heading">Log in</h2>
-                    <input id="name" class="form-control" placeholder="User name" required autofocus type="text" value="" name="name" ng-model="user.username" />
-                    <input id="email" class="form-control" placeholder="Password" required type="password" value="" name="password" ng-model="user.password" />
-                    <a href="#" ng-click="displaySignUpModal()">{{ 'signUp' | translate }}</a> {{ 'or' | translate }} <a href="#" class="pull-right" ng-click="displayResetPasswordModal()">{{ 'forgotPwd' | translate }} ?</a>
-                    <button class="btn btn-primary btn-lg btn-block" ng-disabled="pending > 0" ng-click="logIn(user)">{{ 'logIn' | translate }}</button>
-                </form>
-            </div>
-        </div>
-
+    <body ng-app="BloGlu" ng-controller="applicationController">        
 
         <!-- navbar -->
         <div ng-show="currentUser">
@@ -91,7 +49,7 @@
                             <li><a href="#import">{{ 'menu.bgImport' | translate }}</a></li>
                         </ul> 
                     </li>
-                    
+
                     <li class="dropdown">
                         <a href="#" class="dropdown-toggle" data-toggle="dropdown"><b>{{ 'menu.report' | translate }}</b> <b class="caret"></b></a>
                         <ul class="dropdown-menu">
@@ -99,23 +57,23 @@
                             <li><a href="#report">{{ 'menu.createReport' | translate }}</a></li>
                         </ul> 
                     </li>
-                    
-                    
+
+
                     <li class="dropdown">
                         <a href="#" class="dropdown-toggle" data-toggle="dropdown"><b>{{ 'menu.weight' | translate }}</b> <b class="caret"></b></a>
                         <ul class="dropdown-menu">
                             <li><a href="#event/weight">{{ 'menu.newWeight' | translate }}</a></li>                            
                         </ul> 
                     </li>
-                    
+
                     <li class="dropdown">
                         <a href="#" class="dropdown-toggle" data-toggle="dropdown"><b>{{ 'menu.medication' | translate }}</b> <b class="caret"></b></a>
                         <ul class="dropdown-menu">
                             <li><a href="#event/medication">{{ 'menu.newMedication' | translate }}</a></li>                            
                         </ul> 
                     </li>
-                    
-                    
+
+
                     <li class="dropdown">
                         <a href="#" class="dropdown-toggle" data-toggle="dropdown"><b>{{ 'menu.settings' | translate }}</b> <b class="caret"></b></a>
                         <ul class="dropdown-menu">
@@ -138,51 +96,52 @@
                 </div>
             </div>
 
-            <!-- Page feedback -->
-            <div ng-show="pending > 0">
-                Loading... <img alt="loading" src="images/spinnerLarge.gif" /> 
-            </div>           
 
-            <div ng-repeat="message in messages" ng-show="messages && messages.length > 0">
-                <!-- error message alert-dismissable-->
-                <div ng-if="message.type === 'error'">                
-                    <div class="alert alert-danger" ng-show="message.display">
-                        <!--<button type="button" class="close" data-dismiss="alert" aria-hidden="true">&times;</button>-->
-                        <strong>Error!</strong> {{message.text}}
-                    </div>
+        </div>
+
+        <!-- Page feedback -->
+        <div ng-show="pending > 0">
+            <!-- display last loading message -->
+            <div ng-if="loadingMessages.length > 0">{{loadingMessages[loadingMessages.length - 1]}}</div> 
+            <img alt="loading" src="images/spinnerLarge.gif" /> 
+        </div>
+        <div ng-repeat="message in messages" ng-show="messages && messages.length > 0">
+            <!-- error message alert-dismissable-->
+            <div ng-if="message.type === 'error'">                
+                <div class="alert alert-danger" ng-show="message.display">
+                    <!--<button type="button" class="close" data-dismiss="alert" aria-hidden="true">&times;</button>-->
+                    <strong>Error!</strong> {{message.text| translate}}
                 </div>
-                <!-- success message -->                
-                <div ng-if="message.type === 'success'">                
-                    <div class="alert alert-success" ng-show="message.display">
-                        <button type="button" class="close" data-dismiss="alert" aria-hidden="true">&times;</button>
-                        {{message.text}}
-                    </div>
-                </div>                
             </div>
+            <!-- success message -->                
+            <div ng-if="message.type === 'success'">                
+                <div class="alert alert-success" ng-show="message.display">
+                    <button type="button" class="close" data-dismiss="alert" aria-hidden="true">&times;</button>
+                    {{message.text| translate}}
+                </div>
+            </div>                
+        </div>
 
 
 
-
-        </div>       
-
-        <!-- Hold the views of the application  ng-show="currentUser"-->        
-        <div  ng-switch on="currentUser">
-            <div ng-view>
-            </div>
+        <!-- Hold the views of the application  ng-show="currentUser"-->
+        <!-- ng-switch on="currentUser" -->
+        <div>
+            <div ng-view></div>
         </div>
 
 
         <!-- Google Analytics: change UA-XXXXX-X to be your site's ID -->
         <script>
-            /*
-             (function(i,s,o,g,r,a,m){i['GoogleAnalyticsObject']=r;i[r]=i[r]||function(){
-             (i[r].q=i[r].q||[]).push(arguments)},i[r].l=1*new Date();a=s.createElement(o),
-             m=s.getElementsByTagName(o)[0];a.async=1;a.src=g;m.parentNode.insertBefore(a,m)
-             })(window,document,'script','//www.google-analytics.com/analytics.js','ga');
-             
-             ga('create', 'UA-XXXXX-X');
-             ga('send', 'pageview');
-             */
+                    /*
+                     (function(i,s,o,g,r,a,m){i['GoogleAnalyticsObject']=r;i[r]=i[r]||function(){
+                     (i[r].q=i[r].q||[]).push(arguments)},i[r].l=1*new Date();a=s.createElement(o),
+                     m=s.getElementsByTagName(o)[0];a.async=1;a.src=g;m.parentNode.insertBefore(a,m)
+                     })(window,document,'script','//www.google-analytics.com/analytics.js','ga');
+                     
+                     ga('create', 'UA-XXXXX-X');
+                     ga('send', 'pageview');
+                     */
         </script>
 
         <!--[if lt IE 9]>
@@ -209,27 +168,28 @@
 
         <!-- file upload -->
         <script src="bower_components/ng-file-upload/angular-file-upload.min.js"></script>
-        
+
         <!-- js PDF -->
         <script src="bower_components/jspdf/dist/jspdf.min.js"></script>
         <script src="bower_components/jspdf/dist/jspdf.plugin.cell.js"></script>
-        
+
         <!-- Spectrum -->       
         <script src="bower_components/spectrum/spectrum.js"></script>
         <!-- color picker -->
         <script src="bower_components/angular-spectrum-colorpicker/dist/angular-spectrum-colorpicker.min.js"></script>        
-        
+
         <!-- angular translate -->
         <script src="bower_components/angular-translate/angular-translate.min.js"></script>
         <script src="bower_components/angular-translate-loader-static-files/angular-translate-loader-static-files.min.js"></script>
-        
+
         <!-- dynamic locale -->
         <script src="bower_components/angular-dynamic-locale/src/tmhDynamicLocale.js"></script>
-        
-        
+
+
         <!-- i18n file -->
-        <!--<script src="bower_components/angular-i18n/angular-locale_fr-fr.js"></script>-->
-        <!--<script src="bower_components/angular-i18n/angular-locale_en-us.js"></script>-->
+        <script src="bower_components/angular-i18n/angular-locale_en.js"></script>
+        <!--<script src="bower_components/angular-i18n/angular-locale_fr.js"></script>-->
+
 
         <!-- endbower -->
         <!-- endbuild -->
@@ -237,34 +197,42 @@
         <!-- build:js({.tmp,app}) scripts/scripts.js -->
         <!-- Application -->
         <script src="scripts/app.js"></script>
-        
+
         <!-- Controllers -->
-        <script src="scripts/controllers/categoryController.js"></script>        
+        <script src="scripts/controllers/applicationController.js"></script>
+        <script src="scripts/controllers/categoryController.js"></script>
         <script src="scripts/controllers/controllers.js"></script>
         <script src="scripts/controllers/dashboardController.js"></script>
         <script src="scripts/controllers/eventController.js"></script>
         <script src="scripts/controllers/importController.js"></script>
         <script src="scripts/controllers/importListController.js"></script>
         <script src="scripts/controllers/logBookController.js"></script>
+        <script src="scripts/controllers/loginController.js"></script>
         <script src="scripts/controllers/periodController.js"></script>
         <script src="scripts/controllers/rangeController.js"></script>
         <script src="scripts/controllers/reportController.js"></script>
         <script src="scripts/controllers/reportListController.js"></script>
-        
+
         <!-- Services -->
+        <script src="scripts/services/categoryService.js"></script>
         <script src="scripts/services/commonService.js"></script>
         <script src="scripts/services/dataService.js"></script>
+        <script src="scripts/services/eventService.js"></script>
+        <script src="scripts/services/genericDaoService.js"></script>
         <script src="scripts/services/importService.js"></script>
         <script src="scripts/services/indexedDBService.js"></script>
+        <script src="scripts/services/localizationService.js"></script>
         <script src="scripts/services/modelsService.js"></script>
+        <script src="scripts/services/periodService.js"></script>
         <script src="scripts/services/printService.js"></script>
         <script src="scripts/services/queryService.js"></script>
         <script src="scripts/services/reportService.js"></script>
         <script src="scripts/services/services.js"></script>                
         <script src="scripts/services/syncService.js"></script>
+        <script src="scripts/services/unitService.js"></script>
         <script src="scripts/services/userService.js"></script>
         <script src="scripts/services/utils.js"></script>        
-        
+
         <!-- Directives -->
         <script src="scripts/directives/datavizDirective.js"></script>
         <script src="scripts/directives/directives.js"></script>

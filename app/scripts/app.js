@@ -2,12 +2,13 @@
 
 angular.module('BloGlu.services', ['ngResource']);
 angular.module('BloGlu.controllers', []);
+angular.module('BloGlu.filters', []);
 angular.module('BloGlu.directives', []);
 
 
 var mainModule = angular
         .module('BloGlu', [
-            'ngCookies',
+            'ngCookies',            
             'ngResource',
             'ngSanitize',
             'ngRoute',
@@ -18,12 +19,14 @@ var mainModule = angular
             'pascalprecht.translate',
             'tmh.dynamicLocale',
             'BloGlu.services',
-            'BloGlu.controllers',
+            'BloGlu.controllers', 
+            'BloGlu.filters',
             'BloGlu.directives'
         ]);
 
 mainModule.config(['$routeProvider',
     function($routeProvider) {
+        $routeProvider.when('/login', {controller: 'loginController', templateUrl: 'views/login.html'});
         $routeProvider.when('/event/:eventType/:objectId', {controller: 'eventController', templateUrl: 'views/event.html'});
         $routeProvider.when('/event/:eventType', {controller: 'eventController', templateUrl: 'views/event.html'});
         $routeProvider.when('/overview', {controller: 'overviewController', templateUrl: 'views/overView.html'});
@@ -48,85 +51,80 @@ mainModule.config(['$translateProvider', function($translateProvider) {
             prefix: 'i18n/locale-',
             suffix: '.json'
         });
-        
-        //$translateProvider.preferredLanguage('en_US');
-        $translateProvider.preferredLanguage('fr_FR');
-        
+    }]);
+
+mainModule.config(['$httpProvider', function($httpProvider) {
+        $httpProvider.interceptors.push('MyInterceptor');
     }]);
 
 
-mainModule.run(['$rootScope', '$modal', '$location', 'UserService', 'MessageService', 'syncService', 'dataService', 'queryService','tmhDynamicLocale', function($scope, $modal, $location, UserService, MessageService, syncService, dataService, queryService, tmhDynamicLocale) {
+mainModule.constant('AUTH_EVENTS', {
+    loginSuccess: 'auth-login-success',
+    loginFailed: 'auth-login-failed',
+    logoutSuccess: 'auth-logout-success',
+    sessionTimeout: 'auth-session-timeout',
+    notAuthenticated: 'auth-not-authenticated',
+    notAuthorized: 'auth-not-authorized'
+});
 
-        $scope.currentUser = UserService.currentUser();
-        $scope.messages = [];
-        $scope.pending = 0;
-        var modal = null;
-                    
-        tmhDynamicLocale.set('fr').then(function(result){            
-        },function(error){
-        });
-        
-        
-        $scope.displaySignUpModal = function() {
-            $scope.messages = [];
-            modal = $modal.open({
-                templateUrl: 'views/modal/inputUser.html',
-                controller: 'inputUserController'
+mainModule.constant('ResourceCode', {
+    other: 0,
+    bloodGlucose: 1,
+    medication: 2,
+    weight: 3,
+    bloodPressure: 4,
+    a1c: 5,
+    exercise: 6,
+    0: 'other',
+    1: 'bloodGlucose',
+    2: 'medication',
+    3: 'weight',
+    4: 'bloodPressure',
+    5: 'a1c',
+    6: 'exercise'
+});
+
+mainModule.constant('Database', {
+    schema: [
+        'Event',
+        'Period',
+        'Report',
+        'Dashboard',
+        'Metadatamodel',
+        'Category',
+        'Range',
+        'Unit',
+        'Import'
+    ]
+});
+
+mainModule.constant('ResourceName', {
+    0: 'otherEvent',
+    1: 'bloodGlucoseEvent',
+    2: 'medicationEvent',
+    3: 'weightEvent',
+    4: 'bloodPressureEvent',
+    5: 'a1cEvent',
+    6: 'exerciseEvent'
+
+});
+
+mainModule.constant('DataVisualization', {
+    table: 'tableDataviz',
+    chart: 'chartDataviz'
+});
+
+
+mainModule.run(['$rootScope', 'localizationService', 'AUTH_EVENTS', 'UserService', function($rootScope, localizationService, AUTH_EVENTS, UserService) {
+        localizationService.setLanguage().then(function() {
+            $rootScope.$broadcast('language-change', localizationService.language);
+            UserService.isTokenValid().then(function(tokenValid) {
+                if (!tokenValid) {
+                    $rootScope.$broadcast(AUTH_EVENTS.notAuthenticated);
+                } else {
+                    $rootScope.$broadcast(AUTH_EVENTS.loginSuccess);
+                }
             });
-        };
-
-        $scope.displayResetPasswordModal = function() {
-            $scope.messages = [];
-            modal = $modal.open({
-                templateUrl: 'views/modal/resetPassword.html',
-                controller: 'resetPasswordController'
-            });
-        };
-
-        $scope.logIn = function(form) {
-            if (form) {
-                $scope.pending++;
-                UserService.logIn(form.username, form.password)
-                        .success(function(authenticatedUser) {
-                            $scope.pending--;
-                            $scope.currentUser = authenticatedUser;
-                            //sync
-                            $scope.pending++;
-                            syncService.sync().finally(function(result) {
-                                $scope.pending--;
-                            });
-                            $location.path('dashboard');
-                        })
-                        .error(function(error) {
-                            $scope.pending--;
-                            switch (error.code) {
-                                case 101:
-                                    $scope.messages.push(MessageService.message("error", "Wrong login and/or password", 2000));
-                                    break;
-
-                                default:
-                                    $scope.messages.push(MessageService.message("error", "Cannot login", 2000));
-                                    break;
-
-                            }
-                        });
-            }
-        };
-
-        $scope.logOut = function() {
-            $scope.pending++;
-            dataService.logOut().then(function() {
-                $scope.currentUser = null;
-                $scope.pending--;
-            });
-        };
-
-        $scope.$on("$routeChangeStart", function() {
-            //cancel promise
-            MessageService.cancelAll($scope.messages);
-            $scope.pending = 0;
-            //clear messages
-            $scope.messages = [];
         });
     }]);
 
@@ -134,6 +132,3 @@ mainModule.run(['$rootScope', '$modal', '$location', 'UserService', 'MessageServ
 
 
 
-mainModule.config(["$httpProvider", function($httpProvider) {
-        $httpProvider.interceptors.push("MyInterceptor");
-    }]);

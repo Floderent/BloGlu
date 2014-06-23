@@ -2,9 +2,11 @@
 
 var servicesModule = angular.module('BloGlu.services');
 
-servicesModule.factory('syncService', ['$q', '$http', '$injector', 'Database', 'dataService', 'ServerService', 'UserService', function($q, $http, $injector, Database, dataService, ServerService, UserService) {
+servicesModule.factory('syncService', ['$q', '$http', '$injector', '$rootScope', 'Database', 'dataService', 'ServerService', 'UserService', function($q, $http, $injector, $rootScope, Database, dataService, ServerService, UserService) {
         var syncService = {};
         var dataTimeField = 'updatedAt';
+
+        //syncService.syncStatus = 'outOfDate';
 
         function getLocalDataInfos() {
             return dataService.init().then(function(result) {
@@ -30,7 +32,7 @@ servicesModule.factory('syncService', ['$q', '$http', '$injector', 'Database', '
         }
 
         function compareSyncStatus(remoteDataStatus, localDataStatus) {
-            var syncStatus = {};
+            var syncStatus = {};              
             angular.forEach(remoteDataStatus, function(value, key) {
                 if (localDataStatus[key] && localDataStatus[key].count === value.count && localDataStatus[key].date === value.date) {
                     syncStatus[key] = {
@@ -54,7 +56,7 @@ servicesModule.factory('syncService', ['$q', '$http', '$injector', 'Database', '
         function getParseDataInfos() {
             var promiseArray = [];
             var parseDataInfos = {};
-            angular.forEach(Database.schema, function(collectionName) {
+            angular.forEach(Database.schema, function(collectionName) {                
                 promiseArray.push($http(
                         {
                             headers: UserService.headers(),
@@ -86,10 +88,20 @@ servicesModule.factory('syncService', ['$q', '$http', '$injector', 'Database', '
             var deferred = $q.defer();
             var resource = $injector.get(collection);
             if (resource && resource.query) {
-                //resource.query({limit: 1000}).$promise
-                dataService.queryParse(collection, syncStatus.remoteCount, {limit: 1000}).then(function(result) {                    
-                    dataService.clear(collection).then(function() {                        
-                        dataService.addRecords(collection, result).then(deferred.resolve, deferred.reject);
+                console.log("Downloading " + collection);
+                deferred.notify("Downloading " + collection);                
+                dataService.queryParse(collection, syncStatus.remoteCount, {limit: 1000}).then(function(result) {
+                    console.log("Downloading of " + collection + " completed");
+                    deferred.notify("Downloading of " + collection + " completed");
+                    dataService.clear(collection).then(function() {
+                        console.log(collection + " cleared");
+                        deferred.notify(collection + " cleared");
+                        console.log("Inserting "+ result.length + " result in " + collection);
+                        dataService.addRecords(collection, result).then(function(addRecordsResult) {
+                            console.log("Inserted " + result.length + collection + " record(s)");
+                            deferred.notify("Inserted " + result.length + collection + " record(s)");
+                            deferred.resolve();
+                        }, deferred.reject);
                     }, deferred.reject);
                 }, deferred.reject);
             } else {
@@ -119,40 +131,33 @@ servicesModule.factory('syncService', ['$q', '$http', '$injector', 'Database', '
         syncService.sync = function() {
             var deferred = $q.defer();
             var promiseArray = [];
-            syncService.checkSyncStatus().then(function(syncStatus) {
-                angular.forEach(syncStatus, function(value, key) {
-                    if (value.status === 'outOfDate') {
-                        promiseArray.push(syncCollection(key,value));
-                    }
-                });
-                $q.all(promiseArray).then(function(result) {
-                    dataService.init(true).then(function(result) {
-                        triggerDataReadyEvent();
-                        deferred.resolve();
-                    }, deferred.reject);
+            if (syncService.syncStatus === 'upToDate') {
+                deferred.resolve();
+            } else {
+                console.log("checking sync status");
+                syncService.checkSyncStatus().then(function(syncStatus) {
+                    console.log("checking sync status - done");
+                    angular.forEach(syncStatus, function(value, key) {
+                        if (value.status === 'outOfDate') {
+                            promiseArray.push(syncCollection(key, value));
+                        }
+                    });
+                    console.log("syncing collections");
+                    $q.all(promiseArray).then(function(result) {
+                        dataService.init(true).then(function(result) {
+                            triggerDataReadyEvent();
+                            //syncService.syncStatus = 'upToDate';
+                            deferred.resolve();
+                        }, deferred.reject);
+                    }, deferred.reject, deferred.notify);
                 }, deferred.reject);
-            }, deferred.reject);
+            }
             return deferred.promise;
         };
 
-
         function triggerDataReadyEvent() {
-            var event;
-            var eventName = "dataReady";
-            if (document.createEvent) {
-                event = document.createEvent("HTMLEvents");
-                event.initEvent(eventName, true, true);
-            } else {
-                event = document.createEventObject();
-                event.eventType = eventName;
-            }
-            event.eventName = eventName;
-
-            if (document.createEvent) {
-                document.dispatchEvent(event);
-            } else {
-                document.fireEvent("on" + event.eventType, event);
-            }
+            var eventName = 'dataReady';
+            $rootScope.$broadcast(eventName);
         }
         return syncService;
     }]);

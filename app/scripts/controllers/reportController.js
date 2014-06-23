@@ -3,8 +3,6 @@ var ControllersModule = angular.module('BloGlu.controllers');
 
 ControllersModule.controller('reportController', ['$scope', '$rootScope', '$q', '$routeParams', '$modal', '$window', 'reportService', 'queryService', 'MessageService', 'DataVisualization', function Controller($scope, $rootScope, $q, $routeParams, $modal, $window, reportService, queryService, MessageService, DataVisualization) {
 
-        $rootScope.messages = [];
-        $rootScope.pending = 0;
         $scope.isEdit = $routeParams && $routeParams.objectId;
         $scope.report = {};
         //all available query elements
@@ -21,71 +19,42 @@ ControllersModule.controller('reportController', ['$scope', '$rootScope', '$q', 
         renderPage();
 
         function renderPage() {
-            $rootScope.pending++;
+            $rootScope.increasePending("processingMessage.loading");
+            $scope.filters = queryService.getFilters();
             $q.all([
                 getReport(),
-                queryService.getMetadatamodel(),
-                queryService.getFilters()
+                queryService.getMetadatamodel()
             ]).then(function resolve(results) {
                 $scope.report = results[0];
                 $scope.queryElements = results[1];
-                $scope.filters = results[2];
-                debugger;
-                setQuery();
-
-                $rootScope.pending--;
+                setQuery();                
             }, function reject() {
-                $rootScope.messages.push(MessageService.errorMessage('Cannot read informations from server', 2000));
-                $rootScope.pending--;
+                $rootScope.messages.push(MessageService.errorMessage("errorMessage.loadingError", 2000));
+            }).finally(function(){
+                $rootScope.decreasePending("processingMessage.loading");
             });
         }
 
-        function getQuery() {
-            var query = null;
-            if ($scope.selectedQueryElements && $scope.selectedQueryElements.length > 0) {
-                var select = [];
-                angular.forEach($scope.selectedQueryElements, function(selectElement) {
-                    select.push(selectElement.name);
-                });
-                query = {
-                    select: select
-                };
-                if ($scope.selectedFilter) {
-                    var filterClause = {
-                        type: 'function',
-                        value: $scope.selectedFilter
-                    };
-                    query.where = {
-                        dateTime: filterClause
-                    };
-                }
-            }
-            return query;
-        }
 
         function setQuery() {
             if ($scope.report && $scope.report.query) {
                 reportService.getFullQuery($scope.report.query).then(function(result) {
-                    $scope.selectedQueryElements = result.headers;                    
+                    $scope.selectedQueryElements = result.headers;
                 });
             }
         }
 
-        function getReport() {
-            $rootScope.pending++;
+        function getReport() {            
             var deferred = $q.defer();
             if ($scope.isEdit) {
-                reportService.getReport($routeParams.objectId).then(function(result) {
-                    $rootScope.pending--;
+                reportService.getReport($routeParams.objectId).then(function(result) {                    
                     deferred.resolve(result);
                 });
-            } else {
-                $rootScope.pending--;
+            } else {                
                 deferred.resolve({});
             }
             return deferred.promise;
         }
-
 
         $scope.addQueryElement = function(queryElement) {
             if (queryElement && $scope.selectedQueryElements.indexOf(queryElement) === -1) {
@@ -98,7 +67,10 @@ ControllersModule.controller('reportController', ['$scope', '$rootScope', '$q', 
                 $scope.selectedQueryElements.splice($scope.selectedQueryElements.indexOf(queryElement), 1);
             }
         };
-
+        
+        $scope.removeFilter = function(){
+            $scope.selectedFilter = null;
+        };
 
         $scope.clear = function() {
             $scope.selectedQueryElements = [];
@@ -107,50 +79,43 @@ ControllersModule.controller('reportController', ['$scope', '$rootScope', '$q', 
         };
 
 
-        $scope.$watch('selectedQueryElements', function(newValue, oldValue) {
-            var query = getQuery();
-            $scope.report.query = query;
-            if (newValue && oldValue && query) {
-                reportService.executeReportQuery(query).then(function(datavizConfig) {
+        $scope.$watch('selectedQueryElements', function(newValue, oldValue) {            
+            $scope.report.query = reportService.getQuery($scope.selectedQueryElements, $scope.selectedFilter);
+            if (newValue && oldValue && $scope.report.query) {
+                reportService.executeReportQuery($scope.report.query).then(function(datavizConfig) {
                     $scope.datavizConfig = datavizConfig;
                 });
             }
         }, true);
 
 
-
         $scope.executeQuery = function() {
-            if ($scope.selectedQueryElements && $scope.selectedQueryElements.length > 0) {
-                var select = [];
-                angular.forEach($scope.selectedQueryElements, function(selectElement) {
-                    select.push(selectElement.name);
-                });
-                $scope.report.query = {
-                    select: select
-                };
-                if ($scope.selectedFilter) {
-                    var filterClause = {
-                        type: 'function',
-                        value: $scope.selectedFilter
-                    };
-                    $scope.report.query.where = {
-                        dateTime: filterClause
-                    };
-                }
-                debugger;
+            $rootScope.increasePending("processingMessage.executingQuery");
+            $scope.report.query = reportService.getQuery($scope.selectedQueryElements, $scope.selectedFilter);
+            if ($scope.report.query) {
                 reportService.executeReportQuery($scope.report.query).then(function(queryResult) {
                     $scope.datavizConfig = queryResult;
+                }, function(error){
+                    $rootScope.messages.push(MessageService.errorMessage("errorMessage.executingQueryError", 2000));
+                }).finally(function(){
+                    $rootScope.decreasePending("processingMessage.executingQuery");
                 });
+            }else{
+                $scope.datavizConfig = null;
+                $rootScope.decreasePending("processingMessage.executingQuery");
             }
         };
 
 
 
-        $scope.update = function() {            
-            reportService.save($scope.report, $scope.isEdit).then(function resolve(result) {
-                $rootScope.messages.push(MessageService.successMessage('Report saved', 2000));
+        $scope.update = function() {
+            $rootScope.increasePending("processingMessage.updatingData");
+            reportService.saveReport($scope.report, $scope.isEdit).then(function resolve(result) {
+                $rootScope.messages.push(MessageService.successMessage('successMessage.reportUpdated', 2000));
             }, function reject(error) {
-                $rootScope.messages.push(MessageService.errorMessage('Problem saving the report', 2000));
+                $rootScope.messages.push(MessageService.errorMessage("errorMessage.creatingError", 2000));
+            }).finally(function(){
+                $rootScope.decreasePending("processingMessage.updatingData");
             });
         };
 
@@ -166,10 +131,13 @@ ControllersModule.controller('reportController', ['$scope', '$rootScope', '$q', 
             });
             modalInstance.result.then(function(confirmed) {
                 if (confirmed) {
+                    $rootScope.increasePending("processingMessage.deletingData");
                     reportService.deleteReport($scope.report).then(function(result) {
                         $window.history.back();
                     }, function(error) {
-                        $rootScope.messages.push(MessageService.errorMessage("Problem deleting report", 2000));
+                        $rootScope.messages.push(MessageService.errorMessage('errorMessage.deletingError', 2000));
+                    }).finally(function(){
+                        $rootScope.decreasePending("processingMessage.deletingData");
                     });
                 }
             }, function() {
@@ -177,17 +145,8 @@ ControllersModule.controller('reportController', ['$scope', '$rootScope', '$q', 
             });
         };
 
-        $window.addEventListener('dataReady', renderPage);
 
-        $scope.$on("$routeChangeStart", function() {
-            //cancel promise
-            MessageService.cancelAll($rootScope.messages);
-            $rootScope.pending = 0;
-            //clear messages
-            $rootScope.messages = [];
-            //clear events
-            $window.removeEventListener('dataReady', renderPage);
-        });
+        $rootScope.$on('dataReady', renderPage);        
     }]);
 
 

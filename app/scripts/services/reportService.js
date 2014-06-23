@@ -3,33 +3,26 @@
 var servicesModule = angular.module('BloGlu.services');
 
 
-servicesModule.factory('reportService', ['$q', 'ModelUtil', 'dataService', function($q, ModelUtil, dataService) {
+servicesModule.factory('reportService', ['$q', 'ModelUtil', 'dataService', 'queryService', 'genericDaoService', function($q, ModelUtil, dataService, queryService, genericDaoService) {
 
         var reportService = {};
 
+        var reportResourceName = 'Report';
+
+        reportService.getDashboards = function() {
+            return genericDaoService.getAll('Dashboard');
+        };
         reportService.getReports = function() {
-            return dataService.queryLocal('Report');
+            return genericDaoService.getAll(reportResourceName);
         };
-        
-        
-        reportService.saveReport = function(report, isEdit){            
-            var savingPromise = null;
-            if (isEdit) {
-                savingPromise = dataService.update('Report', report.objectId, report);
-            } else {
-                savingPromise = dataService.save('Report', report);
-            }
-            return savingPromise;
+        reportService.saveReport = function(report, isEdit) {
+            return genericDaoService.save(reportResourceName, report, isEdit);
         };
-        
+        reportService.getReport = function(reportId) {
+            return genericDaoService.get(reportResourceName, reportId);
+        };
         reportService.deleteReport = function(report) {
-            var reportId = null;
-            if (report && report.objectId) {
-                reportId = report.objectId;
-            } else {
-                reportId = report;
-            }
-            return dataService.delete('Report', reportId);
+            return genericDaoService.delete(report);
         };
 
         reportService.executeReport = function(report) {
@@ -42,14 +35,27 @@ servicesModule.factory('reportService', ['$q', 'ModelUtil', 'dataService', funct
             return deferred.promise;
         };
 
-        reportService.getReport = function(objectId) {
-            return dataService.queryLocal('Report', {where: {objectId: objectId}}).then(function(result) {
-                var report = {};
-                if (result && result.length === 1) {
-                    report = result[0];
+        reportService.getQuery = function(selectedElements, selectedFilter) {
+            var query = null;            
+            if (selectedElements && selectedElements.length > 0) {
+                var select = [];
+                angular.forEach(selectedElements, function(selectElement) {
+                    select.push(selectElement.name);
+                });
+                query = {
+                    select: select
+                };
+                if (selectedFilter) {
+                    var filterClause = {
+                        type: 'function',
+                        value: selectedFilter
+                    };
+                    query.where = {
+                        dateTime: filterClause
+                    };
                 }
-                return report;
-            });
+            }
+            return query;
         };
 
 
@@ -57,7 +63,7 @@ servicesModule.factory('reportService', ['$q', 'ModelUtil', 'dataService', funct
             var resultQuery = {};
             var deferred = $q.defer();
             if (query && query.select) {
-                dataService.queryLocal('Metadatamodel').then(function(mdm) {
+                queryService.getMetadatamodel().then(function(mdm) {
                     var selectElements = [];
                     var orderByElements = [];
                     angular.forEach(query.select, function(selectElementName) {

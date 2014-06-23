@@ -1,21 +1,16 @@
 'use strict';
 var ControllersModule = angular.module('BloGlu.controllers');
 
-ControllersModule.controller('overviewController', ['$scope', '$rootScope', '$location', '$routeParams', '$filter', '$window', '$modal', 'ResourceName', 'ResourceCode', 'overViewService', 'MessageService', 'printService', function Controller($scope, $rootScope, $location, $routeParams, $filter, $window, $modal, ResourceName, ResourceCode, overViewService, MessageService, printService) {
+ControllersModule.controller('overviewController', ['$scope', '$rootScope', '$location', '$routeParams', '$window', '$modal', 'ResourceName', 'ResourceCode', 'overViewService', 'MessageService', 'printService', function Controller($scope, $rootScope, $location, $routeParams, $window, $modal, ResourceName, ResourceCode, overViewService, MessageService, printService) {
 
-        $rootScope.messages = [];
-        $rootScope.pending = 0;
         $scope.data = [];
-
         $scope.eventsTypes = ResourceName;
         $scope.display = [1];
-
         //default display blood glucose
         $scope.resource = {1: true};
-
-
         var currentDate = null;
         $scope.interval = 'week';
+
 
         if ($routeParams && $routeParams.weekDate) {
             currentDate = new Date($routeParams.weekDate);
@@ -36,7 +31,7 @@ ControllersModule.controller('overviewController', ['$scope', '$rootScope', '$lo
             angular.forEach(intStrArray, function(value, key) {
                 intArray.push(parseInt(value));
                 resource[parseInt(value)] = true;
-            });            
+            });
             $scope.resource = resource;
             $scope.display = intArray;
         }
@@ -52,7 +47,7 @@ ControllersModule.controller('overviewController', ['$scope', '$rootScope', '$lo
                 $scope.display = resourceCodes;
                 renderPage();
             }
-        }, true);       
+        }, true);
 
 
         $scope.timeInterval = overViewService.getTimeInterval($scope.interval, currentDate);
@@ -60,29 +55,50 @@ ControllersModule.controller('overviewController', ['$scope', '$rootScope', '$lo
         renderPage();
 
         function renderPage() {
-            $rootScope.pending++;
+            $rootScope.increasePending("processingMessage.loadingData");
             var params = {where: {code: {$in: $scope.display}}};
             overViewService.getTableData($scope.timeInterval, params).then(
                     function resolve(result) {
-                        $rootScope.pending--;
                         $scope.header = result[0];
                         $scope.data = result;
                     },
                     function reject(error) {
-                        $rootScope.pending--;
+                        $rootScope.messages.push(MessageService.errorMessage("errorMessage.loadingError", 2000));
                         $scope.header = [];
                         $scope.data = [];
-                    });
+                    }).finally(function() {
+                $rootScope.decreasePending("processingMessage.loadingData");
+            });
         }
 
+        function goToaddEvent(eventCode, day, period) {
+            $location.path('event/' + ResourceCode[eventCode]).search('day', day.date.toISOString()).search('time', period.begin.toISOString());
+        }
+
+        function changeInterval(currentDate, interval, coef) {
+            var newDate = new Date(currentDate.getTime());
+            switch (interval) {
+                case 'day':
+                    newDate.setDate(newDate.getDate() + (1 * coef));
+                    break;
+                case 'week':
+                    newDate.setDate(newDate.getDate() + (7 * coef));
+                    break;
+                case 'month':
+                    newDate.setMonth(newDate.getMonth() + (1 * coef));
+                    break;
+                case 'year':
+                    newDate.setFullYear(newDate.getFullYear() + (1 * coef));
+                    break;
+            }
+            $location.path('overview').search('weekDate', newDate.toISOString()).search('interval', interval).search('display', overViewService.getDisplayParam($scope.display));
+        }
 
         $scope.printToPDF = function() {
             printService.convertTableToPDF($scope.data, printService.renderCell.bind({
                 interval: $scope.interval
             }));
         };
-
-        
 
         /**
          * Change grouping
@@ -110,7 +126,7 @@ ControllersModule.controller('overviewController', ['$scope', '$rootScope', '$lo
                         }
                     }
                 });
-                modalInstance.result.then(function(eventCode) {                    
+                modalInstance.result.then(function(eventCode) {
                     if (eventCode) {
                         goToaddEvent(eventCode, day, period);
                     }
@@ -120,28 +136,6 @@ ControllersModule.controller('overviewController', ['$scope', '$rootScope', '$lo
             }
         };
 
-        function goToaddEvent(eventCode, day, period) {
-            $location.path('event/' + ResourceCode[eventCode]).search('day', day.date.toISOString()).search('time', period.begin.toISOString());
-        }
-
-        function changeInterval(currentDate, interval, coef) {
-            var newDate = new Date(currentDate.getTime());
-            switch (interval) {
-                case 'day':
-                    newDate.setDate(newDate.getDate() + (1 * coef));
-                    break;
-                case 'week':
-                    newDate.setDate(newDate.getDate() + (7 * coef));
-                    break;
-                case 'month':
-                    newDate.setMonth(newDate.getMonth() + (1 * coef));
-                    break;
-                case 'year':
-                    newDate.setFullYear(newDate.getFullYear() + (1 * coef));
-                    break;
-            }
-            $location.path('overview').search('weekDate', newDate.toISOString()).search('interval', interval).search('display', overViewService.getDisplayParam($scope.display));
-        }
 
         $scope.zoomInInterval = function(date) {
             var newInterval = '';
@@ -171,16 +165,6 @@ ControllersModule.controller('overviewController', ['$scope', '$rootScope', '$lo
             currentDate = new Date();
             changeInterval(currentDate, $scope.interval, 0);
         };
-
-        $window.addEventListener('dataReady', renderPage);
-
-        $scope.$on("$routeChangeStart", function() {
-            //cancel promise
-            MessageService.cancelAll($rootScope.messages);
-            //clear messages
-            $rootScope.messages = [];
-            //clear events
-            $window.removeEventListener('dataReady', renderPage);
-        });
+        $rootScope.$on('dataReady', renderPage);
     }]);
 

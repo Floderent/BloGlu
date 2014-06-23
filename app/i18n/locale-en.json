@@ -7,6 +7,8 @@
     "logIn": "Log in",
     "logOut": "Log out",
     "welcome": "Welcome",
+    "loading": "Loading...",
+    
     "preferences": "Preferences",
     
     "otherEvent": "Other",
@@ -20,10 +22,72 @@
     "tableDataviz" : "Table",
     "chartDataviz" : "Chart",
     
+    "currentYear" : "Current year",
+    "currentMonth" : "Current month",
+    
+    "averageWeight" : "Average weight",
+    "bgInterval" : "Blood glucose interval",
+    "weekDay" : "Week day",
+    "comment" : "Comment",
+    "category" : "Category",
+    "analysisPeriod" : "Analysis period",
+    "bgMinium" : "Maximum blood glucose",
+    "bgMaximum" : "Minimum blood glucose",
+    "bgNb" : "Number of blood glucose",
+    "bgAverage" : "Average blood glucose",
+    "month" : "Month",
+    "year" : "Year",
+    
+    "weight" : "Weight",
+    "bg" : "Blood glucose",
+    "date" : "Date",
+    "event": "Event",
+    
+    "processingMessage":{
+        "connecting" : "Logging in...",
+        "loggingOut" : "Logging out...",
+        "synchronizing" : "Synchronizing...",
+        "loadingCategoriesData" : "Loading categories...",        
+        "loadingData" : "Loading...",
+        "updatingData" : "Updating...",
+        "savingData" : "Saving...",
+        "deletingData": "Deleting...",
+        "importingData" : "Importing...",
+        "executingQuery" : "Executing query..."
+    },
+    
+    "errorMessage":{
+        "wrongCredentials" : "Wrong login and/or password",
+        "cannotLogin" : "Cannot login",
+        "synchronisationError" : "Synchronization error",
+        "loadingError":"Error loading data",
+        "creatingError" : "Error during creation",
+        "updatingError" : "Error updating",
+        "deletingError" : "Error deleting",
+        "errorImporting" : "Error importing",
+        "executingQueryError" : "Error during query execution"
+    },
     
     
+    "successMessage":{        
+        "categoryCreated" : "Category created",
+        "categoryUpdated" : "Category updated",
+        "bloodGlucoseCreated" : "Blood glucose reading created",
+        "bloodGlucoseUpdated" : "Blood glucose reading updated",
+        "periodCreated" : "Period created",
+        "periodUpdated" : "Period updated",
+        "rangeCreated" : "Range created",
+        "rangeUpdated" : "Range updated",
+        "reportCreated" : "Report created",
+        "reportUpdated" : "Report updated",        
+        "dataImported" : "Data imported"
+    },
     
-            
+    "resource":{
+        "category": "category"        
+    },
+
+
     
     "menu": {
         "bloodGlucose": "Blood Glucose",
@@ -168,8 +232,7 @@
     },
     "confirm": {
         "pageTitle": "Confirm deletion",
-        "deletionMessage1": "Would you really delete",
-        "deletionMessage2": "this item",
+        "deletionMessage": "Would you really want to delete",        
         "yes": "Yes",
         "no": "No"
     },

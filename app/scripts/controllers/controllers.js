@@ -161,59 +161,6 @@ ControllersModule.controller('chartController', ['$rootScope', '$scope', '$route
         });
 
 
-
-
-        /*
-         $scope.data = [];
-         $rootScope.pending++;
-         overViewService.getTableData($scope.timeInterval).then(
-         function resolve(result) {
-         $rootScope.pending--;
-         $scope.header = result[0];
-         $scope.data = result;
-         },
-         function reject(error) {
-         $rootScope.pending--;
-         $scope.header = [];
-         $scope.data = [];
-         });
-         
-         
-         
-         
-         $rootScope.pending++;
-         $q.all([
-         //ReadingGlucoseBlood.query({order: "dateTime", include: "unit"}).$promise,
-         overViewService.getTableData($scope.timeInterval),
-         BloodGlucoseTarget.query({include: "unit"}).$promise
-         ]).then(function(results) {
-         //$scope.chartConfig.series[0].data = chartService.getGlucoseReadingData(results[0]);
-         
-         var chartSeries = chartService.getChartDataSeriesFromAggregatedData(results[0]);            
-         $scope.chartConfig.series = chartSeries;
-         
-         
-         if (results[1] && results[1].length > 0) {
-         var target = results[1][0];
-         $scope.chartConfig.yAxis = {
-         plotBands: [{// Light air
-         from: target.lowerLevel * target.unit.coefficient,
-         to: target.upperLevel * target.unit.coefficient,
-         color: 'rgba(68, 170, 213, 0.1)',
-         label: {
-         text: 'Target',
-         style: {
-         color: '#606060'
-         }
-         }
-         }]
-         };
-         }
-         $rootScope.pending--;
-         });
-         */
-
-
         $scope.$on("$routeChangeStart", function() {
             //cancel promise
             MessageService.cancelAll($rootScope.messages);
@@ -311,53 +258,5 @@ ControllersModule.controller('userPreferencesController', ['$rootScope', '$scope
         });
 
 
-
-    }]);
-
-
-
-ControllersModule.controller('bloodGlucoseTargetController', ['$scope', 'BloodGlucoseTarget', 'Unit', 'UserService', function Controller($scope, BloodGlucoseTarget, Unit, UserService) {
-        $scope.target = {};
-        Unit.query().$promise.then(function(results) {
-            $scope.units = results;
-            //=====handle units
-            if ($scope.target.unit) {
-                angular.forEach($scope.units,function(unit) {
-                    if (unit.objectId === $scope.target.unit.objectId) {
-                        $scope.currentUnit = unit;
-                    }
-                });
-            } else {
-                if (UserService.currentUser().preferences && UserService.currentUser().preferences.defaultUnit) {
-                    angular.forEach($scope.units, function(unit) {
-                        if (unit.objectId === UserService.currentUser().preferences.defaultUnit.objectId) {
-                            $scope.currentUnit = unit;
-                        }
-                    });
-                } else {
-                    $scope.currentUnit = $scope.units[0];
-                }
-            }
-            $scope.$watch("currentUnit", function(newValue, oldValue) {
-                if (newValue && oldValue) {
-                    if ($scope.target && $scope.target.upperLevel || $scope.target && $scope.target.lowerLevel) {
-                        if ($scope.target.upperLevel) {
-                            $scope.target.upperLevel = $scope.target.upperLevel * oldValue.coefficient / newValue.coefficient;
-                        }
-                        if ($scope.target.lowerLevel) {
-                            $scope.target.lowerLevel = $scope.target.lowerLevel * oldValue.coefficient / newValue.coefficient;
-                        }
-
-                    } else {
-                        $scope.placeHolder = $scope.placeHolder * oldValue.coefficient / newValue.coefficient;
-                    }
-                }
-            });
-        });
-
-        $scope.update = function(target) {
-            target.unit = {__type: "Pointer", className: "Unit", objectId: $scope.currentUnit.objectId};
-            BloodGlucoseTarget.save({}, target);
-        };
 
     }]);

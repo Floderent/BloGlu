@@ -127,6 +127,10 @@ body {
     //position: inherit;
     //display: inline-block;
 }
+.reading{
+    font-size: 20px;
+    font-weight: bold;
+}
 
 
 /* Custom dialog/modal headers */

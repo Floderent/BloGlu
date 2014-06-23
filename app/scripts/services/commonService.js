@@ -17,78 +17,27 @@ servicesModule.factory('ServerService', [function() {
         };
     }]);
 
-servicesModule.factory('ResourceCode', [function() {
-        return {
-            other: 0,
-            bloodGlucose: 1,
-            medication: 2,
-            weight: 3,
-            bloodPressure: 4,
-            a1c: 5,
-            exercise: 6,
-            0: 'other',
-            1: 'bloodGlucose',
-            2: 'medication',
-            3: 'weight',
-            4: 'bloodPressure',
-            5: 'a1c',
-            6: 'exercise'
-        };
-    }]);
-
-servicesModule.factory('ResourceName', ['$translate', function($translate) {
-        return {
-            0: $translate.instant('otherEvent'),
-            1: $translate.instant('bloodGlucoseEvent'),
-            2: $translate.instant('medicationEvent'),
-            3: $translate.instant('weightEvent'),
-            4: $translate.instant('bloodPressureEvent'),
-            5: $translate.instant('a1cEvent'),
-            6: $translate.instant('exerciseEvent')
-        };
-    }]);
-
-servicesModule.factory('DataVisualization', ['$translate', function($translate) {
-        return {
-            table: $translate.instant('tableDataviz'),
-            chart: $translate.instant('chartDataviz')
-        };
-    }]);
-
-
-
-servicesModule.factory('Database', [function() {
-        return {
-            schema: [
-                'Event',
-                'Period',
-                'Report',
-                'Dashboard',
-                'Target',
-                'Metadatamodel',
-                'Category',
-                'Range',
-                'Unit',
-                'Import'
-            ]
-        };
-    }]);
-
-
-
-servicesModule.factory('MyInterceptor', ['$q', '$location', '$injector', function($q, $location, $injector) {
+servicesModule.factory('MyInterceptor', ['$q', '$rootScope', '$location', 'AUTH_EVENTS', function($q, $rootScope, $location, AUTH_EVENTS) {
         return {
             responseError: function(rejection) {
-                if (rejection.status === 401) {
-                    //UserService.logOut();
-                    $location.path("/").search('returnTo', $location.path());
+                switch (rejection.status) {
+                    case 401:
+                        $rootScope.brodcast(AUTH_EVENTS.notAuthenticated, rejection);
+                        break;
+                    case 403:
+                        $rootScope.brodcast(AUTH_EVENTS.notAuthorized, rejection);
+                        break;
+                    case 419:
+                    case 440:
+                        $rootScope.$broadcast(AUTH_EVENTS.sessionTimeout, rejection);
+                        break;
                 }
                 return $q.reject(rejection);
             }
         };
     }]);
 
-servicesModule.factory('MessageService', ['$timeout', function($timeout) {
+servicesModule.factory('MessageService', ['$timeout', 'localizationService', function($timeout, localizationService) {
         var messageService = {};
         messageService.message = function(type, text, delay) {
             var message = {
@@ -126,5 +75,15 @@ servicesModule.factory('MessageService', ['$timeout', function($timeout) {
                 });
             }
         };
+
+        messageService.applyTemplate = function(text, values) {
+            debugger;
+            var translatedText = localizationService.get(text);
+            if (values) {
+                translatedText = localizationService.applyLocalizedTemplate(translatedText, values);
+            }
+            return translatedText;
+        };
+
         return messageService;
     }]);

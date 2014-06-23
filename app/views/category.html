@@ -5,7 +5,7 @@
     <div class="panel-body ">
         
         <div class="btn-group" ng-repeat="(key, value) in eventsTypes track by $index">            
-            <label class="btn btn-success" ng-model="code" ng-click="selectType(key,value)" btn-radio="{{key}}">{{value}}</label>
+            <label class="btn btn-success" ng-model="code" ng-click="selectType(key,value)" btn-radio="{{key}}">{{value | translate}}</label>
         </div>
 
     </div>
@@ -14,7 +14,7 @@
         <div class="input-group">
             <div class="table-responsive">
                 <table class="table table-striped">
-                    <th>{{ 'category.new' | translate }} {{eventType}} {{ 'category.category' | translate }}</th>
+                    <th>{{ 'category.new' | translate }} {{eventType | translate}} {{ 'category.category' | translate }}</th>
                     <tr>
                         <td>
                             <input type="text" required class="input-sm" data-ng-model="newCategory.name">
@@ -28,7 +28,7 @@
         </div>
         <div class="table-responsive">
             <table class="table table-striped">
-                <th>{{eventType}} {{ 'category.category' | translate }}</th>
+                <th>{{eventType | translate}} {{ 'category.category' | translate }}</th>
                 <th></th>
                 <tr ng-repeat="category in categories">
                     <td>

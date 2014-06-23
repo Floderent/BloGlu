@@ -11,8 +11,9 @@
         </div>
         <select class="input-medium form-inline" data-ng-model="selectedQueryElement" data-ng-options="queryElement.title group by queryElement.group for queryElement in queryElements"></select>
         <button class="btn btn-default" ng-click="addQueryElement(selectedQueryElement)">{{ 'report.addElement' | translate }}</button>
+        
         <!-- title as value.title for (key, value) in filters -->
-        <select class="input-medium form-inline" data-ng-model="selectedFilter" data-ng-options="{key: value} as value.title for (key, value) in filters"></select>
+        <select class="input-medium form-inline" data-ng-model="selectedFilter" data-ng-options="key as value.title for (key, value) in filters"></select>
         <div class="panel panel-default">
             <div class="panel-body">
                 <span data-ng-repeat="selectedElement in selectedQueryElements">
@@ -23,11 +24,11 @@
         </div>
 
         <div class="panel panel-default">
-            <div class="panel-body">
-                <span>
-                    {{selectedFilter}}
+            <div class="panel-body">                
+                <span ng-if="selectedFilter">
+                    {{filters[selectedFilter].title}}
                     <button class="btn-mini glyphicon glyphicon-remove" ng-click="removeFilter()"></button>
-                </span>
+                </span>                
             </div>
         </div>
         <p>

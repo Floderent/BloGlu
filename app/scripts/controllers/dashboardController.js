@@ -1,10 +1,8 @@
 'use strict';
 var ControllersModule = angular.module('BloGlu.controllers');
 
-ControllersModule.controller('dashboardController', ['$scope', '$rootScope', '$window', 'dataService', 'reportService', 'MessageService', function Controller($scope, $rootScope, $window, dataService, reportService, MessageService) {
-        $rootScope.messages = [];
-        $rootScope.pending = 0;
-
+ControllersModule.controller('dashboardController', ['$scope', '$rootScope', 'reportService', 'MessageService', function Controller($scope, $rootScope, reportService, MessageService) {
+        
         var rowNumber = 2;
         var columnNumber = 4;
 
@@ -16,7 +14,6 @@ ControllersModule.controller('dashboardController', ['$scope', '$rootScope', '$w
             getDashboard().then(executeDashboard);
         }
 
-
         function initTab() {
             for (var row = 0; row < rowNumber; row++) {
                 $scope.reportTab[row] = [];
@@ -27,20 +24,23 @@ ControllersModule.controller('dashboardController', ['$scope', '$rootScope', '$w
         }
 
         function getDashboard() {
-            return dataService.queryLocal('Dashboard').then(function(dashboards) {
+            $rootScope.increasePending("processingMessage.loadingData");
+            return reportService.getDashboards().then(function(dashboards) {
                 var dashboard = null;                
                 if (dashboards && dashboards.length > 0) {
                     dashboard = dashboards[0];
                 }
                 return dashboard;
+            }).finally(function(){
+                $rootScope.decreasePending("processingMessage.loadingData");
             });
         }
 
         function executeDashboard(dashboard) {
             if (dashboard && dashboard.reports) {                
                 angular.forEach(dashboard.reports, function(report) {                    
-                    dataService.queryLocal('Report',{where: {objectId:report.report}}).then(function(completeReports) {
-                        reportService.executeReport(completeReports[0]).then(function(reportQueryResult) {
+                    reportService.getReport(report.report).then(function(completeReport) {                        
+                        reportService.executeReport(completeReport).then(function(reportQueryResult) {
                             $scope.reportTab[report.row][report.column] = reportQueryResult;
                         }, function(error) {
                         });
@@ -48,16 +48,7 @@ ControllersModule.controller('dashboardController', ['$scope', '$rootScope', '$w
                 });
             }
         }
-
-        $window.addEventListener('dataReady', renderPage);
-
-
-        $scope.$on("$routeChangeStart", function() {
-            //cancel promise
-            MessageService.cancelAll($rootScope.messages);
-            //clear messages
-            $rootScope.messages = [];
-            //clear events
-            $window.removeEventListener('dataReady',renderPage);
-        });
+        
+        $rootScope.$on('dataReady', renderPage);        
+        
     }]);
