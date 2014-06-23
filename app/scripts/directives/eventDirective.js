@@ -1,36 +1,40 @@
 var DirectivesModule = angular.module("BloGlu.directives");
 
 
-DirectivesModule.directive('blogluEvent', ['$compile', '$injector', '$q', '$location', function($compile, $injector, $q, $location, ResourceCode) {
-        var linkFunction = function(scope, element, attrs) {
-            scope.$watch('event', function(newValue, oldValue) {
-
-                //view reading by id
-                var viewEvent = function(resource, objectId) {
-                    var path = 'event/' + resource + "/" + objectId;
-                    $location.path(path);
-                };
-
-                //if (newValue && newValue !== oldValue) 
-                {
-                    var event = angular.fromJson(newValue);
-                   
-                    var resourceCode = $injector.get('ResourceCode');                   
-
-                    
-                    var template = getEventTemplate(event, resourceCode);
-                    var dom = angular.element('<div ng-dblclick="viewEvent(resource, objectId)" class="panel panel-default">' + template + '</div>');
-                    
-                    getScope(event, resourceCode).then(function(eventScope){
-                        scope = angular.extend(scope, eventScope);
-                        scope.viewEvent = viewEvent;
-                        var compiled = $compile(dom);
-                        angular.element(element).append(dom);
-                        compiled(scope);
-                    });
+DirectivesModule.directive('blogluEvent', ['$compile', '$injector', '$q', '$location', function($compile, $injector, $q, $location) {
+        var linkFunction = function(scope, element, attrs) {                
+            var event = scope.blogluEvent;            
+            renderEvent(event, scope, element);
+           
+            scope.$watch('blogluEvent', function(newValue, oldValue){                 
+                if(newValue !== oldValue){
+                    element.html('');
+                    renderEvent(newValue, scope, element);
                 }
-            });
+            },true);           
         };
+
+        function renderEvent(event, scope, element) {
+            
+            var resourceCode = $injector.get('ResourceCode');
+
+            //view reading by id
+            var viewEvent = function(resource, objectId) {
+                var path = 'event/' + resource + "/" + objectId;
+                $location.path(path);
+            };
+
+            var template = getEventTemplate(event, resourceCode);
+            var dom = angular.element('<div ng-dblclick="viewEvent(resource, objectId)" class="panel panel-default">' + template + '</div>');
+
+            getScope(event, resourceCode).then(function(eventScope) {
+                scope = angular.extend(scope, eventScope);
+                scope.viewEvent = viewEvent;
+                var compiled = $compile(dom);
+                angular.element(element).append(dom);
+                compiled(scope);
+            });
+        }
 
 
 
@@ -38,7 +42,7 @@ DirectivesModule.directive('blogluEvent', ['$compile', '$injector', '$q', '$loca
             var template = "";
             switch (event.code) {
                 case resourceCode['bloodGlucose']:
-                    template = '<div style="border-left:5px solid;border-color:{{color}};" class="panel-body"><span class="glyphicon glyphicon-tint"></span>{{dateTime | date:"HH:mm"}} <span>{{reading}}</span class="reading"> {{unit.name}}</div>';
+                    template = '<div style="border-left:5px solid;border-color:{{color}};" class="panel-body"><span class="glyphicon glyphicon-tint"></span>{{dateTime | date:"HH:mm"}} <span class="reading">{{reading}}</span class="reading"> {{unit.name}}</div>';
                     break;
                 case resourceCode['medication']:
                     template = '<div class="panel-body"><span class="glyphicon glyphicon-briefcase"></span>{{dateTime | date:"HH:mm"}} <span class="reading">{{reading}}</span> {{unit.name}}</div>';
@@ -79,8 +83,8 @@ DirectivesModule.directive('blogluEvent', ['$compile', '$injector', '$q', '$loca
                 }
                 scope.reading = reading;
                 scope.unit = unit;
-                scope.resource = resourceCode[event.code];                
-                scope.objectId = event.objectId;                
+                scope.resource = resourceCode[event.code];
+                scope.objectId = event.objectId;
                 scope.dateTime = event.dateTime;
 
                 if (range) {
@@ -89,13 +93,13 @@ DirectivesModule.directive('blogluEvent', ['$compile', '$injector', '$q', '$loca
                 return scope;
             });
         }
-        
-        function getDefaultScope(event){
+
+        function getDefaultScope(event) {
             var deferred = $q.defer();
             deferred.resolve(event);
             return deferred.promise;
         }
-        
+
 
 
         function getEventRange(event, ranges) {
@@ -117,7 +121,7 @@ DirectivesModule.directive('blogluEvent', ['$compile', '$injector', '$q', '$loca
             restrict: 'E', // only activate on element
             replace: true,
             scope: {
-                event: '@blogluEvent'
+                blogluEvent: '='
             },
             link: linkFunction
         };

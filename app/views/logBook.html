@@ -46,12 +46,11 @@
                         </div>                            
                     </div>
                     <div ng-if="($index != 0 && interval === 'week') || (interval === 'day')">
-                        <div ng-repeat="bloodGlucoseReading in bloodGlucoseReadings track by $index">
-                            
+                        <div ng-repeat="bloodGlucoseReading in bloodGlucoseReadings track by $index">                            
                             <div>
-                                <bloglu-event bloglu-event="{{bloodGlucoseReading}}"></bloglu-event>
+                                <bloglu-event bloglu-event="bloodGlucoseReading"></bloglu-event>
+                                <!--{{bloodGlucoseReading.code}} {{bloodGlucoseReading.reading}}-->
                             </div>
-
                         </div>    
                         <!-- handle case of empty section -->
                         <div ng-if="bloodGlucoseReadings.length === 0" class="text-center">

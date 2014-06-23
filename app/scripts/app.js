@@ -29,7 +29,7 @@ mainModule.config(['$routeProvider',
         $routeProvider.when('/login', {controller: 'loginController', templateUrl: 'views/login.html'});
         $routeProvider.when('/event/:eventType/:objectId', {controller: 'eventController', templateUrl: 'views/event.html'});
         $routeProvider.when('/event/:eventType', {controller: 'eventController', templateUrl: 'views/event.html'});
-        $routeProvider.when('/overview', {controller: 'overviewController', templateUrl: 'views/overView.html'});
+        $routeProvider.when('/logBook', {controller: 'logBookController', templateUrl: 'views/logBook.html'});
         $routeProvider.when('/period', {controller: 'periodController', templateUrl: 'views/period.html'});
         $routeProvider.when('/category', {controller: 'categoryController', templateUrl: 'views/category.html'});
         $routeProvider.when('/range', {controller: 'rangeController', templateUrl: 'views/range.html'});

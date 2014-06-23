@@ -1,7 +1,7 @@
 'use strict';
 var ControllersModule = angular.module('BloGlu.controllers');
 
-ControllersModule.controller('reportController', ['$scope', '$rootScope', '$q', '$routeParams', '$modal', '$window', 'reportService', 'queryService', 'MessageService', 'DataVisualization', function Controller($scope, $rootScope, $q, $routeParams, $modal, $window, reportService, queryService, MessageService, DataVisualization) {
+ControllersModule.controller('reportController', ['$scope', '$rootScope', '$q', '$routeParams', '$modal', '$window', 'reportService', 'queryService', 'MessageService', 'DataVisualization', function Controller($scope, $rootScope, $q, $routeParams, $modal, $window, reportService, queryService, MessageService) {
 
         $scope.isEdit = $routeParams && $routeParams.objectId;
         $scope.report = {};
@@ -13,7 +13,7 @@ ControllersModule.controller('reportController', ['$scope', '$rootScope', '$q', 
         $scope.filters = [];
         //selected filter
         $scope.selectedFilter = null;
-        $scope.datavizTypes = DataVisualization;
+        $scope.datavizTypes = reportService.getDatavizTypes();
         $scope.currentDataviz = null;
 
         renderPage();
@@ -87,13 +87,20 @@ ControllersModule.controller('reportController', ['$scope', '$rootScope', '$q', 
                 });
             }
         }, true);
+        
+        $scope.$watch('currentDataviz', function(newValue, oldValue){
+            if(newValue !== oldValue){
+                $scope.executeQuery();
+            }
+        });
 
 
         $scope.executeQuery = function() {
-            $rootScope.increasePending("processingMessage.executingQuery");
+            $rootScope.increasePending("processingMessage.executingQuery");            
             $scope.report.query = reportService.getQuery($scope.selectedQueryElements, $scope.selectedFilter);
             if ($scope.report.query) {
                 reportService.executeReportQuery($scope.report.query).then(function(queryResult) {
+                    queryResult.type = $scope.currentDataviz;                    
                     $scope.datavizConfig = queryResult;
                 }, function(error){
                     $rootScope.messages.push(MessageService.errorMessage("errorMessage.executingQueryError", 2000));

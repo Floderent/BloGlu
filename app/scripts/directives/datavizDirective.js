@@ -7,7 +7,7 @@ DirectivesModule.directive('dataviz', function($compile) {
             if (newValue) {
                 var config = angular.fromJson(newValue);
                 scope.datavizConfig = config;
-                var dataviz = null;
+                var dataviz = null;                
                 switch (config.type) {
                     case 'table':
                         dataviz = $compile('<table-dataviz config="config"></table-dataviz>')(scope);
@@ -113,14 +113,14 @@ DirectivesModule.directive('tableDataviz', ['$compile', 'dataService', function(
                                 } else {
                                     if (columnOrder.direction.toUpperCase() === 'DESC') {
                                         headerDirection = 'glyphicon glyphicon-chevron-down';
-                                    } 
+                                    }
                                 }
                             }
                         }
                     });
                 }
                 return headerDirection;
-            }            
+            }
             dataService.orderBy(scope.config.data, scope.columnOrder);
 
             angular.forEach(scope.config.data, function(row) {
@@ -148,7 +148,7 @@ DirectivesModule.directive('tableDataviz', ['$compile', 'dataService', function(
                         if (orderClause.direction === 'ASC') {
                             orderClause.direction = 'DESC';
                         } else {
-                            if (orderClause.direction === 'DESC') {                                
+                            if (orderClause.direction === 'DESC') {
                                 that.scope.columnOrder.splice(index, 1);
                             } else {
                                 orderClause.direction = 'ASC';
@@ -184,23 +184,29 @@ DirectivesModule.directive('tableDataviz', ['$compile', 'dataService', function(
 
 
 DirectivesModule.directive('chartDataviz', function($compile) {
-    var linkFunction = function(scope, element, attrs) {
+    var linkFunction = function(scope, element, attrs) {        
+        renderChart(scope.config,scope, element);        
         scope.$watch('config', function(newValue, oldValue) {
             if (newValue && newValue !== oldValue) {
                 var config = angular.fromJson(newValue);
-                computeChartData(scope, config);
-                if (angular.element(element).find('highchart').length) {
-                    $compile(element)(scope);
-                } else {
-                    element.empty();
-                    var chart = $compile('<highchart id="chart1" config="chartConfig" class="span10"></highchart>')(scope);
-                }
-                angular.element(element).append(chart);
+                renderChart(config,scope, element);
             }
         });
     };
 
-    function computeChartData(scope, config) {
+    function renderChart(configuration,scope, element) {
+        var config = angular.fromJson(configuration);
+        computeChartData(scope, config);
+        if (angular.element(element).find('highchart').length) {
+            $compile(element)(scope);
+        } else {
+            element.empty();
+            var chart = $compile('<highchart id="chart1" config="chartConfig" class="span10"></highchart>')(scope);
+        }
+        angular.element(element).append(chart);
+    }
+
+    function computeChartData(scope, config) {        
         scope.chartConfig = {
             options: {
                 chart: {
@@ -231,9 +237,10 @@ DirectivesModule.directive('chartDataviz', function($compile) {
         for (var lineIndex = 1; lineIndex < config.data.length; lineIndex++) {
             var textValue = '';
             for (var columnIndex = 0; columnIndex < config.headers.length; columnIndex++) {
-                var propertyName = config.headers[columnIndex].title;
+                var propertyTitle = config.headers[columnIndex].title;
+                var propertyName = config.headers[columnIndex].name;
                 if (config.headers[columnIndex].aggregate) {
-                    var serie = getSerieByName(scope.chartConfig.series, propertyName);
+                    var serie = getSerieByTitle(scope.chartConfig.series, propertyTitle);
                     serie.data.push(parseInt(config.data[lineIndex][propertyName]));
                 } else {
                     textValue += " " + config.data[lineIndex][propertyName];
@@ -243,7 +250,7 @@ DirectivesModule.directive('chartDataviz', function($compile) {
         }
     }
 
-    function getSerieByName(series, name) {
+    function getSerieByTitle(series, name) {
         var foundSerie = null;
         angular.forEach(series, function(serie) {
             if (serie.name === name) {

@@ -39,7 +39,8 @@
         <button class="btn btn-primary btn-lg active pull-right" ng-show="isEdit" ng-click="delete()">{{ 'report.delete' | translate }}</button>
         <button class="btn btn-primary btn-lg active pull-right" ng-click="update()">{{ 'report.save' | translate }}</button>
     </div>
-    <div class="table-responsive">
-        <table-dataviz config="datavizConfig" column-order="report.sort"></table-dataviz>
+    <div class="table-responsive">        
+        <!--<table-dataviz config="datavizConfig" column-order="report.sort"></table-dataviz>-->
+        <dataviz config="datavizConfig" column-order="report.sort"></dataviz>
     </div>
 </div>

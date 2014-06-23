@@ -3,7 +3,7 @@
 var servicesModule = angular.module('BloGlu.services');
 
 
-servicesModule.factory('reportService', ['$q', 'ModelUtil', 'dataService', 'queryService', 'genericDaoService', function($q, ModelUtil, dataService, queryService, genericDaoService) {
+servicesModule.factory('reportService', ['$q', 'ModelUtil', 'dataService', 'queryService', 'genericDaoService','DataVisualization','localizationService', function($q, ModelUtil, dataService, queryService, genericDaoService, DataVisualization, localizationService) {
 
         var reportService = {};
 
@@ -24,6 +24,15 @@ servicesModule.factory('reportService', ['$q', 'ModelUtil', 'dataService', 'quer
         reportService.deleteReport = function(report) {
             return genericDaoService.delete(report);
         };
+        
+        reportService.getDatavizTypes = function(){
+            var translatedDataviz = {};
+            angular.forEach(DataVisualization, function(value, key){
+                translatedDataviz[key] = localizationService.get(value);
+            });
+            return translatedDataviz;
+        };
+        
 
         reportService.executeReport = function(report) {
             var deferred = $q.defer();

@@ -1,7 +1,7 @@
 'use strict';
 var ControllersModule = angular.module('BloGlu.controllers');
 
-ControllersModule.controller('overviewController', ['$scope', '$rootScope', '$location', '$routeParams', '$window', '$modal', 'ResourceName', 'ResourceCode', 'overViewService', 'MessageService', 'printService', function Controller($scope, $rootScope, $location, $routeParams, $window, $modal, ResourceName, ResourceCode, overViewService, MessageService, printService) {
+ControllersModule.controller('logBookController', ['$scope', '$rootScope', '$location', '$routeParams', '$modal', 'ResourceName', 'ResourceCode', 'logBookService', 'MessageService', 'printService', function Controller($scope, $rootScope, $location, $routeParams, $modal, ResourceName, ResourceCode, logBookService, MessageService, printService) {
 
         $scope.data = [];
         $scope.eventsTypes = ResourceName;
@@ -50,14 +50,14 @@ ControllersModule.controller('overviewController', ['$scope', '$rootScope', '$lo
         }, true);
 
 
-        $scope.timeInterval = overViewService.getTimeInterval($scope.interval, currentDate);
+        $scope.timeInterval = logBookService.getTimeInterval($scope.interval, currentDate);
 
         renderPage();
 
         function renderPage() {
             $rootScope.increasePending("processingMessage.loadingData");
             var params = {where: {code: {$in: $scope.display}}};
-            overViewService.getTableData($scope.timeInterval, params).then(
+            logBookService.getTableData($scope.timeInterval, params).then(
                     function resolve(result) {
                         $scope.header = result[0];
                         $scope.data = result;
@@ -91,7 +91,7 @@ ControllersModule.controller('overviewController', ['$scope', '$rootScope', '$lo
                     newDate.setFullYear(newDate.getFullYear() + (1 * coef));
                     break;
             }
-            $location.path('overview').search('weekDate', newDate.toISOString()).search('interval', interval).search('display', overViewService.getDisplayParam($scope.display));
+            $location.path('logBook').search('weekDate', newDate.toISOString()).search('interval', interval).search('display', logBookService.getDisplayParam($scope.display));
         }
 
         $scope.printToPDF = function() {
@@ -115,7 +115,7 @@ ControllersModule.controller('overviewController', ['$scope', '$rootScope', '$lo
             } else {
                 //display modal window to choose the type of event
                 var $modalScope = $rootScope.$new(true);
-                $modalScope.eventsTypes = overViewService.getEventTypes($scope.display);
+                $modalScope.eventsTypes = logBookService.getEventTypes($scope.display);
                 var modalInstance = $modal.open({
                     templateUrl: "views/modal/chooseEvent.html",
                     controller: "chooseEventController",
@@ -150,7 +150,7 @@ ControllersModule.controller('overviewController', ['$scope', '$rootScope', '$lo
                     newInterval = $scope.interval;
                     break;
             }
-            $location.path('overview').search('weekDate', date.toISOString()).search('interval', newInterval);
+            $location.path('logBook').search('weekDate', date.toISOString()).search('interval', newInterval);
         };
 
         $scope.advance = function() {
