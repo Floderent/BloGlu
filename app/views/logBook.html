@@ -46,7 +46,7 @@
                         </div>                            
                     </div>
                     <div ng-if="($index != 0 && interval === 'week') || (interval === 'day')">
-                        <div ng-repeat="bloodGlucoseReading in bloodGlucoseReadings track by $index">                            
+                        <div ng-repeat="bloodGlucoseReading in bloodGlucoseReadings | orderBy:'dateTime'">                            
                             <div>
                                 <bloglu-event bloglu-event="bloodGlucoseReading"></bloglu-event>
                                 <!--{{bloodGlucoseReading.code}} {{bloodGlucoseReading.reading}}-->
@@ -54,11 +54,7 @@
                         </div>    
                         <!-- handle case of empty section -->
                         <div ng-if="bloodGlucoseReadings.length === 0" class="text-center">
-
-                            <!--<button type="button" class="btn btn-primary" ng-click="addBloodGlucoseReading(line[0], header[$index])">Add new reading</button>-->
-
                             <a href="" ng-click="addEvent(line[0], header[$index])" class="glyphicon glyphicon-plus-sign"/>
-
                         </div>
                     </div>
 
