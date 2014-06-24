@@ -23,7 +23,8 @@ servicesModule.service('genericDaoService', ['dataService', function(dataService
         genericDaoService.save = function(resourceName, data, isEdit){
             var savingPromise = null;
             if (isEdit) {
-                savingPromise = dataService.update(resourceName, data.objectId, data);
+                var objectId = data.objectId;
+                savingPromise = dataService.update(resourceName, objectId, data);
             } else {
                 savingPromise = dataService.save(resourceName, data);
             }

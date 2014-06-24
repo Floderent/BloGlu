@@ -21,7 +21,7 @@ ControllersModule.controller('loginController', ['$scope', '$rootScope', '$locat
                                     $rootScope.messages.push(MessageService.errorMessage("errorMessage.cannotLogin", 2000));
                                     break;
                             }
-                        }).finally(function(){
+                        })['finally'](function(){
                             $rootScope.decreasePending("processingMessage.connecting");
                         });
             }

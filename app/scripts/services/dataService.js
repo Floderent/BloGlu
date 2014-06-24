@@ -124,6 +124,8 @@ servicesModule.factory('dataService', ['$q', '$filter', '$injector', '$locale', 
                         }
                     });
                 }
+                //remove userId field
+                delete data.userId;
                 //save to indexedDB add to the cloud
                 return $q.all([
                     indexeddbService.addRecord(collection, updatedObject),

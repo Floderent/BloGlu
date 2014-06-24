@@ -14,7 +14,7 @@
                         <dataviz config="reportConfig"></dataviz>
                     </div>                                        
                     <div ng-if="!reportConfig.data || !reportConfig.headers">
-                        <button type="button" class="btn btn-primary" ng-click="addBloodGlucoseReading(line[0], header[$index])">{{ 'dashboard.addnewReport' | translate }}</button>
+                        <button type="button" class="btn btn-primary" ng-click="chooseReport(reportTab.indexOf(line), $index)">{{ 'dashboard.addnewReport' | translate }}</button>
                     </div>            
 
                 </td>

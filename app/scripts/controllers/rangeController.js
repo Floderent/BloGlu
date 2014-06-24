@@ -25,7 +25,7 @@ ControllersModule.controller('rangeController', ['$scope', '$rootScope', '$q', '
                 }, true);                
             }, function(error) {
                 $rootScope.messages.push(MessageService.errorMessage("errorMessage.loadingError", 2000));
-            }).finally(function(){
+            })['finally'](function(){
                 $rootScope.decreasePending("processingMessage.loading");
             });
 
@@ -115,7 +115,7 @@ ControllersModule.controller('rangeController', ['$scope', '$rootScope', '$q', '
                         $rootScope.messages.push(MessageService.successMessage("successMessage.rangeCreated", 2000));                        
                     }, function(error) {                        
                         $rootScope.messages.push(MessageService.errorMessage("errorMessage.creatingError", 2000));
-                    }).finally(function(){
+                    })['finally'](function(){
                         $rootScope.decreasePending("processingMessage.savingData");
                     });
                 }
@@ -141,7 +141,7 @@ ControllersModule.controller('rangeController', ['$scope', '$rootScope', '$q', '
                     }, function(error) {
                         $scope.cancelEditRange(range);
                         $rootScope.messages.push(MessageService.errorMessage("errorMessage.updatingError", 2000));
-                    }).finally(function(){
+                    })['finally'](function(){
                         $rootScope.increasePending("processingMessage.updatingData");
                     });
                 }
@@ -176,7 +176,7 @@ ControllersModule.controller('rangeController', ['$scope', '$rootScope', '$q', '
                             processRanges($scope.ranges);                            
                         }, function(error) {
                             $rootScope.messages.push(MessageService.errorMessage('errorMessage.deletingError', 2000));
-                        }).finally(function(){
+                        })['finally'](function(){
                             $rootScope.decreasePending("processingMessage.deletingData");
                         });
                     }

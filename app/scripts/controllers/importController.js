@@ -23,7 +23,7 @@ ControllersModule.controller('importController', ['$rootScope', '$scope', 'impor
                 });
             }, function(error) {
                 MessageService.errorMessage('errorMessage.errorImporting',2000);
-            }).finally(function(){
+            })['finally'](function(){
                 $rootScope.decreasePending('processingMessage.importingData');
             });
         };

@@ -66,7 +66,7 @@ ControllersModule.controller('logBookController', ['$scope', '$rootScope', '$loc
                         $rootScope.messages.push(MessageService.errorMessage("errorMessage.loadingError", 2000));
                         $scope.header = [];
                         $scope.data = [];
-                    }).finally(function() {
+                    })['finally'](function() {
                 $rootScope.decreasePending("processingMessage.loadingData");
             });
         }

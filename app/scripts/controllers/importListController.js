@@ -11,7 +11,7 @@ ControllersModule.controller('importListController', ['$scope', '$rootScope', '$
                 $scope.imports = imports;                
             }, function(error) {
                 $rootScope.messages.push(MessageService.errorMessage('errorMessage.loadingError', 2000));
-            }).finally(function(){
+            })['finally'](function(){
                 $rootScope.decreasePending('processingMessage.loadingData');
             });
         }
@@ -45,7 +45,7 @@ ControllersModule.controller('importListController', ['$scope', '$rootScope', '$
                             }                            
                         }, function(error) {
                             $rootScope.messages.push(MessageService.errorMessage('errorMessage.deletingError', 2000));
-                        }).finally(function(){
+                        })['finally'](function(){
                             $rootScope.decreasePending("processingMessage.deletingData");
                         });
                     }

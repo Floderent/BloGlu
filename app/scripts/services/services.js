@@ -79,27 +79,35 @@ servicesModule.factory('chartService', ['$q', 'overViewService', 'dataService', 
 
 
 
-servicesModule.factory('statsService', ['$filter', function($filter) {
+servicesModule.factory('statsService', ['$filter', 'ResourceName', function($filter, ResourceName) {
         var statsService = {};
 
         statsService.getStatsFromBloodGlucoseReadingList = function(bloodGlucoseReadings) {
-            var stats = {
-                maximum: null,
-                minimum: null,
-                nb: bloodGlucoseReadings.length,
-                _total: 0
-            };
-            angular.forEach(bloodGlucoseReadings, function(bloodGlucoseReading) {
+            var stats = {};
+            angular.forEach(bloodGlucoseReadings, function(bloodGlucoseReading) {                
+                if (!stats[bloodGlucoseReading.code]) {
+                    stats[bloodGlucoseReading.code] = {
+                        maximum : null,
+                        minimum: null,
+                        nb: 0,
+                        _total: 0
+                    };
+                }
                 var reading = bloodGlucoseReading.reading * bloodGlucoseReading.unit.coefficient;
-                if (stats.maximum === null || reading > stats.maximum) {
-                    stats.maximum = reading;
+                if (stats[bloodGlucoseReading.code].maximum === null || reading > stats[bloodGlucoseReading.code].maximum) {
+                    stats[bloodGlucoseReading.code].maximum = reading;
                 }
-                if (stats.minimum === null || reading < stats.minimum) {
-                    stats.minimum = reading;
+                if (stats[bloodGlucoseReading.code].minimum === null || reading < stats[bloodGlucoseReading.code].minimum) {
+                    stats[bloodGlucoseReading.code].minimum = reading;
                 }
-                stats._total += reading;
+                stats[bloodGlucoseReading.code].nb++;
+                stats[bloodGlucoseReading.code]._total += reading;
+
             });
-            stats.average = $filter('number')(stats._total / stats.nb, 0);
+            angular.forEach(stats, function(value, key) {                
+                value.title = ResourceName[parseInt(key)];
+                value.average = $filter('number')(value._total / value.nb, 0);
+            });                
             return stats;
         };
 

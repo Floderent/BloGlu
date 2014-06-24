@@ -30,7 +30,7 @@ ControllersModule.controller('categoryController', ['$rootScope', '$scope', '$mo
                 $scope.categories = result;
             }, function(error) {
                 $rootScope.messages.push(MessageService.errorMessage("errorMessage.loadingError", 2000));
-            }).finally(function() {
+            })['finally'](function() {
                 $rootScope.decreasePending("processingMessage.loadingCategoriesData");
             });
         }
@@ -46,7 +46,7 @@ ControllersModule.controller('categoryController', ['$rootScope', '$scope', '$mo
                     $rootScope.messages.push(MessageService.successMessage("successMessage.categoryCreated", 2000));
                 }, function(error) {
                     $rootScope.messages.push(MessageService.errorMessage("errorMessage.creatingError", 2000));
-                }).finally(function() {
+                })['finally'](function() {
                     $rootScope.decreasePending();
                 });
             }
@@ -62,7 +62,7 @@ ControllersModule.controller('categoryController', ['$rootScope', '$scope', '$mo
                 }, function(error) {
                     $scope.cancelEditPeriod(category);
                     $rootScope.messages.push(MessageService.errorMessage("errorMessage.updatingError", 2000));
-                }).finally(function() {
+                })['finally'](function() {
                     $rootScope.decreasePending("processingMessage.updatingData");
                 });
             }
@@ -98,7 +98,7 @@ ControllersModule.controller('categoryController', ['$rootScope', '$scope', '$mo
                             }
                         }, function(error) {
                             $rootScope.messages.push(MessageService.errorMessage('errorMessage.deletingError', 2000));
-                        }).finally(function() {
+                        })['finally'](function() {
                             $rootScope.decreasePending("processingMessage.deletingData");
                         });
                     }

@@ -30,7 +30,7 @@ ControllersModule.controller('reportController', ['$scope', '$rootScope', '$q', 
                 setQuery();                
             }, function reject() {
                 $rootScope.messages.push(MessageService.errorMessage("errorMessage.loadingError", 2000));
-            }).finally(function(){
+            })['finally'](function(){
                 $rootScope.decreasePending("processingMessage.loading");
             });
         }
@@ -104,7 +104,7 @@ ControllersModule.controller('reportController', ['$scope', '$rootScope', '$q', 
                     $scope.datavizConfig = queryResult;
                 }, function(error){
                     $rootScope.messages.push(MessageService.errorMessage("errorMessage.executingQueryError", 2000));
-                }).finally(function(){
+                })['finally'](function(){
                     $rootScope.decreasePending("processingMessage.executingQuery");
                 });
             }else{
@@ -121,7 +121,7 @@ ControllersModule.controller('reportController', ['$scope', '$rootScope', '$q', 
                 $rootScope.messages.push(MessageService.successMessage('successMessage.reportUpdated', 2000));
             }, function reject(error) {
                 $rootScope.messages.push(MessageService.errorMessage("errorMessage.creatingError", 2000));
-            }).finally(function(){
+            })['finally'](function(){
                 $rootScope.decreasePending("processingMessage.updatingData");
             });
         };
@@ -143,7 +143,7 @@ ControllersModule.controller('reportController', ['$scope', '$rootScope', '$q', 
                         $window.history.back();
                     }, function(error) {
                         $rootScope.messages.push(MessageService.errorMessage('errorMessage.deletingError', 2000));
-                    }).finally(function(){
+                    })['finally'](function(){
                         $rootScope.decreasePending("processingMessage.deletingData");
                     });
                 }

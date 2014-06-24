@@ -59,7 +59,7 @@ ControllersModule.controller('eventController',
 
                     }, function reject() {
                         $rootScope.messages.push(MessageService.errorMessage('errorMessage.loadingError', 2000));
-                    }).finally(function() {
+                    })['finally'](function() {
                         $rootScope.decreasePending('processingMessage.synchronizing');
                     });
                 }
@@ -181,7 +181,7 @@ ControllersModule.controller('eventController',
                         }else{
                             $rootScope.messages.push(MessageService.errorMessage('errorMessage.creatingError', 2000));
                         }                           
-                    }).finally(function() {
+                    })['finally'](function() {
                         if ($scope.isEdit) {
                             $rootScope.decreasePending("processingMessage.updatingData");
                         }else{
@@ -208,7 +208,7 @@ ControllersModule.controller('eventController',
                                 $window.history.back();
                             }, function(error) {
                                 $rootScope.messages.push(MessageService.errorMessage('errorMessage.deletingError', 2000));
-                            }).finally(function(){
+                            })['finally'](function(){
                                 $rootScope.decreasePending("processingMessage.deletingData");
                             });
                         }

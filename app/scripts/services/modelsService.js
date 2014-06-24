@@ -101,8 +101,6 @@ servicesModule.factory('ModelUtil', ['dateUtil', function(dateUtil) {
             }
             return data;
         }
-        
-
         return ModelUtil;
 
     }]);

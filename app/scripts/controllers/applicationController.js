@@ -1,7 +1,7 @@
 'use strict';
 var ControllersModule = angular.module('BloGlu.controllers');
 
-ControllersModule.controller('applicationController', ['$scope', '$rootScope', '$modal', 'AUTH_EVENTS', '$location', '$route', '$timeout', 'UserService', 'syncService', 'dataService', 'localizationService','MessageService', function Controller($scope, $rootScope, $modal, AUTH_EVENTS, $location, $route, $timeout, UserService, syncService, dataService, localizationService, MessageService) {
+ControllersModule.controller('applicationController', ['$scope', '$rootScope', '$modal', 'AUTH_EVENTS', '$location', '$route', '$timeout', 'UserService', 'syncService', 'dataService', 'localizationService', 'MessageService', function Controller($scope, $rootScope, $modal, AUTH_EVENTS, $location, $route, $timeout, UserService, syncService, dataService, localizationService, MessageService) {
 
         $rootScope.currentUser = UserService.currentUser();
         $rootScope.messages = [];
@@ -27,12 +27,13 @@ ControllersModule.controller('applicationController', ['$scope', '$rootScope', '
 
         $rootScope.logOut = function() {
             $rootScope.increasePending('processingMessage.loggingOut');
-            dataService.logOut().then(function() {
-                $rootScope.currentUser = null;                
-            }).finally(function() {
+            return dataService.logOut().then(function() {
+                $rootScope.currentUser = null;
+            })['finally'](function() {
                 UserService.logOut();
                 $rootScope.$broadcast(AUTH_EVENTS.notAuthenticated);
                 $rootScope.decreasePending('processingMessage.loggingOut');
+                return;
             });
         };
 
@@ -48,26 +49,26 @@ ControllersModule.controller('applicationController', ['$scope', '$rootScope', '
             }
         };
 
-        $rootScope.addLoadingMessage = function(loadingMessageKey, values) {             
+        $rootScope.addLoadingMessage = function(loadingMessageKey, values) {
             $rootScope.loadingMessages.push(resolveMessage(loadingMessageKey, values));
         };
-        
-        $rootScope.removeLoadingMessage = function(loadingMessageKey, values){
+
+        $rootScope.removeLoadingMessage = function(loadingMessageKey, values) {
             var message = resolveMessage(loadingMessageKey, values);
             var indexOfMessage = $rootScope.loadingMessages.indexOf(message);
-            if(indexOfMessage !== -1){
+            if (indexOfMessage !== -1) {
                 $rootScope.loadingMessages.splice(indexOfMessage, 1);
             }
         };
-        
-        
-        function resolveMessage(loadingMessageKey, values){
+
+
+        function resolveMessage(loadingMessageKey, values) {
             var message = '';
             if (loadingMessageKey) {
                 message = localizationService.get(loadingMessageKey);
                 if (values) {
                     message = localizationService.applyLocalizedTemplate(message, values);
-                }                
+                }
             } else {
                 message = localizationService.get('loading');
             }
@@ -85,15 +86,15 @@ ControllersModule.controller('applicationController', ['$scope', '$rootScope', '
         $rootScope.$on(AUTH_EVENTS.loginSuccess, function(event, next) {
             $rootScope.increasePending('processingMessage.synchronizing');
             syncService.sync().then(
-                    function resolve() {                        
+                    function resolve() {
                     },
                     function reject() {
-                        MessageService.errorMessage('errorMessage.synchronisationError',5000);
+                        MessageService.errorMessage('errorMessage.synchronisationError', 5000);
                     },
-                    function notify(message) {                        
+                    function notify(message) {
                         //$rootScope.setLoadingMessage(message);
                     }
-            ).finally(function(result) {
+            )['finally'](function(result) {
                 $rootScope.decreasePending('processingMessage.synchronizing');
             });
         });

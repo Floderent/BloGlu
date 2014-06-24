@@ -8,7 +8,7 @@ angular.module('BloGlu.directives', []);
 
 var mainModule = angular
         .module('BloGlu', [
-            'ngCookies',            
+            'ngCookies',
             'ngResource',
             'ngSanitize',
             'ngRoute',
@@ -19,7 +19,7 @@ var mainModule = angular
             'pascalprecht.translate',
             'tmh.dynamicLocale',
             'BloGlu.services',
-            'BloGlu.controllers', 
+            'BloGlu.controllers',
             'BloGlu.filters',
             'BloGlu.directives'
         ]);
