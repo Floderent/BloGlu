@@ -46,16 +46,7 @@ servicesModule.factory('dashboardService', ['$q', 'dataService', 'queryService',
         };
 
         dashboardService.saveDashboard = function(dashboard) {
-            var isEdit = !!dashboard.objectId;
-            /*
-            var dataToSave = dashboard;
-            if(isEdit){
-                dataToSave = {
-                    objectId: dashboard.objectId,
-                    name: dashboard.name,
-                    reports: dashboard.reports
-                };
-            }*/
+            var isEdit = !!dashboard.objectId;            
             return genericDaoService.save('Dashboard', dashboard, isEdit);
         };
 
@@ -114,7 +105,15 @@ servicesModule.factory('dashboardService', ['$q', 'dataService', 'queryService',
             }
             return deferred.promise;
         };
-
+        
+        dashboardService.clearReport = function(dashboard, row, column){
+            angular.forEach(dashboard.reports, function(value, index){                
+                if(value.row === row && value.column === column){
+                    dashboard.reports.splice(index, 1);
+                }
+            });
+        };
+        
         function updateDashboardReport(dashboard, row, column, reportId) {
             var deferred = $q.defer();
             if (dashboard && dashboard.reports) {
@@ -146,7 +145,12 @@ servicesModule.factory('dashboardService', ['$q', 'dataService', 'queryService',
             return reportService.getReport(report.report).then(function(completeReport) {
                 reportTab[report.row][report.column] = {loading: true};
                 reportService.executeReport(completeReport).then(function(reportQueryResult) {
-                    return reportTab[report.row][report.column] = reportQueryResult;
+                    reportQueryResult.type = completeReport.display;
+                    var dashboardReport = {
+                        title: completeReport.title,
+                        queryResult: reportQueryResult
+                    };                    
+                    return reportTab[report.row][report.column] = dashboardReport;
                 });
             });
         }

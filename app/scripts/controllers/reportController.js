@@ -98,9 +98,10 @@ ControllersModule.controller('reportController', ['$scope', '$rootScope', '$q', 
         $scope.executeQuery = function() {
             $rootScope.increasePending("processingMessage.executingQuery");            
             $scope.report.query = reportService.getQuery($scope.selectedQueryElements, $scope.selectedFilter);
+            debugger;
             if ($scope.report.query) {
                 reportService.executeReportQuery($scope.report.query).then(function(queryResult) {
-                    queryResult.type = $scope.currentDataviz;                    
+                    queryResult.type = $scope.report.display;                    
                     $scope.datavizConfig = queryResult;
                 }, function(error){
                     $rootScope.messages.push(MessageService.errorMessage("errorMessage.executingQueryError", 2000));

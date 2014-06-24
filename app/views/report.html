@@ -22,7 +22,7 @@
                 </span>
             </div>
         </div>
-
+        <!-- Filter -->
         <div class="panel panel-default">
             <div class="panel-body">                
                 <span ng-if="selectedFilter">
@@ -32,7 +32,7 @@
             </div>
         </div>
         <p>
-            <select class="input-medium form-inline" data-ng-model="currentDataviz" data-ng-options="key as value for (key, value) in datavizTypes"></select>
+            <select class="input-medium form-inline" data-ng-model="report.display" data-ng-options="key as value for (key, value) in datavizTypes"></select>
         </p>
         <button class="btn-large btn-primary" ng-click="executeQuery()">{{ 'report.execute' | translate }}</button>
         <button class="btn-large btn-primary" ng-click="clear()">{{ 'report.clear' | translate }}</button>

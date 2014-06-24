@@ -7,17 +7,16 @@ DirectivesModule.directive('dataviz', function($compile) {
             if (newValue) {
                 var config = angular.fromJson(newValue);
                 scope.datavizConfig = config;
-                var dataviz = null;                
+                var dataviz = null;
                 switch (config.type) {
                     case 'table':
-                        dataviz = $compile('<table-dataviz config="config"></table-dataviz>')(scope);
+                        dataviz = $compile('<table-dataviz column-order="columnOrder" config="config"></table-dataviz>')(scope);
                         break;
                     case 'chart':
-                        dataviz = $compile('<chart-dataviz config="config"></chart-dataviz>')(scope);
+                        dataviz = $compile('<chart-dataviz column-order="columnOrder" config="config"></chart-dataviz>')(scope);
                         break;
                     default:
-                        //dataviz = $compile('<chart-dataviz dataviz-config="{{datavizConfig}}"></chart-dataviz>')(scope);
-                        dataviz = $compile('<table-dataviz config="config"></table-dataviz>')(scope);
+                        dataviz = $compile('<table-dataviz column-order="columnOrder" config="config"></table-dataviz>')(scope);
                         break;
                 }
                 angular.element(element).append(dataviz);
@@ -28,7 +27,8 @@ DirectivesModule.directive('dataviz', function($compile) {
         restrict: 'E', // only activate on element
         replace: true,
         scope: {
-            config: '='
+            config: '=',
+            columnOrder: '='
         },
         link: linkFunction
     };
@@ -183,90 +183,95 @@ DirectivesModule.directive('tableDataviz', ['$compile', 'dataService', function(
 
 
 
-DirectivesModule.directive('chartDataviz', function($compile) {
-    var linkFunction = function(scope, element, attrs) {        
-        renderChart(scope.config,scope, element);        
-        scope.$watch('config', function(newValue, oldValue) {
-            if (newValue && newValue !== oldValue) {
-                var config = angular.fromJson(newValue);
-                renderChart(config,scope, element);
-            }
-        });
-    };
-
-    function renderChart(configuration,scope, element) {
-        var config = angular.fromJson(configuration);
-        computeChartData(scope, config);
-        if (angular.element(element).find('highchart').length) {
-            $compile(element)(scope);
-        } else {
-            element.empty();
-            var chart = $compile('<highchart id="chart1" config="chartConfig" class="span10"></highchart>')(scope);
-        }
-        angular.element(element).append(chart);
-    }
-
-    function computeChartData(scope, config) {        
-        scope.chartConfig = {
-            options: {
-                chart: {
-                    type: 'line',
-                    zoomType: 'x'
+DirectivesModule.directive('chartDataviz', ['$compile', 'dataService', function($compile, dataService) {
+        var linkFunction = function(scope, element, attrs) {
+            renderChart(scope.config, scope, element);
+            scope.$watch('config', function(newValue, oldValue) {
+                if (newValue && newValue !== oldValue) {
+                    var config = angular.fromJson(newValue);
+                    renderChart(config, scope, element);
                 }
-            },
-            series: [],
-            title: {
-                text: ''
-            },
-            xAxis: {
-                categories: []
-                        /*
-                         type: 'datetime',
-                         dateTimeLabelFormats: {// don't display the dummy year
-                         month: '%e. %b',
-                         year: '%b'
-                         }*/
-            },
-            loading: false
+            });
         };
-        angular.forEach(config.headers, function(queryElement) {
-            if (queryElement.aggregate) {
-                scope.chartConfig.series.push({name: queryElement.title, data: []});
+
+        function renderChart(configuration, scope, element) {
+            var config = angular.fromJson(configuration);            
+            if (scope.columnOrder) {
+                dataService.orderBy(scope.config.data, scope.columnOrder);
             }
-        });
-        for (var lineIndex = 1; lineIndex < config.data.length; lineIndex++) {
-            var textValue = '';
-            for (var columnIndex = 0; columnIndex < config.headers.length; columnIndex++) {
-                var propertyTitle = config.headers[columnIndex].title;
-                var propertyName = config.headers[columnIndex].name;
-                if (config.headers[columnIndex].aggregate) {
-                    var serie = getSerieByTitle(scope.chartConfig.series, propertyTitle);
-                    serie.data.push(parseInt(config.data[lineIndex][propertyName]));
-                } else {
-                    textValue += " " + config.data[lineIndex][propertyName];
-                }
+
+            computeChartData(scope, config);
+            if (angular.element(element).find('highchart').length) {
+                $compile(element)(scope);
+            } else {
+                element.empty();
+                var chart = $compile('<highchart id="chart1" config="chartConfig" class="span10"></highchart>')(scope);
             }
-            scope.chartConfig.xAxis.categories.push(textValue);
+            angular.element(element).append(chart);
         }
-    }
 
-    function getSerieByTitle(series, name) {
-        var foundSerie = null;
-        angular.forEach(series, function(serie) {
-            if (serie.name === name) {
-                foundSerie = serie;
-                return;
+        function computeChartData(scope, config) {
+            scope.chartConfig = {
+                options: {
+                    chart: {
+                        type: 'line',
+                        zoomType: 'x'
+                    }
+                },
+                series: [],
+                title: {
+                    text: ''
+                },
+                xAxis: {
+                    categories: []
+                            /*
+                             type: 'datetime',
+                             dateTimeLabelFormats: {// don't display the dummy year
+                             month: '%e. %b',
+                             year: '%b'
+                             }*/
+                },
+                loading: false
+            };
+            angular.forEach(config.headers, function(queryElement) {
+                if (queryElement.aggregate) {
+                    scope.chartConfig.series.push({name: queryElement.title, data: []});
+                }
+            });
+            for (var lineIndex = 0; lineIndex < config.data.length; lineIndex++) {
+                var textValue = '';
+                for (var columnIndex = 0; columnIndex < config.headers.length; columnIndex++) {
+                    var propertyTitle = config.headers[columnIndex].title;
+                    var propertyName = config.headers[columnIndex].name;
+                    if (config.headers[columnIndex].aggregate) {
+                        var serie = getSerieByTitle(scope.chartConfig.series, propertyTitle);
+                        serie.data.push(parseInt(config.data[lineIndex][propertyName]));
+                    } else {
+                        textValue += " " + config.data[lineIndex][propertyName];
+                    }
+                }
+                scope.chartConfig.xAxis.categories.push(textValue);
             }
-        });
-        return foundSerie;
-    }
+        }
 
-    return {
-        restrict: 'E', // only activate on element
-        replace: true,
-        scope: {
-            config: '='
-        },
-        link: linkFunction
-    };
-});
+        function getSerieByTitle(series, name) {
+            var foundSerie = null;
+            angular.forEach(series, function(serie) {
+                if (serie.name === name) {
+                    foundSerie = serie;
+                    return;
+                }
+            });
+            return foundSerie;
+        }
+
+        return {
+            restrict: 'E', // only activate on element
+            replace: true,
+            scope: {
+                config: '=',
+                columnOrder: '='
+            },
+            link: linkFunction
+        };
+    }]);

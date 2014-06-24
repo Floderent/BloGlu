@@ -10,13 +10,18 @@
         <table class="table">
             <tr ng-repeat="line in reportTab track by $index">
                 <td class="thumbnail" ng-repeat="reportConfig in reportTab[$index] track by $index">   
-                    <div ng-if="reportConfig.data && reportConfig.headers">                        
-                        <dataviz config="reportConfig"></dataviz>
+                    <div ng-if="reportConfig.queryResult && reportConfig.queryResult.data && reportConfig.queryResult.headers">
+                        <a href="" ng-click="clearReport(reportTab.indexOf(line), $index)" class="glyphicon glyphicon-remove-circle pull-right"/>
+                        <h3>{{reportConfig.title}}</h3>
+                        <dataviz config="reportConfig.queryResult"></dataviz>
                     </div>                                        
-                    <div ng-if="!reportConfig.data || !reportConfig.headers">
+                    <div ng-if="!reportConfig.queryResult && !reportConfig.loading">
                         <button type="button" class="btn btn-primary" ng-click="chooseReport(reportTab.indexOf(line), $index)">{{ 'dashboard.addnewReport' | translate }}</button>
-                    </div>            
-
+                    </div>
+                    <div ng-if="reportConfig.loading">
+                        <img alt="loading" src="images/spinnerLarge.gif" /> 
+                    </div>
+                    
                 </td>
             </tr>
         </table>
