@@ -86,9 +86,9 @@ mainModule.constant('ResourceCode', {
 
 mainModule.constant('Database', {
     schema: [
-        'Event',
-        'Period',
         'Report',
+        'Period',        
+        'Event',
         'Dashboard',
         'Metadatamodel',
         'Category',

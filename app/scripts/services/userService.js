@@ -58,7 +58,7 @@ servicesModule.factory('UserService', ['$http', '$cookieStore', '$q', 'indexeddb
             });
         };
 
-        UserService.currentUser = function() {            
+        UserService.currentUser = function() {             
             return user || $cookieStore.get('user');
         };
 
@@ -125,7 +125,7 @@ servicesModule.factory('UserService', ['$http', '$cookieStore', '$q', 'indexeddb
             };
             if (UserService.currentUser() && UserService.currentUser().sessionToken) {
                 headers["X-Parse-Session-Token"] = UserService.currentUser().sessionToken;
-            }
+            }            
             return headers;
         };
 

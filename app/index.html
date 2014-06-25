@@ -102,22 +102,25 @@
         <!-- Page feedback -->
         <div ng-show="pending > 0">
             <!-- display last loading message -->
-            <div ng-if="loadingMessages.length > 0">{{loadingMessages[loadingMessages.length - 1]}}</div> 
-            <img alt="loading" src="images/spinnerLarge.gif" /> 
+            <div>
+                <span ng-if="loadingMessages.length > 0">{{loadingMessages[loadingMessages.length - 1]}}</span> 
+                <img alt="loading" src="images/spinnerLarge.gif" /> 
+            </div>
+
         </div>
         <div ng-repeat="message in messages" ng-show="messages && messages.length > 0">
             <!-- error message alert-dismissable-->
             <div ng-if="message.type === 'error'">                
-                <div class="alert alert-danger" ng-show="message.display">
+                <div class="alert alert-danger message" ng-show="message.display">
                     <!--<button type="button" class="close" data-dismiss="alert" aria-hidden="true">&times;</button>-->
-                    <strong>Error!</strong> {{message.text| translate}}
+                    <strong>{{'error' | translate}}!</strong> {{message.text| translate}}
                 </div>
             </div>
             <!-- success message -->                
             <div ng-if="message.type === 'success'">                
-                <div class="alert alert-success" ng-show="message.display">
-                    <button type="button" class="close" data-dismiss="alert" aria-hidden="true">&times;</button>
-                    {{message.text| translate}}
+                <div class="alert alert-success message" ng-show="message.display">
+                    <!--<button type="button" class="close" data-dismiss="alert" aria-hidden="true">&times;</button>-->
+                    <strong>{{'success' | translate}}!</strong> {{message.text| translate}}
                 </div>
             </div>                
         </div>

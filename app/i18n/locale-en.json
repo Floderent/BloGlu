@@ -43,6 +43,9 @@
     "date" : "Date",
     "event": "Event",
     
+    "error": "Error",
+    "success" : "Success",
+    
     "processingMessage":{
         "connecting" : "Logging in...",
         "loggingOut" : "Logging out...",

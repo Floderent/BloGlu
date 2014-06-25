@@ -7,7 +7,7 @@ ControllersModule.controller('loginController', ['$scope', '$rootScope', '$locat
             if (form) {
                 $rootScope.increasePending("processingMessage.connecting");
                 UserService.logIn(form.username, form.password)
-                        .success(function(authenticatedUser) {                            
+                        .success(function(authenticatedUser) {                             
                             $rootScope.currentUser = authenticatedUser;
                             $rootScope.$broadcast(AUTH_EVENTS.loginSuccess);
                             $location.path('dashboard');

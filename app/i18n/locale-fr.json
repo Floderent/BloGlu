@@ -42,6 +42,9 @@
     "date" : "Date",
     "event": "Evènement",
     
+    "error": "Erreur",
+    "success" : "Succès",
+    
     "processingMessage":{
         "connecting" : "Connexion...",
         "loggingOut" : "Déconnexion...",

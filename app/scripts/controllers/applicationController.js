@@ -28,9 +28,10 @@ ControllersModule.controller('applicationController', ['$scope', '$rootScope', '
         $rootScope.logOut = function() {
             $rootScope.increasePending('processingMessage.loggingOut');
             return dataService.logOut().then(function() {
-                $rootScope.currentUser = null;
+                
             })['finally'](function() {
                 UserService.logOut();
+                $rootScope.currentUser = null;
                 $rootScope.$broadcast(AUTH_EVENTS.notAuthenticated);
                 $rootScope.decreasePending('processingMessage.loggingOut');
                 return;

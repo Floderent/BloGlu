@@ -3,7 +3,7 @@
 var servicesModule = angular.module('BloGlu.services');
 
 
-servicesModule.factory('ModelUtil', ['dateUtil', function(dateUtil) {
+servicesModule.factory('ModelUtil', ['dateUtil', 'UserService', function(dateUtil, UserService) {
         var ModelUtil = {};
         ModelUtil.addClauseToFilter = function(existingClause, additionnalClauses) {
             var whereClause = {};
@@ -18,6 +18,22 @@ servicesModule.factory('ModelUtil', ['dateUtil', function(dateUtil) {
             angular.extend(whereClause, transformConditionToParseFormat(existingClause, additionnalClauses));
             return whereClause;
         };
+
+        ModelUtil.genericTransformRequest = function(data) {
+            if (data) {
+                data.ACL = UserService.ownerReadWriteACL();
+            }
+            return angular.toJson(data);
+        };
+
+        ModelUtil.genericTransformResponse = function(data) {
+            var jsonResponse = angular.fromJson(data);
+            if (jsonResponse && jsonResponse.results) {
+                jsonResponse = jsonResponse.results;
+            }
+            return jsonResponse;
+        };
+
 
         function transformConditionToParseFormat(existingClause, additionnalClauses) {
             var parseCondition = {};
@@ -56,16 +72,16 @@ servicesModule.factory('ModelUtil', ['dateUtil', function(dateUtil) {
          * params format = [{field:"beginDate",type:"date"},{field:"unit", type: "pointer", className:"Unit"}]
          * 
          */
-        ModelUtil.transformToParseFormat = function(data, params, ACL){
+        ModelUtil.transformToParseFormat = function(data, params, ACL) {
             return changeDataFormat(data, params, ACL);
         };
-        
-        ModelUtil.transformToNormalFormat = function(data, params, ACL){
+
+        ModelUtil.transformToNormalFormat = function(data, params, ACL) {
             return changeDataFormat(data, params, ACL, true);
         };
-        
-        
-        function changeDataFormat(data, params, ACL,convertToNormalFormat) {
+
+
+        function changeDataFormat(data, params, ACL, convertToNormalFormat) {
             if (data) {
                 if (ACL) {
                     data.ACL = ACL;
@@ -76,11 +92,11 @@ servicesModule.factory('ModelUtil', ['dateUtil', function(dateUtil) {
                         if (clause.field && clause.type && data[clause.field]) {
                             switch (clause.type) {
                                 case 'date':
-                                    if(convertToNormalFormat){
+                                    if (convertToNormalFormat) {
                                         data[clause.field] = dateUtil.convertToNormalFormat(data[clause.field]);
-                                    }else{
+                                    } else {
                                         data[clause.field] = dateUtil.convertToParseFormat(data[clause.field]);
-                                    }                                    
+                                    }
                                     break;
                                 case 'pointer':
                                     if (clause.className && data[clause.field].objectId) {
@@ -88,9 +104,9 @@ servicesModule.factory('ModelUtil', ['dateUtil', function(dateUtil) {
                                     }
                                     break;
                                 case 'file':
-                                    if(convertToNormalFormat){
+                                    if (convertToNormalFormat) {
                                         data[clause.field] = data[clause.field].name;
-                                    }else{
+                                    } else {
                                         data[clause.field] = {__type: 'File', name: data[clause.field]};
                                     }
                                     break;
@@ -106,7 +122,7 @@ servicesModule.factory('ModelUtil', ['dateUtil', function(dateUtil) {
     }]);
 
 
-servicesModule.factory('Unit', ['$resource', 'ServerService', function($resource, ServerService) {
+servicesModule.factory('Unit', ['$resource', 'ServerService', 'ModelUtil', function($resource, ServerService, ModelUtil) {
         var url = ServerService.baseUrl + 'classes/Unit/:Id';
         return $resource(url,
                 {Id: '@Id'},
@@ -115,19 +131,13 @@ servicesModule.factory('Unit', ['$resource', 'ServerService', function($resource
                 method: 'GET',
                 headers: ServerService.headers,
                 isArray: true,
-                transformResponse: function(data) {
-                    var jsonResponse = angular.fromJson(data);
-                    if (jsonResponse && jsonResponse.results) {
-                        jsonResponse = jsonResponse.results;
-                    }
-                    return jsonResponse;
-                }
+                transformResponse: ModelUtil.genericTransformResponse
             }
         });
     }]);
 
 
-servicesModule.factory('Report', ['$resource', 'ServerService', 'UserService', function($resource, ServerService, UserService) {
+servicesModule.factory('Report', ['$resource', 'ServerService', 'UserService', 'ModelUtil', function($resource, ServerService, UserService, ModelUtil) {
         var url = ServerService.baseUrl + 'classes/Report/:Id';
         return $resource(url,
                 {Id: '@Id'},
@@ -136,13 +146,7 @@ servicesModule.factory('Report', ['$resource', 'ServerService', 'UserService', f
                 method: 'GET',
                 headers: UserService.headers(),
                 isArray: true,
-                transformResponse: function(data) {
-                    var jsonResponse = angular.fromJson(data);
-                    if (jsonResponse && jsonResponse.results) {
-                        jsonResponse = jsonResponse.results;
-                    }
-                    return jsonResponse;
-                }
+                transformResponse: ModelUtil.genericTransformResponse
             },
             count: {
                 method: 'GET',
@@ -151,12 +155,7 @@ servicesModule.factory('Report', ['$resource', 'ServerService', 'UserService', f
             save: {
                 method: 'POST',
                 headers: UserService.headers(),
-                transformRequest: function(data) {
-                    if (data) {
-                        data.ACL = UserService.ownerReadWriteACL();
-                    }
-                    return angular.toJson(data);
-                }
+                transformRequest: ModelUtil.genericTransformRequest
             },
             get: {
                 method: 'GET',
@@ -165,12 +164,7 @@ servicesModule.factory('Report', ['$resource', 'ServerService', 'UserService', f
             update: {
                 method: 'PUT',
                 headers: UserService.headers(),
-                transformRequest: function(data) {
-                    if (data) {
-                        data.ACL = UserService.ownerReadWriteACL();
-                    }
-                    return angular.toJson(data);
-                }
+                transformRequest: ModelUtil.genericTransformRequest
             },
             delete: {
                 method: 'DELETE',
@@ -193,8 +187,8 @@ servicesModule.factory('Import', ['$resource', 'ServerService', 'UserService', '
                     var jsonResponse = angular.fromJson(data);
                     if (jsonResponse && jsonResponse.results) {
                         jsonResponse = jsonResponse.results;
-                        jsonResponse = jsonResponse.map(function(element) {                            
-                            return ModelUtil.transformToNormalFormat(element, [{field: 'beginDate', type:'date'},{field: 'endDate', type:'date'},{field: 'dateTime', type:'date'},{field: 'file', type:'file'}]);
+                        jsonResponse = jsonResponse.map(function(element) {
+                            return ModelUtil.transformToNormalFormat(element, [{field: 'beginDate', type: 'date'}, {field: 'endDate', type: 'date'}, {field: 'dateTime', type: 'date'}, {field: 'file', type: 'file'}]);
                         });
                     }
                     return jsonResponse;
@@ -207,8 +201,8 @@ servicesModule.factory('Import', ['$resource', 'ServerService', 'UserService', '
             save: {
                 method: 'POST',
                 headers: UserService.headers(),
-                transformRequest: function(data) {                                           
-                    data = ModelUtil.transformToParseFormat(data, [{field: 'beginDate', type:'date'},{field: 'endDate', type:'date'},{field: 'dateTime', type:'date'},{field: 'bgUnit', type:'pointer', className:'Unit'},{field: 'file', type:'file'}],UserService.ownerReadWriteACL());                    
+                transformRequest: function(data) {
+                    data = ModelUtil.transformToParseFormat(data, [{field: 'beginDate', type: 'date'}, {field: 'endDate', type: 'date'}, {field: 'dateTime', type: 'date'}, {field: 'bgUnit', type: 'pointer', className: 'Unit'}, {field: 'file', type: 'file'}], UserService.ownerReadWriteACL());
                     return angular.toJson(data);
                 }
             },
@@ -216,7 +210,7 @@ servicesModule.factory('Import', ['$resource', 'ServerService', 'UserService', '
                 method: 'PUT',
                 headers: UserService.headers(),
                 transformRequest: function(data) {
-                    data = ModelUtil.transformToParseFormat(data, [{field: 'beginDate', type:'date'},{field: 'endDate', type:'date'},{field: 'dateTime', type:'date'},{field: 'bgUnit', type:'pointer', className:'Unit'},{field: 'file', type:'file'}],UserService.ownerReadWriteACL());
+                    data = ModelUtil.transformToParseFormat(data, [{field: 'beginDate', type: 'date'}, {field: 'endDate', type: 'date'}, {field: 'dateTime', type: 'date'}, {field: 'bgUnit', type: 'pointer', className: 'Unit'}, {field: 'file', type: 'file'}], UserService.ownerReadWriteACL());
                     return angular.toJson(data);
                 }
             },
@@ -229,7 +223,7 @@ servicesModule.factory('Import', ['$resource', 'ServerService', 'UserService', '
 
 
 
-servicesModule.factory('Dashboard', ['$resource', 'ServerService', 'UserService', function($resource, ServerService, UserService) {
+servicesModule.factory('Dashboard', ['$resource', 'ServerService', 'UserService', 'ModelUtil', function($resource, ServerService, UserService, ModelUtil) {
         var url = ServerService.baseUrl + 'classes/Dashboard/:Id';
         return $resource(url,
                 {Id: '@Id'},
@@ -238,13 +232,7 @@ servicesModule.factory('Dashboard', ['$resource', 'ServerService', 'UserService'
                 method: 'GET',
                 headers: UserService.headers(),
                 isArray: true,
-                transformResponse: function(data) {
-                    var jsonResponse = angular.fromJson(data);
-                    if (jsonResponse && jsonResponse.results) {
-                        jsonResponse = jsonResponse.results;
-                    }
-                    return jsonResponse;
-                }
+                transformResponse: ModelUtil.genericTransformResponse
             },
             count: {
                 method: 'GET',
@@ -253,12 +241,7 @@ servicesModule.factory('Dashboard', ['$resource', 'ServerService', 'UserService'
             save: {
                 method: 'POST',
                 headers: UserService.headers(),
-                transformRequest: function(data) {
-                    if (data) {
-                        data.ACL = UserService.ownerReadWriteACL();
-                    }
-                    return angular.toJson(data);
-                }
+                transformRequest: ModelUtil.genericTransformRequest
             },
             get: {
                 method: 'GET',
@@ -267,12 +250,7 @@ servicesModule.factory('Dashboard', ['$resource', 'ServerService', 'UserService'
             update: {
                 method: 'PUT',
                 headers: UserService.headers(),
-                transformRequest: function(data) {
-                    if (data) {
-                        data.ACL = UserService.ownerReadWriteACL();
-                    }
-                    return angular.toJson(data);
-                }
+                transformRequest: ModelUtil.genericTransformRequest
             },
             delete: {
                 method: 'DELETE',
@@ -283,7 +261,7 @@ servicesModule.factory('Dashboard', ['$resource', 'ServerService', 'UserService'
 
 
 
-servicesModule.factory('Metadatamodel', ['$resource', 'ServerService', 'UserService', function($resource, ServerService, UserService) {
+servicesModule.factory('Metadatamodel', ['$resource', 'ServerService', 'UserService', 'ModelUtil', function($resource, ServerService, UserService, ModelUtil) {
         var url = ServerService.baseUrl + 'classes/Metadatamodel/:Id';
         return $resource(url,
                 {Id: '@Id'},
@@ -292,13 +270,7 @@ servicesModule.factory('Metadatamodel', ['$resource', 'ServerService', 'UserServ
                 method: 'GET',
                 headers: ServerService.headers,
                 isArray: true,
-                transformResponse: function(data) {
-                    var jsonResponse = angular.fromJson(data);
-                    if (jsonResponse && jsonResponse.results) {
-                        jsonResponse = jsonResponse.results;
-                    }
-                    return jsonResponse;
-                }
+                transformResponse: ModelUtil.genericTransformResponse
             },
             count: {
                 method: 'GET',
@@ -352,12 +324,15 @@ servicesModule.factory('Batch', ['$resource', 'ServerService', 'UserService', 'd
 
 servicesModule.factory('Event', ['$resource', 'ServerService', 'UserService', 'dateUtil', function($resource, ServerService, UserService, dateUtil) {
         var url = ServerService.baseUrl + "classes/Event/:Id";
+        //var headers = UserService.headers();
+        //return function(customHeaders){
         return $resource(url, {
             include: 'unit,category'
         },
         {
             query: {
                 method: 'GET',
+                cache: false,
                 headers: UserService.headers(),
                 isArray: true,
                 transformResponse: function(data) {
@@ -434,52 +409,10 @@ servicesModule.factory('Event', ['$resource', 'ServerService', 'UserService', 'd
                 headers: UserService.headers()
             }
         });
+        // };
+
     }]);
 
-
-
-
-
-servicesModule.factory('Target', ['$resource', 'ServerService', 'UserService', function($resource, ServerService, UserService) {
-        var url = ServerService.baseUrl + "classes/Target";
-        return $resource(url, {
-            include: 'unit'
-        },
-        {
-            query: {
-                method: "GET",
-                headers: UserService.headers(),
-                isArray: true,
-                transformResponse: function(data) {
-                    var jsonResponse = angular.fromJson(data);
-                    if (jsonResponse && jsonResponse.results) {
-                        jsonResponse = jsonResponse.results;
-                    }
-                    return jsonResponse;
-                }
-            },
-            save: {
-                method: "POST",
-                headers: UserService.headers(),
-                transformRequest: function(data) {
-                    if (data) {
-                        data.ACL = UserService.ownerReadWriteACL();
-                    }
-                    return angular.toJson(data);
-                }
-            },
-            update: {
-                method: "PUT",
-                headers: UserService.headers(),
-                transformRequest: function(data) {
-                    if (data) {
-                        data.ACL = UserService.ownerReadWrite();
-                    }
-                    return angular.toJson(data);
-                }
-            }
-        });
-    }]);
 
 servicesModule.factory('Period', ['$resource', 'ServerService', 'UserService', 'dateUtil', function($resource, ServerService, UserService, dateUtil) {
         var url = ServerService.baseUrl + 'classes/Period/:Id';
@@ -541,7 +474,7 @@ servicesModule.factory('Period', ['$resource', 'ServerService', 'UserService', '
     }]);
 
 
-servicesModule.factory('Category', ['$resource', 'ServerService', 'UserService', 'dateUtil', function($resource, ServerService, UserService, dateUtil) {
+servicesModule.factory('Category', ['$resource', 'ServerService', 'UserService', 'ModelUtil', function($resource, ServerService, UserService, ModelUtil) {
         var url = ServerService.baseUrl + 'classes/Category/:Id';
         return $resource(url,
                 {
@@ -551,34 +484,17 @@ servicesModule.factory('Category', ['$resource', 'ServerService', 'UserService',
                         method: 'GET',
                         headers: UserService.headers(),
                         isArray: true,
-                        transformResponse: function(data) {
-                            var jsonResponse = angular.fromJson(data);
-                            if (jsonResponse && jsonResponse.results) {
-                                jsonResponse = jsonResponse.results;
-                            }
-                            return jsonResponse;
-                        }
+                        transformResponse: ModelUtil.genericTransformResponse
                     },
                     save: {
                         method: 'POST',
                         headers: UserService.headers(),
-                        transformRequest: function(data) {
-                            if (data) {
-                                var dataToSave = angular.extend({}, data);
-                                dataToSave.ACL = UserService.ownerReadWriteACL();
-                            }
-                            return angular.toJson(dataToSave);
-                        }
+                        transformRequest: ModelUtil.genericTransformRequest
                     },
                     update: {
                         method: 'PUT',
                         headers: UserService.headers(),
-                        transformRequest: function(data) {
-                            if (data) {
-                                data.ACL = UserService.ownerReadWriteACL();
-                            }
-                            return angular.toJson(data);
-                        }
+                        transformRequest: ModelUtil.genericTransformRequest
                     },
                     delete: {
                         method: 'DELETE',
@@ -610,7 +526,7 @@ servicesModule.factory('User', ['$resource', 'ServerService', 'UserService', fun
 
     }]);
 
-servicesModule.factory('UserPreferences', ['$resource', 'ServerService', 'UserService', function($resource, ServerService, UserService) {
+servicesModule.factory('UserPreferences', ['$resource', 'ServerService', 'UserService','ModelUtil', function($resource, ServerService, UserService, ModelUtil) {
         var url = ServerService.baseUrl + 'classes/UserPreferences';
         return $resource(url, {},
                 {
@@ -618,40 +534,24 @@ servicesModule.factory('UserPreferences', ['$resource', 'ServerService', 'UserSe
                         method: 'GET',
                         headers: UserService.headers(),
                         isArray: true,
-                        transformResponse: function(data) {
-                            var jsonResponse = angular.fromJson(data);
-                            if (jsonResponse && jsonResponse.results) {
-                                jsonResponse = jsonResponse.results;
-                            }
-                            return jsonResponse;
-                        }
+                        transformResponse: ModelUtil.genericTransformResponse
                     },
                     save: {
                         method: 'POST',
                         headers: UserService.headers(),
-                        transformRequest: function(data) {
-                            if (data) {
-                                data.ACL = UserService.ownerReadWriteACL();
-                            }
-                            return angular.toJson(data);
-                        }
+                        transformRequest: ModelUtil.genericTransformRequest
                     },
                     update: {
                         method: 'PUT',
                         headers: UserService.headers(),
-                        transformRequest: function(data) {
-                            if (data) {
-                                data.ACL = UserService.ownerReadWrite();
-                            }
-                            return angular.toJson(data);
-                        }
+                        transformRequest: ModelUtil.genericTransformRequest
                     }
 
                 });
     }]);
 
 
-servicesModule.factory('Range', ['$resource', 'ServerService', 'UserService', 'dateUtil', function($resource, ServerService, UserService, dateUtil) {
+servicesModule.factory('Range', ['$resource', 'ServerService', 'UserService', 'ModelUtil', function($resource, ServerService, UserService, ModelUtil) {
         var url = ServerService.baseUrl + 'classes/Range/:Id';
         return $resource(url,
                 {
@@ -662,13 +562,7 @@ servicesModule.factory('Range', ['$resource', 'ServerService', 'UserService', 'd
                 method: 'GET',
                 headers: UserService.headers(),
                 isArray: true,
-                transformResponse: function(data) {
-                    var jsonResponse = angular.fromJson(data);
-                    if (jsonResponse && jsonResponse.results) {
-                        jsonResponse = jsonResponse.results;
-                    }
-                    return jsonResponse;
-                }
+                transformResponse: ModelUtil.genericTransformResponse
             },
             save: {
                 method: 'POST',
