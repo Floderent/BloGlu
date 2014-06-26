@@ -146,7 +146,7 @@
     },
     "importList": {
         "pageTitle": "Voir la liste des imports",
-        "newImport": "Créer un nouveau rapport",
+        "newImport": "Créer un nouvel import",
         "name": "Nom",
         "date": "Date",
         "file": "Fichier",
@@ -193,7 +193,10 @@
     "report": {
         "pageTitle": "Analyser vos données",
         "comment": "Commentaire",
-        "addElement": "Ajouter un élément",
+        "queryElements" : "Eléments à analyser",
+        "addElement": "Ajouter l'élément",
+        "analysisPeriod" : "Période de l'analyse",
+        "dataviz" : "Visualisation",
         "reportTitle": "Titre du rapport",
         "execute": "Exécuter",
         "clear": "Vider",

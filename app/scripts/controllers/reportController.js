@@ -88,7 +88,7 @@ ControllersModule.controller('reportController', ['$scope', '$rootScope', '$q', 
             }
         }, true);
         
-        $scope.$watch('currentDataviz', function(newValue, oldValue){
+        $scope.$watch('report.display', function(newValue, oldValue){
             if(newValue !== oldValue){
                 $scope.executeQuery();
             }
@@ -97,8 +97,7 @@ ControllersModule.controller('reportController', ['$scope', '$rootScope', '$q', 
 
         $scope.executeQuery = function() {
             $rootScope.increasePending("processingMessage.executingQuery");            
-            $scope.report.query = reportService.getQuery($scope.selectedQueryElements, $scope.selectedFilter);
-            debugger;
+            $scope.report.query = reportService.getQuery($scope.selectedQueryElements, $scope.selectedFilter);            
             if ($scope.report.query) {
                 reportService.executeReportQuery($scope.report.query).then(function(queryResult) {
                     queryResult.type = $scope.report.display;                    

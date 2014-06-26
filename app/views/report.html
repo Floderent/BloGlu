@@ -3,17 +3,44 @@
         <h3 class="panel-title">{{ 'report.pageTitle' | translate }}</h3>
     </div>
     <div class="panel-body">
-        <input type="text" required  placeholder="{{ 'report.reportTitle' | translate }}" ng-model="report.title">
-        <div class="input-group">
-            <h5>{{ 'report.comment' | translate }}</h5>
-            <textarea class="form-control" ng-model="report.description">
-            </textarea>
-        </div>
-        <select class="input-medium form-inline" data-ng-model="selectedQueryElement" data-ng-options="queryElement.title group by queryElement.group for queryElement in queryElements"></select>
-        <button class="btn btn-default" ng-click="addQueryElement(selectedQueryElement)">{{ 'report.addElement' | translate }}</button>
+        <form>
+            <div class="form-group">
+                <label for="reportTitle">{{'report.reportTitle'| translate }}</label>
+                <input class="form-control" id="reportTitle" type="text" required  placeholder="{{'report.reportTitle'| translate }}" ng-model="report.title">
+            </div>
+            <div class="form-group">
+                <label for="reportDescription">{{ 'report.comment' | translate }}</label>
+                <textarea id="reportDescription" class="form-control" ng-model="report.description"  placeholder="{{ 'report.comment' | translate }}"></textarea>
+            </div>
+            
+            <!-- query elements -->
+            <div class="form-group">
+                <label for="selectQueryElement">{{ 'report.queryElements' | translate }}</label>
+                <div class="input-group">                    
+                    <select id="selectQueryElement" class="form-control" data-ng-model="selectedQueryElement" data-ng-options="queryElement.title group by queryElement.group for queryElement in queryElements"></select>
+                    <span class="input-group-btn">
+                        <button class="btn btn-default" ng-click="addQueryElement(selectedQueryElement)">{{ 'report.addElement' | translate }}</button>
+                    </span>
+                </div>
+            </div>
+            
+            
+            <!-- Period to use -->
+            <div class="form-group">                
+                <div class="input-group">
+                    <label for="period">{{ 'report.analysisPeriod' | translate }}</label>
+                    <select id="period" class="form-control" data-ng-model="selectedFilter" data-ng-options="key as value.title for (key, value) in filters"></select>                    
+                </div>
+            </div>
+        </form>
+
+
+
+
+
+
         
-        <!-- title as value.title for (key, value) in filters -->
-        <select class="input-medium form-inline" data-ng-model="selectedFilter" data-ng-options="key as value.title for (key, value) in filters"></select>
+        
         <div class="panel panel-default">
             <div class="panel-body">
                 <span data-ng-repeat="selectedElement in selectedQueryElements">
@@ -31,9 +58,19 @@
                 </span>                
             </div>
         </div>
+        
+        <div class="form-group">                
+                <div class="input-group">
+                    <label for="dataviz">{{ 'report.dataviz' | translate }}</label>
+                    <select id="dataviz" class="form-control" data-ng-model="report.display" data-ng-options="key as value for (key, value) in datavizTypes"></select>
+                </div>
+        </div>
+        
         <p>
-            <select class="input-medium form-inline" data-ng-model="report.display" data-ng-options="key as value for (key, value) in datavizTypes"></select>
+            
         </p>
+        
+        
         <button class="btn-large btn-primary" ng-click="executeQuery()">{{ 'report.execute' | translate }}</button>
         <button class="btn-large btn-primary" ng-click="clear()">{{ 'report.clear' | translate }}</button>
         <button class="btn btn-primary btn-lg active pull-right" ng-show="isEdit" ng-click="delete()">{{ 'report.delete' | translate }}</button>

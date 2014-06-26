@@ -198,7 +198,10 @@
     "report": {
         "pageTitle": "Analyse your data",
         "comment": "Comment",
-        "addElement": "Add element",
+        "queryElements" : "Data to analyse",
+        "addElement": "Add the data",
+        "analysisPeriod" : "Analysis period",
+        "dataviz" : "Visualisation",
         "reportTitle": "Report title",
         "execute": "Execute",
         "clear": "Clear",

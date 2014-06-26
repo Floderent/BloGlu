@@ -2,7 +2,7 @@
 
 var servicesModule = angular.module('BloGlu.services');
 
-servicesModule.factory('UserService', ['$http', '$cookieStore', '$q', 'indexeddbService', 'ServerService', 'Database', function($http, $cookieStore, $q, indexeddbService, ServerService, Database) {
+servicesModule.factory('UserService', ['$http', '$cookieStore', '$q', 'ServerService', 'Database', function($http, $cookieStore, $q, ServerService) {
         var UserService = {};
         var user;
         UserService.signUp = function(user) {
@@ -10,13 +10,7 @@ servicesModule.factory('UserService', ['$http', '$cookieStore', '$q', 'indexeddb
                     ServerService.baseUrl + 'users',
                     user,
                     {
-                        headers: UserService.headers(),
-                        transformRequest: function(data) {
-                            if (data) {
-                                //data.ACL = UserService.ownerReadWriteACL();
-                            }
-                            return angular.toJson(data);
-                        }
+                        headers: UserService.headers()                        
                     });
         };
 
@@ -33,8 +27,7 @@ servicesModule.factory('UserService', ['$http', '$cookieStore', '$q', 'indexeddb
             ).success(function(result) {                
                 $cookieStore.put('user', result);
                 $cookieStore.put('sessionToken', result.sessionToken);
-                user = result;
-                //headers["X-Parse-Session-Token"] = result.sessionToken;
+                user = result;                
                 return result;
             })
                     .error(function(error) {

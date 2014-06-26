@@ -26,11 +26,14 @@ ControllersModule.controller('applicationController', ['$scope', '$rootScope', '
         };
 
         $rootScope.logOut = function() {
-            $rootScope.increasePending('processingMessage.loggingOut');
+            $rootScope.increasePending('processingMessage.loggingOut');            
             return dataService.logOut().then(function() {
                 
             })['finally'](function() {
                 UserService.logOut();
+                $rootScope.pending = 0;
+                MessageService.cancelAll($rootScope.messages);
+                $rootScope.loadingMessages = [];
                 $rootScope.currentUser = null;
                 $rootScope.$broadcast(AUTH_EVENTS.notAuthenticated);
                 $rootScope.decreasePending('processingMessage.loggingOut');
