@@ -118,6 +118,7 @@ ControllersModule.controller('reportController', ['$scope', '$rootScope', '$q', 
         $scope.update = function() {
             $rootScope.increasePending("processingMessage.updatingData");
             reportService.saveReport($scope.report, $scope.isEdit).then(function resolve(result) {
+                $scope.report = angular.extend($scope.report, result);
                 $rootScope.messages.push(MessageService.successMessage('successMessage.reportUpdated', 2000));
             }, function reject(error) {
                 $rootScope.messages.push(MessageService.errorMessage("errorMessage.creatingError", 2000));
