@@ -178,7 +178,7 @@ ControllersModule.controller('eventController',
                         $window.history.back();
                     }, function reject(error) {
                         if($scope.isEdit){
-                            $rootScope.messages.push(MessageService.successMessage('errorMessage.updatingError', 2000));
+                            $rootScope.messages.push(MessageService.errorMessage('errorMessage.updatingError', 2000));
                         }else{
                             $rootScope.messages.push(MessageService.errorMessage('errorMessage.creatingError', 2000));
                         }                           

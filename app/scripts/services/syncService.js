@@ -87,18 +87,13 @@ servicesModule.factory('syncService', ['$q', '$http', '$injector', '$rootScope',
         function syncCollection(collection, syncStatus) {
             var deferred = $q.defer();
             var resource = $injector.get(collection);
-            if (resource && resource.query) {
-                console.log("Downloading " + collection);
+            if (resource && resource.query) {                
                 deferred.notify("Downloading " + collection);                
-                dataService.queryParse(collection, syncStatus.remoteCount, {limit: 1000}).then(function(result) {
-                    console.log("Downloading of " + collection + " completed");
+                dataService.queryParse(collection, syncStatus.remoteCount, {limit: 1000}).then(function(result) {                    
                     deferred.notify("Downloading of " + collection + " completed");
-                    dataService.clear(collection).then(function() {
-                        console.log(collection + " cleared");
-                        deferred.notify(collection + " cleared");
-                        console.log("Inserting "+ result.length + " result in " + collection);
-                        dataService.addRecords(collection, result).then(function(addRecordsResult) {
-                            console.log("Inserted " + result.length + collection + " record(s)");
+                    dataService.clear(collection).then(function() {                        
+                        deferred.notify(collection + " cleared");                        
+                        dataService.addRecords(collection, result).then(function(addRecordsResult) {                            
                             deferred.notify("Inserted " + result.length + collection + " record(s)");
                             deferred.resolve();
                         }, deferred.reject);
@@ -133,16 +128,13 @@ servicesModule.factory('syncService', ['$q', '$http', '$injector', '$rootScope',
             var promiseArray = [];
             if (syncService.syncStatus === 'upToDate') {
                 deferred.resolve();
-            } else {
-                console.log("checking sync status");
-                syncService.checkSyncStatus().then(function(syncStatus) {
-                    console.log("checking sync status - done");
+            } else {                
+                syncService.checkSyncStatus().then(function(syncStatus) {                    
                     angular.forEach(syncStatus, function(value, key) {
                         if (value.status === 'outOfDate') {
                             promiseArray.push(syncCollection(key, value));
                         }
-                    });
-                    console.log("syncing collections");
+                    });                    
                     $q.all(promiseArray).then(function(result) {
                         dataService.init(true).then(function(result) {
                             triggerDataReadyEvent();

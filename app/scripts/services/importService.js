@@ -106,8 +106,7 @@ servicesModule.factory('importService', ['$upload', '$http', '$q', 'ServerServic
                     } else {
                         deferred.reject('file not uploaded');
                     }
-                }, deferred.reject, function progress(evt) {
-                    console.log('percent: ' + parseInt(100.0 * evt.loaded / evt.total));
+                }, deferred.reject, function progress(evt) {                    
                 });
             }, deferred.reject);
 

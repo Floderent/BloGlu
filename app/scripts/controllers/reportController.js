@@ -1,7 +1,7 @@
 'use strict';
 var ControllersModule = angular.module('BloGlu.controllers');
 
-ControllersModule.controller('reportController', ['$scope', '$rootScope', '$q', '$routeParams', '$modal', '$window', 'reportService', 'queryService', 'MessageService', 'DataVisualization', function Controller($scope, $rootScope, $q, $routeParams, $modal, $window, reportService, queryService, MessageService) {
+ControllersModule.controller('reportController', ['$scope', '$rootScope', '$q', '$routeParams', '$modal', '$window', '$location', 'reportService', 'queryService', 'MessageService', 'DataVisualization', function Controller($scope, $rootScope, $q, $routeParams, $modal, $window, $location, reportService, queryService, MessageService) {
 
         $scope.isEdit = $routeParams && $routeParams.objectId;
         $scope.report = {};
@@ -27,10 +27,10 @@ ControllersModule.controller('reportController', ['$scope', '$rootScope', '$q', 
             ]).then(function resolve(results) {
                 $scope.report = results[0];
                 $scope.queryElements = results[1];
-                setQuery();                
+                setQuery();
             }, function reject() {
                 $rootScope.messages.push(MessageService.errorMessage("errorMessage.loadingError", 2000));
-            })['finally'](function(){
+            })['finally'](function() {
                 $rootScope.decreasePending("processingMessage.loading");
             });
         }
@@ -44,13 +44,13 @@ ControllersModule.controller('reportController', ['$scope', '$rootScope', '$q', 
             }
         }
 
-        function getReport() {            
+        function getReport() {
             var deferred = $q.defer();
             if ($scope.isEdit) {
-                reportService.getReport($routeParams.objectId).then(function(result) {                    
+                reportService.getReport($routeParams.objectId).then(function(result) {
                     deferred.resolve(result);
                 });
-            } else {                
+            } else {
                 deferred.resolve({});
             }
             return deferred.promise;
@@ -67,8 +67,8 @@ ControllersModule.controller('reportController', ['$scope', '$rootScope', '$q', 
                 $scope.selectedQueryElements.splice($scope.selectedQueryElements.indexOf(queryElement), 1);
             }
         };
-        
-        $scope.removeFilter = function(){
+
+        $scope.removeFilter = function() {
             $scope.selectedFilter = null;
         };
 
@@ -79,7 +79,7 @@ ControllersModule.controller('reportController', ['$scope', '$rootScope', '$q', 
         };
 
 
-        $scope.$watch('selectedQueryElements', function(newValue, oldValue) {            
+        $scope.$watch('selectedQueryElements', function(newValue, oldValue) {
             $scope.report.query = reportService.getQuery($scope.selectedQueryElements, $scope.selectedFilter);
             if (newValue && oldValue && $scope.report.query) {
                 reportService.executeReportQuery($scope.report.query).then(function(datavizConfig) {
@@ -87,27 +87,27 @@ ControllersModule.controller('reportController', ['$scope', '$rootScope', '$q', 
                 });
             }
         }, true);
-        
-        $scope.$watch('report.display', function(newValue, oldValue){
-            if(newValue !== oldValue){
+
+        $scope.$watch('report.display', function(newValue, oldValue) {
+            if (newValue !== oldValue) {
                 $scope.executeQuery();
             }
         });
 
 
         $scope.executeQuery = function() {
-            $rootScope.increasePending("processingMessage.executingQuery");            
-            $scope.report.query = reportService.getQuery($scope.selectedQueryElements, $scope.selectedFilter);            
+            $rootScope.increasePending("processingMessage.executingQuery");
+            $scope.report.query = reportService.getQuery($scope.selectedQueryElements, $scope.selectedFilter);
             if ($scope.report.query) {
                 reportService.executeReportQuery($scope.report.query).then(function(queryResult) {
-                    queryResult.type = $scope.report.display;                    
+                    queryResult.type = $scope.report.display;
                     $scope.datavizConfig = queryResult;
-                }, function(error){
+                }, function(error) {
                     $rootScope.messages.push(MessageService.errorMessage("errorMessage.executingQueryError", 2000));
-                })['finally'](function(){
+                })['finally'](function() {
                     $rootScope.decreasePending("processingMessage.executingQuery");
                 });
-            }else{
+            } else {
                 $scope.datavizConfig = null;
                 $rootScope.decreasePending("processingMessage.executingQuery");
             }
@@ -119,10 +119,15 @@ ControllersModule.controller('reportController', ['$scope', '$rootScope', '$q', 
             $rootScope.increasePending("processingMessage.updatingData");
             reportService.saveReport($scope.report, $scope.isEdit).then(function resolve(result) {
                 $scope.report = angular.extend($scope.report, result);
+                if (!$scope.isEdit) {
+                    var path = 'report/' + $scope.report.objectId;
+                    $location.url($location.path());
+                    $location.path(path);
+                }
                 $rootScope.messages.push(MessageService.successMessage('successMessage.reportUpdated', 2000));
             }, function reject(error) {
                 $rootScope.messages.push(MessageService.errorMessage("errorMessage.creatingError", 2000));
-            })['finally'](function(){
+            })['finally'](function() {
                 $rootScope.decreasePending("processingMessage.updatingData");
             });
         };
@@ -144,7 +149,7 @@ ControllersModule.controller('reportController', ['$scope', '$rootScope', '$q', 
                         $window.history.back();
                     }, function(error) {
                         $rootScope.messages.push(MessageService.errorMessage('errorMessage.deletingError', 2000));
-                    })['finally'](function(){
+                    })['finally'](function() {
                         $rootScope.decreasePending("processingMessage.deletingData");
                     });
                 }
@@ -154,7 +159,7 @@ ControllersModule.controller('reportController', ['$scope', '$rootScope', '$q', 
         };
 
 
-        $rootScope.$on('dataReady', renderPage);        
+        $rootScope.$on('dataReady', renderPage);
     }]);
 
 
