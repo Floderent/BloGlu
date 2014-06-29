@@ -111,7 +111,10 @@ mainModule.constant('ResourceName', {
 
 mainModule.constant('DataVisualization', {
     table: 'tableDataviz',
-    chart: 'chartDataviz'
+    chart: 'chartDataviz',
+    pieChart: 'pieChartDataviz',
+    barChart: 'barChartDataviz',
+    lineChart: 'lineChartDataviz'
 });
 
 

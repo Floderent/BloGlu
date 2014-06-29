@@ -68,14 +68,15 @@ ControllersModule.controller('inputUserController', ['$scope', '$rootScope', '$m
             UserService.signUp($scope.user)
                     .success(function(result) {
                         $scope.creatingUser = false;
-                        $rootScope.messages.push(MessageService.successMessage('User successfully created', 2000));
+                        $scope.successMessage = 'userCreated';                        
                         $scope.cancel();
                     })
-                    .error(function(error) {
-                        $scope.erroMessage = error.error;
+                    .error(function(error) {                        
+                        $scope.errorMessage = error.error;
                         $scope.creatingUser = false;
                     });
         };
+        /*
         $scope.hitEnter = function(evt) {
             if (angular.equals(evt.keyCode, 13) && $scope.user) {
                 if (!((angular.equals($scope.user.username, null) || angular.equals($scope.user.username, '')) && (angular.equals($scope.user.password, null) || angular.equals($scope.user.password, '')))) {
@@ -83,6 +84,7 @@ ControllersModule.controller('inputUserController', ['$scope', '$rootScope', '$m
                 }
             }
         };
+        */
     }]);
 
 

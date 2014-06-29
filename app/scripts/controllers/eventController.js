@@ -171,10 +171,11 @@ ControllersModule.controller('eventController',
                     event.code = $scope.eventCode;
                     eventService.saveEvent(event, $scope.isEdit).then(function resolve(result) {
                         if($scope.isEdit){                            
-                            $rootScope.messages.push(MessageService.successMessage('successMessage.bloodGlucoseUpdated', 2000));
+                            $rootScope.messages.push(MessageService.successMessage(eventService.resolveUpdateMessage($scope.eventCode), 2000));
                         }else{
-                            $rootScope.messages.push(MessageService.successMessage('successMessage.bloodGlucoseCreated', 2000));
-                        }                        
+                            $rootScope.messages.push(MessageService.successMessage(eventService.resolveCreationMessage($scope.eventCode), 2000));
+                        }
+                        $window.history.back();
                     }, function reject(error) {
                         if($scope.isEdit){
                             $rootScope.messages.push(MessageService.successMessage('errorMessage.updatingError', 2000));

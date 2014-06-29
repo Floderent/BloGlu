@@ -519,7 +519,17 @@ servicesModule.factory('dataService', ['$q', '$filter', '$injector', '$locale', 
                         var sortValueA = rowA[orderClause.alias];
                         var sortValueB = rowB[orderClause.alias];
                         if (orderClause.sort) {
-                            sortResult = orderClause.sort(sortValueA, sortValueB);
+                            var sortFunction = null;
+                            if(typeof orderClause.sort === 'function'){
+                                sortFunction = orderClause.sort;                                
+                            }else{
+                                if(typeof dataService.sort[orderClause.sort] === 'function'){
+                                    sortFunction = dataService.sort[orderClause.sort];                                    
+                                }
+                            }                            
+                            if(sortFunction){
+                                sortResult = sortFunction(sortValueA, sortValueB);
+                            }                            
                         } else {
                             sortResult = defaultSort(sortValueA, sortValueB);
                         }
@@ -707,10 +717,20 @@ servicesModule.factory('dataService', ['$q', '$filter', '$injector', '$locale', 
             },
             currentMonth: {
                 title: 'currentMonth',
-                function: function() {
+                filterFunction: function() {
                     var date = new Date();
                     var beginDate = new Date(date.getFullYear(), date.getMonth());
                     var endDate = new Date(date.getFullYear(), date.getMonth() + 1, 0);
+                    return {$gt: beginDate, $lt: endDate};
+                }
+            },
+            lastSevenDays:{
+                title: 'lastSevenDays',
+                filterFunction: function(){
+                    var date = new Date();
+                    var endDate = new Date();
+                    var beginDate = new Date(date.getFullYear(), date.getMonth(), date.getDate());
+                    beginDate.setDate(beginDate.getDate() - 7);
                     return {$gt: beginDate, $lt: endDate};
                 }
             }
@@ -718,6 +738,13 @@ servicesModule.factory('dataService', ['$q', '$filter', '$injector', '$locale', 
 
 
         dataService.sort = {
+            dayName: function(a, b){
+                var datetime = this.$locale.DATETIME_FORMATS;
+                var days = datetime.DAY;
+                var indexOfA = days.indexOf(a);
+                var indexOfB = days.indexOf(b);
+                return indexOfA - indexOfB;                
+            }.bind({$locale: $locale}),
             monthName: function(a, b) {
                 var datetime = this.$locale.DATETIME_FORMATS;
                 var months = datetime.MONTH;

@@ -1,11 +1,16 @@
 {
     "appName": "BloGlu",
+    
+    "appStatus" : "Alpha",
+    "appVersion" : "0.1",
+    
     "mainScreenMessage": "Handle your blood glucose",
     "signUp": "Sign up",
     "forgotPwd": "Forgot your password",
     "or": "or",
     "logIn": "Log in",
     "logOut": "Log out",
+    "connection": "Log in",
     "welcome": "Welcome",
     "loading": "Loading...",
     
@@ -21,9 +26,13 @@
     
     "tableDataviz" : "Table",
     "chartDataviz" : "Chart",
+    "pieChartDataviz" : "Pie chart",
+    "barChartDataviz" : "Bar chart",
+    "lineChartDataviz" : "Line chart",
     
     "currentYear" : "Current year",
     "currentMonth" : "Current month",
+    "lastSevenDays" : "Last seven days",
     
     "averageWeight" : "Average weight",
     "bgInterval" : "Blood glucose interval",
@@ -41,7 +50,7 @@
     "weight" : "Weight",
     "bg" : "Blood glucose",
     "date" : "Date",
-    "event": "Event",
+    "eventGrp": "Event",
     
     "error": "Error",
     "success" : "Success",
@@ -72,11 +81,33 @@
     },
     
     
-    "successMessage":{        
+    "successMessage":{
+        "userCreated" : "User created",
         "categoryCreated" : "Category created",
         "categoryUpdated" : "Category updated",
-        "bloodGlucoseCreated" : "Blood glucose reading created",
+        
+        "otherCreated":"Other event created",
+        "otherUpdated" : "Other event updated",
+        
+        "bloodGlucoseCreated":"Blood glucose reading created",
         "bloodGlucoseUpdated" : "Blood glucose reading updated",
+        
+        "medicationCreated":"Medication created",
+        "medicationUpdated" : "Medication updated",
+                
+        "weightCreated":"Weight created",
+        "weightUpdated" : "Weight updated",
+        
+        "bloodPressureCreated":"Blood pressure created",
+        "bloodPressureUpdated" : "Blood pressure updated",
+        
+        "a1cCreated":"A1c created",
+        "a1cUpdated" : "A1c updated",
+        
+        "exerciseCreated":"Exercise created",
+        "exerciseUpdated" : "Exercise updated",
+        
+        
         "periodCreated" : "Period created",
         "periodUpdated" : "Period updated",
         "rangeCreated" : "Range created",
@@ -163,7 +194,7 @@
         "month": "Month",
         "year": "Year",
         "print": "Print",
-        "from" : "From",
+        "from" : "from",
         "to" : "to"
     },
     "period": {

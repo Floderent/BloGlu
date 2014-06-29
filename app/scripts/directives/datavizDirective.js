@@ -13,6 +13,9 @@ DirectivesModule.directive('dataviz', function($compile) {
                         dataviz = $compile('<table-dataviz column-order="columnOrder" config="config"></table-dataviz>')(scope);
                         break;
                     case 'chart':
+                    case 'pieChart':
+                    case 'barChart':
+                    case 'lineChart':
                         dataviz = $compile('<chart-dataviz column-order="columnOrder" config="config"></chart-dataviz>')(scope);
                         break;
                     default:
@@ -62,10 +65,19 @@ DirectivesModule.directive('tableDataviz', ['$compile', 'dataService', function(
                         htmlElement = buildMultipleValueTable(scope);
                     }
                 }
+                if(scope.config.title){
+                    angular.element(element).append(buildTitle(scope.config.title));
+                }
                 angular.element(element).append(htmlElement);
             }
         }
-
+        
+        function buildTitle(title){
+            var titleElement = document.createElement('h3');
+            titleElement.appendChild(document.createTextNode(title));
+            return titleElement;
+        }
+        
 
         function buildSingleValueTable(scope) {
             var config = scope.config;
@@ -74,7 +86,7 @@ DirectivesModule.directive('tableDataviz', ['$compile', 'dataService', function(
             var title = document.createElement('h1');
             var value = document.createElement('span');
 
-            title.appendChild(document.createTextNode(config.headers[0].title + ": "));
+            //title.appendChild(document.createTextNode(config.headers[0].title + ": "));
             value.appendChild(document.createTextNode(config.data[0][config.headers[0].name]));
 
             title.appendChild(value);
@@ -163,7 +175,8 @@ DirectivesModule.directive('tableDataviz', ['$compile', 'dataService', function(
                         direction: 'ASC'
                     };
                     if (this.header.sort) {
-                        sortClause.sort = dataService.sort[this.header.sort];
+                        //sortClause.sort = dataService.sort[this.header.sort];
+                        sortClause.sort = this.header.sort;
                     }
                     this.scope.columnOrder.push(sortClause);
                 }
@@ -195,7 +208,7 @@ DirectivesModule.directive('chartDataviz', ['$compile', 'dataService', function(
         };
 
         function renderChart(configuration, scope, element) {
-            var config = angular.fromJson(configuration);            
+            var config = angular.fromJson(configuration);
             if (scope.columnOrder) {
                 dataService.orderBy(scope.config.data, scope.columnOrder);
             }
@@ -205,7 +218,7 @@ DirectivesModule.directive('chartDataviz', ['$compile', 'dataService', function(
                 $compile(element)(scope);
             } else {
                 element.empty();
-                var chart = $compile('<highchart id="chart1" config="chartConfig" class="span10"></highchart>')(scope);
+                var chart = $compile('<highchart config="chartConfig"></highchart>')(scope);
             }
             angular.element(element).append(chart);
         }
@@ -215,24 +228,90 @@ DirectivesModule.directive('chartDataviz', ['$compile', 'dataService', function(
                 options: {
                     chart: {
                         type: 'line',
-                        zoomType: 'x'
+                        //zoomType: 'x',
+                        spacingTop: 0,
+                        spacingLeft: 0,
+                        spacingRight: 0,
+                        spacingBottom: 0,
+                        //TODO: to remove
+                        //width: 350,
+                        //height: 350
                     }
                 },
                 series: [],
                 title: {
                     text: ''
-                },
-                xAxis: {
-                    categories: []
-                            /*
-                             type: 'datetime',
-                             dateTimeLabelFormats: {// don't display the dummy year
-                             month: '%e. %b',
-                             year: '%b'
-                             }*/
-                },
-                loading: false
+                }
             };
+            if(config.title){
+                scope.chartConfig.title.text = config.title;
+            }            
+            //handle chart type
+            switch (config.type) {
+                case 'pieChart':
+                    scope.chartConfig.options.chart.type = 'pie';
+                    break;
+                case 'barChart':
+                    scope.chartConfig.options.chart.type = 'bar';
+                    break;
+                case 'lineChart':
+                    scope.chartConfig.options.chart.type = 'line';
+                    break;
+            }            
+            getChartSeries(scope, config);
+        }
+        
+        
+        
+        function getChartSeries(scope, config) {
+            switch (config.type) {
+                case 'pieChart':
+                    getPieChartSerie(scope, config);
+                    break;
+                case 'chart':
+                case 'lineChart':
+                case 'barChart':
+                    getChartSerie(scope, config);
+                    break;
+            }
+        }
+        
+        function getPieChartSerie(scope, config){
+            var serieQueryElement = null;
+            angular.forEach(config.headers, function(queryElement) {
+                if (queryElement.aggregate) {
+                    serieQueryElement = queryElement;
+                    return;
+                }
+            });
+            var serie = {
+                type: 'pie',
+                name: serieQueryElement.title,
+                data: []
+            };
+            scope.chartConfig.series.push(serie);
+            for (var lineIndex = 0; lineIndex < config.data.length; lineIndex++) {
+                var textValue = '';
+                var numericValue = null;
+                for (var columnIndex = 0; columnIndex < config.headers.length; columnIndex++) {                    
+                    var propertyName = config.headers[columnIndex].name;
+                    if (config.headers[columnIndex].aggregate) {
+                        numericValue = parseInt(config.data[lineIndex][propertyName]);                        
+                    } else {
+                        textValue += " " + config.data[lineIndex][propertyName];
+                    }
+                }
+                serie.data.push([textValue, numericValue]);
+            }
+            
+        }
+        
+
+        function getChartSerie(scope, config) {
+            
+            scope.chartConfig.xAxis = {};
+            scope.chartConfig.xAxis.categories = [];
+            
             angular.forEach(config.headers, function(queryElement) {
                 if (queryElement.aggregate) {
                     scope.chartConfig.series.push({name: queryElement.title, data: []});
@@ -253,6 +332,8 @@ DirectivesModule.directive('chartDataviz', ['$compile', 'dataService', function(
                 scope.chartConfig.xAxis.categories.push(textValue);
             }
         }
+
+
 
         function getSerieByTitle(series, name) {
             var foundSerie = null;

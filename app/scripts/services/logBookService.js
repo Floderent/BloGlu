@@ -4,7 +4,7 @@ var servicesModule = angular.module('BloGlu.services');
 
 servicesModule.factory('logBookService', ['$q', '$filter', 'UserService', 'Period', 'Event', 'dateUtil', 'statsService', 'dataService', 'ModelUtil','ResourceName', function($q, $filter, UserService, Period, Event, dateUtil, statsService, dataService, ModelUtil, ResourceName) {
         var logBookService = {};
-
+        
         function getBloodGlucoseReadingsBetweenDates(beginDate, endDate, params) {            
             var where = ModelUtil.addClauseToFilter({dateTime: {$gt: beginDate, $lt: endDate}}, params.where);
             delete params.where;
@@ -186,7 +186,7 @@ servicesModule.factory('logBookService', ['$q', '$filter', 'UserService', 'Perio
         function getBloodGlucoseReadingRowByDate(days, date) {
             return days.indexOf(date.getDate());
         }
-
+              
 
         logBookService.getEventTypes = function(display) {
             var eventTypes = {};

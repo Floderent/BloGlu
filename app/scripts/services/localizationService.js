@@ -18,6 +18,7 @@ servicesModule.factory('localizationService', ['$window', '$translate', '$q', 't
         localizationService.language = null;
 
         localizationService.setLanguage = function(language) {
+            var deferred = $q.defer();
             localizationService.language = localizationService.defaultLanguage;
             if (isSupportedLanguage(language)) {
                 localizationService.language = language;
@@ -26,8 +27,10 @@ servicesModule.factory('localizationService', ['$window', '$translate', '$q', 't
                     localizationService.language = localizationService.browserLanguage;
                 }
             }
-            $translate.use(localizationService.language);            
-            return tmhDynamicLocale.set(localizationService.language);                
+            $translate.use(localizationService.language);
+            deferred.resolve(tmhDynamicLocale.set(localizationService.language));
+            //deferred.resolve();
+            return deferred.promise;            
         };
 
         localizationService.get = function(key) {           

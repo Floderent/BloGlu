@@ -170,7 +170,7 @@ servicesModule.factory('reportService', ['$q', 'ModelUtil', 'dataService', 'quer
                 var filterToHandle = angular.extend({}, angular.fromJson(additionalFilter));
                 angular.forEach(filterToHandle, function(value, key) {
                     if (value.type && value.type === 'function') {
-                        filterToHandle[key] = dataService.where[value.value].function();
+                        filterToHandle[key] = dataService.where[value.value].filterFunction();
                     }
                 });
                 ModelUtil.addClauseToFilter(where, filterToHandle);

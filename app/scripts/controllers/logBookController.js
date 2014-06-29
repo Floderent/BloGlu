@@ -7,33 +7,25 @@ ControllersModule.controller('logBookController', ['$scope', '$rootScope', '$loc
         $scope.eventsTypes = ResourceName;
         $scope.display = [1];
         //default display blood glucose
-        $scope.resource = {1: true};
-        var currentDate = null;
+
+        $scope.currentDate = null;
         $scope.interval = 'week';
 
 
         if ($routeParams && $routeParams.weekDate) {
-            currentDate = new Date($routeParams.weekDate);
+            $scope.currentDate = new Date($routeParams.weekDate);
         } else {
-            currentDate = new Date();
+            $scope.currentDate = new Date();
         }
         if ($routeParams && $routeParams.interval) {
             $scope.interval = $routeParams.interval;
         }
-        if ($routeParams && $routeParams.display) {
+        if ($routeParams && typeof $routeParams.display !== 'undefined') {
             $scope.display = $routeParams.display;
-        }
-
-        if ($routeParams && $routeParams.display) {
-            var intStrArray = $routeParams.display.split(',');
-            var intArray = [];
-            var resource = {};
-            angular.forEach(intStrArray, function(value, key) {
-                intArray.push(parseInt(value));
-                resource[parseInt(value)] = true;
-            });
-            $scope.resource = resource;
-            $scope.display = intArray;
+            processDisplay();
+        } else {
+            $scope.display = [1];
+            $scope.resource = {1: true};
         }
 
         $scope.$watch('resource', function(newValue, oldValue) {
@@ -44,13 +36,16 @@ ControllersModule.controller('logBookController', ['$scope', '$rootScope', '$loc
                         resourceCodes.push(parseInt(key));
                     }
                 });
+
+                //renderPage();
                 $scope.display = resourceCodes;
-                renderPage();
+                $location.url($location.path());
+                $location.path('logBook').search('weekDate', $scope.currentDate.toISOString()).search('interval', $scope.interval).search('display', logBookService.getDisplayParam($scope.display));
             }
         }, true);
 
 
-        $scope.timeInterval = logBookService.getTimeInterval($scope.interval, currentDate);
+        $scope.timeInterval = logBookService.getTimeInterval($scope.interval, $scope.currentDate);
 
         renderPage();
 
@@ -71,7 +66,22 @@ ControllersModule.controller('logBookController', ['$scope', '$rootScope', '$loc
             });
         }
 
+        function processDisplay() {
+            var intStrArray = $scope.display.split(',');
+            var intArray = [];
+            var resource = {};
+            angular.forEach(intStrArray, function(value, key) {
+                if(parseInt(value) === parseInt(value)){
+                    intArray.push(parseInt(value));
+                    resource[parseInt(value)] = true;
+                }
+            });
+            $scope.resource = resource;
+            $scope.display = intArray;
+        }
+
         function goToaddEvent(eventCode, day, period) {
+            $location.url($location.path());
             $location.path('event/' + ResourceCode[eventCode]).search('day', day.date.toISOString()).search('time', period.begin.toISOString());
         }
 
@@ -91,7 +101,9 @@ ControllersModule.controller('logBookController', ['$scope', '$rootScope', '$loc
                     newDate.setFullYear(newDate.getFullYear() + (1 * coef));
                     break;
             }
-            $location.path('logBook').search('weekDate', newDate.toISOString()).search('interval', interval).search('display', logBookService.getDisplayParam($scope.display));
+            $scope.currentDate = newDate;
+            $location.url($location.path());
+            $location.path('logBook').search('weekDate', $scope.currentDate.toISOString()).search('interval', interval).search('display', logBookService.getDisplayParam($scope.display));
         }
 
         $scope.printToPDF = function() {
@@ -104,12 +116,12 @@ ControllersModule.controller('logBookController', ['$scope', '$rootScope', '$loc
          * Change grouping
          */
         $scope.change = function() {
-            changeInterval(currentDate, $scope.interval, 0);
+            changeInterval($scope.currentDate, $scope.interval, 0);
         };
 
         //create new reading with prefilled date and time
         $scope.addEvent = function(day, period) {
-            //if only one event type selected, add this one
+            //if only one event type selected, add this one            
             if ($scope.display.length === 1) {
                 goToaddEvent($scope.display[0], day, period);
             } else {
@@ -150,20 +162,21 @@ ControllersModule.controller('logBookController', ['$scope', '$rootScope', '$loc
                     newInterval = $scope.interval;
                     break;
             }
+            $location.url($location.path());
             $location.path('logBook').search('weekDate', date.toISOString()).search('interval', newInterval);
         };
 
         $scope.advance = function() {
-            changeInterval(currentDate, $scope.interval, +1);
+            changeInterval($scope.currentDate, $scope.interval, +1);
         };
 
         $scope.back = function() {
-            changeInterval(currentDate, $scope.interval, -1);
+            changeInterval($scope.currentDate, $scope.interval, -1);
         };
 
         $scope.currentWeek = function() {
             currentDate = new Date();
-            changeInterval(currentDate, $scope.interval, 0);
+            changeInterval($scope.currentDate, $scope.interval, 0);
         };
         $rootScope.$on('dataReady', renderPage);
     }]);

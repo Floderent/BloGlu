@@ -52,7 +52,7 @@ servicesModule.factory('queryService', ['$q', 'dataService', 'ModelUtil', 'local
             if(element.title){
                 element.title = localizationService.get(element.title);
             }
-            if(element.group){
+            if(element.group){                
                 element.group = localizationService.get(element.group);
             }
             return element;

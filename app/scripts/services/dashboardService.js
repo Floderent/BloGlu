@@ -145,12 +145,15 @@ servicesModule.factory('dashboardService', ['$q', 'dataService', 'queryService',
             return reportService.getReport(report.report).then(function(completeReport) {
                 reportTab[report.row][report.column] = {loading: true};
                 reportService.executeReport(completeReport).then(function(reportQueryResult) {
-                    reportQueryResult.type = completeReport.display;
-                    var dashboardReport = {
-                        title: completeReport.title,
-                        queryResult: reportQueryResult
+                    reportQueryResult.type = completeReport.display;                    
+                    reportQueryResult.title = completeReport.title;
+                    var dashboardReport = {                        
+                        queryResult: reportQueryResult,
+                        columnOrder: completeReport.sort
                     };                    
                     return reportTab[report.row][report.column] = dashboardReport;
+                })['finally'](function(){
+                    reportTab[report.row][report.column].loading = false;
                 });
             });
         }

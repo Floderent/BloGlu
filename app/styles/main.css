@@ -90,11 +90,22 @@ body {
     margin-right: 20px;
 }
 
-
+/* Page feedback */
 .message{
     width:50%;
     text-align: center;
     margin:auto;
+}
+
+.loading-icon{
+    width: 40px;
+    height: 40px;
+    vertical-align: central;
+}
+
+.loading-icon-small{
+    width: 20px;
+    height: 20px;
 }
 
 
@@ -137,6 +148,50 @@ body {
 .reading{
     font-size: 20px;
     font-weight: bold;
+}
+
+.loginHeader {
+    margin-left: 40px;
+    margin-right: 40px;
+}
+
+
+
+
+/*Dashboard */
+.square {
+    float:left;
+    position: relative;
+    width: 30%;
+    padding-bottom : 30%; /* = width for a 1:1 aspect ratio */
+    margin:1.66%;
+    background-color:#DDD;
+    overflow:hidden;
+}
+
+.content {
+    position:absolute;
+    height:90%; /* = 100% - 2*5% padding */
+    width:90%; /* = 100% - 2*5% padding */
+    padding: 5%;
+    box-sizing: initial;
+    
+}
+.table{
+    display:table;
+    width:100%;
+    height:100%;
+}
+.table-cell{    
+    display:table-cell;
+    vertical-align:middle;
+}
+
+.content .rs{    
+    width:auto;
+    height:auto;
+    max-height:90%;
+    max-width:100%;        
 }
 
 

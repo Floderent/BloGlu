@@ -1,11 +1,15 @@
 {
     "appName": "BloGlu",
+    "appStatus" : "Alpha",
+    "appVersion" : "0.1",
+    
     "mainScreenMessage": "Gérer votre glycémie",
     "signUp": "S'enregistrer",
     "forgotPwd": "Mot de passe oublié",
     "or": "ou",
     "logIn": "Se connecter",
     "logOut": "Se déconnecter",
+    "connection": "Connexion",
     "welcome": "Bienvenue",
     "preferences": "Mes réglages",
     "loading": "Chargement...",
@@ -20,9 +24,13 @@
     
     "tableDataviz" : "Tableau",
     "chartDataviz" : "Graphique",
+    "pieChartDataviz" : "Camembert",
+    "barChartDataviz" : "Histogramme",
+    "lineChartDataviz" : "Courbe",
     
     "currentYear" : "Année en cours",
     "currentMonth" : "Mois en cours",
+    "lastSevenDays" : "Sept dernier jours",
     
     "averageWeight" : "Poids moyen",
     "bgInterval" : "Intervalle de glycémie",
@@ -40,7 +48,7 @@
     "weight" : "Poids",
     "bg" : "Glycémie",
     "date" : "Date",
-    "event": "Evènement",
+    "eventGrp": "Evènement",
     
     "error": "Erreur",
     "success" : "Succès",
@@ -71,10 +79,31 @@
     },
     
     "successMessage":{
+        "userCreated" : "Utilisateur créé",
       "categoryCreated" : "Catégorie créée",
       "categoryUpdated" : "Catégorie mise à jour",
-      "bloodGlucoseCreated" : "Glycémie créée",
-      "bloodGlucoseUpdated" : "Glycémie mise à jour",
+      
+      "otherCreated":"Autre évènement créé",
+        "otherUpdated" : "Autre évènement mis à jour",
+        
+        "bloodGlucoseCreated":"Glycémie créée",
+        "bloodGlucoseUpdated" : "Glycémie mise à jour",
+        
+        "medicationCreated":"Traitement créé",
+        "medicationUpdated" : "Traitement mis à jour",
+        
+        "weightCreated":"Poids créé",
+        "weightUpdated" : "Poids mis à jour",
+        
+        "bloodPressureCreated":"Pression artérielle créée",
+        "bloodPressureUpdated" : "Pression artérielle mise à jour",
+        
+        "a1cCreated":"Hba1c créée",
+        "a1cUpdated" : "Hba1c mise à jour",
+        
+        "exerciseCreated":"Exercice physique créé",
+        "exerciseUpdated" : "Exercice physique mis à jour",
+        
       "periodCreated" : "Période créée",
       "periodUpdated" : "Période mise à jour",
       "reportCreated" : "Rapport créé",
@@ -158,7 +187,7 @@
         "month": "Mois",
         "year": "Année",
         "print": "Imprimer",
-        "from" : "Du",
+        "from" : "du",
         "to" : "au"
     },
     "period": {

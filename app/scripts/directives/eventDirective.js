@@ -19,13 +19,14 @@ DirectivesModule.directive('blogluEvent', ['$compile', '$injector', '$q', '$loca
             var resourceCode = $injector.get('ResourceCode');
 
             //view reading by id
-            var viewEvent = function(resource, objectId) {
+            var viewEvent = function(code, objectId) {
+                var resource = resourceCode[code];
                 var path = 'event/' + resource + "/" + objectId;
                 $location.path(path);
             };
 
             var template = getEventTemplate(event, resourceCode);
-            var dom = angular.element('<div ng-dblclick="viewEvent(resource, objectId)" class="panel panel-default">' + template + '</div>');
+            var dom = angular.element('<div ng-dblclick="viewEvent(code, objectId)" class="panel panel-default">' + template + '</div>');
 
             getScope(event, resourceCode).then(function(eventScope) {
                 scope = angular.extend(scope, eventScope);
@@ -82,8 +83,8 @@ DirectivesModule.directive('blogluEvent', ['$compile', '$injector', '$q', '$loca
                     unit = event.unit;
                 }
                 scope.reading = reading;
-                scope.unit = unit;
-                scope.resource = resourceCode[event.code];
+                scope.unit = unit;                
+                scope.code = event.code;
                 scope.objectId = event.objectId;
                 scope.dateTime = event.dateTime;
 

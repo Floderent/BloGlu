@@ -14,7 +14,7 @@ servicesModule.factory('indexeddbService', ['$window', '$q', 'Database', functio
             if (db === null) {
                 var version = 1;
                 var request = indexedDB.open(databaseName, version);
-                request.onupgradeneeded = function(e) {
+                request.onupgradeneeded = function(e) {                    
                     db = e.target.result;
                     e.target.transaction.onerror = indexedDB.onerror;
                     recreateDatabaseSchema(db, Database.schema);
@@ -40,14 +40,14 @@ servicesModule.factory('indexeddbService', ['$window', '$q', 'Database', functio
         }
         ;
 
-        function recreateDatabaseSchema(database, resourceNames) {
+        function recreateDatabaseSchema(database, resourceNames) {            
             angular.forEach(resourceNames, function(resourceName) {
                 if (database.objectStoreNames.contains(resourceName)) {
                     database.deleteObjectStore(resourceName);
                 }
                 var objectStore = database.createObjectStore(resourceName, {keyPath: 'objectId'});
                 objectStore.createIndex('userIndex', 'userId', {uniques: false});
-            });
+            });            
         }
         indexeddbService.dropDatabase = function() {
             var deferred = $q.defer();
