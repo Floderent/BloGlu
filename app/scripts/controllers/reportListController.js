@@ -20,7 +20,7 @@ ControllersModule.controller('reportListController', ['$scope', '$rootScope', '$
 
         $scope.deleteReport = function(report) {
             var $modalScope = $rootScope.$new(true);
-            $modalScope.message = "the " + report.title + " report";
+            $modalScope.message = report.title;
             var modalInstance = $modal.open({
                 templateUrl: "views/modal/confirm.html",
                 controller: "confirmModalController",

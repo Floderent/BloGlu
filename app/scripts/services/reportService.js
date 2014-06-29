@@ -22,7 +22,7 @@ servicesModule.factory('reportService', ['$q', 'ModelUtil', 'dataService', 'quer
             return genericDaoService.get(reportResourceName, reportId);
         };
         reportService.deleteReport = function(report) {
-            return genericDaoService.delete(report);
+            return genericDaoService.delete(reportResourceName, report);
         };
         
         reportService.getDatavizTypes = function(){
