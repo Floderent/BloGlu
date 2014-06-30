@@ -19,12 +19,12 @@ servicesModule.factory('localizationService', ['$window', '$translate', '$q', 't
 
         localizationService.setLanguage = function(language) {
             var deferred = $q.defer();
-            localizationService.language = localizationService.defaultLanguage;
+            localizationService.language = localizationService.defaultLanguage;            
             if (isSupportedLanguage(language)) {
                 localizationService.language = language;
             } else {
                 if (isSupportedLanguage(localizationService.browserLanguage)) {
-                    localizationService.language = localizationService.browserLanguage;
+                    localizationService.language = isSupportedLanguage(localizationService.browserLanguage);
                 }
             }
             $translate.use(localizationService.language);
@@ -66,7 +66,7 @@ servicesModule.factory('localizationService', ['$window', '$translate', '$q', 't
             if (language) {
                 angular.forEach(localizationService.supportedLanguages, function(supportedLanguage) {
                     if (language.indexOf(supportedLanguage) !== -1) {
-                        supported = true;
+                        supported = supportedLanguage;
                         return;
                     }
                 });
