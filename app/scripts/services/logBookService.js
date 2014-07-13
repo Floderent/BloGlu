@@ -114,7 +114,7 @@ servicesModule.factory('logBookService', ['$q', '$filter', 'UserService', 'Perio
                 if (analysisPeriods && Array.isArray(analysisPeriods) && analysisPeriods.length > 0) {
                     result = analysisPeriods;
                     result.sort(function(a, b) {
-                        return (a.begin.getHours() * 60 + a.begin.getMinutes()) > (b.begin.getHours() * 60 + b.begin.getMinutes());
+                        return (a.begin.getHours() * 60 + a.begin.getMinutes()) - (b.begin.getHours() * 60 + b.begin.getMinutes());
                     });
                 } else {
                     //get default values
@@ -384,6 +384,22 @@ servicesModule.factory('logBookService', ['$q', '$filter', 'UserService', 'Perio
                 return dataArray;
             });
         };
+        
+        logBookService.getMiddleTime =  function(period){
+            var middleTime = null;            
+            if(period && period.begin && period.end){
+                middleTime = new Date((getHourAndMinutesMilliseconds(period.begin) + getHourAndMinutesMilliseconds(period.end))/2);
+            }
+            return middleTime;
+        };
+        
+        function getHourAndMinutesMilliseconds(jsDate){
+            var _MS_PER_HOUR = 1000 * 60 * 60;
+            var _MS_PER_MINUTE = 1000 * 60;            
+            return jsDate.getHours() * _MS_PER_HOUR + jsDate.getMinutes() * _MS_PER_MINUTE;
+        }
+        
+        
 
         return logBookService;
     }]);

@@ -18,6 +18,7 @@ var mainModule = angular
             'angularSpectrumColorpicker',
             'pascalprecht.translate',
             'tmh.dynamicLocale',
+            'ngTouch',
             'BloGlu.services',
             'BloGlu.controllers',
             'BloGlu.filters',

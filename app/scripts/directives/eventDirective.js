@@ -26,7 +26,7 @@ DirectivesModule.directive('blogluEvent', ['$compile', '$injector', '$q', '$loca
             };
 
             var template = getEventTemplate(event, resourceCode);
-            var dom = angular.element('<div ng-dblclick="viewEvent(code, objectId)" class="panel panel-default">' + template + '</div>');
+            var dom = angular.element('<div ng-click="viewEvent(code, objectId)" class="panel panel-default">' + template + '</div>');
 
             getScope(event, resourceCode).then(function(eventScope) {
                 scope = angular.extend(scope, eventScope);
@@ -42,11 +42,14 @@ DirectivesModule.directive('blogluEvent', ['$compile', '$injector', '$q', '$loca
         function getEventTemplate(event, resourceCode) {
             var template = "";
             switch (event.code) {
-                case resourceCode['bloodGlucose']:
-                    template = '<div style="border-left:5px solid;border-color:{{color}};" class="panel-body"><span class="glyphicon glyphicon-tint"></span>{{dateTime | date:"HH:mm"}} <span class="reading">{{reading}}</span class="reading"> {{unit.name}}</div>';
+                case resourceCode['bloodGlucose']:                    
+                    template = '<div ng-style="{\'border-left\': border, \'border-color\': color}"  class="panel-body"><span class="glyphicon glyphicon-tint"></span>{{dateTime | date:"HH:mm"}} <span class="reading">{{reading}}</span class="reading"> {{unit.name}}</div>';
                     break;
                 case resourceCode['medication']:
                     template = '<div class="panel-body"><span class="glyphicon glyphicon-briefcase"></span>{{dateTime | date:"HH:mm"}} <span class="reading">{{reading}}</span> {{unit.name}}</div>';
+                    break;
+                case resourceCode['weight']:
+                    
                     break;
             }
             return template;
@@ -87,9 +90,10 @@ DirectivesModule.directive('blogluEvent', ['$compile', '$injector', '$q', '$loca
                 scope.code = event.code;
                 scope.objectId = event.objectId;
                 scope.dateTime = event.dateTime;
-
-                if (range) {
+                
+                if (range) {                    
                     scope.color = range.color;
+                    scope.border = "5px solid";                    
                 }
                 return scope;
             });

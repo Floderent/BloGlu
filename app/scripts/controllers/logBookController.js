@@ -82,7 +82,8 @@ ControllersModule.controller('logBookController', ['$scope', '$rootScope', '$loc
 
         function goToaddEvent(eventCode, day, period) {
             $location.url($location.path());
-            $location.path('event/' + ResourceCode[eventCode]).search('day', day.date.toISOString()).search('time', period.begin.toISOString());
+            var newEventDate = logBookService.getMiddleTime(period);
+            $location.path('event/' + ResourceCode[eventCode]).search('day', day.date.toISOString()).search('time', newEventDate.toISOString());
         }
 
         function changeInterval(currentDate, interval, coef) {

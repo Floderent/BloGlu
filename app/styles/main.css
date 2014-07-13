@@ -97,6 +97,11 @@ body {
     margin:auto;
 }
 
+.content-panel{
+    margin: 10px;
+}
+
+
 .loading-icon{
     width: 40px;
     height: 40px;
