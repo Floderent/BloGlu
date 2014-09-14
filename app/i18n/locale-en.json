@@ -195,7 +195,11 @@
         "year": "Year",
         "print": "Print",
         "from" : "from",
-        "to" : "to"
+        "to" : "to",
+        "maximum": "Maximum",
+        "minimum": "Minimum",
+        "average": "Average",
+        "number": "Number"
     },
     "period": {
         "pageTitle": "View or modify the analysis period(s)",
@@ -249,6 +253,8 @@
         "delete": "Delete"
     },
     "userPreferences": {
+        "account": "My account",
+        "application" : "Application",
         "pageTitle": "View or modify your settings",
         "name": "Name",
         "password": "Password",

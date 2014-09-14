@@ -56,6 +56,10 @@
                     <div ng-if="interval !== 'week' && interval !== 'day' && bloodGlucoseReadings.length > 0">
                         <div ng-if="bloodGlucoseReadings.length > 0">                                
                             <div ng-repeat="(key, value) in bloodGlucoseReadings[0]">
+                                
+                                <bloglu-event-group bloglu-grouped-event="value" ></bloglu-event-group>
+                                
+                                <!--
                                 <div class="panel panel-default">
                                     <div class="panel-heading">{{value.title| translate}}</div>
                                     <div class="panel-body">
@@ -73,6 +77,8 @@
                                         </p>
                                     </div>
                                 </div>
+                                -->
+                                
                             </div>
                         </div>
                         <!--

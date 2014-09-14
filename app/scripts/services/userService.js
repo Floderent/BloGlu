@@ -2,7 +2,7 @@
 
 var servicesModule = angular.module('BloGlu.services');
 
-servicesModule.factory('UserService', ['$http', '$cookieStore', '$q', 'ServerService', 'Database', function($http, $cookieStore, $q, ServerService) {
+servicesModule.factory('UserService', ['$http', 'ipCookie', '$q', 'ServerService', 'Database', function($http, ipCookie, $q, ServerService) {
         var UserService = {};
         var user;
         UserService.signUp = function(user) {
@@ -24,9 +24,9 @@ servicesModule.factory('UserService', ['$http', '$cookieStore', '$q', 'ServerSer
                             'password': password
                         }
                     }
-            ).success(function(result) {                
-                $cookieStore.put('user', result);
-                $cookieStore.put('sessionToken', result.sessionToken);
+            ).success(function(result) {
+                delete result.email;
+                ipCookie('user', result, {expire: 7});
                 user = result;                
                 return result;
             })
@@ -37,8 +37,7 @@ servicesModule.factory('UserService', ['$http', '$cookieStore', '$q', 'ServerSer
         };
         UserService.logOut = function() {
             user = null;
-            $cookieStore.remove('user');
-            $cookieStore.remove('sessionToken');
+            ipCookie.remove('user');
         };
 
 
@@ -52,19 +51,20 @@ servicesModule.factory('UserService', ['$http', '$cookieStore', '$q', 'ServerSer
         };
 
         UserService.currentUser = function() {             
-            return user || $cookieStore.get('user');
+            return user || ipCookie('user');
         };
 
         UserService.updateUser = function(updatedUser) {
             if (user && updatedUser) {
                 user = angular.extend(user, updatedUser);
             }
-            if ($cookieStore.get('user')) {
-                var cookieUser = $cookieStore.get('user');
+            if (ipCookie('user')) {
+                var cookieUser = ipCookie('user');
                 if (cookieUser) {
                     cookieUser = angular.extend(cookieUser, updatedUser);
                 }
-                $cookieStore.put('user', cookieUser);
+                delete cookieUser.email;
+                ipCookie('user', cookieUser, {expire: 7});
             }
         };
         
@@ -72,8 +72,8 @@ servicesModule.factory('UserService', ['$http', '$cookieStore', '$q', 'ServerSer
             return UserService.currentUser() && UserService.currentUser().sessionToken;
         };
         
-        UserService.isTokenValid = function(){
-            var deferred = $q.defer();
+        UserService.isTokenValid = function(){            
+            var deferred = $q.defer();            
             $http({
                 method: 'GET',
                 url: ServerService.baseUrl + 'users/me',                
@@ -82,7 +82,7 @@ servicesModule.factory('UserService', ['$http', '$cookieStore', '$q', 'ServerSer
             .success(function(user){
                 deferred.resolve(true);
             })
-            .error(function(error){
+            .error(function(error){                
                 var sessionValid = true;
                 if(error && error.code === 101){
                     sessionValid = false;
@@ -115,7 +115,7 @@ servicesModule.factory('UserService', ['$http', '$cookieStore', '$q', 'ServerSer
                 "Content-Type": "application/json",
                 "X-Parse-Application-Id": ServerService.applicationId,
                 "X-Parse-REST-API-Key": ServerService.restApiKey
-            };
+            };            
             if (UserService.currentUser() && UserService.currentUser().sessionToken) {
                 headers["X-Parse-Session-Token"] = UserService.currentUser().sessionToken;
             }            

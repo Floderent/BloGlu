@@ -167,7 +167,7 @@ servicesModule.factory('dateUtil', ['$filter', function($filter) {
                     }
                     beginDate = new Date(date.getTime());
                     endDate = new Date(date.getTime());
-                    beginDate.setDate(date.getDate() + index);
+                    beginDate.setDate(date.getDate() - (7 - index));
                     endDate.setDate(beginDate.getDate() + 6);
                 } else {
                     var index = date.getDay();

@@ -89,7 +89,7 @@ servicesModule.factory('statsService', ['$filter', 'ResourceName', function($fil
                     stats[bloodGlucoseReading.code] = {
                         maximum : null,
                         minimum: null,
-                        nb: 0,
+                        number: 0,
                         _total: 0
                     };
                 }
@@ -100,13 +100,14 @@ servicesModule.factory('statsService', ['$filter', 'ResourceName', function($fil
                 if (stats[bloodGlucoseReading.code].minimum === null || reading < stats[bloodGlucoseReading.code].minimum) {
                     stats[bloodGlucoseReading.code].minimum = reading;
                 }
-                stats[bloodGlucoseReading.code].nb++;
+                stats[bloodGlucoseReading.code].number++;
                 stats[bloodGlucoseReading.code]._total += reading;
 
             });
             angular.forEach(stats, function(value, key) {                
                 value.title = ResourceName[parseInt(key)];
-                value.average = $filter('number')(value._total / value.nb, 0);
+                value.code = parseInt(key);
+                value.average = $filter('number')(value._total / value.number, 0);
             });                
             return stats;
         };

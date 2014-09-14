@@ -53,8 +53,7 @@ ControllersModule.controller('eventController',
                         $scope.units = results[1];
                         $scope.categories = results[2];
 
-                        handleDate();
-                        handleCategory();
+                        handleDate();                        
                         handleUnit();
 
                     }, function reject() {
@@ -80,43 +79,21 @@ ControllersModule.controller('eventController',
                     $scope.date = currentDate;
                 }
 
-                function handleCategory() {
-                    //=====handle category
-                    var currentCategory = null;
-                    if ($scope.event.category) {
-                        angular.forEach($scope.categories, function(category) {
-                            if (category.objectId === $scope.event.category.objectId) {
-                                currentCategory = category;
-                                return;
-                            }
-                        });
-                    }
-                    $scope.currentCategory = currentCategory;
-                }
+               
 
                 function handleUnit() {
                     //=====handle units
-                    if ($scope.event.unit) {
-                        angular.forEach($scope.units, function(unit) {
-                            if (unit.objectId === $scope.event.unit.objectId) {
-                                $scope.currentUnit = unit;
-                            }
-                        });
-                    } else {
+                    if (!$scope.event.unit) {
                         if (UserService.currentUser().preferences && UserService.currentUser().preferences.defaultUnit) {
-                            angular.forEach($scope.units, function(unit) {
-                                if (unit.objectId === UserService.currentUser().preferences.defaultUnit.objectId) {
-                                    $scope.currentUnit = unit;
-                                    return;
-                                }
-                            });
-                        }
-                        if (!$scope.currentUnit && $scope.units.length > 0) {
-                            $scope.currentUnit = $scope.units[0];
+                            $scope.event.unit = UserService.currentUser().preferences.defaultUnit;
+                        } else {
+                            if ($scope.units.length > 0) {
+                                $scope.event.unit = $scope.units[0];
+                            }
                         }
                     }
-                    $scope.$watch('currentUnit', function(newValue, oldValue) {
-                        if (newValue && oldValue) {
+                    $scope.$watch('event.unit', function(newValue, oldValue) {
+                        if (newValue && oldValue && newValue !== oldValue) {
                             if ($scope.event && $scope.event.reading) {
                                 $scope.event.reading = $scope.event.reading * oldValue.coefficient / newValue.coefficient;
                             } else {
@@ -166,8 +143,6 @@ ControllersModule.controller('eventController',
                         $rootScope.increasePending("processingMessage.savingData");
                     }
                     event.dateTime = $scope.date;
-                    event.unit = $scope.currentUnit;
-                    event.category = $scope.currentCategory;
                     event.code = $scope.eventCode;
                     eventService.saveEvent(event, $scope.isEdit).then(function resolve(result) {
                         if($scope.isEdit){                            
@@ -217,7 +192,5 @@ ControllersModule.controller('eventController',
                         //exit
                     });
                 };
-
                 $rootScope.$on('dataReady', renderPage);
-
             }]);

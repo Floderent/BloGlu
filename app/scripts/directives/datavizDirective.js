@@ -234,8 +234,8 @@ DirectivesModule.directive('chartDataviz', ['$compile', 'dataService', function(
                         spacingRight: 0,
                         spacingBottom: 0,
                         //TODO: to remove
-                        //width: 350,
-                        //height: 350
+                        width: 350,
+                        height: 350
                     }
                 },
                 series: [],

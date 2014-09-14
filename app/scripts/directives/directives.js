@@ -4,17 +4,6 @@ var DirectivesModule = angular.module("BloGlu.directives");
 
 
 
-
-
-
-
-
-
-
-
-
-
-
 DirectivesModule.directive('equals', function() {
     return {
         restrict: 'A', // only activate on element attribute

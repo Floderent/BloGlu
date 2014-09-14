@@ -206,5 +206,3 @@ ControllersModule.controller('rangeController', ['$scope', '$rootScope', '$q', '
 
         $rootScope.$on('dataReady', renderPage);
     }]);
-
-

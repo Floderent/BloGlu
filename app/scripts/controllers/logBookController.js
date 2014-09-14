@@ -36,7 +36,6 @@ ControllersModule.controller('logBookController', ['$scope', '$rootScope', '$loc
                         resourceCodes.push(parseInt(key));
                     }
                 });
-
                 //renderPage();
                 $scope.display = resourceCodes;
                 $location.url($location.path());

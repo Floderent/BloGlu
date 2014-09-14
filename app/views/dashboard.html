@@ -34,10 +34,9 @@
     <div ng-repeat="line in reportTab track by $index">
         <div class="square" ng-repeat="reportConfig in reportTab[$index] track by $index">
             <div class="content">
-
+                
                 <div ng-if="reportConfig.queryResult && reportConfig.queryResult.data && reportConfig.queryResult.headers">                        
-                    <a href="" ng-click="clearReport(reportTab.indexOf(line), $index)" class="glyphicon glyphicon-remove-circle pull-right"></a>
-                    <!--<h3>{{reportConfig.title}}</h3>-->
+                    <a href="" ng-click="clearReport(reportTab.indexOf(line), $index)" class="glyphicon glyphicon-remove-circle pull-right"></a>                    
                     <dataviz config="reportConfig.queryResult" column-order="reportConfig.columnOrder"></dataviz>
                 </div>                                                            
 
@@ -45,9 +44,8 @@
                     <button type="button" class="btn btn-primary" ng-click="chooseReport(reportTab.indexOf(line), $index)">{{ 'dashboard.addnewReport' | translate }}</button>
                 </div>
                 <div ng-if="reportConfig.loading">
-                    <img alt="loading" src="images/spinnerLarge.gif" /> 
+                    <img alt="loading" src="images/spinner.gif" /> 
                 </div>
-
             </div>
         </div>
     </div>

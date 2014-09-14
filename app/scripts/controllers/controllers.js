@@ -3,8 +3,7 @@ var ControllersModule = angular.module('BloGlu.controllers');
 
 
 
-ControllersModule.controller('rangeUnitSelectController', ['$scope', function Controller($scope) {
-        
+ControllersModule.controller('rangeUnitSelectController', ['$scope', function Controller($scope) {        
         $scope.$watch('range.isEdit', function(newValue, oldValue){            
             if(newValue){
                 angular.forEach($scope.units,function(unit){
@@ -13,7 +12,7 @@ ControllersModule.controller('rangeUnitSelectController', ['$scope', function Co
                     }
                 });
             }
-        });        
+        });
         $scope.$watch('editedRangeUnit', function(newValue, oldValue) {             
             if (newValue && oldValue && newValue !== oldValue) {
                 if ($scope.range && $scope.range.lowerLimit !== null) {

@@ -8,7 +8,7 @@ angular.module('BloGlu.directives', []);
 
 var mainModule = angular
         .module('BloGlu', [
-            'ngCookies',
+            'ipCookie',           
             'ngResource',
             'ngSanitize',
             'ngRoute',
@@ -119,8 +119,8 @@ mainModule.constant('DataVisualization', {
 });
 
 
-mainModule.run(['$rootScope', 'localizationService', 'AUTH_EVENTS', 'UserService', function($rootScope, localizationService, AUTH_EVENTS, UserService) {
-        localizationService.setLanguage().then(function() {
+mainModule.run(['$rootScope', 'localizationService', 'AUTH_EVENTS', 'UserService', function($rootScope, localizationService, AUTH_EVENTS, UserService) {        
+        localizationService.setLanguage().then(function() {            
             $rootScope.$broadcast('language-change', localizationService.language);
             UserService.isTokenValid().then(function(tokenValid) {
                 if (!tokenValid) {

@@ -1,7 +1,7 @@
 var FiltersModule = angular.module("BloGlu.filters");
 
 
-DirectivesModule.filter('eventSymbol', [ function() {
+FiltersModule.filter('eventSymbol', [ function() {
     
 }]);
 

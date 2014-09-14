@@ -168,7 +168,11 @@
         "year": "Année",
         "print": "Imprimer",
         "from": "du",
-        "to": "au"
+        "to": "au",
+        "maximum": "Maximum",
+        "minimum": "Minimum",
+        "average": "Moyenne",
+        "number": "Nombre"
     },
     "period": {
         "pageTitle": "Voir ou modifier les périodes d'analyse",
@@ -222,6 +226,8 @@
         "delete": "Supprimer"
     },
     "userPreferences": {
+        "account": "Mon compte",
+        "application" : "Application",
         "pageTitle": "Voir ou modifier vos réglages",
         "name": "Nom",
         "password": "Mot de passe",

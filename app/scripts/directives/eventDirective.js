@@ -72,15 +72,14 @@ DirectivesModule.directive('blogluEvent', ['$compile', '$injector', '$q', '$loca
         function getBloodGlucoseScope(event) {
             var scope = {};
             var dataService = $injector.get('dataService');
-            var resourceCode = $injector.get('ResourceCode');
             var userService = $injector.get('UserService');
             var promiseArray = [dataService.queryLocal('Unit', {where: {code: event.code}}), dataService.queryLocal('Range')];
             return $q.all(promiseArray).then(function(results) {
                 var range = getEventRange(event, results[1]);
                 var unit = null;
                 var reading = event.reading;
-                if (userService.preferences && userService.preferences.defaultUnit) {
-                    unit = userService.preferences.defaultUnit;
+                if (userService.currentUser().preferences && userService.currentUser().preferences.defaultUnit) {
+                    unit = userService.currentUser().preferences.defaultUnit;
                     reading = reading * event.unit.coefficient / unit.coefficient;
                 } else {
                     unit = event.unit;

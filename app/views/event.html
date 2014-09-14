@@ -25,9 +25,8 @@
             </div>
 
             <div class="input-group">                        
-                <input type="number" min="0" required  class="blood-glucose-input blood-glucose-input-field pull-left input-lg" placeholder="{{placeholder}}" ng-model="event.reading" ng-disabled="!currentUnit">
-                <select class="blood-glucose-select blood-glucose-input-field input-lg form-inline" data-ng-model="currentUnit" data-ng-options="unit.name for unit in units"></select>
-                <!-- data-ng-model="currentUnit" data-ng-options="unit.name for unit in units" -->
+                <input type="number" min="0" required  class="blood-glucose-input blood-glucose-input-field pull-left input-lg" placeholder="{{placeholder}}" ng-model="event.reading" ng-disabled="!event.unit">
+                <select class="blood-glucose-select blood-glucose-input-field input-lg form-inline" data-ng-model="event.unit" data-ng-options="unit.name for unit in units track by unit.objectId"></select>                
             </div>            
             
             <div class="input-group" ng-switch="eventCode">
@@ -39,7 +38,7 @@
             
             <div class="input-group">
                 <h5>{{ 'event.category' | translate }}</h5>
-                <select class="input-medium" data-ng-model="currentCategory" data-ng-options="category.name for category in categories"></select>
+                <select class="input-medium" data-ng-model="event.category" data-ng-options="category.name for category in categories track by category.objectId"></select>
             </div>
             
             

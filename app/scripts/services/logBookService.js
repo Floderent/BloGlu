@@ -2,7 +2,7 @@
 
 var servicesModule = angular.module('BloGlu.services');
 
-servicesModule.factory('logBookService', ['$q', '$filter', 'UserService', 'Period', 'Event', 'dateUtil', 'statsService', 'dataService', 'ModelUtil','ResourceName', function($q, $filter, UserService, Period, Event, dateUtil, statsService, dataService, ModelUtil, ResourceName) {
+servicesModule.factory('logBookService', ['$q', '$filter','$translate', 'UserService', 'dateUtil', 'statsService', 'dataService', 'ModelUtil','ResourceName', function($q, $filter,$translate, UserService, dateUtil, statsService, dataService, ModelUtil, ResourceName) {
         var logBookService = {};
         
         function getBloodGlucoseReadingsBetweenDates(beginDate, endDate, params) {            
@@ -94,8 +94,8 @@ servicesModule.factory('logBookService', ['$q', '$filter', 'UserService', 'Perio
             while (baseDate.getMonth() <= timeInterval.end.getMonth() && baseDate.getFullYear() === timeInterval.end.getFullYear()) {
                 var index = 0;
                 while (baseDate.getMonth() === month) {
-                    var analysisPeriod = dateUtil.getDateWeekBeginAndEndDate(baseDate, firstDayOfWeek);
-                    analysisPeriod.name = $filter('date')(baseDate, 'MMMM yyyy') + " week " + (index + 1);
+                    var analysisPeriod = dateUtil.getDateWeekBeginAndEndDate(baseDate, firstDayOfWeek);                    
+                    analysisPeriod.name = $filter('date')(baseDate, 'MMMM yyyy') + " "+ $translate.instant('logBook.week')+ " " + (index + 1);
                     analysisPeriods.push(analysisPeriod);
                     baseDate.setDate(baseDate.getDate() + 7);
                     index++;
@@ -244,8 +244,6 @@ servicesModule.factory('logBookService', ['$q', '$filter', 'UserService', 'Perio
                     dataPromise = logBookService.getWeekData(timeInterval, dataParams);
                     break;
                 case 'month':
-                    dataPromise = logBookService.getAggregtedData(timeInterval, dataParams);
-                    break;
                 case 'year':
                     dataPromise = logBookService.getAggregtedData(timeInterval, dataParams);
                     break;
