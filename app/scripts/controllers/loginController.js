@@ -12,7 +12,7 @@ ControllersModule.controller('loginController', ['$scope', '$rootScope', '$locat
                             $rootScope.$broadcast(AUTH_EVENTS.loginSuccess);
                             $location.path('dashboard');
                         })
-                        .error(function(error) {                            
+                        .error(function(error) {
                             switch (error.code) {
                                 case 101:                                    
                                     $rootScope.messages.push(MessageService.errorMessage("errorMessage.wrongCredentials", 2000));

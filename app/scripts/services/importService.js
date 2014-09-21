@@ -159,9 +159,15 @@ servicesModule.factory('importService', ['$upload', '$http', '$q', 'ServerServic
             //dateTime => 3                      
             var event = null;
             //blood glucose
-            if (dataArray.length >= 29 && dataArray[29] && dataArray[3] && dataArray[0] !== "Index") {
-                event = {};
-                event.reading = parseInt(dataArray[29]);
+            if (dataArray.length >= 29 && (dataArray[29] || dataArray[5]) && dataArray[3] && dataArray[0] !== "Index") {
+                event = {};                
+                if(dataArray[29]){
+                    event.reading = parseInt(dataArray[29]);
+                }else{
+                    if(dataArray[5]){
+                        event.reading = parseInt(dataArray[5]);
+                    }
+                }                
                 event.dateTime = processDateTime(dataArray[3]);
                 //TODO remove hard coded unit
                 //mg/dL
@@ -177,7 +183,7 @@ servicesModule.factory('importService', ['$upload', '$http', '$q', 'ServerServic
                     event.unit = {objectId: "mGI1gkg1hF"};
                     event.code = 2;
                 }
-            }
+            }            
             return event;
         }
         ;
@@ -199,7 +205,7 @@ servicesModule.factory('importService', ['$upload', '$http', '$q', 'ServerServic
             var promiseArray = [];
             var batchData = [];
             for (var i in data) {
-                var event = getEventFromData(data[i]);
+                var event = getEventFromData(data[i]);                
                 if (event) {
                     batchData.push(event);
                     if (batchData.length % batchSize === 0) {

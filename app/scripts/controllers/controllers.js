@@ -2,22 +2,21 @@
 var ControllersModule = angular.module('BloGlu.controllers');
 
 
-
-ControllersModule.controller('rangeUnitSelectController', ['$scope', function Controller($scope) {        
-        $scope.$watch('range.isEdit', function(newValue, oldValue){            
-            if(newValue){
-                angular.forEach($scope.units,function(unit){
-                    if(unit.objectId === $scope.range.unit.objectId){
+ControllersModule.controller('rangeUnitSelectController', ['$scope', function Controller($scope) {
+        $scope.$watch('range.isEdit', function (newValue, oldValue) {
+            if (newValue) {
+                angular.forEach($scope.units, function (unit) {
+                    if (unit.objectId === $scope.range.unit.objectId) {
                         $scope.editedRangeUnit = unit;
                     }
                 });
             }
         });
-        $scope.$watch('editedRangeUnit', function(newValue, oldValue) {             
+        $scope.$watch('editedRangeUnit', function (newValue, oldValue) {
             if (newValue && oldValue && newValue !== oldValue) {
                 if ($scope.range && $scope.range.lowerLimit !== null) {
                     $scope.range.lowerLimit = $scope.range.lowerLimit * oldValue.coefficient / newValue.coefficient;
-                } 
+                }
                 if ($scope.range && $scope.range.upperLimit !== null) {
                     $scope.range.upperLimit = $scope.range.upperLimit * oldValue.coefficient / newValue.coefficient;
                 }
@@ -28,25 +27,25 @@ ControllersModule.controller('rangeUnitSelectController', ['$scope', function Co
 
 
 
-ControllersModule.controller('confirmModalController', ['$scope', '$modalInstance', function Controller($scope, $modalInstance) {                
-        $scope.ok = function() {            
+ControllersModule.controller('confirmModalController', ['$scope', '$modalInstance', function Controller($scope, $modalInstance) {
+        $scope.ok = function () {
             $modalInstance.close(1);
         };
-        $scope.cancel = function() {
+        $scope.cancel = function () {
             $modalInstance.dismiss(0);
         };
     }]);
 
 
-ControllersModule.controller('chooseEventController', ['$scope', '$modalInstance', function Controller($scope, $modalInstance) {        
+ControllersModule.controller('chooseEventController', ['$scope', '$modalInstance', function Controller($scope, $modalInstance) {
         $scope.code = null;
-        $scope.selectType = function(key){
-            $scope.code = parseInt(key);            
+        $scope.selectType = function (key) {
+            $scope.code = parseInt(key);
         };
-        $scope.ok = function() {            
+        $scope.ok = function () {
             $modalInstance.close($scope.code);
         };
-        $scope.cancel = function() {
+        $scope.cancel = function () {
             $modalInstance.dismiss(0);
         };
     }]);
@@ -55,35 +54,35 @@ ControllersModule.controller('chooseEventController', ['$scope', '$modalInstance
 
 ControllersModule.controller('inputUserController', ['$scope', '$rootScope', '$modalInstance', 'UserService', 'MessageService', function Controller($scope, $rootScope, $modalInstance, UserService, MessageService) {
         $scope.user = {};
-        $scope.cancel = function() {
+        $scope.cancel = function () {
             $modalInstance.dismiss('canceled');
         };
         $scope.creatingUser = false;
 
-        $scope.signUp = function() {
+        $scope.signUp = function () {
             $scope.successMessage = null;
             $scope.erroMessage = null;
             $scope.creatingUser = true;
             UserService.signUp($scope.user)
-                    .success(function(result) {
+                    .success(function (result) {
                         $scope.creatingUser = false;
-                        $scope.successMessage = 'userCreated';                        
+                        $scope.successMessage = 'userCreated';
                         $scope.cancel();
                     })
-                    .error(function(error) {                        
+                    .error(function (error) {
                         $scope.errorMessage = error.error;
                         $scope.creatingUser = false;
                     });
         };
         /*
-        $scope.hitEnter = function(evt) {
-            if (angular.equals(evt.keyCode, 13) && $scope.user) {
-                if (!((angular.equals($scope.user.username, null) || angular.equals($scope.user.username, '')) && (angular.equals($scope.user.password, null) || angular.equals($scope.user.password, '')))) {
-                    $scope.signUp();
-                }
-            }
-        };
-        */
+         $scope.hitEnter = function(evt) {
+         if (angular.equals(evt.keyCode, 13) && $scope.user) {
+         if (!((angular.equals($scope.user.username, null) || angular.equals($scope.user.username, '')) && (angular.equals($scope.user.password, null) || angular.equals($scope.user.password, '')))) {
+         $scope.signUp();
+         }
+         }
+         };
+         */
     }]);
 
 
@@ -97,12 +96,12 @@ ControllersModule.controller('chartController', ['$rootScope', '$scope', '$route
         $scope.beginDate = interval.begin;
         $scope.endDate = interval.end;
 
-        $scope.openBeginDate = function($event) {
+        $scope.openBeginDate = function ($event) {
             $event.preventDefault();
             $event.stopPropagation();
             $scope.beginDateOpened = true;
         };
-        $scope.openEndDate = function($event) {
+        $scope.openEndDate = function ($event) {
             $event.preventDefault();
             $event.stopPropagation();
             $scope.endDateOpened = true;
@@ -118,11 +117,11 @@ ControllersModule.controller('chartController', ['$rootScope', '$scope', '$route
             $scope.interval = $routeParams.interval;
         }
 
-        $scope.toggleLoading = function() {
+        $scope.toggleLoading = function () {
             this.chartConfig.loading = !this.chartConfig.loading;
         };
 
-        $scope.change = function() {
+        $scope.change = function () {
             $location.path('charts')
                     .search('interval', $scope.interval)
                     .search('beginDate', $scope.beginDate)
@@ -155,14 +154,14 @@ ControllersModule.controller('chartController', ['$rootScope', '$scope', '$route
             loading: false
         };
         $rootScope.pending++;
-        chartService.getChartAggregatedDataSeries($scope.beginDate, $scope.endDate, $scope.interval, false).then(function(chartSeries) {
+        chartService.getChartAggregatedDataSeries($scope.beginDate, $scope.endDate, $scope.interval, false).then(function (chartSeries) {
             $scope.chartConfig.series = chartSeries.series;
             $scope.chartConfig.xAxis.categories = chartSeries.axisLabels;
             $rootScope.pending--;
         });
 
 
-        $scope.$on("$routeChangeStart", function() {
+        $scope.$on("$routeChangeStart", function () {
             //cancel promise
             MessageService.cancelAll($rootScope.messages);
             //clear messages
@@ -176,20 +175,20 @@ ControllersModule.controller('chartController', ['$rootScope', '$scope', '$route
 
 
 ControllersModule.controller('resetPasswordController', ['$scope', '$modalInstance', 'UserService', function Controller($scope, $modalInstance, UserService) {
-        $scope.cancel = function() {
+        $scope.cancel = function () {
             $modalInstance.dismiss('canceled');
         };
         $scope.resettingPassword = false;
-        $scope.resetPassword = function(email) {
+        $scope.resetPassword = function (email) {
             $scope.successMessage = null;
             $scope.erroMessage = null;
             $scope.resettingPassword = true;
             UserService.requestPasswordReset(email)
-                    .success(function(result) {
+                    .success(function (result) {
                         $scope.successMessage = 'Password reset';
                         $scope.resettingPassword = false;
                     })
-                    .error(function(error) {
+                    .error(function (error) {
                         $scope.erroMessage = error.error;
                         $scope.resettingPassword = false;
                     });
@@ -199,11 +198,27 @@ ControllersModule.controller('resetPasswordController', ['$scope', '$modalInstan
 
 
 
-ControllersModule.controller('userPreferencesController', ['$rootScope', '$scope', 'MessageService', 'UserService', 'User', 'Unit', 'dateUtil', function Controller($rootScope, $scope, MessageService, UserService, User, Unit, dateUtil) {
+ControllersModule.controller('userPreferencesController', ['$rootScope', '$scope', 'MessageService','ResourceName', 'UserService', 'User', 'Unit', 'dateUtil','unitService', function Controller($rootScope, $scope, MessageService,ResourceName, UserService, User, Unit, dateUtil, unitService) {
         $rootScope.messages = [];
         $rootScope.pending = 0;
-
+        
+        $scope.eventsTypes = ResourceName;
+        delete $scope.eventsTypes["0"];
+        
         $scope.user = UserService.currentUser();
+        $scope.days = dateUtil.getCurrentWeekSundayAndMonday();
+        $scope.units = [];
+        
+        initResourceUnits();
+        
+        function initResourceUnits(){            
+            angular.forEach(ResourceName, function(value, key){                
+                unitService.getUnitsByCode(parseInt(key)).then(function(result){                    
+                    $scope.units[value] = result;
+                });                                
+            });
+        }        
+
         if ($scope.user && !$scope.user.preferences) {
             $scope.user.preferences = {};
             $scope.user.preferences.firstDayOfWeek = 0;
@@ -211,46 +226,44 @@ ControllersModule.controller('userPreferencesController', ['$rootScope', '$scope
         if ($scope.user && $scope.user.preferences && !$scope.user.preferences.firstDayOfWeek) {
             $scope.user.preferences.firstDayOfWeek = 0;
         }
-        $scope.days = dateUtil.getCurrentWeekSundayAndMonday();
 
-        $scope.update = function(user) {
+
+        $scope.update = function (user) {
             $rootScope.pending++;
             User.update({
                 'userId': $scope.user.objectId
             }, user,
-                    function(result) {
+                    function (result) {
                         UserService.updateUser(user);
                         $rootScope.pending--;
                     },
-                    function(error) {
+                    function (error) {
                         debugger;
                         $rootScope.pending--;
                     });
         };
 
-
+        /*
         $rootScope.pending++;
-        Unit.query().$promise.then(function(result) {
+        Unit.query().$promise.then(function (result) {
             $scope.units = result;
             if (result && result.length > 0) {
                 if (!$scope.user.preferences.defaultUnit) {
                     $scope.user.preferences.defaultUnit = result[0];
-                } else {
-                    angular.forEach(result,function(unit) {
-                        if (unit.objectId === $scope.user.preferences.defaultUnit.objectId) {
-                            $scope.user.preferences.defaultUnit = unit;
-                        }
-                    });
                 }
                 $rootScope.pending--;
             }
         },
-                function(error) {
+                function (error) {
                     $rootScope.pending--;
                 }
         );
+        */
+       
+       
+       
 
-        $scope.$on("$routeChangeStart", function() {
+        $scope.$on("$routeChangeStart", function () {
             //cancel promise
             MessageService.cancelAll($rootScope.messages);
             $rootScope.pending = 0;

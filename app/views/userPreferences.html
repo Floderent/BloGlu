@@ -4,11 +4,9 @@
     </div>
     <div class="panel-body ">
         <tabset>
-            <tab heading="{{'userPreferences.account' | translate }}">
+            <tab heading="{{'userPreferences.account'| translate }}">                
                 <ng-form name="nameDialog" novalidate role="form">
-                    <div class="form-group input-group-lg" ng-class="{
-                        true: 'has-error'}
-                            [nameDialog.username.$dirty && nameDialog.username.$invalid]">
+                    <div class="form-group input-group-lg" ng-class="{true: 'has - error'}[nameDialog.username.$dirty && nameDialog.username.$invalid]">
                         <label class="control-label" for="username">{{ 'userPreferences.name' | translate }}</label>
                         <input type="text" class="form-control" name="username" id="username" ng-model="user.username" ng-keyup="hitEnter($event)" required>
                         <label class="control-label" for="password">{{ 'userPreferences.password' | translate }}</label>
@@ -31,29 +29,31 @@
                             <strong>{{ 'userPreferences.success' | translate }}!</strong> {{successMessage}}
                         </div>
                     </div>
-
                 </ng-form>
-
-
             </tab>
 
-            <tab heading="{{'userPreferences.application' | translate }}">
-
-                <!-- Application preferences -->
+            <tab heading="{{'userPreferences.application'| translate }}">                
                 <ng-form name="applicationSettings" novalidate role="form">                
-                    <label class="control-label" for="unitSelect">{{ 'userPreferences.defaultUnit' | translate }}</label>
-                    <select name="unitSelect" class="blood-glucose-select blood-glucose-input-field form-inline" data-ng-model="user.preferences.defaultUnit" data-ng-options="unit.name for unit in units"></select>
+                    <div>
+                        <div class="form-group">                            
+                            <label for="daySelect">{{ 'userPreferences.firstDayOfWeek' | translate }}</label>                                        
+                            <select id="daySelect" name="daySelect" class="form-control" data-ng-model="user.preferences.firstDayOfWeek" data-ng-options="day.index as day.date for day in days"></select>
+                        </div>
 
-                    <label class="control-label" for="daySelect">{{ 'userPreferences.firstDayOfWeek' | translate }}</label>                                        
-                    <select name="daySelect" class="blood-glucose-select blood-glucose-input-field form-inline" data-ng-model="user.preferences.firstDayOfWeek" data-ng-options="day.index as day.date for day in days">
-                    </select>
-                    
-                    
+
+                        <div ng-repeat="(key, value) in eventsTypes track by $index">
+                            <div class="form-group">
+                                <label for="{{value}}">{{value| translate}}</label>
+                                <select id="{{value}}" class="form-control" data-ng-model="user.preferences[value]" data-ng-options="unit.name for unit in units[value] track by unit.objectId"></select>
+                            </div>
+                        </div>
+
+                    </div>
                 </ng-form>
-
             </tab>            
         </tabset>
 
         <button class="btn btn-primary btn-lg active pull-right" ng-disabled="pending > 0" ng-click="update(user)">{{ 'userPreferences.save' | translate }}</button>
     </div>
 </div>
+
