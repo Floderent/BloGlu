@@ -180,4 +180,3 @@ ControllersModule.controller('logBookController', ['$scope', '$rootScope', '$loc
         };
         $rootScope.$on('dataReady', renderPage);
     }]);
-

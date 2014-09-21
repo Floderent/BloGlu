@@ -198,79 +198,64 @@ ControllersModule.controller('resetPasswordController', ['$scope', '$modalInstan
 
 
 
-ControllersModule.controller('userPreferencesController', ['$rootScope', '$scope', 'MessageService','ResourceName', 'UserService', 'User', 'Unit', 'dateUtil','unitService', function Controller($rootScope, $scope, MessageService,ResourceName, UserService, User, Unit, dateUtil, unitService) {
+ControllersModule.controller('userPreferencesController', ['$rootScope', '$scope', 'MessageService', 'ResourceName', 'UserService', 'User', 'Unit', 'dateUtil', 'unitService', function Controller($rootScope, $scope, MessageService, ResourceName, UserService, User, Unit, dateUtil, unitService) {
         $rootScope.messages = [];
         $rootScope.pending = 0;
-        
+
         $scope.eventsTypes = ResourceName;
         delete $scope.eventsTypes["0"];
-        
+
         $scope.user = UserService.currentUser();
         $scope.days = dateUtil.getCurrentWeekSundayAndMonday();
         $scope.units = [];
-        
-        initResourceUnits();
-        
-        function initResourceUnits(){            
-            angular.forEach(ResourceName, function(value, key){                
-                unitService.getUnitsByCode(parseInt(key)).then(function(result){                    
+
+        renderPage();
+
+        function renderPage() {
+            initPreferences();
+            initResourceUnits();
+        }
+
+        function initPreferences() {
+            if (!$scope.user.preferences) {
+                $scope.user.preferences = {};
+            }
+            if ($scope.user && $scope.user.preferences && typeof $scope.user.preferences.firstDayOfWeek === 'undefined' && $scope.user.preferences.firstDayOfWeek === null) {
+                $scope.user.preferences.firstDayOfWeek = 0;
+            }
+            if (!$scope.user.preferences.defaultUnits) {
+                $scope.user.preferences.defaultUnits = {};
+            }
+        }
+
+        function initResourceUnits() {
+            angular.forEach(ResourceName, function (value, key) {
+                unitService.getUnitsByCode(parseInt(key)).then(function (result) {
                     $scope.units[value] = result;
-                });                                
+                    //if no previous unit set, use reference unit
+                    if (!$scope.user.preferences.defaultUnits[value] && result && result.length > 0) {
+                        $scope.user.preferences.defaultUnits[value] = unitService.getReferenceUnit(result);
+                    }
+                });
             });
-        }        
-
-        if ($scope.user && !$scope.user.preferences) {
-            $scope.user.preferences = {};
-            $scope.user.preferences.firstDayOfWeek = 0;
         }
-        if ($scope.user && $scope.user.preferences && !$scope.user.preferences.firstDayOfWeek) {
-            $scope.user.preferences.firstDayOfWeek = 0;
-        }
-
 
         $scope.update = function (user) {
-            $rootScope.pending++;
+            $rootScope.increasePending("processingMessage.updatingData");
             User.update({
                 'userId': $scope.user.objectId
-            }, user,
+            }, user).$promise.then(
                     function (result) {
                         UserService.updateUser(user);
-                        $rootScope.pending--;
+                        $rootScope.messages.push(MessageService.successMessage("successMessage.userUpdated", 2000));
                     },
                     function (error) {
-                        debugger;
-                        $rootScope.pending--;
-                    });
+                        $rootScope.messages.push(MessageService.errorMessage('errorMessage.updatingError', 2000));
+                    })['finally'](function () {
+                $rootScope.decreasePending("processingMessage.updatingData");
+            });
         };
 
-        /*
-        $rootScope.pending++;
-        Unit.query().$promise.then(function (result) {
-            $scope.units = result;
-            if (result && result.length > 0) {
-                if (!$scope.user.preferences.defaultUnit) {
-                    $scope.user.preferences.defaultUnit = result[0];
-                }
-                $rootScope.pending--;
-            }
-        },
-                function (error) {
-                    $rootScope.pending--;
-                }
-        );
-        */
-       
-       
-       
-
-        $scope.$on("$routeChangeStart", function () {
-            //cancel promise
-            MessageService.cancelAll($rootScope.messages);
-            $rootScope.pending = 0;
-            //clear messages
-            $rootScope.messages = [];
-        });
-
-
+        $rootScope.$on('dataReady', renderPage);
 
     }]);

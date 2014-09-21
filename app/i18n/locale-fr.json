@@ -91,7 +91,8 @@
         "reportCreated": "Rapport créé",
         "reportUpdated": "Rapport mis à jour",
         "dataImported": "Données importées",
-        "rangeUpdated" : "Intervalle mis à jour"
+        "rangeUpdated" : "Intervalle mis à jour",
+        "userUpdated": "Utilisateur mis à jour"
     },
     "resource": {
         "category": "categorie"

@@ -114,7 +114,9 @@
         "rangeUpdated" : "Range updated",
         "reportCreated" : "Report created",
         "reportUpdated" : "Report updated",        
-        "dataImported" : "Data imported"
+        "dataImported" : "Data imported",
+        
+        "userUpdated": "User updated"
     },
     
     "resource":{
