@@ -32,6 +32,9 @@ DirectivesModule.directive('blogluEventGroup', ['$compile', '$injector', '$q', f
                 case resourceCode['bloodGlucose']:
                     template = '<div class="panel panel-default"><div class="panel-heading"><span class="glyphicon glyphicon-tint">{{title | translate}}</div><div class="panel-body"><p>{{"logBook.maximum" | translate}}: {{maximum}} {{unit.name}}</p><p>{{"logBook.minimum"| translate}}: {{minimum}} {{unit.name}}</p><p ng-style="{\'border-left\': border, \'border-color\': color}">{{"logBook.average"|translate}}: {{average}} {{unit.name}}</p><p>{{"logBook.number"|translate}}: {{number}}</p></div></div>';
                     break;
+                case resourceCode['medication']:
+                    template = '<div class="panel panel-default"><div class="panel-heading"><span class="glyphicon glyphicon-briefcase">{{title | translate}}</div><div class="panel-body"><p>{{"logBook.maximum" | translate}}: {{maximum}} {{unit.name}}</p><p>{{"logBook.minimum"| translate}}: {{minimum}} {{unit.name}}</p><p>{{"logBook.average"|translate}}: {{average}} {{unit.name}}</p><p>{{"logBook.number"|translate}}: {{number}}</p></div></div>';
+                    break;
             }            
             return template;
         }
@@ -41,13 +44,13 @@ DirectivesModule.directive('blogluEventGroup', ['$compile', '$injector', '$q', f
             switch (event.code) {
                 default:
                 case resourceCode['bloodGlucose']:
-                    scopePromise = getBloodGlucoseScope(event);
+                    scopePromise = getBloodGlucoseScope(event, resourceCode);
                     break;
             }
             return scopePromise;
         }
         
-        function getBloodGlucoseScope(event){            
+        function getBloodGlucoseScope(event, resourceCode){            
             var scope = {};
             var dataService = $injector.get('dataService');
             var userService = $injector.get('UserService');
@@ -55,7 +58,7 @@ DirectivesModule.directive('blogluEventGroup', ['$compile', '$injector', '$q', f
             return $q.all(promiseArray).then(function(results) {                
                 var units = results[0];
                 var unit = null;                
-                if (userService.currentUser().preferences && userService.currentUser().preferences.defaultUnit) {
+                if (userService.currentUser().preferences && userService.currentUser().preferences.defaultUnit && event.code === resourceCode['bloodGlucose']) {
                     unit = userService.currentUser().preferences.defaultUnit;                    
                 } else {
                     unit = getReferenceUnit(units);
@@ -81,7 +84,7 @@ DirectivesModule.directive('blogluEventGroup', ['$compile', '$injector', '$q', f
         }
         
         function getConvertedReading(reading, defaultUnit, referenceUnit){            
-            if(defaultUnit){
+            if(defaultUnit && referenceUnit){
                 reading = reading * referenceUnit.coefficient / defaultUnit.coefficient;
             }
             return reading;

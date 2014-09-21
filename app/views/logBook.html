@@ -57,7 +57,9 @@
                         <div ng-if="bloodGlucoseReadings.length > 0">                                
                             <div ng-repeat="(key, value) in bloodGlucoseReadings[0]">
                                 
-                                <bloglu-event-group bloglu-grouped-event="value" ></bloglu-event-group>
+                                <div ng-click="zoomInInterval(header[$index].begin)">
+                                    <bloglu-event-group bloglu-grouped-event="value"></bloglu-event-group>
+                                </div>                               
                                 
                                 <!--
                                 <div class="panel panel-default">
