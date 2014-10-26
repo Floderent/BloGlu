@@ -141,9 +141,9 @@ servicesModule.factory('dashboardService', ['$q', 'dataService', 'queryService',
         }
 
 
-        function executeReport(report, reportTab) {
-            return reportService.getReport(report.report).then(function(completeReport) {
-                reportTab[report.row][report.column] = {loading: true};
+        function executeReport(report, reportTab) {            
+            reportTab[report.row][report.column] = {loading: true};
+            return reportService.getReport(report.report).then(function(completeReport) {                
                 reportService.executeReport(completeReport).then(function(reportQueryResult) {
                     reportQueryResult.type = completeReport.display;                    
                     reportQueryResult.title = completeReport.title;
@@ -151,14 +151,12 @@ servicesModule.factory('dashboardService', ['$q', 'dataService', 'queryService',
                         queryResult: reportQueryResult,
                         columnOrder: completeReport.sort
                     };                    
-                    return reportTab[report.row][report.column] = dashboardReport;
+                    return angular.extend(reportTab[report.row][report.column],dashboardReport);
                 })['finally'](function(){
-                    reportTab[report.row][report.column].loading = false;
+                    reportTab[report.row][report.column].loading = false;                    
                 });
             });
         }
-
-
         return dashboardService;
     }]);
 

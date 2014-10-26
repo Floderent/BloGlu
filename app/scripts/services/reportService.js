@@ -3,38 +3,38 @@
 var servicesModule = angular.module('BloGlu.services');
 
 
-servicesModule.factory('reportService', ['$q', 'ModelUtil', 'dataService', 'queryService', 'genericDaoService','DataVisualization','localizationService', function($q, ModelUtil, dataService, queryService, genericDaoService, DataVisualization, localizationService) {
+servicesModule.factory('reportService', ['$q', 'ModelUtil', 'dataService', 'queryService', 'genericDaoService', 'DataVisualization', 'localizationService', function ($q, ModelUtil, dataService, queryService, genericDaoService, DataVisualization, localizationService) {
 
         var reportService = {};
 
         var reportResourceName = 'Report';
 
-        reportService.getDashboards = function() {
+        reportService.getDashboards = function () {
             return genericDaoService.getAll('Dashboard');
         };
-        reportService.getReports = function() {
+        reportService.getReports = function () {
             return genericDaoService.getAll(reportResourceName);
         };
-        reportService.saveReport = function(report, isEdit) {
+        reportService.saveReport = function (report, isEdit) {
             return genericDaoService.save(reportResourceName, report, isEdit);
         };
-        reportService.getReport = function(reportId) {
+        reportService.getReport = function (reportId) {
             return genericDaoService.get(reportResourceName, reportId);
         };
-        reportService.deleteReport = function(report) {
+        reportService.deleteReport = function (report) {
             return genericDaoService.delete(reportResourceName, report);
         };
-        
-        reportService.getDatavizTypes = function(){
+
+        reportService.getDatavizTypes = function () {
             var translatedDataviz = {};
-            angular.forEach(DataVisualization, function(value, key){
+            angular.forEach(DataVisualization, function (value, key) {
                 translatedDataviz[key] = localizationService.get(value);
             });
             return translatedDataviz;
         };
-        
 
-        reportService.executeReport = function(report) {
+
+        reportService.executeReport = function (report) {
             var deferred = $q.defer();
             if (report && report.query) {
                 reportService.executeReportQuery(report.query).then(deferred.resolve, deferred.reject);
@@ -44,11 +44,11 @@ servicesModule.factory('reportService', ['$q', 'ModelUtil', 'dataService', 'quer
             return deferred.promise;
         };
 
-        reportService.getQuery = function(selectedElements, selectedFilter) {
-            var query = null;            
+        reportService.getQuery = function (selectedElements, selectedFilter) {
+            var query = null;
             if (selectedElements && selectedElements.length > 0) {
                 var select = [];
-                angular.forEach(selectedElements, function(selectElement) {
+                angular.forEach(selectedElements, function (selectElement) {
                     select.push(selectElement.name);
                 });
                 query = {
@@ -68,18 +68,18 @@ servicesModule.factory('reportService', ['$q', 'ModelUtil', 'dataService', 'quer
         };
 
 
-        reportService.getFullQuery = function(query) {
+        reportService.getFullQuery = function (query) {
             var resultQuery = {};
             var deferred = $q.defer();
             if (query && query.select) {
-                queryService.getMetadatamodel().then(function(mdm) {
+                queryService.getMetadatamodel().then(function (mdm) {
                     var selectElements = [];
                     var orderByElements = [];
-                    angular.forEach(query.select, function(selectElementName) {
+                    angular.forEach(query.select, function (selectElementName) {
                         selectElements.push(getMDMElement(mdm, selectElementName));
                     });
                     if (query.orderBy && Array.isArray(query.orderBy)) {
-                        angular.forEach(query.orderBy, function(orderElement) {
+                        angular.forEach(query.orderBy, function (orderElement) {
                             orderByElements.push(getMDMElement(mdm, orderElement.name));
                         });
                     }
@@ -88,7 +88,7 @@ servicesModule.factory('reportService', ['$q', 'ModelUtil', 'dataService', 'quer
                     var orderBy = [];
                     var where = {};
 
-                    angular.forEach(selectElements, function(queryElement) {
+                    angular.forEach(selectElements, function (queryElement) {
                         computeSelectExpression(select, queryElement);
                         computeGroupByExpression(groupBy, queryElement);
                         computeWhereExpression(where, queryElement.filter);
@@ -130,9 +130,9 @@ servicesModule.factory('reportService', ['$q', 'ModelUtil', 'dataService', 'quer
         };
 
 
-        reportService.executeReportQuery = function(query) {
-            return reportService.getFullQuery(query).then(function(result) {
-                return dataService.queryLocal('Event', result.query).then(function(queryResult) {
+        reportService.executeReportQuery = function (query) {
+            return reportService.getFullQuery(query).then(function (result) {
+                return dataService.queryLocal('Event', result.query).then(function (queryResult) {
                     return {
                         headers: result.headers,
                         data: queryResult
@@ -168,8 +168,8 @@ servicesModule.factory('reportService', ['$q', 'ModelUtil', 'dataService', 'quer
         function computeWhereExpression(where, additionalFilter) {
             if (additionalFilter) {
                 var filterToHandle = angular.extend({}, angular.fromJson(additionalFilter));
-                angular.forEach(filterToHandle, function(value, key) {
-                    if (value.type && value.type === 'function') {
+                angular.forEach(filterToHandle, function (value, key) {
+                    if (value.type && value.type === 'function' && dataService.where[value.value].filterFunction) {
                         filterToHandle[key] = dataService.where[value.value].filterFunction();
                     }
                 });
@@ -180,7 +180,7 @@ servicesModule.factory('reportService', ['$q', 'ModelUtil', 'dataService', 'quer
 
         function getMDMElement(mdm, elementName) {
             var result = null;
-            angular.forEach(mdm, function(mdmElement) {
+            angular.forEach(mdm, function (mdmElement) {
                 if (mdmElement.name === elementName) {
                     result = mdmElement;
                 }

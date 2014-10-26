@@ -1,15 +1,18 @@
 'use strict';
 var ControllersModule = angular.module('BloGlu.controllers');
 
-ControllersModule.controller('applicationController', ['$scope', '$rootScope', '$modal', 'AUTH_EVENTS', '$location', '$route', '$timeout', 'UserService', 'syncService', 'dataService', 'localizationService', 'MessageService', function Controller($scope, $rootScope, $modal, AUTH_EVENTS, $location, $route, $timeout, UserService, syncService, dataService, localizationService, MessageService) {
+ControllersModule.controller('applicationController', ['$scope', '$q', '$rootScope', '$modal', 'AUTH_EVENTS', '$location', '$route', '$timeout', 'UserService', 'syncService', 'dataService', 'localizationService', 'MessageService', function Controller($scope, $q, $rootScope, $modal, AUTH_EVENTS, $location, $route, $timeout, UserService, syncService, dataService, localizationService, MessageService) {
 
         $rootScope.currentUser = UserService.currentUser();
         $rootScope.messages = [];
         $rootScope.loadingMessages = [];
         $rootScope.pending = 0;
+
+        $rootScope.syncMessage = syncService.message;
+
         var modal = null;
 
-        $rootScope.displaySignUpModal = function() {
+        $rootScope.displaySignUpModal = function () {
             $scope.messages = [];
             modal = $modal.open({
                 templateUrl: 'views/modal/inputUser.html',
@@ -17,7 +20,7 @@ ControllersModule.controller('applicationController', ['$scope', '$rootScope', '
             });
         };
 
-        $rootScope.displayResetPasswordModal = function() {
+        $rootScope.displayResetPasswordModal = function () {
             $rootScope.messages = [];
             modal = $modal.open({
                 templateUrl: 'views/modal/resetPassword.html',
@@ -25,39 +28,45 @@ ControllersModule.controller('applicationController', ['$scope', '$rootScope', '
             });
         };
 
-        $rootScope.logOut = function() {
-            $rootScope.increasePending('processingMessage.loggingOut');            
-            return dataService.logOut().then(function() {
-                
-            })['finally'](function() {
-                UserService.logOut();
-                $rootScope.pending = 0;
-                MessageService.cancelAll($rootScope.messages);
-                $rootScope.loadingMessages = [];
-                $rootScope.currentUser = null;
-                $rootScope.$broadcast(AUTH_EVENTS.notAuthenticated);
-                $rootScope.decreasePending('processingMessage.loggingOut');
-                return;
-            });
+        $rootScope.logOut = function () {
+            var deferred = $q.defer();
+            if (UserService.currentUser()) {
+                $rootScope.increasePending('processingMessage.loggingOut');
+                dataService.logOut().then(function () {
+
+                })['finally'](function () {
+                    UserService.logOut();
+                    $rootScope.pending = 0;
+                    MessageService.cancelAll($rootScope.messages);
+                    $rootScope.loadingMessages = [];
+                    $rootScope.currentUser = null;
+                    $rootScope.$broadcast(AUTH_EVENTS.notAuthenticated);
+                    $rootScope.decreasePending('processingMessage.loggingOut');
+                    deferred.resolve();
+                });
+            } else {
+                deferred.resolve();
+            }
+            return deferred.promise;
         };
 
-        $rootScope.increasePending = function(loadingMessageKey, values) {
+        $rootScope.increasePending = function (loadingMessageKey, values) {
             $rootScope.pending++;
             $rootScope.addLoadingMessage(loadingMessageKey, values);
         };
 
-        $rootScope.decreasePending = function(loadingMessageKey, values) {
+        $rootScope.decreasePending = function (loadingMessageKey, values) {
             if ($rootScope.pending > 0) {
                 $rootScope.pending--;
                 $rootScope.removeLoadingMessage(loadingMessageKey, values);
             }
         };
 
-        $rootScope.addLoadingMessage = function(loadingMessageKey, values) {
+        $rootScope.addLoadingMessage = function (loadingMessageKey, values) {
             $rootScope.loadingMessages.push(resolveMessage(loadingMessageKey, values));
         };
 
-        $rootScope.removeLoadingMessage = function(loadingMessageKey, values) {
+        $rootScope.removeLoadingMessage = function (loadingMessageKey, values) {
             var message = resolveMessage(loadingMessageKey, values);
             var indexOfMessage = $rootScope.loadingMessages.indexOf(message);
             if (indexOfMessage !== -1) {
@@ -80,14 +89,22 @@ ControllersModule.controller('applicationController', ['$scope', '$rootScope', '
         }
 
 
-        $rootScope.$on(AUTH_EVENTS.notAuthenticated, function(event) {
+        $rootScope.$on(AUTH_EVENTS.notAuthenticated, function (event) {
             //wait the end of the digest cycle
-            $timeout(function() {
-                $location.path('login');
-            });
+            if (UserService.currentUser()) {
+                $rootScope.logOut()['finally'](function () {
+                    $timeout(function () {
+                        $location.path('login');
+                    });
+                });
+            } else {
+                $timeout(function () {
+                    $location.path('login');
+                });
+            }
         });
 
-        $rootScope.$on(AUTH_EVENTS.loginSuccess, function(event, next) {
+        $rootScope.$on(AUTH_EVENTS.loginSuccess, function (event, next) {
             $rootScope.increasePending('processingMessage.synchronizing');
             syncService.sync().then(
                     function resolve() {
@@ -96,14 +113,15 @@ ControllersModule.controller('applicationController', ['$scope', '$rootScope', '
                         MessageService.errorMessage('errorMessage.synchronisationError', 5000);
                     },
                     function notify(message) {
+                        debugger;
                         //$rootScope.setLoadingMessage(message);
                     }
-            )['finally'](function(result) {
+            )['finally'](function (result) {
                 $rootScope.decreasePending('processingMessage.synchronizing');
             });
         });
 
-        $rootScope.$on('$locationChangeStart', function(event, next) {
+        $rootScope.$on('$locationChangeStart', function (event, next) {
             //if navigation to page other than login and not authenticated, trigger "not authenticated event"
             if (!UserService.isAuthenticated() && next.indexOf('login', next.length - 'login'.length) === -1) {
                 event.preventDefault();
@@ -111,13 +129,12 @@ ControllersModule.controller('applicationController', ['$scope', '$rootScope', '
             }
         });
 
-        $rootScope.$on('language-change', function(event) {
+        $rootScope.$on('language-change', function (event) {
             //wait the end of the digest cycle
-            $timeout(function() {
+            $timeout(function () {
                 $route.reload();
             });
         });
-
 
     }]);
 

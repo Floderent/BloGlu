@@ -209,13 +209,17 @@ servicesModule.factory('importService', ['$upload', '$http', '$q', 'ServerServic
                 if (event) {
                     batchData.push(event);
                     if (batchData.length % batchSize === 0) {
+                        //add remote
                         promiseArray.push(Batch.batchEvent({}, batchData));
+                        //add local
+                        promiseArray.push(dataService.addRecords('Event',batchData));
                         batchData = [];
                     }
                 }
             }
             if (batchData.length > 0) {
                 promiseArray.push(Batch.batchEvent({}, batchData));
+                promiseArray.push(dataService.addRecords('Event',batchData));
             }
             return promiseArray;
         };

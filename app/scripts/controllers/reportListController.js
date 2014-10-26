@@ -1,12 +1,10 @@
 'use strict';
 var ControllersModule = angular.module('BloGlu.controllers');
 
-ControllersModule.controller('reportListController', ['$scope', '$rootScope', '$location', '$modal', 'reportService', 'MessageService','dashboardService', function Controller($scope, $rootScope, $location, $modal, reportService, MessageService, dashboardService) {
+ControllersModule.controller('reportListController', ['$scope', '$rootScope', '$location', 'reportService', 'MessageService','dashboardService', 'Utils', function Controller($scope, $rootScope, $location, reportService, MessageService, dashboardService, Utils) {
 
-        $scope.reports = [];           
-        
+        $scope.reports = [];        
         renderPage();
-
         function renderPage() {
             $rootScope.increasePending("processingMessage.loadingData");
             reportService.getReports().then(function(reports) {
@@ -18,20 +16,15 @@ ControllersModule.controller('reportListController', ['$scope', '$rootScope', '$
             });
         }
 
-        $scope.deleteReport = function(report) {
-            var $modalScope = $rootScope.$new(true);
-            $modalScope.message = report.title;
-            var modalInstance = $modal.open({
-                templateUrl: "views/modal/confirm.html",
-                controller: "confirmModalController",
-                scope: $modalScope,
-                resolve: {
-                    confirmed: function() {
-                        return $scope.confirmed;
-                    }
-                }
-            });
-            modalInstance.result.then(function(confirmed) {
+        $scope.deleteReport = function(report) {            
+            var modalScope = {
+                       confirmTitle:'confirm.pageTitle',
+                       confirmMessage:'confirm.deletionMessage',
+                       confirmYes:'confirm.yes',
+                       confirmNo:'confirm.no',
+                       message: report.title
+                   };
+            Utils.openConfirmModal(modalScope).then(function(confirmed) {
                 if (confirmed) {
                     if (report.objectId) {
                         $rootScope.increasePending("processingMessage.deletingData");
@@ -70,12 +63,6 @@ ControllersModule.controller('reportListController', ['$scope', '$rootScope', '$
             }
 
         };
-
         $rootScope.$on('dataReady', renderPage);
-
-        
-        
-        
-
     }]);
 

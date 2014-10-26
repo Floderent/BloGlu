@@ -2,7 +2,7 @@
 
 var servicesModule = angular.module('BloGlu.services');
 
-servicesModule.factory('dataService', ['$q', '$filter', '$injector', '$locale', 'indexeddbService', 'Database', 'UserService', function($q, $filter, $injector, $locale, indexeddbService, Database, UserService) {
+servicesModule.factory('dataService', ['$q', '$filter', '$injector', '$locale', 'indexeddbService', 'Database','ServerService', 'UserService', function($q, $filter, $injector, $locale, indexeddbService, Database,ServerService, UserService) {
         var dataService = {};
         var localData = null;
         var maxResult = 1000;
@@ -94,7 +94,7 @@ servicesModule.factory('dataService', ['$q', '$filter', '$injector', '$locale', 
         dataService.save = function(collection, data, params) {
             return dataService.init().then(function(localData) {
                 //save to indexedDB and to the cloud
-                var resource = $injector.get(collection);
+                var resource = $injector.get(collection)(UserService.headers());
                 var createdObject = angular.extend({}, data);
                 return resource.save(data).$promise.then(function(result) {
                     createdObject[idField] = result[idField];
@@ -112,7 +112,7 @@ servicesModule.factory('dataService', ['$q', '$filter', '$injector', '$locale', 
 
         dataService.update = function(collection, objectId, data, params) {
             return dataService.init().then(function(localData) {                
-                var resource = $injector.get(collection);                
+                var resource = $injector.get(collection)(UserService.headers());                
                 //save in local data
                 var updatedObject = null;
                 if (localData && localData[collection]) {
@@ -158,7 +158,7 @@ servicesModule.factory('dataService', ['$q', '$filter', '$injector', '$locale', 
                     });
                 }
                 //save to indexedDB add to the cloud
-                var resource = $injector.get(collection);
+                var resource = $injector.get(collection)(UserService.headers());
                 var recordToDelete = {};
                 recordToDelete[idField] = objectId;
                 return $q.all([
@@ -231,9 +231,9 @@ servicesModule.factory('dataService', ['$q', '$filter', '$injector', '$locale', 
                 parseParams.skip = params.skip;
             }
             if (params && params.count) {
-                parseParams.count = params.count;
+                parseParams.count = params.count;                
                 promise = resourceObject.count(parseParams).$promise;
-            } else {
+            } else {                
                 promise = resourceObject.query(parseParams).$promise;
             }
             return promise;
@@ -277,7 +277,7 @@ servicesModule.factory('dataService', ['$q', '$filter', '$injector', '$locale', 
         dataService.queryParse = function(collection, resourceCount, params) {
             var deferred = $q.defer();
 
-            var resourceObject = $injector.get(collection);
+            var resourceObject = $injector.get(collection)(UserService.headers());
             if (resourceCount <= maxResult) {
                 doParseQuery(resourceObject, params).then(deferred.resolve, deferred.reject);
             } else {
@@ -708,7 +708,7 @@ servicesModule.factory('dataService', ['$q', '$filter', '$injector', '$locale', 
         dataService.where = {
             currentYear: {
                 title: 'currentYear',
-                function: function() {
+                filterFunction: function() {
                     var date = new Date();
                     var beginDate = new Date(date.getFullYear(), 0, 1);
                     var endDate = new Date(date.getFullYear() + 1, 0, 0);
@@ -758,5 +758,3 @@ servicesModule.factory('dataService', ['$q', '$filter', '$injector', '$locale', 
 
         return dataService;
     }]);
-
-

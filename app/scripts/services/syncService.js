@@ -85,22 +85,22 @@ servicesModule.factory('syncService', ['$q', '$http', '$injector', '$rootScope',
         }
 
         function syncCollection(collection, syncStatus) {
-            var deferred = $q.defer();
-            var resource = $injector.get(collection);
+            var deferred = $q.defer();            
+            var resource = $injector.get(collection)(UserService.headers());
             if (resource && resource.query) {                
-                deferred.notify("Downloading " + collection);                
-                dataService.queryParse(collection, syncStatus.remoteCount, {limit: 1000}).then(function(result) {                    
+                deferred.notify("Downloading " + collection);
+                dataService.queryParse(collection, syncStatus.remoteCount, {limit: 1000}).then(function(result) {
                     deferred.notify("Downloading of " + collection + " completed");
                     dataService.clear(collection).then(function() {                        
-                        deferred.notify(collection + " cleared");                        
-                        dataService.addRecords(collection, result).then(function(addRecordsResult) {                            
+                        deferred.notify(collection + " cleared");
+                        dataService.addRecords(collection, result).then(function(addRecordsResult) {
                             deferred.notify("Inserted " + result.length + collection + " record(s)");
                             deferred.resolve();
                         }, deferred.reject);
                     }, deferred.reject);
                 }, deferred.reject);
             } else {
-                deferred.reject("No resource found for " + collection);
+                deferred.reject("No resource found for " + collection);                
             }
             return deferred.promise;
         }
@@ -129,13 +129,13 @@ servicesModule.factory('syncService', ['$q', '$http', '$injector', '$rootScope',
             if (syncService.syncStatus === 'upToDate') {
                 deferred.resolve();
             } else {                
-                syncService.checkSyncStatus().then(function(syncStatus) {                    
+                syncService.checkSyncStatus().then(function(syncStatus) {
                     angular.forEach(syncStatus, function(value, key) {
                         if (value.status === 'outOfDate') {
                             promiseArray.push(syncCollection(key, value));
                         }
                     });                    
-                    $q.all(promiseArray).then(function(result) {
+                    $q.all(promiseArray).then(function(result) {                        
                         dataService.init(true).then(function(result) {
                             triggerDataReadyEvent();
                             //syncService.syncStatus = 'upToDate';

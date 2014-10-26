@@ -1,7 +1,7 @@
 var DirectivesModule = angular.module("BloGlu.directives");
 
 
-DirectivesModule.directive('blogluEvent', ['$compile', '$injector', '$q', '$location', function($compile, $injector, $q, $location) {
+DirectivesModule.directive('blogluEvent', ['$compile', '$injector', '$q', '$location','eventService', function($compile, $injector, $q, $location, eventService) {
         var linkFunction = function(scope, element, attrs) {                
             var event = scope.blogluEvent;            
             renderEvent(event, scope, element);
@@ -17,14 +17,10 @@ DirectivesModule.directive('blogluEvent', ['$compile', '$injector', '$q', '$loca
         function renderEvent(event, scope, element) {
             
             var resourceCode = $injector.get('ResourceCode');
-
             //view reading by id
-            var viewEvent = function(code, objectId) {
-                var resource = resourceCode[code];
-                var path = 'event/' + resource + "/" + objectId;
-                $location.path(path);
+            var viewEvent = function(code, objectId) {                
+                eventService.viewEvent(code, objectId);
             };
-
             var template = getEventTemplate(event, resourceCode);
             var dom = angular.element('<div ng-click="viewEvent(code, objectId)" class="panel panel-default">' + template + '</div>');
 
@@ -36,8 +32,6 @@ DirectivesModule.directive('blogluEvent', ['$compile', '$injector', '$q', '$loca
                 compiled(scope);
             });
         }
-
-
 
         function getEventTemplate(event, resourceCode) {
             var template = "";
@@ -74,8 +68,7 @@ DirectivesModule.directive('blogluEvent', ['$compile', '$injector', '$q', '$loca
             var dataService = $injector.get('dataService');
             var userService = $injector.get('UserService');
             var promiseArray = [dataService.queryLocal('Unit', {where: {code: event.code}}), dataService.queryLocal('Range')];
-            return $q.all(promiseArray).then(function(results) {
-                var range = getEventRange(event, results[1]);
+            return $q.all(promiseArray).then(function(results) {                
                 var unit = null;
                 var reading = event.reading;
                 if (userService.currentUser().preferences && userService.currentUser().preferences.defaultUnit) {
@@ -84,6 +77,7 @@ DirectivesModule.directive('blogluEvent', ['$compile', '$injector', '$q', '$loca
                 } else {
                     unit = event.unit;
                 }
+                var range = eventService.getEventRange(reading, unit, results[1]);                
                 scope.reading = reading;
                 scope.unit = unit;                
                 scope.code = event.code;
@@ -103,23 +97,6 @@ DirectivesModule.directive('blogluEvent', ['$compile', '$injector', '$q', '$loca
             deferred.resolve(event);
             return deferred.promise;
         }
-
-
-
-        function getEventRange(event, ranges) {
-            var resultRange = null;
-            if (event && event.reading && event.unit && ranges && Array.isArray(ranges)) {
-                var convertedReading = event.reading * event.unit.coefficient;
-                angular.forEach(ranges, function(range) {
-                    if (convertedReading >= range.lowerLimit * range.unit.coefficient && convertedReading < range.upperLimit * range.unit.coefficient) {
-                        resultRange = range;
-                        return;
-                    }
-                });
-            }
-            return resultRange;
-        }
-
 
         return {
             restrict: 'E', // only activate on element

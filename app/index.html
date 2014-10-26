@@ -11,15 +11,15 @@
         <!-- Place favicon.ico and apple-touch-icon.png in the root directory -->
         <!-- build:css styles/vendor.css -->
         <!-- bower:css -->
-        <link rel="stylesheet" href="bower_components/bootstrap/dist/css/bootstrap.css">
+        <link rel="stylesheet" href="bower_components/bootstrap/dist/css/bootstrap.css" />
+        <link rel="stylesheet" href="bower_components/spectrum/spectrum.css" />
         <!-- endbower -->
         <!-- endbuild -->
         <!-- build:css({.tmp,app}) styles/main.css -->
         <link rel="stylesheet" href="styles/main.css">
         <!-- endbuild -->
-
-        <!-- spectrum CSS -->
-        <link rel="stylesheet" href="bower_components/spectrum/spectrum.css">
+        
+        
 
     </head>
 
@@ -155,50 +155,23 @@
         <script src="bower_components/jquery/dist/jquery.js"></script>
         <script src="bower_components/angular/angular.js"></script>
         <script src="bower_components/bootstrap/dist/js/bootstrap.js"></script>
-        <script src="bower_components/angular-resource/angular-resource.js"></script>        
+        <script src="bower_components/angular-resource/angular-resource.js"></script>
+        <script src="bower_components/angular-cookies/angular-cookies.js"></script>
         <script src="bower_components/angular-sanitize/angular-sanitize.js"></script>
         <script src="bower_components/angular-route/angular-route.js"></script>
-
-        <script src="bower_components/angular-bootstrap/ui-bootstrap.min.js"></script>
-        <script src="bower_components/angular-bootstrap/ui-bootstrap-tpls.min.js"></script>
-
-        <!-- highcharts -->
-        <script src="bower_components/highcharts/highcharts-all.js"></script>
-        <script src="bower_components/highcharts-ng/dist/highcharts-ng.min.js"></script>
-
-        <!-- file upload -->
-        <script src="bower_components/ng-file-upload/angular-file-upload.min.js"></script>
-
-        <!-- js PDF -->
+        <script src="bower_components/angular-bootstrap/ui-bootstrap-tpls.js"></script>
         <script src="bower_components/jspdf/dist/jspdf.min.js"></script>
-        <!--<script src="bower_components/jspdf/dist/jspdf.plugin.cell.js"></script>-->
-
-        <!-- Spectrum -->       
+        <script src="bower_components/highcharts/highcharts.js"></script>
+        <script src="bower_components/highcharts-ng/dist/highcharts-ng.js"></script>
+        <script src="bower_components/ng-file-upload/angular-file-upload.js"></script>
         <script src="bower_components/spectrum/spectrum.js"></script>
-        <!-- color picker -->
-        <script src="bower_components/angular-spectrum-colorpicker/dist/angular-spectrum-colorpicker.min.js"></script>        
-
-        <!-- angular translate -->
-        <script src="bower_components/angular-translate/angular-translate.min.js"></script>
-        <script src="bower_components/angular-translate-loader-static-files/angular-translate-loader-static-files.min.js"></script>
-
-        <!-- dynamic locale -->
+        <script src="bower_components/angular-translate/angular-translate.js"></script>
+        <script src="bower_components/angular-translate-loader-static-files/angular-translate-loader-static-files.js"></script>
+        <script src="bower_components/angular-spectrum-colorpicker/dist/angular-spectrum-colorpicker.js"></script>
         <script src="bower_components/angular-dynamic-locale/src/tmhDynamicLocale.js"></script>
-        
-        <!-- Better angular cookie -->
-        <script src="bower_components/angular-cookie/angular-cookie.min.js"></script>       
-
-
-        <!-- i18n file -->
-        <script src="bower_components/angular-i18n/angular-locale_en.js"></script>
-        <!--<script src="bower_components/angular-i18n/angular-locale_fr.js"></script>-->
-
-        <!-- Twitter bootstrap -->
-        <script src="bower_components/bootstrap/js/collapse.js"></script>
-        
-        <!-- Touch -->
-        <script src="bower_components/angular-touch/angular-touch.min.js"></script>
-
+        <script src="bower_components/angular-touch/angular-touch.js"></script>
+        <script src="bower_components/angular-cookie/angular-cookie.js"></script>
+        <script src="bower_components/IndexedDBShim/dist/IndexedDBShim.js"></script>
         <!-- endbower -->
         <!-- endbuild -->
 
@@ -220,6 +193,7 @@
         <script src="scripts/controllers/rangeController.js"></script>
         <script src="scripts/controllers/reportController.js"></script>
         <script src="scripts/controllers/reportListController.js"></script>
+        <script src="scripts/controllers/userPreferencesController.js"></script>
 
         <!-- Services -->
         <script src="scripts/services/categoryService.js"></script>

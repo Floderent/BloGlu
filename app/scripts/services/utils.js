@@ -2,7 +2,7 @@
 
 var servicesModule = angular.module('BloGlu.services');
 
-servicesModule.factory('Utils', [function() {
+servicesModule.factory('Utils', ['$rootScope', '$modal', function($rootScope, $modal) {
         var Utils = {};
         Utils.guid = (function() {
             function s4() {
@@ -15,6 +15,22 @@ servicesModule.factory('Utils', [function() {
                         s4() + '-' + s4() + s4() + s4();
             };
         })();
+        
+        
+        Utils.openConfirmModal = function(scopeOptions, modalOptions){            
+            var modalScope = $rootScope.$new();
+            modalScope = angular.extend(modalScope, scopeOptions);
+            var defaultModalOptions = {
+                templateUrl: "views/modal/confirm.html",
+                controller: "confirmModalController",
+                scope: modalScope
+            };            
+            var defaultModalOptions = angular.extend(defaultModalOptions, modalOptions);
+            return $modal.open(defaultModalOptions).result;
+        };
+        
+        
+        
         return Utils;
     }]);
 

@@ -14,7 +14,7 @@ servicesModule.factory('indexeddbService', ['$window', '$q', 'Database', functio
             if (db === null) {
                 var version = 1;
                 var request = indexedDB.open(databaseName, version);
-                request.onupgradeneeded = function(e) {                    
+                request.onupgradeneeded = function(e) {                     
                     db = e.target.result;
                     e.target.transaction.onerror = indexedDB.onerror;
                     recreateDatabaseSchema(db, Database.schema);
@@ -27,10 +27,10 @@ servicesModule.factory('indexeddbService', ['$window', '$q', 'Database', functio
                     };
                     deferred.resolve(db);
                 };
-                request.onblocked = function(error) {
+                request.onblocked = function(error) {                    
                     deferred.reject(error);
                 };
-                request.onerror = function(error) {
+                request.onerror = function(error) {                    
                     deferred.reject(error);
                 };
             } else {

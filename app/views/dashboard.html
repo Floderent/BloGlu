@@ -1,55 +1,21 @@
 
-<!--
-<div class="panel-heading">
-    <h3 class="panel-title">Analyse your data</h3>
-</div>
--->
+<div class="panel content-panel">
 
-<!--
-<div class="table-responsive">
-    <table class="table">
-        <tr ng-repeat="line in reportTab track by $index">
-            <td class="thumbnail" ng-repeat="reportConfig in reportTab[$index] track by $index">   
+    <div> 
+        <div class="row" ng-repeat="line in reportTab track by $index"> 
+            <div class="col-sm-6 col-lg-3 panel panel-default small-report" ng-repeat="reportConfig in reportTab[$index] track by $index">            
                 <div ng-if="reportConfig.queryResult && reportConfig.queryResult.data && reportConfig.queryResult.headers">
-                    <a href="" ng-click="clearReport(reportTab.indexOf(line), $index)" class="glyphicon glyphicon-remove-circle pull-right"/>
-                    <h3>{{reportConfig.title}}</h3>
+                    <a href="" ng-click="clearReport(reportTab.indexOf(line), $index)" class="glyphicon glyphicon-remove-circle right-corner"></a>                    
                     <dataviz config="reportConfig.queryResult" column-order="reportConfig.columnOrder"></dataviz>
-                </div>                                        
-                <div ng-if="!reportConfig.queryResult && !reportConfig.loading">
-                    <button type="button" class="btn btn-primary" ng-click="chooseReport(reportTab.indexOf(line), $index)">{{ 'dashboard.addnewReport' | translate }}</button>
                 </div>
+                <button type="button" class="btn btn-primary empty-report" ng-if="!reportConfig.queryResult && !reportConfig.loading" ng-click="chooseReport(reportTab.indexOf(line), $index)">                    
+                    {{ 'dashboard.addnewReport' | translate }}
+                </button>
                 <div ng-if="reportConfig.loading">
-                    <img alt="loading" src="images/spinnerLarge.gif" /> 
-                </div>
-
-            </td>
-        </tr>
-    </table>
-</div>
--->
-
-
-
-<div id="indicators">
-    <div ng-repeat="line in reportTab track by $index">
-        <div class="square" ng-repeat="reportConfig in reportTab[$index] track by $index">
-            <div class="content">
-                
-                <div ng-if="reportConfig.queryResult && reportConfig.queryResult.data && reportConfig.queryResult.headers">                        
-                    <a href="" ng-click="clearReport(reportTab.indexOf(line), $index)" class="glyphicon glyphicon-remove-circle pull-right"></a>                    
-                    <dataviz config="reportConfig.queryResult" column-order="reportConfig.columnOrder"></dataviz>
-                </div>                                                            
-
-                <div ng-if="!reportConfig.queryResult && !reportConfig.loading">
-                    <button type="button" class="btn btn-primary" ng-click="chooseReport(reportTab.indexOf(line), $index)">{{ 'dashboard.addnewReport' | translate }}</button>
-                </div>
-                <div ng-if="reportConfig.loading">
-                    <img alt="loading" src="images/spinner.gif" /> 
+                    <img alt="loading" src="images/spinner.gif" />
                 </div>
             </div>
         </div>
     </div>
+
 </div>
-
-
-

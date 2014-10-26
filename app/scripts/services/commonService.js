@@ -22,10 +22,10 @@ servicesModule.factory('MyInterceptor', ['$q', '$rootScope', '$location', 'AUTH_
             responseError: function(rejection) {
                 switch (rejection.status) {
                     case 401:
-                        $rootScope.brodcast(AUTH_EVENTS.notAuthenticated, rejection);
+                        $rootScope.$broadcast(AUTH_EVENTS.notAuthenticated, rejection);
                         break;
                     case 403:
-                        $rootScope.brodcast(AUTH_EVENTS.notAuthorized, rejection);
+                        $rootScope.$broadcast(AUTH_EVENTS.notAuthorized, rejection);
                         break;
                     case 419:
                     case 440:

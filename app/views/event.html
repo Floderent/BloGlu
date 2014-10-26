@@ -1,12 +1,11 @@
 <div class="panel panel-primary content-panel">
     <div class="panel-heading">
+        
         <dv ng-switch="eventCode">
             <h3 ng-switch-when="1" class="panel-title">{{ 'event.bgTitle' | translate }}</h3>
             <h3 ng-switch-when="2" class="panel-title">{{ 'event.medicationTitle' | translate }}</h3>
             <h3 ng-switch-when="3" class="panel-title">{{ 'event.weightTitle' | translate }}</h3>
         </dv>
-
-
     </div>
     <div class="panel-body ">
         <form novalidate class="simple-form">

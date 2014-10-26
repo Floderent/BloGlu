@@ -2,7 +2,7 @@
     "appName": "BloGlu",
     
     "appStatus" : "Alpha",
-    "appVersion" : "0.2",
+    "appVersion" : "@@version",
     
     "mainScreenMessage": "Handle your blood glucose",
     "signUp": "Sign up",
@@ -11,9 +11,10 @@
     "logIn": "Log in",
     "logOut": "Log out",
     "connection": "Log in",
+    "userName": "User name",
+    "password": "Password",
     "welcome": "Welcome",
-    "loading": "Loading...",
-    
+    "loading": "Loading...",    
     "preferences": "Preferences",
     
     "otherEvent": "Other",
@@ -201,7 +202,9 @@
         "maximum": "Maximum",
         "minimum": "Minimum",
         "average": "Average",
-        "number": "Number"
+        "number": "Number",
+        "next": "Next",
+        "previous": "Previous"
     },
     "period": {
         "pageTitle": "View or modify the analysis period(s)",
@@ -258,6 +261,10 @@
         "account": "My account",
         "application" : "Application",
         "pageTitle": "View or modify your settings",
+        "defaultUnits": "Default units",
+        "defaultValues": "Default values",
+        "delete": "Delete account",
+        "confirmDeletion": "Do you really want to delete the account ? All data will be erased, there is no undo.",
         "name": "Name",
         "password": "Password",
         "confirmPassword": "Confirm password",

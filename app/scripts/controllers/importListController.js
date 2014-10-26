@@ -1,7 +1,7 @@
 'use strict';
 var ControllersModule = angular.module('BloGlu.controllers');
 
-ControllersModule.controller('importListController', ['$scope', '$rootScope', '$modal', 'importService', 'MessageService', function Controller($scope, $rootScope, $modal, importService, MessageService) {
+ControllersModule.controller('importListController', ['$scope', '$rootScope', 'importService', 'MessageService','Utils', function Controller($scope, $rootScope, importService, MessageService, Utils) {
         
         renderPage();
 
@@ -16,20 +16,15 @@ ControllersModule.controller('importListController', ['$scope', '$rootScope', '$
             });
         }
 
-        $scope.deleteImport = function(impor) {            
-             var $modalScope = $rootScope.$new(true);
-            $modalScope.message = impor.name;            
-            var modalInstance = $modal.open({
-                templateUrl: "views/modal/confirm.html",
-                controller: "confirmModalController",
-                scope: $modalScope,
-                resolve: {
-                    confirmed: function() {
-                        return $scope.confirmed;
-                    }
-                }
-            });
-            modalInstance.result.then(function(confirmed) {
+        $scope.deleteImport = function(impor) {
+            var modalScope = {
+                       confirmTitle:'confirm.pageTitle',
+                       confirmMessage:'confirm.deletionMessage',
+                       confirmYes:'confirm.yes',
+                       confirmNo:'confirm.no',
+                       message: impor.name
+                   };           
+            Utils.openConfirmModal(modalScope).then(function(confirmed) {
                 if (confirmed) {
                     if (impor.objectId) {
                         $rootScope.increasePending("processingMessage.deletingData");

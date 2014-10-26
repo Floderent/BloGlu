@@ -1,7 +1,7 @@
 'use strict';
 var ControllersModule = angular.module('BloGlu.controllers');
 
-ControllersModule.controller('periodController', ['$rootScope', '$scope', '$modal', 'MessageService', 'periodService', function Controller($rootScope, $scope, $modal, MessageService, periodService) {
+ControllersModule.controller('periodController', ['$rootScope', '$scope', 'MessageService', 'periodService','Utils', function Controller($rootScope, $scope, MessageService, periodService, Utils) {
         
         $scope.arePeriodsOnMoreThanOneDay = true;
 
@@ -83,19 +83,14 @@ ControllersModule.controller('periodController', ['$rootScope', '$scope', '$moda
 
 
         $scope.deletePeriod = function(period) {
-            var $modalScope = $rootScope.$new(true);
-            $modalScope.message = period.name;            
-            var modalInstance = $modal.open({
-                templateUrl: "views/modal/confirm.html",
-                controller: "confirmModalController",
-                scope: $modalScope,
-                resolve: {
-                    confirmed: function() {
-                        return $scope.confirmed;
-                    }
-                }
-            });
-            modalInstance.result.then(function(confirmed) {
+            var modalScope = {
+                       confirmTitle:'confirm.pageTitle',
+                       confirmMessage:'confirm.deletionMessage',
+                       confirmYes:'confirm.yes',
+                       confirmNo:'confirm.no',
+                       message: period.name
+                   };
+            Utils.openConfirmModal(modalScope).then(function(confirmed) {
                 if (confirmed) {
                     if (period.objectId) {
                         $rootScope.increasePending("processingMessage.deletingData");

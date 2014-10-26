@@ -35,12 +35,14 @@
             <tab heading="{{'userPreferences.application'| translate }}">                
                 <ng-form name="applicationSettings" novalidate role="form">                
                     <div>
+                        
+                        <h4>{{ 'userPreferences.defaultValues' | translate }}</h4>
                         <div class="form-group">                            
-                            <label for="daySelect">{{ 'userPreferences.firstDayOfWeek' | translate }}</label>                                        
+                            <label for="daySelect">{{ 'userPreferences.firstDayOfWeek' | translate }}</label>
                             <select id="daySelect" name="daySelect" class="form-control" data-ng-model="user.preferences.firstDayOfWeek" data-ng-options="day.index as day.date for day in days"></select>
                         </div>
 
-
+                        <h4>{{ 'userPreferences.defaultUnits' | translate }}</h4>
                         <div ng-repeat="(key, value) in eventsTypes track by $index">
                             <div class="form-group">
                                 <label for="{{value}}">{{value| translate}}</label>
@@ -51,8 +53,10 @@
                     </div>
                 </ng-form>
             </tab>            
+        
         </tabset>
-
+        <button class="btn btn-primary btn-lg active pull-left" ng-disabled="pending > 0" ng-click="delete(user)">{{ 'userPreferences.delete' | translate }}</button>
+        
         <button class="btn btn-primary btn-lg active pull-right" ng-disabled="pending > 0" ng-click="update(user)">{{ 'userPreferences.save' | translate }}</button>
     </div>
 </div>

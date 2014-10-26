@@ -33,12 +33,6 @@
                 </div>
             </div>
         </form>
-
-
-
-
-
-
         
         
         <div class="panel panel-default">
@@ -66,18 +60,12 @@
                 </div>
         </div>
         
-        <p>
-            
-        </p>
-        
-        
         <button class="btn-large btn-primary" ng-click="executeQuery()">{{ 'report.execute' | translate }}</button>
         <button class="btn-large btn-primary" ng-click="clear()">{{ 'report.clear' | translate }}</button>
         <button class="btn btn-primary btn-lg active pull-right" ng-show="isEdit" ng-click="delete()">{{ 'report.delete' | translate }}</button>
         <button class="btn btn-primary btn-lg active pull-right" ng-click="update()">{{ 'report.save' | translate }}</button>
     </div>
-    <div class="table-responsive">        
-        <!--<table-dataviz config="datavizConfig" column-order="report.sort"></table-dataviz>-->
+    <div class="table-responsive">
         <dataviz config="datavizConfig" column-order="report.sort"></dataviz>
     </div>
 </div>

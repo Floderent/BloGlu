@@ -1,7 +1,7 @@
 'use strict';
 var ControllersModule = angular.module('BloGlu.controllers');
 
-ControllersModule.controller('reportController', ['$scope', '$rootScope', '$q', '$routeParams', '$modal', '$window', '$location', 'reportService', 'queryService', 'MessageService', 'DataVisualization', function Controller($scope, $rootScope, $q, $routeParams, $modal, $window, $location, reportService, queryService, MessageService) {
+ControllersModule.controller('reportController', ['$scope', '$rootScope', '$q', '$routeParams', '$window', '$location', 'reportService', 'queryService', 'MessageService', 'DataVisualization', 'Utils', function Controller($scope, $rootScope, $q, $routeParams, $window, $location, reportService, queryService, MessageService, Utils) {
 
         $scope.isEdit = $routeParams && $routeParams.objectId;
         $scope.report = {};
@@ -93,6 +93,12 @@ ControllersModule.controller('reportController', ['$scope', '$rootScope', '$q', 
                 $scope.executeQuery();
             }
         });
+        
+        $scope.$watch('selectedFilter', function(newValue, oldValue){            
+            if (newValue !== oldValue) {
+                $scope.executeQuery();
+            }
+        });
 
 
         $scope.executeQuery = function() {
@@ -133,16 +139,14 @@ ControllersModule.controller('reportController', ['$scope', '$rootScope', '$q', 
         };
 
         $scope.delete = function() {
-            var modalInstance = $modal.open({
-                templateUrl: "views/modal/confirm.html",
-                controller: "confirmModalController",
-                resolve: {
-                    confirmed: function() {
-                        return $scope.confirmed;
-                    }
-                }
-            });
-            modalInstance.result.then(function(confirmed) {
+            
+            var modalScope = {
+                       confirmTitle:'confirm.pageTitle',
+                       confirmMessage:'confirm.deletionMessage',
+                       confirmYes:'confirm.yes',
+                       confirmNo:'confirm.no'
+                   };
+            Utils.openConfirmModal(modalScope).then(function(confirmed) {
                 if (confirmed) {
                     $rootScope.increasePending("processingMessage.deletingData");
                     reportService.deleteReport($scope.report).then(function(result) {

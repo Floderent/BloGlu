@@ -1,7 +1,29 @@
 'use strict';
 var ControllersModule = angular.module('BloGlu.controllers');
 
-ControllersModule.controller('logBookController', ['$scope', '$rootScope', '$location', '$routeParams', '$modal', 'ResourceName', 'ResourceCode', 'logBookService', 'MessageService', 'printService', function Controller($scope, $rootScope, $location, $routeParams, $modal, ResourceName, ResourceCode, logBookService, MessageService, printService) {
+ControllersModule.controller('logBookController', [
+    '$scope', 
+    '$rootScope', 
+    '$location', 
+    '$routeParams', 
+    '$modal', 
+    'eventService',
+    'ResourceName', 
+    'ResourceCode', 
+    'logBookService', 
+    'MessageService', 
+    'printService', function Controller(
+            $scope, 
+            $rootScope, 
+            $location, 
+            $routeParams, 
+            $modal,
+            eventService,
+            ResourceName, 
+            ResourceCode, 
+            logBookService, 
+            MessageService, 
+            printService) {
 
         $scope.data = [];
         $scope.eventsTypes = ResourceName;
@@ -10,7 +32,7 @@ ControllersModule.controller('logBookController', ['$scope', '$rootScope', '$loc
 
         $scope.currentDate = null;
         $scope.interval = 'week';
-
+                
 
         if ($routeParams && $routeParams.weekDate) {
             $scope.currentDate = new Date($routeParams.weekDate);
@@ -28,10 +50,10 @@ ControllersModule.controller('logBookController', ['$scope', '$rootScope', '$loc
             $scope.resource = {1: true};
         }
 
-        $scope.$watch('resource', function(newValue, oldValue) {
+        $scope.$watch('resource', function (newValue, oldValue) {
             if (newValue !== oldValue) {
                 var resourceCodes = [];
-                angular.forEach(newValue, function(value, key) {
+                angular.forEach(newValue, function (value, key) {
                     if (value) {
                         resourceCodes.push(parseInt(key));
                     }
@@ -60,7 +82,7 @@ ControllersModule.controller('logBookController', ['$scope', '$rootScope', '$loc
                         $rootScope.messages.push(MessageService.errorMessage("errorMessage.loadingError", 2000));
                         $scope.header = [];
                         $scope.data = [];
-                    })['finally'](function() {
+                    })['finally'](function () {
                 $rootScope.decreasePending("processingMessage.loadingData");
             });
         }
@@ -69,21 +91,16 @@ ControllersModule.controller('logBookController', ['$scope', '$rootScope', '$loc
             var intStrArray = $scope.display.split(',');
             var intArray = [];
             var resource = {};
-            angular.forEach(intStrArray, function(value, key) {
-                if(parseInt(value) === parseInt(value)){
+            angular.forEach(intStrArray, function (value, key) {
+                if (parseInt(value) === parseInt(value)) {
                     intArray.push(parseInt(value));
                     resource[parseInt(value)] = true;
                 }
             });
             $scope.resource = resource;
             $scope.display = intArray;
-        }
-
-        function goToaddEvent(eventCode, day, period) {
-            $location.url($location.path());
-            var newEventDate = logBookService.getMiddleTime(period);
-            $location.path('event/' + ResourceCode[eventCode]).search('day', day.date.toISOString()).search('time', newEventDate.toISOString());
-        }
+        }      
+        
 
         function changeInterval(currentDate, interval, coef) {
             var newDate = new Date(currentDate.getTime());
@@ -106,7 +123,7 @@ ControllersModule.controller('logBookController', ['$scope', '$rootScope', '$loc
             $location.path('logBook').search('weekDate', $scope.currentDate.toISOString()).search('interval', interval).search('display', logBookService.getDisplayParam($scope.display));
         }
 
-        $scope.printToPDF = function() {
+        $scope.printToPDF = function () {
             printService.convertTableToPDF($scope.data, printService.renderCell.bind({
                 interval: $scope.interval
             }));
@@ -115,15 +132,15 @@ ControllersModule.controller('logBookController', ['$scope', '$rootScope', '$loc
         /**
          * Change grouping
          */
-        $scope.change = function() {
+        $scope.change = function () {
             changeInterval($scope.currentDate, $scope.interval, 0);
         };
 
         //create new reading with prefilled date and time
-        $scope.addEvent = function(day, period) {
+        $scope.addEvent = function (day, period) {
             //if only one event type selected, add this one            
-            if ($scope.display.length === 1) {
-                goToaddEvent($scope.display[0], day, period);
+            if ($scope.display.length === 1) {                
+                eventService.goToAddEvent($scope.display[0], day, period);
             } else {
                 //display modal window to choose the type of event
                 var $modalScope = $rootScope.$new(true);
@@ -133,23 +150,23 @@ ControllersModule.controller('logBookController', ['$scope', '$rootScope', '$loc
                     controller: "chooseEventController",
                     scope: $modalScope,
                     resolve: {
-                        confirmed: function() {
+                        confirmed: function () {
                             return $scope.code;
                         }
                     }
                 });
-                modalInstance.result.then(function(eventCode) {
+                modalInstance.result.then(function (eventCode) {
                     if (eventCode) {
-                        goToaddEvent(eventCode, day, period);
+                        eventService.goToAddEvent(eventCode, day, period);
                     }
-                }, function() {
+                }, function () {
                     //exit
                 });
             }
         };
 
 
-        $scope.zoomInInterval = function(date) {
+        $scope.zoomInInterval = function (date) {
             var newInterval = '';
             switch ($scope.interval) {
                 case 'month':
@@ -166,15 +183,15 @@ ControllersModule.controller('logBookController', ['$scope', '$rootScope', '$loc
             $location.path('logBook').search('weekDate', date.toISOString()).search('interval', newInterval);
         };
 
-        $scope.advance = function() {
+        $scope.advance = function () {
             changeInterval($scope.currentDate, $scope.interval, +1);
         };
 
-        $scope.back = function() {
+        $scope.back = function () {
             changeInterval($scope.currentDate, $scope.interval, -1);
         };
 
-        $scope.currentWeek = function() {
+        $scope.currentWeek = function () {
             currentDate = new Date();
             changeInterval($scope.currentDate, $scope.interval, 0);
         };

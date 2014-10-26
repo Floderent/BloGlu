@@ -1,10 +1,10 @@
 <div class="modal-header">
-    <h3>{{ 'confirm.pageTitle' | translate }}</h3>
+    <h3>{{ confirmTitle | translate }}</h3>
 </div>
 <div class="modal-body">
-    {{ 'confirm.deletionMessage' | translate }} <span ng-show="message"> {{message}} </span> ?
+    {{ confirmMessage | translate }} <span ng-show="message"> {{message}} </span> ?
 </div>
 <div class="modal-footer">
-    <button class="btn btn-primary" ng-click="ok()">{{ 'confirm.yes' | translate }}</button>
-    <button class="btn btn-warning" ng-click="cancel()">{{ 'confirm.no' | translate }}</button>
+    <button class="btn btn-primary" ng-click="ok()">{{ confirmYes | translate }}</button>
+    <button class="btn btn-warning" ng-click="cancel()">{{ confirmNo | translate }}</button>
 </div>

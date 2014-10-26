@@ -1,7 +1,7 @@
 'use strict';
 var ControllersModule = angular.module('BloGlu.controllers');
 
-ControllersModule.controller('rangeController', ['$scope', '$rootScope', '$q', '$modal', 'dataService', 'MessageService', 'UserService', 'unitService', function Controller($scope, $rootScope, $q, $modal, dataService, MessageService, UserService, unitService) {
+ControllersModule.controller('rangeController', ['$scope', '$rootScope', '$q', 'dataService', 'MessageService', 'UserService', 'unitService', 'Utils', function Controller($scope, $rootScope, $q, dataService, MessageService, UserService, unitService, Utils) {
 
         $scope.newRange = {};
         var resourceName = 'Range';
@@ -149,16 +149,13 @@ ControllersModule.controller('rangeController', ['$scope', '$rootScope', '$q', '
 
 
         $scope.deleteRange = function(range) {
-            var modalInstance = $modal.open({
-                templateUrl: "views/modal/confirm.html",
-                controller: "confirmModalController",
-                resolve: {
-                    confirmed: function() {
-                        return $scope.confirmed;
-                    }
-                }
-            });
-            modalInstance.result.then(function(confirmed) {
+            var modalScope = {
+                       confirmTitle:'confirm.pageTitle',
+                       confirmMessage:'confirm.deletionMessage',
+                       confirmYes:'confirm.yes',
+                       confirmNo:'confirm.no'
+                   };            
+            Utils.openConfirmModal(modalScope).then(function(confirmed) {
                 if (confirmed) {
                     if (range.objectId) {
                         $rootScope.increasePending("processingMessage.deletingData");
@@ -201,8 +198,6 @@ ControllersModule.controller('rangeController', ['$scope', '$rootScope', '$q', '
             range.color = range.original.color;
             delete range.original;
         };
-
-
 
         $rootScope.$on('dataReady', renderPage);
     }]);

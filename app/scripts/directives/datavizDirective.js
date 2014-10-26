@@ -70,28 +70,21 @@ DirectivesModule.directive('tableDataviz', ['$compile', 'dataService', function(
                 }
                 angular.element(element).append(htmlElement);
             }
-        }
-        
+        }        
         function buildTitle(title){
             var titleElement = document.createElement('h3');
             titleElement.appendChild(document.createTextNode(title));
             return titleElement;
-        }
-        
+        }       
 
         function buildSingleValueTable(scope) {
             var config = scope.config;
             var div = document.createElement('div');
-
             var title = document.createElement('h1');
             var value = document.createElement('span');
-
-            //title.appendChild(document.createTextNode(config.headers[0].title + ": "));
             value.appendChild(document.createTextNode(config.data[0][config.headers[0].name]));
-
             title.appendChild(value);
             div.appendChild(title);
-
             return div;
         }
 
@@ -164,7 +157,6 @@ DirectivesModule.directive('tableDataviz', ['$compile', 'dataService', function(
                                 that.scope.columnOrder.splice(index, 1);
                             } else {
                                 orderClause.direction = 'ASC';
-
                             }
                         }
                     }
@@ -229,13 +221,16 @@ DirectivesModule.directive('chartDataviz', ['$compile', 'dataService', function(
                     chart: {
                         type: 'line',
                         //zoomType: 'x',
+                        /*
                         spacingTop: 0,
                         spacingLeft: 0,
                         spacingRight: 0,
                         spacingBottom: 0,
+                        */
                         //TODO: to remove
-                        width: 350,
-                        height: 350
+                        width: 300,
+                        height: 300
+                        
                     }
                 },
                 series: [],

@@ -7,39 +7,29 @@ ControllersModule.controller('eventController',
             '$rootScope',
             '$routeParams',
             '$q',
-            '$window',
-            '$modal',
+            '$window',            
             'ResourceCode',
             'UserService',
             'MessageService',
             'categoryService',
             'unitService',
             'eventService',
+            'Utils',
             function Controller(
                     $scope,
                     $rootScope,
                     $routeParams,
                     $q,
-                    $window,
-                    $modal,
+                    $window,                    
                     ResourceCode,
                     UserService,
                     MessageService,
                     categoryService,
                     unitService,
-                    eventService) {
+                    eventService,
+                    Utils) {
 
-                $scope.placeHolder = 100;
-                $scope.unitDisabled = true;
-
-                $scope.isEdit = $routeParams && $routeParams.objectId;
-                var isPrefilledDateAndTime = $routeParams && $routeParams.day && $routeParams.time;
-
-                var eventType = 'other';
-                if ($routeParams.eventType) {
-                    eventType = $routeParams.eventType;
-                }
-                $scope.eventCode = ResourceCode[eventType];
+                initParams();
                 renderPage();
 
                 function renderPage() {
@@ -53,22 +43,33 @@ ControllersModule.controller('eventController',
                         $scope.units = results[1];
                         $scope.categories = results[2];
 
-                        handleDate();                        
+                        handleDate();
                         handleUnit();
 
                     }, function reject() {
                         $rootScope.messages.push(MessageService.errorMessage('errorMessage.loadingError', 2000));
-                    })['finally'](function() {
+                    })['finally'](function () {
                         $rootScope.decreasePending('processingMessage.synchronizing');
                     });
                 }
 
-                $scope.open = function($event) {
-                    $event.preventDefault();
-                    $event.stopPropagation();
-                    $scope.opened = true;
-                };
 
+                function initParams() {
+                    $scope.placeHolder = 100;
+                    $scope.unitDisabled = true;
+                
+                    //init routeParams
+                    $scope.objectId = $scope.objectId || $routeParams.objectId;
+                    $scope.day = $scope.day || $routeParams.day;
+                    $scope.time = $scope.time || $routeParams.time;
+
+                    $scope.isEdit = $scope.objectId;
+                    $scope.isPrefilledDateAndTime = $scope.day && $scope.time;
+
+                    var eventType = $scope.eventType || $routeParams.eventType || 'other';
+
+                    $scope.eventCode = ResourceCode[eventType];
+                }
 
                 function handleDate() {
                     //=====handle date
@@ -79,7 +80,7 @@ ControllersModule.controller('eventController',
                     $scope.date = currentDate;
                 }
 
-               
+
 
                 function handleUnit() {
                     //=====handle units
@@ -92,7 +93,7 @@ ControllersModule.controller('eventController',
                             }
                         }
                     }
-                    $scope.$watch('event.unit', function(newValue, oldValue) {
+                    $scope.$watch('event.unit', function (newValue, oldValue) {
                         if (newValue && oldValue && newValue !== oldValue) {
                             if ($scope.event && $scope.event.reading) {
                                 $scope.event.reading = $scope.event.reading * oldValue.coefficient / newValue.coefficient;
@@ -107,17 +108,16 @@ ControllersModule.controller('eventController',
                 function getEvent() {
                     var deferred = $q.defer();
                     if ($scope.isEdit) {
-                        eventService.getEvent($routeParams.objectId).then(function(result) {
+                        eventService.getEvent($scope.objectId).then(function (result) {
                             deferred.resolve(result);
-                        }, function(error) {
+                        }, function (error) {
                             $scope.isEdit = false;
                             deferred.reject(error);
                         });
-
                     } else {
-                        if (isPrefilledDateAndTime) {
-                            var rgbDate = new Date($routeParams.day);
-                            var rgbTime = new Date($routeParams.time);
+                        if ($scope.isPrefilledDateAndTime) {
+                            var rgbDate = new Date($scope.day);
+                            var rgbTime = new Date($scope.time);
 
                             var newDate = new Date();
                             newDate.setFullYear(rgbDate.getFullYear());
@@ -136,59 +136,62 @@ ControllersModule.controller('eventController',
                     return deferred.promise;
                 }
 
-                $scope.update = function(event) {
+                $scope.open = function ($event) {
+                    $event.preventDefault();
+                    $event.stopPropagation();
+                    $scope.opened = true;
+                };
+
+                $scope.update = function (event) {
                     if ($scope.isEdit) {
                         $rootScope.increasePending("processingMessage.updatingData");
-                    }else{
+                    } else {
                         $rootScope.increasePending("processingMessage.savingData");
                     }
                     event.dateTime = $scope.date;
                     event.code = $scope.eventCode;
                     eventService.saveEvent(event, $scope.isEdit).then(function resolve(result) {
-                        if($scope.isEdit){                            
+                        if ($scope.isEdit) {
                             $rootScope.messages.push(MessageService.successMessage(eventService.resolveUpdateMessage($scope.eventCode), 2000));
-                        }else{
+                        } else {
                             $rootScope.messages.push(MessageService.successMessage(eventService.resolveCreationMessage($scope.eventCode), 2000));
                         }
                         $window.history.back();
                     }, function reject(error) {
-                        if($scope.isEdit){
+                        if ($scope.isEdit) {
                             $rootScope.messages.push(MessageService.errorMessage('errorMessage.updatingError', 2000));
-                        }else{
+                        } else {
                             $rootScope.messages.push(MessageService.errorMessage('errorMessage.creatingError', 2000));
-                        }                           
-                    })['finally'](function() {
+                        }
+                    })['finally'](function () {
                         if ($scope.isEdit) {
                             $rootScope.decreasePending("processingMessage.updatingData");
-                        }else{
+                        } else {
                             $rootScope.decreasePending("processingMessage.savingData");
                         }
                     });
 
                 };
 
-                $scope.delete = function() {                    
-                    var modalInstance = $modal.open({
-                        templateUrl: "views/modal/confirm.html",
-                        controller: "confirmModalController",
-                        resolve: {
-                            confirmed: function() {
-                                return $scope.confirmed;
-                            }
-                        }
-                    });
-                    modalInstance.result.then(function(confirmed) {
+                $scope.delete = function () {                    
+                    var modalScope = {
+                        confirmTitle:'confirm.pageTitle',
+                        confirmMessage:'confirm.deletionMessage',
+                        confirmYes:'confirm.yes',
+                        confirmNo:'confirm.no'
+                    };
+                    Utils.openConfirmModal(modalScope).then(function (confirmed) {
                         if (confirmed) {
                             $rootScope.increasePending("processingMessage.deletingData");
-                            eventService.deleteEvent($scope.event.objectId).then(function(result) {
+                            eventService.deleteEvent($scope.event.objectId).then(function (result) {
                                 $window.history.back();
-                            }, function(error) {
+                            }, function (error) {
                                 $rootScope.messages.push(MessageService.errorMessage('errorMessage.deletingError', 2000));
-                            })['finally'](function(){
+                            })['finally'](function () {
                                 $rootScope.decreasePending("processingMessage.deletingData");
                             });
                         }
-                    }, function() {
+                    }, function () {
                         //exit
                     });
                 };
