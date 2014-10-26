@@ -2,40 +2,51 @@
 
 var servicesModule = angular.module('BloGlu.services');
 
-servicesModule.factory('Utils', ['$rootScope', '$modal', function($rootScope, $modal) {
+servicesModule.factory('Utils', ['$modal','$rootScope','$translate' , function ($modal, $rootScope, $translate) {
         var Utils = {};
-        Utils.guid = (function() {
+        Utils.guid = (function () {
             function s4() {
                 return Math.floor((1 + Math.random()) * 0x10000)
                         .toString(16)
                         .substring(1);
             }
-            return function() {
+            return function () {
                 return s4() + s4() + '-' + s4() + '-' + s4() + '-' +
                         s4() + '-' + s4() + s4() + s4();
             };
         })();
-        
-        
-        Utils.openConfirmModal = function(scopeOptions, modalOptions){            
+
+
+        Utils.openConfirmModal = function (scopeOptions, modalOptions) {
             var modalScope = $rootScope.$new();
-            modalScope = angular.extend(modalScope, scopeOptions);
+            modalScope = angular.extend(modalScope, scopeOptions);            
+            if (scopeOptions) {
+                angular.forEach(scopeOptions, function (value, key) {
+                    if (typeof value === 'object') {
+                        if(value.id && value.params){
+                            modalScope[key] = $translate.instant(value.id, value.params);
+                        }
+                    }else{
+                        modalScope[key] = $translate.instant(value);
+                    }
+                });
+            }
             var defaultModalOptions = {
                 templateUrl: "views/modal/confirm.html",
                 controller: "confirmModalController",
                 scope: modalScope
-            };            
+            };
             var defaultModalOptions = angular.extend(defaultModalOptions, modalOptions);
             return $modal.open(defaultModalOptions).result;
         };
-        
-        
-        
+
+
+
         return Utils;
     }]);
 
 
-servicesModule.factory('dateUtil', ['$filter', function($filter) {
+servicesModule.factory('dateUtil', ['$filter', function ($filter) {
         var dateUtil = {};
 
         function getGMTMillis(timeZonedDate) {
@@ -66,10 +77,10 @@ servicesModule.factory('dateUtil', ['$filter', function($filter) {
         }
 
 
-        dateUtil.getPeriodMaxDate = function(periodArray, dateField) {
+        dateUtil.getPeriodMaxDate = function (periodArray, dateField) {
             var maxDate = null;
             if (Array.isArray(periodArray)) {
-                angular.forEach(periodArray, function(period) {
+                angular.forEach(periodArray, function (period) {
                     if (maxDate === null || maxDate < period[dateField]) {
                         maxDate = period[dateField];
                     }
@@ -79,27 +90,27 @@ servicesModule.factory('dateUtil', ['$filter', function($filter) {
         };
 
 
-        dateUtil.getPeriodMaxEndDate = function(periodArray) {
+        dateUtil.getPeriodMaxEndDate = function (periodArray) {
             return dateUtil.getPeriodMaxDate(periodArray, 'end');
         };
 
-        dateUtil.getPeriodMaxBeginDate = function(periodArray) {
+        dateUtil.getPeriodMaxBeginDate = function (periodArray) {
             return dateUtil.getPeriodMaxDate(periodArray, 'begin');
         };
 
 
-        dateUtil.getNumberOfMillis = function(timeString) {
+        dateUtil.getNumberOfMillis = function (timeString) {
             var splittedDateString = timeString.split(":");
             var hours = parseInt(splittedDateString[0], 10);
             var minutes = parseInt(splittedDateString[1], 10);
             return (hours * 60 + minutes) * 60 * 1000;
         };
 
-        dateUtil.daysInMonth = function(month, year) {
+        dateUtil.daysInMonth = function (month, year) {
             return new Date(year, month, 0).getDate();
         };
 
-        dateUtil.getAvailableDays = function(month, year) {
+        dateUtil.getAvailableDays = function (month, year) {
             var numberOfDays = dateUtil.daysInMonth(month, year);
             var day = 1;
             var resultArray = [];
@@ -110,7 +121,7 @@ servicesModule.factory('dateUtil', ['$filter', function($filter) {
             return resultArray;
         };
 
-        dateUtil.arePeriodsIntersecting = function(periodArray) {
+        dateUtil.arePeriodsIntersecting = function (periodArray) {
             var arePeriodIntersecting = false;
             if (periodArray && Array.isArray(periodArray)) {
                 for (var index = 0; index < periodArray.length; index++) {
@@ -129,7 +140,7 @@ servicesModule.factory('dateUtil', ['$filter', function($filter) {
             return arePeriodIntersecting;
         };
 
-        dateUtil.arePeriodIntersecting = function(period1, period2) {
+        dateUtil.arePeriodIntersecting = function (period1, period2) {
             var period1BeginDate = dateUtil.getDateHourAndMinuteToMillis(period1.begin);
             var period1EndDate = dateUtil.getDateHourAndMinuteToMillis(period1.end);
             var period2BeginDate = dateUtil.getDateHourAndMinuteToMillis(period2.begin);
@@ -138,7 +149,7 @@ servicesModule.factory('dateUtil', ['$filter', function($filter) {
                     period1EndDate > period2BeginDate && period1EndDate < period2EndDate;
         };
 
-        dateUtil.checkDuration = function(period) {
+        dateUtil.checkDuration = function (period) {
             var valid = false;
             if (period && period.begin && period.end) {
                 valid = dateDiffInHours(period.begin, period.end) <= 24;
@@ -146,18 +157,18 @@ servicesModule.factory('dateUtil', ['$filter', function($filter) {
             return valid;
         };
 
-        dateUtil.getDateHourAndMinuteToMillis = function(date) {
+        dateUtil.getDateHourAndMinuteToMillis = function (date) {
             var hourCoef = 60 * 60 * 1000;
             var minuteCoef = 60 * 1000;
             return date.getHours() * hourCoef + date.getMinutes() * minuteCoef;
         };
 
-        dateUtil.getMonthWeek = function(date) {
+        dateUtil.getMonthWeek = function (date) {
             var firstDay = new Date(date.getFullYear(), date.getMonth(), 1).getDay();
             return Math.ceil((date.getDate() + firstDay) / 7);
         };
 
-        dateUtil.weekCount = function(year, month_number) {
+        dateUtil.weekCount = function (year, month_number) {
             var firstOfMonth = new Date(year, month_number - 1, 1);
             var lastOfMonth = new Date(year, month_number, 0);
             var used = firstOfMonth.getDay() + lastOfMonth.getDate();
@@ -165,7 +176,7 @@ servicesModule.factory('dateUtil', ['$filter', function($filter) {
         };
 
 
-        dateUtil.getDateWeekBeginAndEndDate = function(date, indexOfFirstDay) {
+        dateUtil.getDateWeekBeginAndEndDate = function (date, indexOfFirstDay) {
             var beginDate = null;
             var endDate = null;
             indexOfFirstDay = parseInt(indexOfFirstDay);
@@ -216,7 +227,7 @@ servicesModule.factory('dateUtil', ['$filter', function($filter) {
             };
         };
 
-        dateUtil.getDateMonthBeginAndEndDate = function(date) {
+        dateUtil.getDateMonthBeginAndEndDate = function (date) {
             var beginDate = new Date(date.getFullYear(), date.getMonth());
             var endDate = new Date(date.getFullYear(), date.getMonth() + 1, 0);
             return {
@@ -226,7 +237,7 @@ servicesModule.factory('dateUtil', ['$filter', function($filter) {
             };
         };
 
-        dateUtil.getDateDayBeginAndEndDate = function(date) {
+        dateUtil.getDateDayBeginAndEndDate = function (date) {
             var beginDate = new Date(date);
             beginDate.setHours(0);
             beginDate.setMinutes(0);
@@ -247,7 +258,7 @@ servicesModule.factory('dateUtil', ['$filter', function($filter) {
         };
 
 
-        dateUtil.getDateYearBeginAndEndDate = function(date) {
+        dateUtil.getDateYearBeginAndEndDate = function (date) {
             var beginDate = new Date(date.getFullYear(), 0, 1);
             var endDate = new Date(date.getFullYear() + 1, 0, 0);
             return {
@@ -260,7 +271,7 @@ servicesModule.factory('dateUtil', ['$filter', function($filter) {
 
 
 
-        dateUtil.getCurrentWeekSundayAndMonday = function() {
+        dateUtil.getCurrentWeekSundayAndMonday = function () {
             var period = dateUtil.getDateWeekBeginAndEndDate(new Date(), 0);
             var sunday = period.begin;
             var monday = new Date(period.begin.getTime());
@@ -269,7 +280,7 @@ servicesModule.factory('dateUtil', ['$filter', function($filter) {
         };
 
 
-        dateUtil.arePeriodsOnMoreThanOneDay = function(periods) {
+        dateUtil.arePeriodsOnMoreThanOneDay = function (periods) {
             var total = 0;
             var result = 0;
             var max = 86400000;
@@ -294,7 +305,7 @@ servicesModule.factory('dateUtil', ['$filter', function($filter) {
         };
 
 
-        dateUtil.getAvailableYears = function() {
+        dateUtil.getAvailableYears = function () {
             var resultArray = [];
             var yearNumber = 100;
             var startYear = 1970;
@@ -306,13 +317,13 @@ servicesModule.factory('dateUtil', ['$filter', function($filter) {
             return resultArray;
         };
 
-        dateUtil.getAvailableMonths = function() {
+        dateUtil.getAvailableMonths = function () {
             var resultArray = [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12];
             return resultArray;
         };
 
 
-        dateUtil.convertToNormalFormat = function(parseDate) {
+        dateUtil.convertToNormalFormat = function (parseDate) {
             var normalDate = null;
             if (parseDate && parseDate.iso) {
                 var startTimeISOString = parseDate.iso;
@@ -322,7 +333,7 @@ servicesModule.factory('dateUtil', ['$filter', function($filter) {
             return normalDate;
         };
 
-        dateUtil.convertToParseFormat = function(date) {
+        dateUtil.convertToParseFormat = function (date) {
             var parseDate = null;
             if (date) {
                 //{"__type":"Date", "iso":"2012-04-30T09:34:08.256Z"}

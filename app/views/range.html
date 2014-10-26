@@ -31,7 +31,7 @@
             <spectrum-colorpicker ng-model="newRange.color" options="{showPalette: true, preferredFormat: 'hex'}"></spectrum-colorpicker>
             </td>
             <td>
-                <button type="button" ng-click="saveRange(newRange)">{{ 'range.add' | translate }}</button>
+                <button type="button" class="btn" ng-click="saveRange(newRange)">{{ 'range.add' | translate }}</button>
             </td>
             </tr>
         </table>
@@ -77,10 +77,10 @@
             <spectrum-colorpicker ng-model="range.color" options="{showPalette: true, preferredFormat: 'hex'}"></spectrum-colorpicker>
             </td>
             <td>
-                <button type="button" ng-click="deleteRange(range)">{{ 'range.delete' | translate }}</button>
-                <button type="button" ng-show="!range.isEdit" ng-click="editRange(range)">{{ 'range.edit' | translate }}</button>
-                <button type="button" ng-show="range.isEdit" ng-click="updateRange(range)">{{ 'range.update' | translate }}</button>
-                <button type="button" ng-show="range.isEdit" ng-click="cancelEditRange(range)">{{ 'range.cancel' | translate }}</button>                            
+                <button type="button" class="btn" ng-click="deleteRange(range)">{{ 'range.delete' | translate }}</button>
+                <button type="button" class="btn" ng-show="!range.isEdit" ng-click="editRange(range)">{{ 'range.edit' | translate }}</button>
+                <button type="button" class="btn" ng-show="range.isEdit" ng-click="updateRange(range)">{{ 'range.update' | translate }}</button>
+                <button type="button" class="btn" ng-show="range.isEdit" ng-click="cancelEditRange(range)">{{ 'range.cancel' | translate }}</button>                            
             </td>
             </tr>
         </table>

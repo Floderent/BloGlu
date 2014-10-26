@@ -16,13 +16,12 @@ ControllersModule.controller('importListController', ['$scope', '$rootScope', 'i
             });
         }
 
-        $scope.deleteImport = function(impor) {
+        $scope.deleteImport = function(impor) {            
             var modalScope = {
                        confirmTitle:'confirm.pageTitle',
-                       confirmMessage:'confirm.deletionMessage',
+                       confirmMessage:{id:'confirm.deletionMessageWithName', params:{objectName: impor.name}},
                        confirmYes:'confirm.yes',
-                       confirmNo:'confirm.no',
-                       message: impor.name
+                       confirmNo:'confirm.no'                       
                    };           
             Utils.openConfirmModal(modalScope).then(function(confirmed) {
                 if (confirmed) {

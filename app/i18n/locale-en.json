@@ -147,7 +147,7 @@
     },
     "category": {
         "pageTitle": "View or modify the events categories",
-        "new": "New",
+        "new": "New category: ",
         "category": "category",
         "delete": "Delete",
         "edit": "Edit",
@@ -284,7 +284,8 @@
     },
     "confirm": {
         "pageTitle": "Confirm deletion",
-        "deletionMessage": "Would you really want to delete",        
+        "deletionMessage": "Would you really want to delete ?",
+        "deletionMessageWithName": "Would you really want to delete {{objectName}} ?",
         "yes": "Yes",
         "no": "No"
     },

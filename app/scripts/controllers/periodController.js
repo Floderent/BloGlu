@@ -1,7 +1,17 @@
 'use strict';
 var ControllersModule = angular.module('BloGlu.controllers');
 
-ControllersModule.controller('periodController', ['$rootScope', '$scope', 'MessageService', 'periodService','Utils', function Controller($rootScope, $scope, MessageService, periodService, Utils) {
+ControllersModule.controller('periodController', [
+        '$rootScope', 
+        '$scope', 
+        'MessageService', 
+        'periodService',
+        'Utils', function Controller(
+                $rootScope, 
+                $scope, 
+                MessageService, 
+                periodService, 
+                Utils) {
         
         $scope.arePeriodsOnMoreThanOneDay = true;
 
@@ -85,10 +95,9 @@ ControllersModule.controller('periodController', ['$rootScope', '$scope', 'Messa
         $scope.deletePeriod = function(period) {
             var modalScope = {
                        confirmTitle:'confirm.pageTitle',
-                       confirmMessage:'confirm.deletionMessage',
+                       confirmMessage:{id:'confirm.deletionMessageWithName', params:{objectName: period.name}},
                        confirmYes:'confirm.yes',
-                       confirmNo:'confirm.no',
-                       message: period.name
+                       confirmNo:'confirm.no'                       
                    };
             Utils.openConfirmModal(modalScope).then(function(confirmed) {
                 if (confirmed) {

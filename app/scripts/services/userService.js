@@ -56,20 +56,21 @@ servicesModule.factory('UserService', ['$http','$rootScope', 'ipCookie', '$q', '
 
         UserService.updateUser = function (updatedUser) {            
             var deferred = $q.defer();
-            if (updatedUser && updatedUser.objectId) {                
+            var user = UserService.currentUser();
+            user = angular.extend(user, updatedUser);
+            delete user.sessionToken;
+            if (user && user.objectId) {                
                 $http({
                     method: 'PUT',
-                    url: ServerService.baseUrl + 'users/' + updatedUser.objectId,
-                    data: updatedUser
+                    url: ServerService.baseUrl + 'users/' + user.objectId,
+                    data: user,
+                    headers: UserService.headers()
                 })
-                        .success(function () {
-                            if (UserService.currentUser() && updatedUser) {
-                                user = angular.extend(user, updatedUser);
-                            }
+                        .success(function () {                            
                             if (ipCookie('user')) {
                                 var cookieUser = ipCookie('user');
                                 if (cookieUser) {
-                                    cookieUser = angular.extend(cookieUser, updatedUser);
+                                    cookieUser = angular.extend(cookieUser, user);
                                 }
                                 delete cookieUser.email;
                                 ipCookie('user', cookieUser, {expire: 7});
@@ -88,7 +89,8 @@ servicesModule.factory('UserService', ['$http','$rootScope', 'ipCookie', '$q', '
             if (user && user.objectId) {
                 $http({
                     method: 'DELETE',
-                    url: ServerService.baseUrl + 'users/' + user.objectId
+                    url: ServerService.baseUrl + 'users/' + user.objectId,
+                    headers: UserService.headers()
                 })
                         .success(function (response) {
                             deferred.resolve(response);

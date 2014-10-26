@@ -31,7 +31,7 @@
                             </td>
                             <td>{{newPeriod.end - newPeriod.begin - 3600000| date:'HH:mm'}}</td>                            
                             <td>
-                                <button type="button" ng-click="savePeriod(newPeriod)">{{ 'period.add' | translate }}</button>
+                                <button type="button" class="btn" ng-click="savePeriod(newPeriod)">{{ 'period.add' | translate }}</button>
                             </td>
 
                         </tr>
@@ -74,10 +74,10 @@
                         </td>
                         <td>{{period.end - period.begin - 3600000| date:'HH:mm'}}</td>
                         <td>
-                            <button type="button" ng-click="deletePeriod(period)">{{ 'period.delete' | translate }}</button>
-                            <button type="button" ng-show="!period.isEdit" ng-click="editPeriod(period)">{{ 'period.edit' | translate }}</button>
-                            <button type="button" ng-show="period.isEdit" ng-click="updatePeriod(period)">{{ 'period.update' | translate }}</button>
-                            <button type="button" ng-show="period.isEdit" ng-click="cancelEditPeriod(period)">{{ 'period.cancel' | translate }}</button>                            
+                            <button type="button" class="btn" ng-click="deletePeriod(period)">{{ 'period.delete' | translate }}</button>
+                            <button type="button" class="btn" ng-show="!period.isEdit" ng-click="editPeriod(period)">{{ 'period.edit' | translate }}</button>
+                            <button type="button" class="btn" ng-show="period.isEdit" ng-click="updatePeriod(period)">{{ 'period.update' | translate }}</button>
+                            <button type="button" class="btn" ng-show="period.isEdit" ng-click="cancelEditPeriod(period)">{{ 'period.cancel' | translate }}</button>                            
                         </td>
                     </tr>
                 </table>

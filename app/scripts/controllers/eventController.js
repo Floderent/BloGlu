@@ -3,30 +3,32 @@ var ControllersModule = angular.module('BloGlu.controllers');
 
 ControllersModule.controller('eventController',
         [
-            '$scope',
+            '$q',
             '$rootScope',
             '$routeParams',
-            '$q',
-            '$window',            
-            'ResourceCode',
-            'UserService',
-            'MessageService',
+            '$scope',
+            '$translate',
+            '$window',
             'categoryService',
-            'unitService',
             'eventService',
+            'MessageService',
+            'ResourceCode',
+            'unitService',
+            'UserService',
             'Utils',
             function Controller(
-                    $scope,
+                    $q,
                     $rootScope,
                     $routeParams,
-                    $q,
-                    $window,                    
-                    ResourceCode,
-                    UserService,
-                    MessageService,
+                    $scope,
+                    $translate,
+                    $window,
                     categoryService,
-                    unitService,
                     eventService,
+                    MessageService,
+                    ResourceCode,
+                    unitService,
+                    UserService,
                     Utils) {
 
                 initParams();
@@ -175,10 +177,10 @@ ControllersModule.controller('eventController',
 
                 $scope.delete = function () {                    
                     var modalScope = {
-                        confirmTitle:'confirm.pageTitle',
-                        confirmMessage:'confirm.deletionMessage',
-                        confirmYes:'confirm.yes',
-                        confirmNo:'confirm.no'
+                        confirmTitle: 'confirm.pageTitle',
+                        confirmMessage: 'confirm.deletionMessage',
+                        confirmYes: 'confirm.yes',
+                        confirmNo: 'confirm.no'
                     };
                     Utils.openConfirmModal(modalScope).then(function (confirmed) {
                         if (confirmed) {

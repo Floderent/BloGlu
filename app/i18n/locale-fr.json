@@ -123,7 +123,7 @@
     },
     "category": {
         "pageTitle": "Voir ou modifier les catégories d'évènement",
-        "new": "Nouveau",
+        "new": "Nouvelle catégorie: ",
         "category": "catégorie",
         "delete": "Supprimer",
         "edit": "Modifier",
@@ -260,7 +260,8 @@
     },
     "confirm": {
         "pageTitle": "Confirmer la suppression",
-        "deletionMessage": "Voulez-vous vraiment supprimer",
+        "deletionMessage": "Voulez-vous vraiment supprimer ?",
+        "deletionMessageWithName": "Voulez-vous vraiment supprimer {{objectName}} ?",
         "yes": "Oui",
         "no": "Non"
     },

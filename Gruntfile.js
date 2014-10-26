@@ -404,8 +404,8 @@ module.exports = function (grunt) {
             'build',
             'replace:version_replace',
             'clean:deploy',
-            'copy:parse'//,
-            //'exec:deployToParse'
+            'copy:parse',
+            'exec:deployToParse'
         ]);
         
     });
