@@ -3,7 +3,7 @@
 var servicesModule = angular.module('BloGlu.services');
 
 
-servicesModule.factory('ModelUtil', ['dateUtil', 'UserService', function (dateUtil, UserService) {
+servicesModule.factory('ModelUtil', ['dateUtil', 'UserSessionService', function (dateUtil, UserSessionService) {
         var ModelUtil = {};
         ModelUtil.addClauseToFilter = function (existingClause, additionnalClauses) {
             var whereClause = {};
@@ -21,7 +21,7 @@ servicesModule.factory('ModelUtil', ['dateUtil', 'UserService', function (dateUt
 
         ModelUtil.genericTransformRequest = function (data) {
             if (data) {
-                data.ACL = UserService.ownerReadWriteACL();
+                data.ACL = UserSessionService.ownerReadWriteACL();
             }
             return angular.toJson(data);
         };
@@ -133,13 +133,22 @@ servicesModule.factory('Unit', ['$resource', 'ServerService', 'ModelUtil', funct
                     headers: headers || ServerService.headers,
                     isArray: true,
                     transformResponse: ModelUtil.genericTransformResponse
+                },
+                 countForSync:{
+                    method: 'GET',
+                    headers: headers || ServerService.headers(),
+                    params: {
+                            count: '1',
+                            order: '-updatedAt',
+                            limit: '1'
+                        }
                 }
             });
         };
     }]);
 
 
-servicesModule.factory('Report', ['$resource', 'ServerService', 'UserService', 'ModelUtil', function ($resource, ServerService, UserService, ModelUtil) {
+servicesModule.factory('Report', ['$resource', 'ServerService', 'UserSessionService', 'ModelUtil', function ($resource, ServerService, UserSessionService, ModelUtil) {
         var url = ServerService.baseUrl + 'classes/Report/:Id';
         return function (headers) {
             return $resource(url,
@@ -147,38 +156,47 @@ servicesModule.factory('Report', ['$resource', 'ServerService', 'UserService', '
             {
                 query: {
                     method: 'GET',
-                    headers: headers || UserService.headers(),
+                    headers: headers || UserSessionService.headers(),
                     isArray: true,
                     transformResponse: ModelUtil.genericTransformResponse
                 },
                 count: {
                     method: 'GET',
-                    headers: headers || UserService.headers()
+                    headers: headers || UserSessionService.headers()
+                },
+                countForSync: {
+                    method: 'GET',
+                    headers: headers || UserSessionService.headers(),
+                    params: {
+                        count: '1',
+                        order: '-updatedAt',
+                        limit: '1'
+                    }
                 },
                 save: {
                     method: 'POST',
-                    headers: headers || UserService.headers(),
+                    headers: headers || UserSessionService.headers(),
                     transformRequest: ModelUtil.genericTransformRequest
                 },
                 get: {
                     method: 'GET',
-                    headers: headers || UserService.headers()
+                    headers: headers || UserSessionService.headers()
                 },
                 update: {
                     method: 'PUT',
-                    headers: headers || UserService.headers(),
+                    headers: headers || UserSessionService.headers(),
                     transformRequest: ModelUtil.genericTransformRequest
                 },
                 delete: {
                     method: 'DELETE',
-                    headers: headers || UserService.headers()
+                    headers: headers || UserSessionService.headers()
                 }
             });
         };
     }]);
 
 
-servicesModule.factory('Import', ['$resource', 'ServerService', 'UserService', 'ModelUtil', function ($resource, ServerService, UserService, ModelUtil) {
+servicesModule.factory('Import', ['$resource', 'ServerService', 'UserSessionService', 'ModelUtil', function ($resource, ServerService, UserSessionService, ModelUtil) {
         var url = ServerService.baseUrl + 'classes/Import/:Id';
         return function (headers) {
             return $resource(url,
@@ -186,7 +204,7 @@ servicesModule.factory('Import', ['$resource', 'ServerService', 'UserService', '
             {
                 query: {
                     method: 'GET',
-                    headers: headers || UserService.headers(),
+                    headers: headers || UserSessionService.headers(),
                     isArray: true,
                     transformResponse: function (data) {
                         var jsonResponse = angular.fromJson(data);
@@ -201,27 +219,36 @@ servicesModule.factory('Import', ['$resource', 'ServerService', 'UserService', '
                 },
                 count: {
                     method: 'GET',
-                    headers: headers || UserService.headers()
+                    headers: headers || UserSessionService.headers()
+                },
+                 countForSync:{
+                    method: 'GET',
+                    headers: headers || UserSessionService.headers(),
+                    params: {
+                            count: '1',
+                            order: '-updatedAt',
+                            limit: '1'
+                        }
                 },
                 save: {
                     method: 'POST',
-                    headers: headers || UserService.headers(),
+                    headers: headers || UserSessionService.headers(),
                     transformRequest: function (data) {
-                        data = ModelUtil.transformToParseFormat(data, [{field: 'beginDate', type: 'date'}, {field: 'endDate', type: 'date'}, {field: 'dateTime', type: 'date'}, {field: 'bgUnit', type: 'pointer', className: 'Unit'}, {field: 'file', type: 'file'}], UserService.ownerReadWriteACL());
+                        data = ModelUtil.transformToParseFormat(data, [{field: 'beginDate', type: 'date'}, {field: 'endDate', type: 'date'}, {field: 'dateTime', type: 'date'}, {field: 'bgUnit', type: 'pointer', className: 'Unit'}, {field: 'file', type: 'file'}], UserSessionService.ownerReadWriteACL());
                         return angular.toJson(data);
                     }
                 },
                 update: {
                     method: 'PUT',
-                    headers: headers || UserService.headers(),
+                    headers: headers || UserSessionService.headers(),
                     transformRequest: function (data) {
-                        data = ModelUtil.transformToParseFormat(data, [{field: 'beginDate', type: 'date'}, {field: 'endDate', type: 'date'}, {field: 'dateTime', type: 'date'}, {field: 'bgUnit', type: 'pointer', className: 'Unit'}, {field: 'file', type: 'file'}], UserService.ownerReadWriteACL());
+                        data = ModelUtil.transformToParseFormat(data, [{field: 'beginDate', type: 'date'}, {field: 'endDate', type: 'date'}, {field: 'dateTime', type: 'date'}, {field: 'bgUnit', type: 'pointer', className: 'Unit'}, {field: 'file', type: 'file'}], UserSessionService.ownerReadWriteACL());
                         return angular.toJson(data);
                     }
                 },
                 delete: {
                     method: 'DELETE',
-                    headers: headers || UserService.headers()
+                    headers: headers || UserSessionService.headers()
                 }
             });
         };
@@ -229,7 +256,7 @@ servicesModule.factory('Import', ['$resource', 'ServerService', 'UserService', '
 
 
 
-servicesModule.factory('Dashboard', ['$resource', 'ServerService', 'UserService', 'ModelUtil', function ($resource, ServerService, UserService, ModelUtil) {
+servicesModule.factory('Dashboard', ['$resource', 'ServerService', 'UserSessionService', 'ModelUtil', function ($resource, ServerService, UserSessionService, ModelUtil) {
         var url = ServerService.baseUrl + 'classes/Dashboard/:Id';
         return function (headers) {
             return $resource(url,
@@ -237,31 +264,40 @@ servicesModule.factory('Dashboard', ['$resource', 'ServerService', 'UserService'
             {
                 query: {
                     method: 'GET',
-                    headers: headers || UserService.headers(),
+                    headers: headers || UserSessionService.headers(),
                     isArray: true,
                     transformResponse: ModelUtil.genericTransformResponse
                 },
                 count: {
                     method: 'GET',
-                    headers: headers || UserService.headers()
+                    headers: headers || UserSessionService.headers()
+                },
+                 countForSync:{
+                    method: 'GET',
+                    headers: headers || UserSessionService.headers(),
+                    params: {
+                            count: '1',
+                            order: '-updatedAt',
+                            limit: '1'
+                        }
                 },
                 save: {
                     method: 'POST',
-                    headers: headers || UserService.headers(),
+                    headers: headers || UserSessionService.headers(),
                     transformRequest: ModelUtil.genericTransformRequest
                 },
                 get: {
                     method: 'GET',
-                    headers: headers || UserService.headers()
+                    headers: headers || UserSessionService.headers()
                 },
                 update: {
                     method: 'PUT',
-                    headers: headers || UserService.headers(),
+                    headers: headers || UserSessionService.headers(),
                     transformRequest: ModelUtil.genericTransformRequest
                 },
                 delete: {
                     method: 'DELETE',
-                    headers: headers || UserService.headers()
+                    headers: headers || UserSessionService.headers()
                 }
             });
         };
@@ -269,7 +305,7 @@ servicesModule.factory('Dashboard', ['$resource', 'ServerService', 'UserService'
 
 
 
-servicesModule.factory('Metadatamodel', ['$resource', 'ServerService', 'UserService', 'ModelUtil', function ($resource, ServerService, UserService, ModelUtil) {
+servicesModule.factory('Metadatamodel', ['$resource', 'ServerService', 'UserSessionService', 'ModelUtil', function ($resource, ServerService, UserSessionService, ModelUtil) {
         var url = ServerService.baseUrl + 'classes/Metadatamodel/:Id';
         return function (headers) {
             return $resource(url,
@@ -277,24 +313,33 @@ servicesModule.factory('Metadatamodel', ['$resource', 'ServerService', 'UserServ
             {
                 query: {
                     method: 'GET',
-                    headers: headers || UserService.headers(),
+                    headers: headers || UserSessionService.headers(),
                     isArray: true,
                     transformResponse: ModelUtil.genericTransformResponse
                 },
                 count: {
                     method: 'GET',
-                    headers: headers || UserService.headers()
+                    headers: headers || UserSessionService.headers()
+                },
+                 countForSync:{
+                    method: 'GET',
+                    headers: headers || UserSessionService.headers(),
+                    params: {
+                            count: '1',
+                            order: '-updatedAt',
+                            limit: '1'
+                        }
                 },
                 get: {
                     method: 'GET',
-                    headers: headers || UserService.headers()
+                    headers: headers || UserSessionService.headers()
                 }
             });
         };
     }]);
 
 
-servicesModule.factory('Batch', ['$resource', 'ServerService', 'UserService', 'dateUtil', function ($resource, ServerService, UserService, dateUtil) {
+servicesModule.factory('Batch', ['$resource', 'ServerService', 'UserSessionService', 'dateUtil', function ($resource, ServerService, UserSessionService, dateUtil) {
         var url = ServerService.baseUrl + 'batch';
 
         return function (headers) {
@@ -303,14 +348,14 @@ servicesModule.factory('Batch', ['$resource', 'ServerService', 'UserService', 'd
                     {
                         batchEvent: {
                             method: 'POST',
-                            headers: headers || UserService.headers(),
+                            headers: headers || UserSessionService.headers(),
                             isArray: true,
                             transformRequest: function (data) {
                                 var dataToSend = [];
                                 angular.forEach(data, function (event) {
                                     var postEvent = {};
                                     if (event) {
-                                        event.ACL = UserService.ownerReadWriteACL();
+                                        event.ACL = UserSessionService.ownerReadWriteACL();
                                         if (event.dateTime) {
                                             event.dateTime = dateUtil.convertToParseFormat(event.dateTime);
                                         }
@@ -334,7 +379,7 @@ servicesModule.factory('Batch', ['$resource', 'ServerService', 'UserService', 'd
     }]);
 
 
-servicesModule.factory('Event', ['$resource', 'ServerService', 'UserService', 'dateUtil', function ($resource, ServerService, UserService, dateUtil) {
+servicesModule.factory('Event', ['$resource', 'ServerService', 'UserSessionService', 'dateUtil', function ($resource, ServerService, UserSessionService, dateUtil) {
         var url = ServerService.baseUrl + "classes/Event/:Id";
 
         return function (headers) {
@@ -345,7 +390,7 @@ servicesModule.factory('Event', ['$resource', 'ServerService', 'UserService', 'd
                 query: {
                     method: 'GET',
                     cache: false,
-                    headers: headers || UserService.headers(),
+                    headers: headers || UserSessionService.headers(),
                     isArray: true,
                     transformResponse: function (data) {
                         var jsonResponse = angular.fromJson(data);
@@ -363,14 +408,23 @@ servicesModule.factory('Event', ['$resource', 'ServerService', 'UserService', 'd
                 },
                 count: {
                     method: 'GET',
-                    headers: headers || UserService.headers()
+                    headers: headers || UserSessionService.headers()
+                },
+                 countForSync:{
+                    method: 'GET',
+                    headers: headers || UserSessionService.headers(),
+                    params: {
+                            count: '1',
+                            order: '-updatedAt',
+                            limit: '1'
+                        }
                 },
                 save: {
                     method: 'POST',
-                    headers: headers || UserService.headers(),
+                    headers: headers || UserSessionService.headers(),
                     transformRequest: function (data) {
                         if (data) {
-                            data.ACL = UserService.ownerReadWriteACL();
+                            data.ACL = UserSessionService.ownerReadWriteACL();
                             if (data.dateTime) {
                                 data.dateTime = dateUtil.convertToParseFormat(data.dateTime);
                             }
@@ -386,7 +440,7 @@ servicesModule.factory('Event', ['$resource', 'ServerService', 'UserService', 'd
                 },
                 get: {
                     method: 'GET',
-                    headers: headers || UserService.headers(),
+                    headers: headers || UserSessionService.headers(),
                     transformResponse: function (data) {
                         var jsonResponse = angular.fromJson(data);
                         if (jsonResponse) {
@@ -399,10 +453,10 @@ servicesModule.factory('Event', ['$resource', 'ServerService', 'UserService', 'd
                 },
                 update: {
                     method: 'PUT',
-                    headers: headers || UserService.headers(),
+                    headers: headers || UserSessionService.headers(),
                     transformRequest: function (data) {
                         if (data) {
-                            data.ACL = UserService.ownerReadWriteACL();
+                            data.ACL = UserSessionService.ownerReadWriteACL();
                             if (data.dateTime) {
                                 data.dateTime = dateUtil.convertToParseFormat(data.dateTime);
                             }
@@ -418,7 +472,7 @@ servicesModule.factory('Event', ['$resource', 'ServerService', 'UserService', 'd
                 },
                 delete: {
                     method: 'DELETE',
-                    headers: headers || UserService.headers()
+                    headers: headers || UserSessionService.headers()
                 }
             });
         };
@@ -426,7 +480,7 @@ servicesModule.factory('Event', ['$resource', 'ServerService', 'UserService', 'd
     }]);
 
 
-servicesModule.factory('Period', ['$resource', 'ServerService', 'UserService', 'dateUtil', function ($resource, ServerService, UserService, dateUtil) {
+servicesModule.factory('Period', ['$resource', 'ServerService', 'UserSessionService', 'dateUtil', function ($resource, ServerService, UserSessionService, dateUtil) {
         var url = ServerService.baseUrl + 'classes/Period/:Id';
         return function (headers) {
             return $resource(url,
@@ -435,7 +489,7 @@ servicesModule.factory('Period', ['$resource', 'ServerService', 'UserService', '
                     {
                         query: {
                             method: 'GET',
-                            headers: headers || UserService.headers(),
+                            headers: headers || UserSessionService.headers(),
                             isArray: true,
                             transformResponse: function (data) {
                                 var jsonResponse = angular.fromJson(data);
@@ -452,11 +506,11 @@ servicesModule.factory('Period', ['$resource', 'ServerService', 'UserService', '
                         },
                         save: {
                             method: 'POST',
-                            headers: headers || UserService.headers(),
+                            headers: headers || UserSessionService.headers(),
                             transformRequest: function (data) {
                                 if (data) {
                                     var dataToSave = angular.extend({}, data);
-                                    dataToSave.ACL = UserService.ownerReadWriteACL();
+                                    dataToSave.ACL = UserSessionService.ownerReadWriteACL();
                                     if (dataToSave.begin && dataToSave.end) {
                                         dataToSave.begin = dateUtil.convertToParseFormat(dataToSave.begin);
                                         dataToSave.end = dateUtil.convertToParseFormat(dataToSave.end);
@@ -465,12 +519,21 @@ servicesModule.factory('Period', ['$resource', 'ServerService', 'UserService', '
                                 return angular.toJson(dataToSave);
                             }
                         },
+                        countForSync: {
+                            method: 'GET',
+                            headers: headers || UserSessionService.headers(),
+                            params: {
+                                count: '1',
+                                order: '-updatedAt',
+                                limit: '1'
+                            }
+                        },
                         update: {
                             method: 'PUT',
-                            headers: headers || UserService.headers(),
+                            headers: headers || UserSessionService.headers(),
                             transformRequest: function (data) {
                                 if (data) {
-                                    data.ACL = UserService.ownerReadWriteACL();
+                                    data.ACL = UserSessionService.ownerReadWriteACL();
                                     if (data.begin && data.end) {
                                         data.begin = dateUtil.convertToParseFormat(data.begin);
                                         data.end = dateUtil.convertToParseFormat(data.end);
@@ -481,14 +544,14 @@ servicesModule.factory('Period', ['$resource', 'ServerService', 'UserService', '
                         },
                         delete: {
                             method: 'DELETE',
-                            headers: headers || UserService.headers()
+                            headers: headers || UserSessionService.headers()
                         }
                     });
         };
     }]);
 
 
-servicesModule.factory('Category', ['$resource', 'ServerService', 'UserService', 'ModelUtil', function ($resource, ServerService, UserService, ModelUtil) {
+servicesModule.factory('Category', ['$resource', 'ServerService', 'UserSessionService', 'ModelUtil', function ($resource, ServerService, UserSessionService, ModelUtil) {
         var url = ServerService.baseUrl + 'classes/Category/:Id';
         return function (headers) {
             return $resource(url,
@@ -497,72 +560,47 @@ servicesModule.factory('Category', ['$resource', 'ServerService', 'UserService',
                     {
                         query: {
                             method: 'GET',
-                            headers: headers || UserService.headers(),
+                            headers: headers || UserSessionService.headers(),
                             isArray: true,
                             transformResponse: ModelUtil.genericTransformResponse
                         },
                         save: {
                             method: 'POST',
-                            headers: headers || UserService.headers(),
+                            headers: headers || UserSessionService.headers(),
                             transformRequest: ModelUtil.genericTransformRequest
                         },
                         update: {
                             method: 'PUT',
-                            headers: headers || UserService.headers(),
+                            headers: headers || UserSessionService.headers(),
                             transformRequest: ModelUtil.genericTransformRequest
                         },
                         delete: {
                             method: 'DELETE',
-                            headers: headers || UserService.headers()
+                            headers: headers || UserSessionService.headers()
                         }
                     });
         };
     }]);
 
-
-servicesModule.factory('User', ['$resource', 'ServerService', 'UserService', function ($resource, ServerService, UserService) {
-        var url = ServerService.baseUrl + "users/:userId";
-        return function (headers) {
-            return $resource(url,
-                    {},
-                    {
-                        update: {
-                            method: "PUT",
-                            headers: headers || UserService.headers(),
-                            transformRequest: function (data) {
-                                if (data) {
-                                    data.ACL = UserService.ownerReadWriteACL();
-                                    if (data.sessionToken) {
-                                        delete data.sessionToken;
-                                    }
-                                }
-                                return angular.toJson(data);
-                            }
-                        }
-                    });
-        };
-
-    }]);
-
-servicesModule.factory('UserPreferences', ['$resource', 'ServerService', 'UserService', 'ModelUtil', function ($resource, ServerService, UserService, ModelUtil) {
+servicesModule.factory('UserPreferences', ['$resource', 'ServerService', 'UserSessionService', 'ModelUtil', function ($resource, ServerService, UserSessionService, ModelUtil) {
         var url = ServerService.baseUrl + 'classes/UserPreferences';
         return function (headers) {
             return $resource(url, {},
                     {
                         query: {
                             method: 'GET',
-                            headers: headers || UserService.headers(),
+                            headers: headers || UserSessionService.headers(),
                             isArray: true,
                             transformResponse: ModelUtil.genericTransformResponse
                         },
                         save: {
                             method: 'POST',
-                            headers: headers || UserService.headers(),
+                            headers: headers || UserSessionService.headers(),
                             transformRequest: ModelUtil.genericTransformRequest
                         },
                         update: {
                             method: 'PUT',
-                            headers: headers || UserService.headers(),
+                            headers: headers || UserSessionService.headers(),
                             transformRequest: ModelUtil.genericTransformRequest
                         }
                     });
@@ -570,7 +608,7 @@ servicesModule.factory('UserPreferences', ['$resource', 'ServerService', 'UserSe
     }]);
 
 
-servicesModule.factory('Range', ['$resource', 'ServerService', 'UserService', 'ModelUtil', function ($resource, ServerService, UserService, ModelUtil) {
+servicesModule.factory('Range', ['$resource', 'ServerService', 'UserSessionService', 'ModelUtil', function ($resource, ServerService, UserSessionService, ModelUtil) {
         var url = ServerService.baseUrl + 'classes/Range/:Id';
         return function (headers) {
             return $resource(url,
@@ -580,17 +618,17 @@ servicesModule.factory('Range', ['$resource', 'ServerService', 'UserService', 'M
             {
                 query: {
                     method: 'GET',
-                    headers: headers || UserService.headers(),
+                    headers: headers || UserSessionService.headers(),
                     isArray: true,
                     transformResponse: ModelUtil.genericTransformResponse
                 },
                 save: {
                     method: 'POST',
-                    headers: headers || UserService.headers(),
+                    headers: headers || UserSessionService.headers(),
                     transformRequest: function (data) {
                         if (data) {
                             var dataToSave = angular.extend({}, data);
-                            dataToSave.ACL = UserService.ownerReadWriteACL();
+                            dataToSave.ACL = UserSessionService.ownerReadWriteACL();
 
                             if (data.unit && data.unit.objectId) {
                                 dataToSave.unit = {__type: 'Pointer', className: 'Unit', objectId: data.unit.objectId};
@@ -602,10 +640,10 @@ servicesModule.factory('Range', ['$resource', 'ServerService', 'UserService', 'M
                 },
                 update: {
                     method: 'PUT',
-                    headers: headers || UserService.headers(),
+                    headers: headers || UserSessionService.headers(),
                     transformRequest: function (data) {
                         if (data) {
-                            data.ACL = UserService.ownerReadWriteACL();
+                            data.ACL = UserSessionService.ownerReadWriteACL();
                         }
                         if (data.unit && data.unit.objectId) {
                             data.unit = {__type: 'Pointer', className: 'Unit', objectId: data.unit.objectId};
@@ -615,8 +653,62 @@ servicesModule.factory('Range', ['$resource', 'ServerService', 'UserService', 'M
                 },
                 delete: {
                     method: 'DELETE',
-                    headers: headers || UserService.headers()
+                    headers: headers || UserSessionService.headers()
+                },
+                 countForSync:{
+                    method: 'GET',
+                    headers: headers || UserSessionService.headers(),
+                    params: {
+                            count: '1',
+                            order: '-updatedAt',
+                            limit: '1'
+                        }
                 }
             });
         };
     }]);
+
+
+servicesModule.factory('User', ['$resource', 'ServerService', 'UserSessionService', 'ModelUtil', function ($resource, ServerService, UserSessionService, ModelUtil) {
+        var url = ServerService.baseUrl + 'users/:Id';
+        return function (headers) {
+            return $resource(url,
+                    {
+                    },
+                    {
+                        query: {
+                            method: 'GET',
+                            headers: headers || UserSessionService.headers(),
+                            isArray: true,
+                            transformResponse: ModelUtil.genericTransformResponse
+                        },
+                        countForSync: {
+                            method: 'GET',
+                            headers: headers || UserSessionService.headers(),
+                            params: {
+                                count: '1',
+                                order: '-updatedAt',
+                                limit: '1'
+                            }
+                        },
+                        update: {
+                            method: "PUT",
+                            headers: headers || UserSessionService.headers(),
+                            transformRequest: function (data) {
+                                if (data) {
+                                    data.ACL = UserSessionService.ownerReadWriteACL();
+                                    if (data.sessionToken) {
+                                        delete data.sessionToken;
+                                    }
+                                }
+                                return angular.toJson(data);
+                            }
+                        },
+                        delete: {
+                            method: 'DELETE',
+                            headers: headers || UserSessionService.headers()
+                        }
+                    });
+        };
+    }]);
+

@@ -2,27 +2,27 @@
 var ControllersModule = angular.module('BloGlu.controllers');
 
 ControllersModule.controller('logBookController', [
-    '$scope', 
-    '$rootScope', 
-    '$location', 
-    '$routeParams', 
-    '$modal', 
+    '$scope',
+    '$rootScope',
+    '$location',
+    '$routeParams',
+    '$modal',
     'eventService',
-    'ResourceName', 
-    'ResourceCode', 
-    'logBookService', 
-    'MessageService', 
+    'ResourceName',
+    'ResourceCode',
+    'logBookService',
+    'MessageService',
     'printService', function Controller(
-            $scope, 
-            $rootScope, 
-            $location, 
-            $routeParams, 
+            $scope,
+            $rootScope,
+            $location,
+            $routeParams,
             $modal,
             eventService,
-            ResourceName, 
-            ResourceCode, 
-            logBookService, 
-            MessageService, 
+            ResourceName,
+            ResourceCode,
+            logBookService,
+            MessageService,
             printService) {
 
         $scope.data = [];
@@ -32,7 +32,7 @@ ControllersModule.controller('logBookController', [
 
         $scope.currentDate = null;
         $scope.interval = 'week';
-                
+
 
         if ($routeParams && $routeParams.weekDate) {
             $scope.currentDate = new Date($routeParams.weekDate);
@@ -65,25 +65,25 @@ ControllersModule.controller('logBookController', [
             }
         }, true);
 
-
-        $scope.timeInterval = logBookService.getTimeInterval($scope.interval, $scope.currentDate);
-
         renderPage();
 
         function renderPage() {
             $rootScope.increasePending("processingMessage.loadingData");
-            var params = {where: {code: {$in: $scope.display}}};
-            logBookService.getTableData($scope.timeInterval, params).then(
-                    function resolve(result) {
-                        $scope.header = result[0];
-                        $scope.data = result;
-                    },
-                    function reject(error) {
-                        $rootScope.messages.push(MessageService.errorMessage("errorMessage.loadingError", 2000));
-                        $scope.header = [];
-                        $scope.data = [];
-                    })['finally'](function () {
-                $rootScope.decreasePending("processingMessage.loadingData");
+            logBookService.getTimeInterval($scope.interval, $scope.currentDate).then(function (timeInterval) {
+                $scope.timeInterval = timeInterval;
+                var params = {where: {code: {$in: $scope.display}}};
+                logBookService.getTableData($scope.timeInterval, params).then(
+                        function(result) {
+                            $scope.header = result[0];
+                            $scope.data = result;
+                        },
+                        function(error) {
+                            $rootScope.messages.push(MessageService.errorMessage("errorMessage.loadingError", 2000));
+                            $scope.header = [];
+                            $scope.data = [];
+                        })['finally'](function () {
+                    $rootScope.decreasePending("processingMessage.loadingData");
+                });
             });
         }
 
@@ -99,8 +99,8 @@ ControllersModule.controller('logBookController', [
             });
             $scope.resource = resource;
             $scope.display = intArray;
-        }      
-        
+        }
+
 
         function changeInterval(currentDate, interval, coef) {
             var newDate = new Date(currentDate.getTime());
@@ -139,7 +139,7 @@ ControllersModule.controller('logBookController', [
         //create new reading with prefilled date and time
         $scope.addEvent = function (day, period) {
             //if only one event type selected, add this one            
-            if ($scope.display.length === 1) {                
+            if ($scope.display.length === 1) {
                 eventService.goToAddEvent($scope.display[0], day, period);
             } else {
                 //display modal window to choose the type of event

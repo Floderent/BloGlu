@@ -2,7 +2,7 @@
 
 var servicesModule = angular.module('BloGlu.services');
 
-servicesModule.factory('dataService', ['$q', '$filter', '$injector', '$locale', 'indexeddbService', 'Database','ServerService', 'UserService', function($q, $filter, $injector, $locale, indexeddbService, Database,ServerService, UserService) {
+servicesModule.factory('dataService', ['$q', '$filter', '$injector', '$locale', 'indexeddbService', 'Database','ServerService', 'UserSessionService', function($q, $filter, $injector, $locale, indexeddbService, Database,ServerService, UserSessionService) {
         var dataService = {};
         var localData = null;
         var maxResult = 1000;
@@ -30,7 +30,7 @@ servicesModule.factory('dataService', ['$q', '$filter', '$injector', '$locale', 
         dataService.logOut = function() {
             localData = null;            
             return dataService.clearWholeDatabase().then(function() {
-                return UserService.logOut();
+                return UserSessionService.logOut();
             });
         };
 
@@ -50,12 +50,12 @@ servicesModule.factory('dataService', ['$q', '$filter', '$injector', '$locale', 
 
         dataService.clear = function(collection) {
             var deferred = $q.defer();            
-            indexeddbService.clear(collection, UserService.currentUser().objectId).then(deferred.resolve, deferred.reject, deferred.notify);
+            indexeddbService.clear(collection, UserSessionService.currentUser().userId).then(deferred.resolve, deferred.reject, deferred.notify);
             return deferred.promise;
         };
 
         dataService.addRecords = function(collection, records) {
-            var userId = UserService.currentUser().objectId;            
+            var userId = UserSessionService.currentUser().userId;            
             return indexeddbService.addRecords(collection, userId, records);
         };
 
@@ -63,21 +63,19 @@ servicesModule.factory('dataService', ['$q', '$filter', '$injector', '$locale', 
             var deferred = $q.defer();
             var promiseArray = [];
             angular.forEach(Database.schema, function(collectionName) {
-                promiseArray.push(indexeddbService.clear(collectionName, UserService.currentUser().objectId));
+                promiseArray.push(indexeddbService.clear(collectionName, UserSessionService.currentUser().userId));
             });
             $q.all(promiseArray).then(deferred.resolve, deferred.reject);            
-            return deferred.promise;
-            
-           //return indexeddbService.clearCollections(Database.schema, UserService.currentUser().objectId);
+            return deferred.promise;          
         };
 
 
         dataService.getWholeDatabase = function() {
             var deferred = $q.defer();
             var promiseArray = [];
-            if (UserService.currentUser()) {
+            if (UserSessionService.currentUser()) {
                 angular.forEach(Database.schema, function(collectionName) {
-                    promiseArray.push(indexeddbService.getData(collectionName, UserService.currentUser().objectId));
+                    promiseArray.push(indexeddbService.getData(collectionName, UserSessionService.currentUser().userId));
                 });
             }
             $q.all(promiseArray).then(function resolve(result) {
@@ -94,7 +92,7 @@ servicesModule.factory('dataService', ['$q', '$filter', '$injector', '$locale', 
         dataService.save = function(collection, data, params) {
             return dataService.init().then(function(localData) {
                 //save to indexedDB and to the cloud
-                var resource = $injector.get(collection)(UserService.headers());
+                var resource = $injector.get(collection)(UserSessionService.headers());
                 var createdObject = angular.extend({}, data);
                 return resource.save(data).$promise.then(function(result) {
                     createdObject[idField] = result[idField];
@@ -112,7 +110,7 @@ servicesModule.factory('dataService', ['$q', '$filter', '$injector', '$locale', 
 
         dataService.update = function(collection, objectId, data, params) {
             return dataService.init().then(function(localData) {                
-                var resource = $injector.get(collection)(UserService.headers());                
+                var resource = $injector.get(collection)(UserSessionService.headers());                
                 //save in local data
                 var updatedObject = null;
                 if (localData && localData[collection]) {
@@ -158,7 +156,7 @@ servicesModule.factory('dataService', ['$q', '$filter', '$injector', '$locale', 
                     });
                 }
                 //save to indexedDB add to the cloud
-                var resource = $injector.get(collection)(UserService.headers());
+                var resource = $injector.get(collection)(UserSessionService.headers());
                 var recordToDelete = {};
                 recordToDelete[idField] = objectId;
                 return $q.all([
@@ -277,7 +275,7 @@ servicesModule.factory('dataService', ['$q', '$filter', '$injector', '$locale', 
         dataService.queryParse = function(collection, resourceCount, params) {
             var deferred = $q.defer();
 
-            var resourceObject = $injector.get(collection)(UserService.headers());
+            var resourceObject = $injector.get(collection)(UserSessionService.headers());
             if (resourceCount <= maxResult) {
                 doParseQuery(resourceObject, params).then(deferred.resolve, deferred.reject);
             } else {

@@ -67,12 +67,16 @@ DirectivesModule.directive('blogluEvent', ['$compile', '$injector', '$q', '$loca
             var scope = {};
             var dataService = $injector.get('dataService');
             var userService = $injector.get('UserService');
-            var promiseArray = [dataService.queryLocal('Unit', {where: {code: event.code}}), dataService.queryLocal('Range')];
+            var resourceCode = $injector.get('ResourceCode');
+            
+            var promiseArray = [dataService.queryLocal('Unit', {where: {code: event.code}}), dataService.queryLocal('Range'), userService.getDefaultUnit(resourceCode[event.code])];
             return $q.all(promiseArray).then(function(results) {                
                 var unit = null;
+                var defaultUnit = results[2]
+                
                 var reading = event.reading;
-                if (userService.currentUser().preferences && userService.currentUser().preferences.defaultUnit) {
-                    unit = userService.currentUser().preferences.defaultUnit;
+                if (defaultUnit) {
+                    unit = defaultUnit;
                     reading = reading * event.unit.coefficient / unit.coefficient;
                 } else {
                     unit = event.unit;

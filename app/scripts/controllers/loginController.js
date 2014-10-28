@@ -1,12 +1,12 @@
 'use strict';
 var ControllersModule = angular.module('BloGlu.controllers');
 
-ControllersModule.controller('loginController', ['$scope', '$rootScope', '$location', 'UserService', 'MessageService', 'AUTH_EVENTS', function Controller($scope, $rootScope, $location, UserService, MessageService, AUTH_EVENTS) {
+ControllersModule.controller('loginController', ['$scope', '$rootScope', '$location', 'UserSessionService', 'MessageService', 'AUTH_EVENTS', function Controller($scope, $rootScope, $location, UserSessionService, MessageService, AUTH_EVENTS) {
 
         $scope.logIn = function(form) {            
             if (form) {
                 $rootScope.increasePending("processingMessage.connecting");
-                UserService.logIn(form.username, form.password)
+                UserSessionService.logIn(form.username, form.password)
                         .success(function(authenticatedUser) {                             
                             $rootScope.currentUser = authenticatedUser;
                             $rootScope.$broadcast(AUTH_EVENTS.loginSuccess);

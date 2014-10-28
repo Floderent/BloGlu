@@ -75,7 +75,62 @@ servicesModule.factory('dateUtil', ['$filter', function ($filter) {
             var _MS_PER_HOUR = 1000 * 60 * 60;
             return dateDiff(a, b, _MS_PER_HOUR);
         }
+        
+        function processDate(dateStr) {
+            var date = null;
+            if (dateStr) {
+                var splittedDate = dateStr.split("/");
+                var day = parseInt(splittedDate[0]);
+                var month = parseInt(splittedDate[1]);
+                var year = parseInt(splittedDate[2]);
+                if (splittedDate[2].length === 2) {
+                    year = 2000 + parseInt(splittedDate[2]);
+                }
+                date = new Date();
+                date.setFullYear(year);
+                date.setMonth(month - 1);
+                date.setDate(day);
+            }
+            return date;
+        }
 
+        function processTime(timeStr) {
+            var date = null;
+            if (timeStr) {
+                var splittedDate = timeStr.split(":");
+                var hours = parseInt(splittedDate[0]);
+                var minutes = parseInt(splittedDate[1]);
+                var seconds = parseInt(splittedDate[2]);
+                date = new Date(0, 0, 0, hours, minutes, seconds);
+            }
+            return date;
+        }
+        
+        
+        dateUtil.processDateTime = function(dateStr) {
+            var date = null;
+            if (dateStr) {
+                var splittedDateTime = dateStr.split(' ');
+                var datePart = splittedDateTime[0];
+                var timePart = splittedDateTime[1];
+
+                var d = processDate(datePart);
+                var t = processTime(timePart);
+
+                date = new Date();
+                date.setFullYear(d.getFullYear());
+                date.setMonth(d.getMonth());
+                date.setDate(d.getDate());
+
+                date.setHours(t.getHours());
+                date.setMinutes(t.getMinutes());
+                date.setSeconds(t.getSeconds());
+
+                date.setMilliseconds(0);
+
+            }
+            return date;
+        };        
 
         dateUtil.getPeriodMaxDate = function (periodArray, dateField) {
             var maxDate = null;

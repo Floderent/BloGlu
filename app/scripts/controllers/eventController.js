@@ -6,8 +6,7 @@ ControllersModule.controller('eventController',
             '$q',
             '$rootScope',
             '$routeParams',
-            '$scope',
-            '$translate',
+            '$scope',           
             '$window',
             'categoryService',
             'eventService',
@@ -20,8 +19,7 @@ ControllersModule.controller('eventController',
                     $q,
                     $rootScope,
                     $routeParams,
-                    $scope,
-                    $translate,
+                    $scope,                    
                     $window,
                     categoryService,
                     eventService,
@@ -39,11 +37,13 @@ ControllersModule.controller('eventController',
                     $q.all([
                         getEvent(),
                         unitService.getUnitsByCode($scope.eventCode),
-                        categoryService.getCategoriesByCode($scope.eventCode)
+                        categoryService.getCategoriesByCode($scope.eventCode),
+                        UserService.getDefaultUnit($scope.resourceName)
                     ]).then(function resolve(results) {
                         $scope.event = results[0];
                         $scope.units = results[1];
                         $scope.categories = results[2];
+                        $scope.defaultUnit = results[3];
 
                         handleDate();
                         handleUnit();
@@ -71,6 +71,7 @@ ControllersModule.controller('eventController',
                     var eventType = $scope.eventType || $routeParams.eventType || 'other';
 
                     $scope.eventCode = ResourceCode[eventType];
+                    $scope.resourceName = ResourceCode[$scope.eventCode];
                 }
 
                 function handleDate() {
@@ -87,8 +88,8 @@ ControllersModule.controller('eventController',
                 function handleUnit() {
                     //=====handle units
                     if (!$scope.event.unit) {
-                        if (UserService.currentUser().preferences && UserService.currentUser().preferences.defaultUnit) {
-                            $scope.event.unit = UserService.currentUser().preferences.defaultUnit;
+                        if ($scope.defaultUnit) {
+                            $scope.event.unit = $scope.defaultUnit;
                         } else {
                             if ($scope.units.length > 0) {
                                 $scope.event.unit = $scope.units[0];

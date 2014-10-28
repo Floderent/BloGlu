@@ -1,9 +1,9 @@
 'use strict';
 var ControllersModule = angular.module('BloGlu.controllers');
 
-ControllersModule.controller('applicationController', ['$scope', '$q', '$rootScope', '$modal', 'AUTH_EVENTS', '$location', '$route', '$timeout', 'UserService', 'syncService', 'dataService', 'localizationService', 'MessageService', function Controller($scope, $q, $rootScope, $modal, AUTH_EVENTS, $location, $route, $timeout, UserService, syncService, dataService, localizationService, MessageService) {
+ControllersModule.controller('applicationController', ['$scope', '$q', '$rootScope', '$modal', 'AUTH_EVENTS', '$location', '$route', '$timeout', 'UserSessionService', 'syncService', 'dataService', 'localizationService', 'MessageService', function Controller($scope, $q, $rootScope, $modal, AUTH_EVENTS, $location, $route, $timeout, UserSessionService, syncService, dataService, localizationService, MessageService) {
 
-        $rootScope.currentUser = UserService.currentUser();
+        $rootScope.currentUser = UserSessionService.currentUser();
         $rootScope.messages = [];
         $rootScope.loadingMessages = [];
         $rootScope.pending = 0;
@@ -30,12 +30,12 @@ ControllersModule.controller('applicationController', ['$scope', '$q', '$rootSco
 
         $rootScope.logOut = function () {
             var deferred = $q.defer();
-            if (UserService.currentUser()) {
+            if (UserSessionService.currentUser()) {
                 $rootScope.increasePending('processingMessage.loggingOut');
                 dataService.logOut().then(function () {
 
                 })['finally'](function () {
-                    UserService.logOut();
+                    UserSessionService.logOut();
                     $rootScope.pending = 0;
                     MessageService.cancelAll($rootScope.messages);
                     $rootScope.loadingMessages = [];
@@ -91,7 +91,7 @@ ControllersModule.controller('applicationController', ['$scope', '$q', '$rootSco
 
         $rootScope.$on(AUTH_EVENTS.notAuthenticated, function (event) {
             //wait the end of the digest cycle
-            if (UserService.currentUser()) {
+            if (UserSessionService.currentUser()) {
                 $rootScope.logOut()['finally'](function () {
                     $timeout(function () {
                         $location.path('login');
@@ -123,7 +123,7 @@ ControllersModule.controller('applicationController', ['$scope', '$q', '$rootSco
 
         $rootScope.$on('$locationChangeStart', function (event, next) {
             //if navigation to page other than login and not authenticated, trigger "not authenticated event"
-            if (!UserService.isAuthenticated() && next.indexOf('login', next.length - 'login'.length) === -1) {
+            if (!UserSessionService.isAuthenticated() && next.indexOf('login', next.length - 'login'.length) === -1) {
                 event.preventDefault();
                 $rootScope.$broadcast(AUTH_EVENTS.notAuthenticated);
             }

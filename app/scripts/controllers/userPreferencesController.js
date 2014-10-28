@@ -1,25 +1,50 @@
 'use strict';
 var ControllersModule = angular.module('BloGlu.controllers');
 
-ControllersModule.controller('userPreferencesController', ['$rootScope', '$scope', 'MessageService', 'ResourceName', 'UserService', 'dateUtil', 'unitService', 'Utils', function Controller($rootScope, $scope, MessageService, ResourceName, UserService, dateUtil, unitService, Utils) {
+ControllersModule.controller('userPreferencesController', [
+        '$q',
+        '$rootScope', 
+        '$scope', 
+        'dateUtil', 
+        'MessageService', 
+        'ResourceName', 
+        'unitService', 
+        'UserService', 
+        'Utils', function Controller(
+                $q,
+                $rootScope, 
+                $scope, 
+                dateUtil, 
+                MessageService, 
+                ResourceName, 
+                unitService, 
+                UserService, 
+                Utils) {
         $rootScope.messages = [];
         $rootScope.pending = 0;
 
         $scope.eventsTypes = ResourceName;
         delete $scope.eventsTypes["0"];
 
-        $scope.user = UserService.currentUser();
+        $scope.user = {};
         $scope.days = dateUtil.getCurrentWeekSundayAndMonday();
-        $scope.units = [];
+        $scope.units = [];        
 
         renderPage();
 
         function renderPage() {
-            initPreferences();
-            initResourceUnits();
+            return initUser().then(initResourceUnits);
         }
+        
+        function initUser(){
+            return UserService.getCurrentUser().then(function(currentUser){
+                $scope.user = currentUser;
+                initPreferences();
+                return;
+            });
+        }        
 
-        function initPreferences() {
+        function initPreferences() {            
             if (!$scope.user.preferences) {
                 $scope.user.preferences = {};
             }
@@ -32,20 +57,23 @@ ControllersModule.controller('userPreferencesController', ['$rootScope', '$scope
         }
 
         function initResourceUnits() {
+            var promiseArray = [];
             angular.forEach(ResourceName, function (value, key) {
-                unitService.getUnitsByCode(parseInt(key)).then(function (result) {
+                promiseArray.push(unitService.getUnitsByCode(parseInt(key)).then(function (result) {
                     $scope.units[value] = result;
                     //if no previous unit set, use reference unit
                     if (!$scope.user.preferences.defaultUnits[value] && result && result.length > 0) {
                         $scope.user.preferences.defaultUnits[value] = unitService.getReferenceUnit(result);
                     }
-                });
+                    return;
+                }));
             });
+            return $q.all(promiseArray);
         }
 
         $scope.update = function (user) {
             $rootScope.increasePending("processingMessage.updatingData");            
-            UserService.updateUser(user).then(function(result){
+            UserService.saveUser(user).then(function(result){
                 $rootScope.messages.push(MessageService.successMessage("successMessage.userUpdated", 2000));
             },function(error){
                 $rootScope.messages.push(MessageService.errorMessage('errorMessage.updatingError', 2000));

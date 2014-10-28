@@ -2,65 +2,27 @@
 
 var servicesModule = angular.module('BloGlu.services');
 
-servicesModule.factory('importService', ['$upload', '$http', '$q', 'ServerService', 'Event', 'Batch', 'dataService', 'Utils', function($upload, $http, $q, ServerService, Event, Batch, dataService, Utils) {
+servicesModule.factory('importService', [
+    '$http',
+    '$q',
+    '$upload', 
+    'Batch', 
+    'dataService', 
+    'dateUtil',
+    'Event', 
+    'ServerService', function(
+            $http, 
+            $q, 
+            $upload, 
+            Batch,
+            dataService,
+            dateUtil,
+            Event, 
+            ServerService) {
         var importService = {};
         var uploadUrl = ServerService.baseUrl + 'files/';
         var fileHeaders = angular.extend({'Content-Type': 'text/plain'}, ServerService.headers);
-
-        function processDateTime(dateStr) {
-            var date = null;
-            if (dateStr) {
-                var splittedDateTime = dateStr.split(' ');
-                var datePart = splittedDateTime[0];
-                var timePart = splittedDateTime[1];
-
-                var d = processDate(datePart);
-                var t = processTime(timePart);
-
-                date = new Date();
-                date.setFullYear(d.getFullYear());
-                date.setMonth(d.getMonth());
-                date.setDate(d.getDate());
-
-                date.setHours(t.getHours());
-                date.setMinutes(t.getMinutes());
-                date.setSeconds(t.getSeconds());
-
-                date.setMilliseconds(0);
-
-            }
-            return date;
-        }
-
-        function processDate(dateStr) {
-            var date = null;
-            if (dateStr) {
-                var splittedDate = dateStr.split("/");
-                var day = parseInt(splittedDate[0]);
-                var month = parseInt(splittedDate[1]);
-                var year = parseInt(splittedDate[2]);
-                if (splittedDate[2].length === 2) {
-                    year = 2000 + parseInt(splittedDate[2]);
-                }
-                date = new Date();
-                date.setFullYear(year);
-                date.setMonth(month - 1);
-                date.setDate(day);
-            }
-            return date;
-        }
-
-        function processTime(timeStr) {
-            var date = null;
-            if (timeStr) {
-                var splittedDate = timeStr.split(":");
-                var hours = parseInt(splittedDate[0]);
-                var minutes = parseInt(splittedDate[1]);
-                var seconds = parseInt(splittedDate[2]);
-                date = new Date(0, 0, 0, hours, minutes, seconds);
-            }
-            return date;
-        }
+              
 
         importService.getImports = function() {
             return dataService.queryLocal('Import');
@@ -168,7 +130,7 @@ servicesModule.factory('importService', ['$upload', '$http', '$q', 'ServerServic
                         event.reading = parseInt(dataArray[5]);
                     }
                 }                
-                event.dateTime = processDateTime(dataArray[3]);
+                event.dateTime = dateUtil.processDateTime(dataArray[3]);
                 //TODO remove hard coded unit
                 //mg/dL
                 event.unit = {objectId: "0Erp4POX9d"};
@@ -177,7 +139,7 @@ servicesModule.factory('importService', ['$upload', '$http', '$q', 'ServerServic
                 if (dataArray.length >= 29 && dataArray[10] && dataArray[11] && dataArray[3] && dataArray[0] !== "Index") {
                     event = {};
                     event.reading = parseInt(dataArray[11]);
-                    event.dateTime = processDateTime(dataArray[3]);
+                    event.dateTime = dateUtil.processDateTime(dataArray[3]);
                     //TODO remove hard coded unit
                     //u
                     event.unit = {objectId: "mGI1gkg1hF"};

@@ -52,7 +52,7 @@ ControllersModule.controller('chooseEventController', ['$scope', '$modalInstance
 
 
 
-ControllersModule.controller('inputUserController', ['$scope', '$rootScope', '$modalInstance', 'UserService', 'MessageService', function Controller($scope, $rootScope, $modalInstance, UserService, MessageService) {
+ControllersModule.controller('inputUserController', ['$scope', '$rootScope', '$modalInstance', 'UserSessionService', 'MessageService', function Controller($scope, $rootScope, $modalInstance, UserSessionService, MessageService) {
         $scope.user = {};
         $scope.cancel = function () {
             $modalInstance.dismiss('canceled');
@@ -63,7 +63,7 @@ ControllersModule.controller('inputUserController', ['$scope', '$rootScope', '$m
             $scope.successMessage = null;
             $scope.erroMessage = null;
             $scope.creatingUser = true;
-            UserService.signUp($scope.user)
+            UserSessionService.signUp($scope.user)
                     .success(function (result) {
                         $scope.creatingUser = false;
                         $scope.successMessage = 'userCreated';
@@ -174,7 +174,7 @@ ControllersModule.controller('chartController', ['$rootScope', '$scope', '$route
 
 
 
-ControllersModule.controller('resetPasswordController', ['$scope', '$modalInstance', 'UserService', function Controller($scope, $modalInstance, UserService) {
+ControllersModule.controller('resetPasswordController', ['$scope', '$modalInstance', 'UserSessionService', function Controller($scope, $modalInstance, UserSessionService) {
         $scope.cancel = function () {
             $modalInstance.dismiss('canceled');
         };
@@ -183,7 +183,7 @@ ControllersModule.controller('resetPasswordController', ['$scope', '$modalInstan
             $scope.successMessage = null;
             $scope.erroMessage = null;
             $scope.resettingPassword = true;
-            UserService.requestPasswordReset(email)
+            UserSessionService.requestPasswordReset(email)
                     .success(function (result) {
                         $scope.successMessage = 'Password reset';
                         $scope.resettingPassword = false;

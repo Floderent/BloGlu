@@ -87,6 +87,7 @@ mainModule.constant('ResourceCode', {
 
 mainModule.constant('Database', {
     schema: [
+        'User',
         'Report',
         'Period',        
         'Event',
@@ -119,10 +120,10 @@ mainModule.constant('DataVisualization', {
 });
 
 
-mainModule.run(['$rootScope', 'localizationService', 'AUTH_EVENTS', 'UserService', function($rootScope, localizationService, AUTH_EVENTS, UserService) {        
+mainModule.run(['$rootScope', 'localizationService', 'AUTH_EVENTS', 'UserSessionService', function($rootScope, localizationService, AUTH_EVENTS, UserSessionService) {        
         localizationService.setLanguage().then(function() {            
             $rootScope.$broadcast('language-change', localizationService.language);
-            UserService.isTokenValid().then(function(tokenValid) {
+            UserSessionService.isTokenValid().then(function(tokenValid) {
                 if (!tokenValid) {
                     $rootScope.$broadcast(AUTH_EVENTS.notAuthenticated);
                 } else {

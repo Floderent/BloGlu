@@ -2,7 +2,7 @@
 
 var servicesModule = angular.module('BloGlu.services');
 
-servicesModule.factory('syncService', ['$q', '$http', '$injector', '$rootScope', 'Database', 'dataService', 'ServerService', 'UserService', function($q, $http, $injector, $rootScope, Database, dataService, ServerService, UserService) {
+servicesModule.factory('syncService', ['$q', '$http', '$injector', '$rootScope', 'Database', 'dataService', 'ServerService', 'UserSessionService', function($q, $http, $injector, $rootScope, Database, dataService, ServerService, UserSessionService) {
         var syncService = {};
         var dataTimeField = 'updatedAt';
 
@@ -56,29 +56,39 @@ servicesModule.factory('syncService', ['$q', '$http', '$injector', '$rootScope',
         function getParseDataInfos() {
             var promiseArray = [];
             var parseDataInfos = {};
-            angular.forEach(Database.schema, function(collectionName) {                
+            angular.forEach(Database.schema, function(collectionName) {
+                
+                
+                var resource = $injector.get(collectionName)(UserSessionService.headers());
+                if(resource.countForSync){
+                    promiseArray.push(resource.countForSync().$promise);
+                }
+                
+                /*          
                 promiseArray.push($http(
-                        {
-                            headers: UserService.headers(),
-                            method: 'GET',
-                            url: ServerService.baseUrl + "classes/" + collectionName,
-                            params: {
-                                count: '1',
-                                order: '-' + dataTimeField,
-                                limit: '1'
-                            }
+                    {
+                        headers: UserSessionService.headers(),
+                        method: 'GET',
+                        url: ServerService.baseUrl + "classes/" + collectionName,
+                        params: {
+                            count: '1',
+                            order: '-' + dataTimeField,
+                            limit: '1'
                         }
+                    }
                 ));
+                */
+                
             });
             return $q.all(promiseArray).then(function(result) {
                 for (var i = 0; i < result.length; i++) {
                     parseDataInfos[Database.schema[i]] = {};
                     var lastDate = "";
-                    if (result[i].data.results && result[i].data.results.length > 0) {
-                        lastDate = result[i].data.results[0][dataTimeField];
+                    if (result[i].results && result[i].results.length > 0) {
+                        lastDate = result[i].results[0][dataTimeField];
                     }
                     parseDataInfos[Database.schema[i]].date = lastDate;
-                    parseDataInfos[Database.schema[i]].count = result[i].data.count;
+                    parseDataInfos[Database.schema[i]].count = result[i].count;
                 }
                 return parseDataInfos;
             });
@@ -86,10 +96,10 @@ servicesModule.factory('syncService', ['$q', '$http', '$injector', '$rootScope',
 
         function syncCollection(collection, syncStatus) {
             var deferred = $q.defer();            
-            var resource = $injector.get(collection)(UserService.headers());
+            var resource = $injector.get(collection)(UserSessionService.headers());
             if (resource && resource.query) {                
                 deferred.notify("Downloading " + collection);
-                dataService.queryParse(collection, syncStatus.remoteCount, {limit: 1000}).then(function(result) {
+                dataService.queryParse(collection, syncStatus.remoteCount, {limit: 1000}).then(function(result) {                    
                     deferred.notify("Downloading of " + collection + " completed");
                     dataService.clear(collection).then(function() {                        
                         deferred.notify(collection + " cleared");

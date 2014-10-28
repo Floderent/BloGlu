@@ -121,7 +121,7 @@ servicesModule.factory('indexeddbService', ['$window', '$q', 'Database', functio
             var deferred = $q.defer();
             openDatabase().then(function(db) {
                 var trans = db.transaction([collection], 'readwrite');
-                var store = trans.objectStore(collection);
+                var store = trans.objectStore(collection);                
                 var range = IDBKeyRange.only(userId);
                 var index = store.index('userIndex');                
                 var cursorRequest = index.openCursor(range);

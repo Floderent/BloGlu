@@ -13,10 +13,13 @@ ControllersModule.controller('rangeController', ['$scope', '$rootScope', '$q', '
             $rootScope.increasePending("processingMessage.loading");
             $q.all([
                 dataService.queryLocal(resourceName),
-                unitService.getUnitsByCode(eventCode)
+                unitService.getUnitsByCode(eventCode),
+                UserService.getDefaultUnit(resourceName)
             ]).then(function(results) {              
                 $scope.ranges = results[0];
                 $scope.units = results[1];
+                $scope.defaultUnit = results[2];
+                
                 handleNewRangeUnit();
                 processRanges($scope.ranges);
                 $scope.$watch('ranges', function(newValue, oldValue) {                   
@@ -39,9 +42,9 @@ ControllersModule.controller('rangeController', ['$scope', '$rootScope', '$q', '
                     }
                 });
             } else {
-                if (UserService.currentUser().preferences && UserService.currentUser().preferences.defaultUnit) {
+                if ($scope.defaultUnit) {
                     angular.forEach($scope.units, function(unit) {
-                        if (unit.objectId === UserService.currentUser().preferences.defaultUnit.objectId) {
+                        if (unit.objectId === $scope.defaultUnit.objectId) {
                             $scope.newRangeUnit = unit;
                             return;
                         }
