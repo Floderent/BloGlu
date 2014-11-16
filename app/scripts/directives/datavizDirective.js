@@ -39,7 +39,7 @@ DirectivesModule.directive('dataviz', function ($compile) {
 
 
 
-DirectivesModule.directive('tableDataviz', ['$q', '$translate', 'dataService', '$translate', function ($q, $translate, dataService, $translate) {
+DirectivesModule.directive('tableDataviz', ['$q', '$translate', 'dataService', function ($q, $translate, dataService) {
         var linkFunction = function (scope, element, attrs) {
             scope.$watch('config', function (newValue, oldValue) {
                 buildTable(element, scope);
