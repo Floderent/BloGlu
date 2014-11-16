@@ -1,6 +1,6 @@
 {
   "name": "blo-glu",
-  "version": "0.2.0",
+  "version": "0.3.0",
   "dependencies": {
     "angular": "1.2.15",
     "json3": "~3.2.6",
