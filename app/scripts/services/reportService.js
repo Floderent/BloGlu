@@ -3,7 +3,7 @@
 var servicesModule = angular.module('BloGlu.services');
 
 
-servicesModule.factory('reportService', ['$q', 'ModelUtil', 'dataService', 'queryService', 'genericDaoService', 'DataVisualization', 'localizationService', function ($q, ModelUtil, dataService, queryService, genericDaoService, DataVisualization, localizationService) {
+servicesModule.factory('reportService', ['$q', 'ModelUtil', 'dataService', 'queryService', 'genericDaoService', 'DataVisualization', 'localizationService','unitService', 'ResourceCode', function ($q, ModelUtil, dataService, queryService, genericDaoService, DataVisualization, localizationService, unitService, ResourceCode) {
 
         var reportService = {};
 
@@ -131,16 +131,71 @@ servicesModule.factory('reportService', ['$q', 'ModelUtil', 'dataService', 'quer
 
 
         reportService.executeReportQuery = function (query) {
-            return reportService.getFullQuery(query).then(function (result) {
-                return dataService.queryLocal('Event', result.query).then(function (queryResult) {
+            return reportService.getFullQuery(query).then(function (result) {                
                     return {
                         headers: result.headers,
-                        data: queryResult
+                        data: dataService.queryLocal('Event', result.query),
+                        units: reportService.getQueryElementsUnits(result.headers)
                     };
-                });
             });
         };
-
+        
+        reportService.getQueryElementUnit = function(queryElement){
+            var deferred = $q.defer();
+            if(queryElement && queryElement.filter){
+                var filterObject = angular.fromJson(queryElement.filter);
+                if(filterObject.code){
+                    debugger;
+                    unitService.getUnit(filterObject.code).then(deferred.resolve, deferred.reject);
+                }else{
+                    deferred.resolve(null);
+                }
+            }else{
+                deferred.resolve(null);
+            }
+            return deferred.promise;
+        };
+        
+        reportService.getQueryElementsUnits = function(queryElements){            
+            var deferred = $q.defer();
+            var resourceNames = [];
+            var queryElementsNames = [];
+            angular.forEach(queryElements, function(queryElement){
+                var resourceName = getQueryElementResourceName(queryElement);
+                if(resourceName && resourceNames.indexOf(resourceName) === -1 && queryElement.aggregate && queryElement.aggregate !== 'count'){
+                    resourceNames.push(resourceName);
+                    queryElementsNames.push(queryElement.title);
+                }                
+            });            
+            var resourcesUnitsPromises = [];            
+            angular.forEach(resourceNames, function(resourceName){                
+                resourcesUnitsPromises.push(unitService.getUnit(ResourceCode[resourceName]));
+            });            
+            var resourcesUnits = [];            
+            $q.all(resourcesUnitsPromises).then(function(results){
+                for(var index in results){
+                    resourcesUnits.push({
+                       title: queryElementsNames[index],
+                       resourceName: resourceNames[index],
+                       unit: results[index]
+                    });
+                }
+                deferred.resolve(resourcesUnits);                
+            }, deferred.reject);
+            return deferred.promise;
+        };
+        
+        
+        function getQueryElementResourceName(queryElement){
+            var queryElementResourceName = null;
+            if(queryElement && queryElement.filter){
+                var filterObject = angular.fromJson(queryElement.filter);
+                if(filterObject.code){
+                    queryElementResourceName = ResourceCode[parseInt(filterObject.code)];
+                }
+            }
+            return queryElementResourceName;
+        }
 
         function computeSelectExpression(select, queryElement) {
             var fieldSelect = {};

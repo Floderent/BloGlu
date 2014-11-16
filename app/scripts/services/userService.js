@@ -58,7 +58,7 @@ servicesModule.factory('UserService', [
             return deferred.promise;
         };
         
-        UserService.getDefaultUnits = function(){
+        UserService.getDefaultUnits = function(){            
             var deferred = $q.defer();
             var defaultUnits = null;
             UserService.getPreferences().then(function(preferences){
@@ -72,7 +72,7 @@ servicesModule.factory('UserService', [
         };
         
         
-        UserService.getDefaultUnit = function(resourceName){
+        UserService.getDefaultUnit = function(resourceName){            
             var deferred = $q.defer();            
             UserService.getDefaultUnits().then(function(defaultUnits){
                 if(defaultUnits){

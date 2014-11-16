@@ -40,10 +40,30 @@ DirectivesModule.directive('blogluEventGroup', ['$compile', '$injector', '$q','e
             switch (eventGroup.code) {
                 default:
                 case resourceCode['bloodGlucose']:
-                    template = '<div class="panel panel-default"><div class="panel-heading"><span class="glyphicon glyphicon-tint">{{title | translate}}</div><div class="panel-body"><p>{{"logBook.maximum" | translate}}: <a ng-click="viewEvent(code, maximumIds)">{{maximum}}</a> {{unit.name}}</p><p>{{"logBook.minimum"| translate}}: <a ng-click="viewEvent(code, minimumIds)">{{minimum}}</a> {{unit.name}}</p><p ng-style="{\'border-left\': border, \'border-color\': color}">{{"logBook.average"|translate}}: {{average}} {{unit.name}}</p><p>{{"logBook.number"|translate}}: {{number}}</p></div></div>';
+                    template = 
+                                '<div class="list-group">'+
+                                    '<a class="list-group-item active">'+
+                                        '<span class="glyphicon glyphicon-tint">{{title | translate}}</span>'+
+                                    '</a>'+
+                                    '<a class="list-group-item">{{"logBook.maximum" | translate}}<span class="label label-danger pull-right" ng-click="viewEvent(code, maximumIds)">{{maximum}} {{unit.name}}</span></a>'+
+                                    '<a class="list-group-item">{{"logBook.minimum"| translate}}<span class="label label-info pull-right" ng-click="viewEvent(code, minimumIds)">{{minimum}} {{unit.name}}</span></a>'+
+                                    '<a class="list-group-item">{{"logBook.average"|translate}} <span class="label label-default pull-right">{{average}} {{unit.name}}</span></a>'+
+                                    '<a class="list-group-item">{{"logBook.number"|translate}} <span class="label label-default pull-right">{{number}}</span></a>'+
+                                '</div>'
+                               ; 
+                    //<div ng-style="{\'border-left\': border, \'border-color\': color}">
+                            
                     break;
                 case resourceCode['medication']:
-                    template = '<div class="panel panel-default"><div class="panel-heading"><span class="glyphicon glyphicon-briefcase">{{title | translate}}</div><div class="panel-body"><p>{{"logBook.maximum" | translate}}: {{maximum}} {{unit.name}}</p><p>{{"logBook.minimum"| translate}}: {{minimum}} {{unit.name}}</p><p>{{"logBook.average"|translate}}: {{average}} {{unit.name}}</p><p>{{"logBook.number"|translate}}: {{number}}</p></div></div>';
+                    template = '<div class="list-group">'+
+                                    '<a class="list-group-item active">'+
+                                        '<span class="glyphicon glyphicon-briefcase">{{title | translate}}</span>'+
+                                    '</a>'+                                    
+                                    '<a class="list-group-item">{{"logBook.maximum" | translate}}<span class="label label-danger pull-right">{{maximum}} {{unit.name}}</span></a>'+
+                                    '<a class="list-group-item">{{"logBook.minimum"| translate}}<span class="label label-info pull-right">{{minimum}} {{unit.name}}</span></a>'+
+                                    '<a class="list-group-item">{{"logBook.average"|translate}}<span class="label label-default pull-right">{{average}} {{unit.name}}</span></a>'+
+                                    '<a class="list-group-item">{{"logBook.number"|translate}}<span class="label label-default pull-right">{{number}}</span></a>'+                                    
+                                '</div>';
                     break;
             }
             return template;

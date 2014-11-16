@@ -12,7 +12,7 @@ servicesModule.factory('indexeddbService', ['$window', '$q', 'Database', functio
         function openDatabase() {
             var deferred = $q.defer();
             if (db === null) {
-                var version = 1;
+                var version = 2;
                 var request = indexedDB.open(databaseName, version);
                 request.onupgradeneeded = function(e) {                     
                     db = e.target.result;

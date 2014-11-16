@@ -7,6 +7,7 @@ ControllersModule.controller('applicationController', ['$scope', '$q', '$rootSco
         $rootScope.messages = [];
         $rootScope.loadingMessages = [];
         $rootScope.pending = 0;
+        $rootScope.progress = 0;
 
         $rootScope.syncMessage = syncService.message;
 
@@ -37,6 +38,7 @@ ControllersModule.controller('applicationController', ['$scope', '$q', '$rootSco
                 })['finally'](function () {
                     UserSessionService.logOut();
                     $rootScope.pending = 0;
+                    $rootScope.progress = 0;
                     MessageService.cancelAll($rootScope.messages);
                     $rootScope.loadingMessages = [];
                     $rootScope.currentUser = null;
@@ -87,6 +89,11 @@ ControllersModule.controller('applicationController', ['$scope', '$q', '$rootSco
             }
             return message;
         }
+        
+        function progressHandler(progress, message){
+            $rootScope.progress = progress;
+        }
+        
 
 
         $rootScope.$on(AUTH_EVENTS.notAuthenticated, function (event) {
@@ -106,15 +113,12 @@ ControllersModule.controller('applicationController', ['$scope', '$q', '$rootSco
 
         $rootScope.$on(AUTH_EVENTS.loginSuccess, function (event, next) {
             $rootScope.increasePending('processingMessage.synchronizing');
-            syncService.sync().then(
+            syncService.sync(progressHandler).then(
                     function resolve() {
+                        $rootScope.progress = 100;
                     },
                     function reject() {
                         MessageService.errorMessage('errorMessage.synchronisationError', 5000);
-                    },
-                    function notify(message) {
-                        debugger;
-                        //$rootScope.setLoadingMessage(message);
                     }
             )['finally'](function (result) {
                 $rootScope.decreasePending('processingMessage.synchronizing');

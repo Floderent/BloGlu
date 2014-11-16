@@ -16,6 +16,7 @@
     "welcome": "Welcome",
     "loading": "Loading...",    
     "preferences": "Preferences",
+    "noData": "No data",
     
     "otherEvent": "Other",
     "bloodGlucoseEvent": "Blood Glucose",
@@ -250,12 +251,15 @@
     },
     "reportList": {
         "pageTitle": "View the report list",
+        "addReportTitle": "Select the report to add to the dashboard",
         "newReport": "Create a new report",
         "title": "Title",
         "description": "Description",
         "lastModificationDate": "Last modification date",
         "creationDate": "Creation Date",
-        "delete": "Delete"
+        "delete": "Delete",
+        "edit": "Edit",
+        "addToDashboard": "Add to dashboard"
     },
     "userPreferences": {
         "account": "My account",

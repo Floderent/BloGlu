@@ -577,6 +577,15 @@ servicesModule.factory('Category', ['$resource', 'ServerService', 'UserSessionSe
                         delete: {
                             method: 'DELETE',
                             headers: headers || UserSessionService.headers()
+                        },
+                        countForSync: {
+                            method: 'GET',
+                            headers: headers || UserSessionService.headers(),
+                            params: {
+                                count: '1',
+                                order: '-updatedAt',
+                                limit: '1'
+                            }
                         }
                     });
         };

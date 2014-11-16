@@ -16,6 +16,7 @@
     "welcome": "Bienvenue",    
     "loading": "Chargement...",
     "preferences": "Mes réglages",
+    "noData": "Pas de donnée",
     
     "otherEvent": "Autre",
     "bloodGlucoseEvent": "Glycémie",
@@ -226,12 +227,15 @@
     },
     "reportList": {
         "pageTitle": "Voir la liste des rapports",
+        "addReportTitle": "Sélectionner la rapport à ajouter au tableau de bord",
         "newReport": "Créer un nouveau rapport",
         "title": "Titre",
         "description": "Description",
         "lastModificationDate": "Date de dernière modification",
         "creationDate": "Date de création",
-        "delete": "Supprimer"
+        "delete": "Supprimer",
+        "edit": "Modifier",
+        "addToDashboard": "Ajouter au tableau de bord"
     },
     "userPreferences": {
         "account": "Mon compte",

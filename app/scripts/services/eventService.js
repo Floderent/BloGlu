@@ -54,7 +54,7 @@ servicesModule.factory('eventService', ['$location', '$modal','$q', '$rootScope'
                 $modalScope.eventType = ResourceCode[eventCode];
                 $modalScope.day = day.date.toISOString();
                 $modalScope.time = newEventDate.toISOString();
-
+                $modalScope.windowMode = 'MODAL';
                 var modalInstance = $modal.open({
                     templateUrl: "views/event.html",
                     controller: "eventController",
@@ -77,6 +77,7 @@ servicesModule.factory('eventService', ['$location', '$modal','$q', '$rootScope'
                 var $modalScope = $rootScope.$new(true);
                 $modalScope.eventType = ResourceCode[eventCode];
                 $modalScope.objectId = eventId;
+                $modalScope.windowMode = 'MODAL';
 
                 var modalInstance = $modal.open({
                     templateUrl: "views/event.html",
@@ -85,7 +86,7 @@ servicesModule.factory('eventService', ['$location', '$modal','$q', '$rootScope'
                 });
                 modalInstance.result.then(deferred.resolve, deferred.reject);
             }
-        };
+        };        
         eventService.getEventRange = function (reading, unit, ranges) {
             var resultRange = null;
             if (reading && unit && ranges && Array.isArray(ranges)) {

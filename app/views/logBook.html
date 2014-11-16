@@ -1,8 +1,7 @@
 <div class="panel panel-primary content-panel">
 
-
+    <!-- Table header -->
     <div class="panel-heading">
-
         <ul class="pager">
             <li class="previous">
                 <a ng-click="back()" href="" >&larr; {{'logBook.previous' | translate}}</a>
@@ -20,18 +19,17 @@
                     </select> 
                     
                     <span class="inline">{{ 'logBook.from' | translate }} {{timeInterval.begin| date:'dd/MM/yyyy'}} {{ 'logBook.to' | translate }} {{timeInterval.end| date:'dd/MM/yyyy'}}</span>
-                    <div class="btn-group" ng-repeat="(key, value) in eventsTypes track by $index">
-                        <button type="button" class="btn btn-info btn-responsive" ng-model="resource[key]" btn-checkbox>{{value| translate}}</button>
+                    <div class="btn-group">
+                        <button ng-repeat="(key, value) in eventsTypes track by $index" type="button" class="btn btn-info" ng-model="resource[key]" btn-checkbox>{{value| translate}}</button>                        
                     </div>
                     
                     <button ng-click="printToPDF()" type="button" class="btn">{{ 'logBook.print' | translate }}</button>
                 </div>
             </li>
         </ul>
-
     </div>
 
-
+    <!-- Event table -->
     <div class="table-responsive">
         <table class="table">
             <th ng-repeat="period in header track by $index">
@@ -49,11 +47,11 @@
                         </div>                            
                     </div>
                     <div ng-if="($index != 0 && interval === 'week') || (interval === 'day')">
-                        <div ng-repeat="bloodGlucoseReading in bloodGlucoseReadings| orderBy:'dateTime'">                            
+                        <div ng-repeat="bloodGlucoseReading in bloodGlucoseReadings | orderBy:'dateTime'">                            
                             <div>
                                 <bloglu-event bloglu-event="bloodGlucoseReading"></bloglu-event>                                
                             </div>
-                        </div>    
+                        </div>
                         <!-- handle case of empty section -->
                         <div ng-if="bloodGlucoseReadings.length === 0" class="text-center">
                             <a href="" ng-click="addEvent(line[0], header[$index])" class="glyphicon glyphicon-plus-sign"/>

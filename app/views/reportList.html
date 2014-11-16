@@ -1,37 +1,43 @@
 <div class="panel panel-primary content-panel">
-    <div class="panel-heading">
-        <h3 class="panel-title">{{ 'reportList.pageTitle' | translate }}</h3>
+    <div ng-switch="addReportMode" class="panel-heading">        
+        <h3 ng-switch-when="false" class="panel-title">{{ 'reportList.pageTitle' | translate }}</h3>
+        <h3 ng-switch-when="true" class="panel-title">{{ 'reportList.addReportTitle' | translate }}</h3>
     </div>
 
-    <div class="panel-body">
+    <div ng-hide="addReportMode" class="panel-body">
         <a class="btn" href="#report">{{ 'reportList.newReport' | translate }}</a>        
     </div>
 
     <div class="table-responsive">
         <table class="table table-striped">
+            <thead>
             <th>{{ 'reportList.title' | translate }}</th>
             <th>{{ 'reportList.description' | translate }}</th>
             <th>{{ 'reportList.lastModificationDate' | translate }}</th>
             <th>{{ 'reportList.creationDate' | translate }}</th>
-            <th></th>
-
-            <tr ng-repeat="report in reports" ng-dblclick="editReport(report)">
-                <td>
-                    <span>{{report.title}}</span>
-                </td>
-                <td>
-                    <span>{{report.description}}</span>
-                </td>
-                <td>
-                    <span>{{report.updatedAt| date:'dd/MM/yyyy'}}</span>
-                </td>
-                <td>
-                    <span>{{report.createdAt| date:'dd/MM/yyyy'}}</span>
-                </td>
-                <td>
-                    <button type="button" ng-click="deleteReport(report)">{{ 'reportList.delete' | translate }}</button>                    
-                </td>
-            </tr>
+            <th></th>            
+            </thead>
+            <tbody>
+                <tr ng-repeat="report in reports">
+                    <td>
+                        <span>{{report.title}}</span>
+                    </td>
+                    <td>
+                        <span>{{report.description}}</span>
+                    </td>
+                    <td>
+                        <span>{{report.updatedAt| date:'dd/MM/yyyy'}}</span>
+                    </td>
+                    <td>
+                        <span>{{report.createdAt| date:'dd/MM/yyyy'}}</span>
+                    </td>
+                    <td>
+                        <button ng-hide="addReportMode" type="button" class="btn" ng-click="deleteReport(report)">{{ 'reportList.delete' | translate }}</button>
+                        <button ng-hide="addReportMode" type="button" class="btn" ng-click="editReport(report)">{{ 'reportList.edit' | translate }}</button>
+                        <button ng-show="addReportMode" type="button" class="btn" ng-click="addReportToDashboard(report)">{{ 'reportList.addToDashboard' | translate }}</button>
+                    </td>                    
+                </tr>
+            </tbody>
 
         </table>
     </div>

@@ -2,11 +2,11 @@
 var ControllersModule = angular.module('BloGlu.controllers');
 
 ControllersModule.controller('eventController',
-        [
+        [            
             '$q',
             '$rootScope',
             '$routeParams',
-            '$scope',           
+            '$scope',
             '$window',
             'categoryService',
             'eventService',
@@ -15,11 +15,11 @@ ControllersModule.controller('eventController',
             'unitService',
             'UserService',
             'Utils',
-            function Controller(
+            function Controller(         
                     $q,
                     $rootScope,
                     $routeParams,
-                    $scope,                    
+                    $scope,
                     $window,
                     categoryService,
                     eventService,
@@ -39,7 +39,7 @@ ControllersModule.controller('eventController',
                         unitService.getUnitsByCode($scope.eventCode),
                         categoryService.getCategoriesByCode($scope.eventCode),
                         UserService.getDefaultUnit($scope.resourceName)
-                    ]).then(function resolve(results) {
+                    ]).then(function (results) {
                         $scope.event = results[0];
                         $scope.units = results[1];
                         $scope.categories = results[2];
@@ -48,7 +48,7 @@ ControllersModule.controller('eventController',
                         handleDate();
                         handleUnit();
 
-                    }, function reject() {
+                    }, function () {
                         $rootScope.messages.push(MessageService.errorMessage('errorMessage.loadingError', 2000));
                     })['finally'](function () {
                         $rootScope.decreasePending('processingMessage.synchronizing');
@@ -59,7 +59,7 @@ ControllersModule.controller('eventController',
                 function initParams() {
                     $scope.placeHolder = 100;
                     $scope.unitDisabled = true;
-                
+
                     //init routeParams
                     $scope.objectId = $scope.objectId || $routeParams.objectId;
                     $scope.day = $scope.day || $routeParams.day;
@@ -69,6 +69,9 @@ ControllersModule.controller('eventController',
                     $scope.isPrefilledDateAndTime = $scope.day && $scope.time;
 
                     var eventType = $scope.eventType || $routeParams.eventType || 'other';
+
+                    //init scope params
+                    $scope.windowMode = $scope.windowMode || 'NORMAL';
 
                     $scope.eventCode = ResourceCode[eventType];
                     $scope.resourceName = ResourceCode[$scope.eventCode];
@@ -139,6 +142,19 @@ ControllersModule.controller('eventController',
                     return deferred.promise;
                 }
 
+                function confirmAction() {
+                    switch ($scope.windowMode) {
+                        case 'NORMAL':
+                            $window.history.back();
+                            break;
+                        case 'MODAL':
+                            $scope.$dismiss();
+                            break;
+                        default:
+                            break;
+                    }
+                }                
+
                 $scope.open = function ($event) {
                     $event.preventDefault();
                     $event.stopPropagation();
@@ -159,8 +175,8 @@ ControllersModule.controller('eventController',
                         } else {
                             $rootScope.messages.push(MessageService.successMessage(eventService.resolveCreationMessage($scope.eventCode), 2000));
                         }
-                        $window.history.back();
-                    }, function reject(error) {
+                        confirmAction();
+                    }, function(error) {
                         if ($scope.isEdit) {
                             $rootScope.messages.push(MessageService.errorMessage('errorMessage.updatingError', 2000));
                         } else {
@@ -173,10 +189,9 @@ ControllersModule.controller('eventController',
                             $rootScope.decreasePending("processingMessage.savingData");
                         }
                     });
-
                 };
 
-                $scope.delete = function () {                    
+                $scope.delete = function () {
                     var modalScope = {
                         confirmTitle: 'confirm.pageTitle',
                         confirmMessage: 'confirm.deletionMessage',
@@ -187,7 +202,7 @@ ControllersModule.controller('eventController',
                         if (confirmed) {
                             $rootScope.increasePending("processingMessage.deletingData");
                             eventService.deleteEvent($scope.event.objectId).then(function (result) {
-                                $window.history.back();
+                                confirmAction();
                             }, function (error) {
                                 $rootScope.messages.push(MessageService.errorMessage('errorMessage.deletingError', 2000));
                             })['finally'](function () {
@@ -198,5 +213,8 @@ ControllersModule.controller('eventController',
                         //exit
                     });
                 };
+
                 $rootScope.$on('dataReady', renderPage);
+
+
             }]);

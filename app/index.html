@@ -27,7 +27,6 @@
         <p class="browsehappy">You are using an <strong>outdated</strong> browser. Please <a href="http://browsehappy.com/">upgrade your browser</a> to improve your experience.</p>
       <![endif]-->
 
-
     <body ng-app="BloGlu" ng-controller="applicationController">
         
         <nav class="navbar navbar-default" role="navigation" ng-show="currentUser">
@@ -41,7 +40,7 @@
                             <span class="icon-bar"></span>
                         </span>
                         <span ng-show="pending > 0">
-                            <img class="loading-icon-small" alt="loading" src="images/spinner.gif" /> 
+                            <img class="loading-icon-small" alt="loading" src="images/spinner.gif" />                            
                         </span>
                     </button>                    
                     <a class="navbar-brand" href="#dashboard">{{ 'appName' | translate }}</a>
@@ -93,10 +92,17 @@
                                 <li><a href="#userPreferences">{{ 'preferences' | translate }}</a></li>
                                 <li><a href="#" ng-click="logOut(user)">{{ 'logOut' | translate }}</a></li>
                             </ul>
-                        </li>
+                        </li>                        
                         <li ng-show="pending > 0">                            
-                            <span class="navbar-text" ng-if="loadingMessages.length > 0">{{loadingMessages[loadingMessages.length - 1]}}</span>
+                            <div class="navbar-text" ng-if="loadingMessages.length > 0">                                
+                                {{loadingMessages[loadingMessages.length - 1]}}
+                            </div>
                             <img class="loading-icon" alt="loading" src="images/spinner.gif" />
+                        </li>
+                        <li ng-show="pending > 0">
+                            <div class="navbar-text">
+                                <progressbar ng-if="progress !== 100" value="progress">{{progress | number:0}} % {{loadingMessages[loadingMessages.length - 1]}}</progressbar>
+                            </div>                            
                         </li>
                     </ul>
                 </div>

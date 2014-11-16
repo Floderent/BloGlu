@@ -2,7 +2,7 @@
 
 var servicesModule = angular.module('BloGlu.services');
 
-servicesModule.factory('Utils', ['$modal','$rootScope','$translate' , function ($modal, $rootScope, $translate) {
+servicesModule.factory('Utils', ['$modal','$rootScope','$translate','ResourceName', 'UserSessionService' , function ($modal, $rootScope, $translate, ResourceName, UserSessionService) {
         var Utils = {};
         Utils.guid = (function () {
             function s4() {
@@ -39,8 +39,46 @@ servicesModule.factory('Utils', ['$modal','$rootScope','$translate' , function (
             var defaultModalOptions = angular.extend(defaultModalOptions, modalOptions);
             return $modal.open(defaultModalOptions).result;
         };
-
-
+        
+        
+        Utils.getConnectedUser = function(localData){
+            var currentUserId = UserSessionService.userId();
+            var connectedUser = null;
+            if(localData && localData.User){
+                angular.forEach(localData.User, function(user){
+                    if(user.objectId === currentUserId){
+                        connectedUser = user;
+                        return;
+                    }
+                });
+            }
+            return connectedUser;
+        };
+        
+        Utils.getReferenceUnit = function(localData, resourceCode){
+            var referenceUnit = null;
+            if(localData && localData.Unit){
+                angular.forEach(localData.Unit, function(unit){
+                    if(unit.code === resourceCode && unit.coefficient === 1){
+                        referenceUnit = unit;
+                        return;
+                    }
+                });
+            }
+            return referenceUnit;
+        };
+        
+        
+        Utils.getDefaultUnit = function(localData, resourceCode){
+            var defaultUnit = null;
+            var connectedUser = Utils.getConnectedUser(localData);
+            if(connectedUser.preferences && connectedUser.preferences.defaultUnits && connectedUser.preferences.defaultUnits[ResourceName[parseInt(resourceCode)]]){
+                defaultUnit = connectedUser.preferences.defaultUnits[ResourceName[parseInt(resourceCode)]];
+            }else{
+                defaultUnit = Utils.getReferenceUnit(localData, resourceCode);
+            }
+            return defaultUnit;
+        };
 
         return Utils;
     }]);

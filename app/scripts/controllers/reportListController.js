@@ -3,7 +3,9 @@ var ControllersModule = angular.module('BloGlu.controllers');
 
 ControllersModule.controller('reportListController', ['$scope', '$rootScope', '$location', 'reportService', 'MessageService','dashboardService', 'Utils', function Controller($scope, $rootScope, $location, reportService, MessageService, dashboardService, Utils) {
 
-        $scope.reports = [];        
+        $scope.reports = []; 
+        $scope.addReportMode = dashboardService.hasNewReport();
+        
         renderPage();
         function renderPage() {
             $rootScope.increasePending("processingMessage.loadingData");
@@ -50,19 +52,18 @@ ControllersModule.controller('reportListController', ['$scope', '$rootScope', '$
             });
         };
 
-        $scope.editReport = function(report) {            
-            //if column and row query param, redirect to dashboard when doubleclicking on report            
-            if (dashboardService.hasNewReport()) {
-                dashboardService.setNewReportId(report.objectId);
-                $location.path('dashboard');
-            } else {
-                //else edit the report
-                var path = 'report/' + report.objectId;
-                $location.url($location.path());
-                $location.path(path);
-            }
-
+        $scope.editReport = function(report) {
+            var path = 'report/' + report.objectId;
+            $location.url($location.path());
+            $location.path(path);            
         };
+        
+        $scope.addReportToDashboard = function(report){            
+            dashboardService.setNewReportId(report.objectId);
+            $location.path('dashboard');
+        };
+        
+        
         $rootScope.$on('dataReady', renderPage);
     }]);
 

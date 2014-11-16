@@ -1,7 +1,7 @@
 var DirectivesModule = angular.module("BloGlu.directives");
 
 
-DirectivesModule.directive('blogluEvent', ['$compile', '$injector', '$q', '$location','eventService', function($compile, $injector, $q, $location, eventService) {
+DirectivesModule.directive('blogluEvent', ['$compile', '$injector', '$q','eventService', function($compile, $injector, $q, eventService) {
         var linkFunction = function(scope, element, attrs) {                
             var event = scope.blogluEvent;            
             renderEvent(event, scope, element);

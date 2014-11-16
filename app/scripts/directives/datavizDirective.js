@@ -1,8 +1,8 @@
 var DirectivesModule = angular.module("BloGlu.directives");
 
-DirectivesModule.directive('dataviz', function($compile) {
-    var linkFunction = function(scope, element, attrs) {
-        scope.$watch('config', function(newValue, oldValue) {
+DirectivesModule.directive('dataviz', function ($compile) {
+    var linkFunction = function (scope, element, attrs) {
+        scope.$watch('config', function (newValue, oldValue) {
             element.empty();
             if (newValue) {
                 var config = angular.fromJson(newValue);
@@ -39,66 +39,117 @@ DirectivesModule.directive('dataviz', function($compile) {
 
 
 
-DirectivesModule.directive('tableDataviz', ['$compile', 'dataService', function($compile, dataService) {
-        var linkFunction = function(scope, element, attrs) {
-            if (scope.config) {
-                buildTable(element, scope.config);
-            }
-            scope.$watch('config', function(newValue, oldValue) {
+DirectivesModule.directive('tableDataviz', ['$q', '$translate', 'dataService', '$translate', function ($q, $translate, dataService, $translate) {
+        var linkFunction = function (scope, element, attrs) {
+            scope.$watch('config', function (newValue, oldValue) {
                 buildTable(element, scope);
             }, true);
 
-            scope.$watch('columnOrder', function(newValue, oldValue) {
+            scope.$watch('columnOrder', function (newValue, oldValue) {
                 buildTable(element, scope);
             }, true);
 
         };
 
         function buildTable(element, scope) {
-            element.empty();
             if (scope.config) {
                 var htmlElement = null;
-                if (scope.config && scope.config.data) {
-                    if (scope.config.headers && scope.config.headers.length === 1 && scope.config.data && scope.config.data.length === 1) {
-                        htmlElement = buildSingleValueTable(scope);
-                    } else {
-                        htmlElement = buildMultipleValueTable(scope);
-                    }
-                }
-                if(scope.config.title){
-                    angular.element(element).append(buildTitle(scope.config.title));
-                }
-                angular.element(element).append(htmlElement);
-            }
-        }        
-        function buildTitle(title){
-            var titleElement = document.createElement('h3');
-            titleElement.appendChild(document.createTextNode(title));
-            return titleElement;
-        }       
+                angular.element(element).append(buildLoadingDisplay());
+                
+                if (scope.config.data) {                    
 
-        function buildSingleValueTable(scope) {
-            var config = scope.config;
+                    $q.all([
+                        scope.config.data,
+                        scope.config.units
+                    ]).then(function (results) {
+                        var data = results[0];
+                        var units = results[1];
+                        var headers = scope.config.headers;
+                        var columnOrder = scope.columnOrder;
+
+                        element.empty();
+                        if (headers && headers.length === 1 && data && data.length === 1) {
+                            htmlElement = buildSingleValueTable(headers, data, units);
+                            angular.element(element).append(buildTitle(scope.config.title));
+                            angular.element(element).append(htmlElement);
+                        } else {
+                            //if no data returned
+                            if (headers && headers.length === 1 && data && data.length === 0) {
+                                htmlElement = buildNoValueDisplay();
+                                angular.element(element).append(buildTitle(scope.config.title));
+                                angular.element(element).append(htmlElement);
+                            } else {
+                                htmlElement = buildMultipleValueTable(headers, data, units, columnOrder);
+                                angular.element(element).append(buildTitle(scope.config.title));
+                                angular.element(element).append(htmlElement);
+                                angular.element(element).append(buildUnitDescription(units));
+                            }
+                        }
+                    });
+                }
+            }
+        }
+        function buildTitle(title) {
+            var titleElement = document.createElement('h3');
+            if(title){
+                titleElement.appendChild(document.createTextNode(title));
+            }
+            return titleElement;
+        }
+
+        function buildUnitDescription(reportUnits) {
+            var unitDescriptionElement = document.createElement('div');
+            angular.forEach(reportUnits, function (reportUnit) {
+                var unitSection = document.createElement('span');
+                unitSection.className = 'label label-primary';
+                unitSection.appendChild(document.createTextNode($translate.instant(reportUnit.title) + ': ' + reportUnit.unit.description));
+                unitDescriptionElement.appendChild(unitSection);
+            });
+            return unitDescriptionElement;
+        }
+
+        function buildSingleValueTable(headers, data, reportUnits) {
             var div = document.createElement('div');
             var title = document.createElement('h1');
             var value = document.createElement('span');
-            value.appendChild(document.createTextNode(config.data[0][config.headers[0].name]));
+            value.appendChild(document.createTextNode(data[0][headers[0].name] + ' ' + reportUnits[0].unit.description));
             title.appendChild(value);
             div.appendChild(title);
             return div;
         }
 
-        function buildMultipleValueTable(scope) {
+        function buildNoValueDisplay() {
+            var div = document.createElement('div');
+            var title = document.createElement('h4');
+            var value = document.createElement('span');
+            value.appendChild(document.createTextNode($translate.instant('noData')));
+            title.appendChild(value);
+            div.appendChild(title);
+            return div;
+        }
+
+        function buildLoadingDisplay() {
+            var div = document.createElement('div');
+            var image = document.createElement('img');
+            image.alt = 'loading';
+            image.src = 'images/spinner.gif';
+            div.appendChild(image);
+            return div;
+        }
+
+
+
+        function buildMultipleValueTable(headers, data, reportUnits, columnOrder) {
             var table = document.createElement('table');
             table.className = 'table';
-            angular.forEach(scope.config.headers, function(header) {
+            angular.forEach(headers, function (header) {
                 var th = document.createElement('th');
-                th.addEventListener('click', headerClicked.bind({scope: scope, header: header}));
+                //th.addEventListener('click', headerClicked.bind({scope: scope, header: header}));
                 var headerLink = document.createElement('a');
                 headerLink.appendChild(document.createTextNode(header.title));
                 var directionSpan = document.createElement('span');
 
-                directionSpan.className = getHeaderDirection(header.name);
+                //directionSpan.className = getHeaderDirection(header.name);
 
                 directionSpan.id = 'th-' + header.name;
 
@@ -109,14 +160,14 @@ DirectivesModule.directive('tableDataviz', ['$compile', 'dataService', function(
 
             function getHeaderDirection(headerName) {
                 var headerDirection = '';
-                if (scope.columnOrder && Array.isArray(scope.columnOrder)) {
-                    angular.forEach(scope.columnOrder, function(columnOrder) {
-                        if (columnOrder.alias === headerName) {
-                            if (columnOrder.direction) {
-                                if (columnOrder.direction.toUpperCase() === 'ASC') {
+                if (scope.columnOrder && Array.isArray(columnOrder)) {
+                    angular.forEach(columnOrder, function (order) {
+                        if (order.alias === headerName) {
+                            if (order.direction) {
+                                if (order.direction.toUpperCase() === 'ASC') {
                                     headerDirection = 'glyphicon glyphicon-chevron-up';
                                 } else {
-                                    if (columnOrder.direction.toUpperCase() === 'DESC') {
+                                    if (order.direction.toUpperCase() === 'DESC') {
                                         headerDirection = 'glyphicon glyphicon-chevron-down';
                                     }
                                 }
@@ -126,11 +177,11 @@ DirectivesModule.directive('tableDataviz', ['$compile', 'dataService', function(
                 }
                 return headerDirection;
             }
-            dataService.orderBy(scope.config.data, scope.columnOrder);
+            dataService.orderBy(data, columnOrder);
 
-            angular.forEach(scope.config.data, function(row) {
+            angular.forEach(data, function (row) {
                 var tr = document.createElement('tr');
-                angular.forEach(scope.config.headers, function(header) {
+                angular.forEach(headers, function (header) {
                     var td = document.createElement('td');
                     td.appendChild(document.createTextNode(row[header.name]));
                     tr.appendChild(td);
@@ -147,7 +198,7 @@ DirectivesModule.directive('tableDataviz', ['$compile', 'dataService', function(
                 this.scope.columnOrder = [];
             } else {
                 var that = this;
-                angular.forEach(this.scope.columnOrder, function(orderClause, index) {
+                angular.forEach(this.scope.columnOrder, function (orderClause, index) {
                     if (orderClause.alias === that.header.name) {
                         containsClause = true;
                         if (orderClause.direction === 'ASC') {
@@ -188,49 +239,50 @@ DirectivesModule.directive('tableDataviz', ['$compile', 'dataService', function(
 
 
 
-DirectivesModule.directive('chartDataviz', ['$compile', 'dataService', function($compile, dataService) {
-        var linkFunction = function(scope, element, attrs) {
-            renderChart(scope.config, scope, element);
-            scope.$watch('config', function(newValue, oldValue) {
+DirectivesModule.directive('chartDataviz', ['$compile', '$q', 'dataService', 'reportService', function ($compile, $q, dataService, reportService) {
+        var linkFunction = function (scope, element, attrs) {
+            renderChart(scope, element);
+            scope.$watch('config', function (newValue, oldValue) {
                 if (newValue && newValue !== oldValue) {
-                    var config = angular.fromJson(newValue);
-                    renderChart(config, scope, element);
+                    renderChart(scope, element);
                 }
             });
         };
 
-        function renderChart(configuration, scope, element) {
-            var config = angular.fromJson(configuration);
-            if (scope.columnOrder) {
-                dataService.orderBy(scope.config.data, scope.columnOrder);
-            }
+        function renderChart(scope, element) {
 
-            computeChartData(scope, config);
-            if (angular.element(element).find('highchart').length) {
-                $compile(element)(scope);
-            } else {
-                element.empty();
-                var chart = $compile('<highchart config="chartConfig"></highchart>')(scope);
-            }
-            angular.element(element).append(chart);
+            $q.all([
+                scope.config.data,
+                scope.config.units
+            ]).then(function (results) {
+                var data = results[0];
+                var units = results[1];
+                var columnOrder = scope.columnOrder;
+
+                if (scope.columnOrder) {
+                    dataService.orderBy(data, columnOrder);
+                }
+                computeChartData(scope, data, scope.config, units);
+                if (angular.element(element).find('highchart').length) {
+                    $compile(element)(scope);
+                } else {
+                    element.empty();
+                    var chart = $compile('<highchart config="chartConfig"></highchart>')(scope);
+                }
+                angular.element(element).append(chart);
+
+            });
+
+
         }
 
-        function computeChartData(scope, config) {
+        function computeChartData(scope, data, config, reportUnits) {
             scope.chartConfig = {
                 options: {
                     chart: {
                         type: 'line',
-                        //zoomType: 'x',
-                        /*
-                        spacingTop: 0,
-                        spacingLeft: 0,
-                        spacingRight: 0,
-                        spacingBottom: 0,
-                        */
-                        //TODO: to remove
                         width: 300,
                         height: 300
-                        
                     }
                 },
                 series: [],
@@ -238,9 +290,9 @@ DirectivesModule.directive('chartDataviz', ['$compile', 'dataService', function(
                     text: ''
                 }
             };
-            if(config.title){
+            if (config.title) {
                 scope.chartConfig.title.text = config.title;
-            }            
+            }
             //handle chart type
             switch (config.type) {
                 case 'pieChart':
@@ -252,28 +304,28 @@ DirectivesModule.directive('chartDataviz', ['$compile', 'dataService', function(
                 case 'lineChart':
                     scope.chartConfig.options.chart.type = 'line';
                     break;
-            }            
-            getChartSeries(scope, config);
+            }
+            getChartSeries(scope, data, config, reportUnits);
         }
-        
-        
-        
-        function getChartSeries(scope, config) {
+
+
+
+        function getChartSeries(scope, data, config, reportUnits) {
             switch (config.type) {
                 case 'pieChart':
-                    getPieChartSerie(scope, config);
+                    getPieChartSerie(scope, data, config, reportUnits);
                     break;
                 case 'chart':
                 case 'lineChart':
                 case 'barChart':
-                    getChartSerie(scope, config);
+                    getChartSerie(scope, data, config, reportUnits);
                     break;
             }
         }
-        
-        function getPieChartSerie(scope, config){
+
+        function getPieChartSerie(scope, data, config, reportUnits) {
             var serieQueryElement = null;
-            angular.forEach(config.headers, function(queryElement) {
+            angular.forEach(config.headers, function (queryElement) {
                 if (queryElement.aggregate) {
                     serieQueryElement = queryElement;
                     return;
@@ -285,43 +337,43 @@ DirectivesModule.directive('chartDataviz', ['$compile', 'dataService', function(
                 data: []
             };
             scope.chartConfig.series.push(serie);
-            for (var lineIndex = 0; lineIndex < config.data.length; lineIndex++) {
+            for (var lineIndex = 0; lineIndex < data.length; lineIndex++) {
                 var textValue = '';
                 var numericValue = null;
-                for (var columnIndex = 0; columnIndex < config.headers.length; columnIndex++) {                    
+                for (var columnIndex = 0; columnIndex < config.headers.length; columnIndex++) {
                     var propertyName = config.headers[columnIndex].name;
                     if (config.headers[columnIndex].aggregate) {
-                        numericValue = parseInt(config.data[lineIndex][propertyName]);                        
+                        numericValue = parseInt(data[lineIndex][propertyName]);
                     } else {
-                        textValue += " " + config.data[lineIndex][propertyName];
+                        textValue += " " + data[lineIndex][propertyName];
                     }
                 }
                 serie.data.push([textValue, numericValue]);
             }
-            
-        }
-        
 
-        function getChartSerie(scope, config) {
-            
+        }
+
+
+        function getChartSerie(scope, data, config, reportUnits) {
+
             scope.chartConfig.xAxis = {};
             scope.chartConfig.xAxis.categories = [];
-            
-            angular.forEach(config.headers, function(queryElement) {
+
+            angular.forEach(config.headers, function (queryElement) {
                 if (queryElement.aggregate) {
-                    scope.chartConfig.series.push({name: queryElement.title, data: []});
+                    scope.chartConfig.series.push({name: getSerieTitle(reportUnits, queryElement.title), data: []});
                 }
             });
-            for (var lineIndex = 0; lineIndex < config.data.length; lineIndex++) {
+            for (var lineIndex = 0; lineIndex < data.length; lineIndex++) {
                 var textValue = '';
                 for (var columnIndex = 0; columnIndex < config.headers.length; columnIndex++) {
-                    var propertyTitle = config.headers[columnIndex].title;
+                    var propertyTitle = getSerieTitle(reportUnits, config.headers[columnIndex].title);
                     var propertyName = config.headers[columnIndex].name;
                     if (config.headers[columnIndex].aggregate) {
                         var serie = getSerieByTitle(scope.chartConfig.series, propertyTitle);
-                        serie.data.push(parseInt(config.data[lineIndex][propertyName]));
+                        serie.data.push(parseInt(data[lineIndex][propertyName]));
                     } else {
-                        textValue += " " + config.data[lineIndex][propertyName];
+                        textValue += " " + data[lineIndex][propertyName];
                     }
                 }
                 scope.chartConfig.xAxis.categories.push(textValue);
@@ -329,10 +381,25 @@ DirectivesModule.directive('chartDataviz', ['$compile', 'dataService', function(
         }
 
 
+        function getSerieTitle(reportUnits, name) {
+            var foundDescription = "";
+            var serieTitle = name;
+            angular.forEach(reportUnits, function (unit) {
+                if (unit.title === name) {
+                    foundDescription = unit.unit.description;
+                    return;
+                }
+            });
+            if (foundDescription) {
+                serieTitle = serieTitle + ': ' + foundDescription;
+            }
+            return serieTitle;
+        }
+
 
         function getSerieByTitle(series, name) {
             var foundSerie = null;
-            angular.forEach(series, function(serie) {
+            angular.forEach(series, function (serie) {
                 if (serie.name === name) {
                     foundSerie = serie;
                     return;

@@ -107,8 +107,7 @@ mainModule.constant('ResourceName', {
     3: 'weightEvent',
     4: 'bloodPressureEvent',
     5: 'a1cEvent',
-    6: 'exerciseEvent'
-
+    6: 'exerciseEvent'   
 });
 
 mainModule.constant('DataVisualization', {

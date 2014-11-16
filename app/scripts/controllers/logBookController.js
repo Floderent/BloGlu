@@ -144,7 +144,7 @@ ControllersModule.controller('logBookController', [
             } else {
                 //display modal window to choose the type of event
                 var $modalScope = $rootScope.$new(true);
-                $modalScope.eventsTypes = logBookService.getEventTypes($scope.display);
+                $modalScope.eventsTypes = logBookService.getEventTypes($scope.display);                
                 var modalInstance = $modal.open({
                     templateUrl: "views/modal/chooseEvent.html",
                     controller: "chooseEventController",

@@ -2,16 +2,14 @@
 
 var servicesModule = angular.module('BloGlu.services');
 
-servicesModule.factory('syncService', ['$q', '$http', '$injector', '$rootScope', 'Database', 'dataService', 'ServerService', 'UserSessionService', function($q, $http, $injector, $rootScope, Database, dataService, ServerService, UserSessionService) {
+servicesModule.factory('syncService', ['$q', '$injector', '$rootScope', 'Database', 'dataService', 'UserSessionService', function ($q, $injector, $rootScope, Database, dataService, UserSessionService) {
         var syncService = {};
         var dataTimeField = 'updatedAt';
-
         //syncService.syncStatus = 'outOfDate';
-
         function getLocalDataInfos() {
-            return dataService.init().then(function(result) {
+            return dataService.init().then(function (result) {
                 var localDataInfos = {};
-                angular.forEach(result, function(value, key) {
+                angular.forEach(result, function (value, key) {
                     localDataInfos[key] = {};
                     localDataInfos[key].count = value.length;
                     localDataInfos[key].date = getMaximumValue(value, dataTimeField);
@@ -23,7 +21,7 @@ servicesModule.factory('syncService', ['$q', '$http', '$injector', '$rootScope',
 
         function getMaximumValue(array, field) {
             var maxValue = '';
-            angular.forEach(array, function(value) {
+            angular.forEach(array, function (value) {
                 if (value[field] && value[field] > maxValue) {
                     maxValue = value[field];
                 }
@@ -32,8 +30,8 @@ servicesModule.factory('syncService', ['$q', '$http', '$injector', '$rootScope',
         }
 
         function compareSyncStatus(remoteDataStatus, localDataStatus) {
-            var syncStatus = {};              
-            angular.forEach(remoteDataStatus, function(value, key) {
+            var syncStatus = {};
+            angular.forEach(remoteDataStatus, function (value, key) {
                 if (localDataStatus[key] && localDataStatus[key].count === value.count && localDataStatus[key].date === value.date) {
                     syncStatus[key] = {
                         status: 'upToDate',
@@ -41,12 +39,11 @@ servicesModule.factory('syncService', ['$q', '$http', '$injector', '$rootScope',
                         remoteCount: value.count
                     };
                 } else {
-                    syncStatus[key] =
-                            {
-                                status: 'outOfDate',
-                                localCount: localDataStatus[key].count,
-                                remoteCount: value.count
-                            };
+                    syncStatus[key] = {
+                        status: 'outOfDate',
+                        localCount: localDataStatus[key].count,
+                        remoteCount: value.count
+                    };
                 }
             });
             return syncStatus;
@@ -56,31 +53,13 @@ servicesModule.factory('syncService', ['$q', '$http', '$injector', '$rootScope',
         function getParseDataInfos() {
             var promiseArray = [];
             var parseDataInfos = {};
-            angular.forEach(Database.schema, function(collectionName) {
-                
-                
+            angular.forEach(Database.schema, function (collectionName) {
                 var resource = $injector.get(collectionName)(UserSessionService.headers());
-                if(resource.countForSync){
+                if (resource.countForSync) {
                     promiseArray.push(resource.countForSync().$promise);
                 }
-                
-                /*          
-                promiseArray.push($http(
-                    {
-                        headers: UserSessionService.headers(),
-                        method: 'GET',
-                        url: ServerService.baseUrl + "classes/" + collectionName,
-                        params: {
-                            count: '1',
-                            order: '-' + dataTimeField,
-                            limit: '1'
-                        }
-                    }
-                ));
-                */
-                
             });
-            return $q.all(promiseArray).then(function(result) {
+            return $q.all(promiseArray).then(function (result) {
                 for (var i = 0; i < result.length; i++) {
                     parseDataInfos[Database.schema[i]] = {};
                     var lastDate = "";
@@ -94,33 +73,30 @@ servicesModule.factory('syncService', ['$q', '$http', '$injector', '$rootScope',
             });
         }
 
-        function syncCollection(collection, syncStatus) {
-            var deferred = $q.defer();            
+        function syncCollection(collection, syncStatus, notify) {
+            var deferred = $q.defer();
             var resource = $injector.get(collection)(UserSessionService.headers());
-            if (resource && resource.query) {                
-                deferred.notify("Downloading " + collection);
-                dataService.queryParse(collection, syncStatus.remoteCount, {limit: 1000}).then(function(result) {                    
-                    deferred.notify("Downloading of " + collection + " completed");
-                    dataService.clear(collection).then(function() {                        
-                        deferred.notify(collection + " cleared");
-                        dataService.addRecords(collection, result).then(function(addRecordsResult) {
-                            deferred.notify("Inserted " + result.length + collection + " record(s)");
+            if (resource && resource.query) {
+                dataService.queryParse(collection, syncStatus.remoteCount, {limit: 1000}).then(function (result) {
+                    dataService.clear(collection).then(function () {
+                        dataService.addRecords(collection, result).then(function (addRecordsResult) {
+                            notify(1, collection + " sync");
                             deferred.resolve();
                         }, deferred.reject);
                     }, deferred.reject);
                 }, deferred.reject);
             } else {
-                deferred.reject("No resource found for " + collection);                
+                deferred.reject("No resource found for " + collection);
             }
             return deferred.promise;
         }
 
 
-        syncService.checkSyncStatus = function() {
+        syncService.checkSyncStatus = function () {
             return $q.all([
                 getParseDataInfos(),
                 getLocalDataInfos()
-            ]).then(function(result) {
+            ]).then(function (result) {
                 var parseDataStatus = {};
                 var localDataStatus = {};
                 if (result.length > 0 && result[0]) {
@@ -133,22 +109,27 @@ servicesModule.factory('syncService', ['$q', '$http', '$injector', '$rootScope',
             });
         };
 
-        syncService.sync = function() {
+        syncService.sync = function (notify) {
             var deferred = $q.defer();
+            var notificationFunc = computeProgression(1, notify);
+
             var promiseArray = [];
             if (syncService.syncStatus === 'upToDate') {
                 deferred.resolve();
-            } else {                
-                syncService.checkSyncStatus().then(function(syncStatus) {
-                    angular.forEach(syncStatus, function(value, key) {
+            } else {
+                syncService.checkSyncStatus().then(function (syncStatus) {
+                    notificationFunc(1, "syncStatusChecked");
+                    notificationFunc = computeProgression(getNumberOfOutOfSyncCollections(syncStatus), notify);
+                    angular.forEach(syncStatus, function (value, key) {
                         if (value.status === 'outOfDate') {
-                            promiseArray.push(syncCollection(key, value));
+                            promiseArray.push(syncCollection(key, value, notificationFunc));
                         }
-                    });                    
-                    $q.all(promiseArray).then(function(result) {                        
-                        dataService.init(true).then(function(result) {
+                    });
+                    $q.all(promiseArray).then(function (result) {
+                        notificationFunc = computeProgression(1, notify);
+                        dataService.init(true).then(function (result) {
+                            notificationFunc(1, "syncDone");
                             triggerDataReadyEvent();
-                            //syncService.syncStatus = 'upToDate';
                             deferred.resolve();
                         }, deferred.reject);
                     }, deferred.reject, deferred.notify);
@@ -156,6 +137,27 @@ servicesModule.factory('syncService', ['$q', '$http', '$injector', '$rootScope',
             }
             return deferred.promise;
         };
+
+        function computeProgression(num, progress) {
+            var total = 0;
+            return function (progression, message) {
+                total += progression;                
+                if (progress && typeof progress === 'function') {
+                    progress(((total / num) * 100).toFixed(2), message);
+                }
+            };
+        }
+
+        function getNumberOfOutOfSyncCollections(syncStatus) {
+            var numberOfOutOfSyncCollections = 0;
+            angular.forEach(syncStatus, function (value, key) {
+                if (value.status === 'outOfDate') {
+                    numberOfOutOfSyncCollections++;
+                }
+            });
+            return numberOfOutOfSyncCollections;
+        }
+
 
         function triggerDataReadyEvent() {
             var eventName = 'dataReady';

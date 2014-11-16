@@ -192,7 +192,7 @@ servicesModule.factory('logBookService', ['$q', '$filter', '$translate', 'UserSe
 
         logBookService.getEventTypes = function (display) {
             var eventTypes = {};
-            angular.forEach(display, function (value, key) {
+            angular.forEach(display, function (value) {
                 eventTypes[value] = ResourceName[value];
             });
             return eventTypes;
@@ -286,16 +286,18 @@ servicesModule.factory('logBookService', ['$q', '$filter', '$translate', 'UserSe
                     }
                 }
                 //put blood glucose readings in right row and column
-                angular.forEach(bloodGlucoseReadings, function (bloodGlucoseReading) {
+                var readingsLength = bloodGlucoseReadings.length;
+                for(var index = 0; index < readingsLength; index++){
+                    var bloodGlucoseReading = bloodGlucoseReadings[index];
                     var indexOfRow = 1;
                     var indexOfColumn = getBloodGlucoseReadingColumnByDate(timeInterval, analysisPeriods, bloodGlucoseReading.dateTime);
                     if (Array.isArray(dataArray[indexOfRow][indexOfColumn])) {
                         dataArray[indexOfRow][indexOfColumn].push(bloodGlucoseReading);
                     }
-                });
-
+                }
                 //aggregate
-                for (var indexOfRow = 1; indexOfRow < dataArray.length; indexOfRow++) {
+                var dataArrayLength = dataArray.length;
+                for (var indexOfRow = 1; indexOfRow < dataArrayLength; indexOfRow++) {
                     for (var indexOfColumn = 0; indexOfColumn < dataArray[0].length; indexOfColumn++) {
                         if (dataArray[indexOfRow][indexOfColumn].length > 0) {
                             dataArray[indexOfRow][indexOfColumn] = [statsService.getStatsFromBloodGlucoseReadingList(dataArray[indexOfRow][indexOfColumn])];
@@ -346,14 +348,16 @@ servicesModule.factory('logBookService', ['$q', '$filter', '$translate', 'UserSe
                     }
                 }
                 //put blood glucose readings in right row and column
-                angular.forEach(bloodGlucoseReadings, function (bloodGlucodeReading) {
+                var readingsLength = bloodGlucoseReadings.length;
+                for(var index = 0; index < readingsLength; index++){
+                    var bloodGlucodeReading = bloodGlucoseReadings[index];
                     var indexOfRow = getBloodGlucoseReadingRowByDate(days, bloodGlucodeReading.dateTime) + 1;
                     //var indexOfRow = dateUtil.convertToNormalFormat(bloodGlucodeReading.dateTime).getDay() + 1;
                     var indexOfColumn = getBloodGlucoseReadingColumnByDate(timeInterval, analysisPeriods, bloodGlucodeReading.dateTime) + 1;
                     if (Array.isArray(dataArray[indexOfRow][indexOfColumn])) {
                         dataArray[indexOfRow][indexOfColumn].push(bloodGlucodeReading);
-                    }
-                });
+                    }                    
+                }
                 return dataArray;
             });
         };
