@@ -157,8 +157,13 @@ ControllersModule.controller('eventController',
 
                 $scope.open = function ($event) {
                     $event.preventDefault();
-                    $event.stopPropagation();
-                    $scope.opened = true;
+                    $event.stopPropagation();                    
+                    if($scope.opened){
+                        $scope.opened = false;
+                    }else{
+                        $scope.opened = true;
+                    }
+                    
                 };
 
                 $scope.update = function (event) {

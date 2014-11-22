@@ -5,21 +5,21 @@
     <div class="panel-body ">
         <tabset>
             <tab heading="{{'userPreferences.account'| translate }}">                
-                <ng-form name="nameDialog" novalidate role="form">
-                    <div class="form-group input-group-lg" ng-class="{true: 'has - error'}[nameDialog.username.$dirty && nameDialog.username.$invalid]">
+                <ng-form name="preferencesForm" novalidate role="form">
+                    <div class="form-group input-group-lg">
                         <label class="control-label" for="username">{{ 'userPreferences.name' | translate }}</label>
-                        <input type="text" class="form-control" name="username" id="username" ng-model="user.username" ng-keyup="hitEnter($event)" required>
+                        <input type="text" class="form-control" name="username" id="username" ng-model="user.username" required>
                         <label class="control-label" for="password">{{ 'userPreferences.password' | translate }}</label>
-                        <input type="password" class="form-control" name="password" id="password" ng-model="user.password" equals="{{confirmedPassword}}" ng-keyup="hitEnter($event)" required>                                 
+                        <input type="password" class="form-control" name="password" id="password" ng-model="user.password" equals="{{confirmedPassword}}" required>                                 
                         <label class="control-label" for="confirmPassword">{{ 'userPreferences.confirmPassword' | translate }}</label>
-                        <input type="password" class="form-control" name="confirmPassword" id="confirmPassword" ng-model="confirmedPassword" equals="{{user.password}}" ng-keyup="hitEnter($event)" required>                                 
+                        <input type="password" class="form-control" name="confirmPassword" id="confirmPassword" ng-model="confirmedPassword" equals="{{user.password}}" required>                                 
                         <label class="control-label" for="email">{{ 'userPreferences.email' | translate }}</label>
-                        <input type="email" class="form-control" name="email" id="email" ng-model="user.email" ng-keyup="hitEnter($event)" required>
+                        <input type="email" class="form-control" name="email" id="email" ng-model="user.email" required>
 
-                        <div class="alert alert-danger"  ng-show="nameDialog.email.$invalid && nameDialog.email.$dirty">                            
+                        <div class="alert alert-danger"  ng-show="preferencesForm.email.$invalid && preferencesForm.email.$dirty">                            
                             <strong>{{ 'userPreferences.error' | translate }}!</strong> {{ 'userPreferences.invalidEmail' | translate }}
                         </div>
-                        <div class="alert alert-danger"  ng-show="(nameDialog.password.$invalid && nameDialog.password.$dirty) && (nameDialog.confirmPassword.$invalid && nameDialog.confirmPassword.$dirty)">                            
+                        <div class="alert alert-danger"  ng-show="(preferencesForm.password.$invalid && preferencesForm.password.$dirty) && (preferencesForm.confirmPassword.$invalid && preferencesForm.confirmPassword.$dirty)">                            
                             <strong>{{ 'userPreferences.error' | translate }}!</strong> {{ 'userPreferences.passwordMismatched' | translate }}
                         </div>                        
                         <div class="alert alert-danger"  ng-show="errorMessage">                            
@@ -55,8 +55,8 @@
             </tab>            
         
         </tabset>
-        <button class="btn btn-primary btn-lg active pull-left" ng-disabled="pending > 0" ng-click="delete(user)">{{ 'userPreferences.delete' | translate }}</button>
         
+        <button class="btn btn-primary btn-lg active pull-left" ng-disabled="pending > 0" ng-click="delete(user)">{{ 'userPreferences.delete' | translate }}</button>        
         <button class="btn btn-primary btn-lg active pull-right" ng-disabled="pending > 0" ng-click="update(user)">{{ 'userPreferences.save' | translate }}</button>
     </div>
 </div>

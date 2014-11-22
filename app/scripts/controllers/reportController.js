@@ -1,7 +1,27 @@
 'use strict';
 var ControllersModule = angular.module('BloGlu.controllers');
 
-ControllersModule.controller('reportController', ['$scope', '$rootScope', '$q', '$routeParams', '$window', '$location', 'reportService', 'queryService', 'MessageService', 'DataVisualization', 'Utils', function Controller($scope, $rootScope, $q, $routeParams, $window, $location, reportService, queryService, MessageService, Utils) {
+ControllersModule.controller('reportController', [
+    '$scope', 
+    '$rootScope', 
+    '$q', 
+    '$routeParams', 
+    '$window', 
+    '$location', 
+    'reportService', 
+    'queryService', 
+    'MessageService',     
+    'Utils', function Controller(
+            $scope, 
+            $rootScope, 
+            $q, 
+            $routeParams, 
+            $window, 
+            $location, 
+            reportService, 
+            queryService, 
+            MessageService,             
+            Utils) {
 
         $scope.isEdit = $routeParams && $routeParams.objectId;
         $scope.report = {};
@@ -138,8 +158,7 @@ ControllersModule.controller('reportController', ['$scope', '$rootScope', '$q', 
             });
         };
 
-        $scope.delete = function() {
-            
+        $scope.delete = function() {            
             var modalScope = {
                        confirmTitle:'confirm.pageTitle',
                        confirmMessage:'confirm.deletionMessage',

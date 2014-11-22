@@ -3,8 +3,8 @@
 </div>
 <div class="modal-body">
 
-    <div class="btn-group" ng-repeat="(key, value) in eventsTypes track by $index">            
-        <label class="btn btn-success" ng-model="code" ng-click="selectType(key, value)" btn-radio="{{key}}">{{value | translate}}</label>
+    <div class="btn-group">
+        <label ng-repeat="(key, value) in eventsTypes track by $index" class="btn btn-success" ng-model="code" ng-click="selectType(key, value)" btn-radio="{{key}}">{{value | translate}}</label>
     </div>
 
 </div>

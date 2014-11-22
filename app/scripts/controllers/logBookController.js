@@ -122,6 +122,11 @@ ControllersModule.controller('logBookController', [
             $location.url($location.path());
             $location.path('logBook').search('weekDate', $scope.currentDate.toISOString()).search('interval', interval).search('display', logBookService.getDisplayParam($scope.display));
         }
+        
+        //view reading by id
+        $scope.viewEvent = function(code, objectId) {            
+            eventService.viewEvent(code, objectId).then(renderPage, renderPage);
+        };
 
         $scope.printToPDF = function () {
             printService.convertTableToPDF($scope.data, printService.renderCell.bind({
@@ -140,7 +145,7 @@ ControllersModule.controller('logBookController', [
         $scope.addEvent = function (day, period) {
             //if only one event type selected, add this one            
             if ($scope.display.length === 1) {
-                eventService.goToAddEvent($scope.display[0], day, period);
+                eventService.goToAddEvent($scope.display[0], day, period).then(renderPage, renderPage);
             } else {
                 //display modal window to choose the type of event
                 var $modalScope = $rootScope.$new(true);
@@ -155,11 +160,11 @@ ControllersModule.controller('logBookController', [
                         }
                     }
                 });
-                modalInstance.result.then(function (eventCode) {
+                modalInstance.result.then(function (eventCode) {                    
                     if (eventCode) {
-                        eventService.goToAddEvent(eventCode, day, period);
-                    }
-                }, function () {
+                        eventService.goToAddEvent(eventCode, day, period).then(renderPage, renderPage);                        
+                    }                    
+                }, function () {                   
                     //exit
                 });
             }

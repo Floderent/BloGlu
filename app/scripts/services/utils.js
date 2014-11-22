@@ -17,7 +17,7 @@ servicesModule.factory('Utils', ['$modal','$rootScope','$translate','ResourceNam
         })();
 
 
-        Utils.openConfirmModal = function (scopeOptions, modalOptions) {
+        Utils.openConfirmModal = function (scopeOptions, modalOptions) {            
             var modalScope = $rootScope.$new();
             modalScope = angular.extend(modalScope, scopeOptions);            
             if (scopeOptions) {

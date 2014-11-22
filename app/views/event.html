@@ -5,22 +5,23 @@
 
         <button ng-show="windowMode === 'MODAL'" ng-click="$dismiss()" type="button" class="close" data-dismiss="modal" aria-hidden="true">&times;</button>
 
-        <dv ng-switch="eventCode">
+        <div ng-switch="eventCode">
             <h3 ng-switch-when="1" class="panel-title">{{ 'event.bgTitle' | translate }}</h3>
             <h3 ng-switch-when="2" class="panel-title">{{ 'event.medicationTitle' | translate }}</h3>
             <h3 ng-switch-when="3" class="panel-title">{{ 'event.weightTitle' | translate }}</h3>
-        </dv>
+        </div>
     </div>
     <div class="panel-body ">
         <form novalidate class="simple-form">
-
-            <p class="input-group">                
-                <input type="text" class="form-control" datepicker-popup="dd/MM/yyyy" is-open="opened" ng-model="date" ng-required="true" close-text="Close" />               
+            
+            <div class="input-group">                
+                <input type="text" class="form-control" datepicker-popup="dd/MM/yyyy" is-open="opened || $parent.opened" ng-model="date" ng-required="true" close-text="Close" />                                   
                 <span class="input-group-btn">                    
                     <button class="btn btn-default" ng-click="open($event)"><i class="glyphicon glyphicon-calendar"></i></button>
                 </span>
-            </p>
-
+            </div>
+            
+            
             <div class="input-group">               
                 <div ng-model="date" ng-required="true">
                     <timepicker show-meridian="false"></timepicker>

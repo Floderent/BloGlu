@@ -44,11 +44,11 @@ servicesModule.factory('eventService', ['$location', '$modal','$q', '$rootScope'
 
 
         eventService.goToAddEvent = function (eventCode, day, period, newPage) {
-            var deferred = $q.defer();
+            var deferred = $q.defer();            
             var newEventDate = logBookService.getMiddleTime(period);
             if (newPage) {
                 $location.path('event/' + ResourceCode[eventCode]).search('day', day.date.toISOString()).search('time', newEventDate.toISOString());
-                deferred.resolve();
+                deferred.resolve();                
             } else {
                 var $modalScope = $rootScope.$new(true);
                 $modalScope.eventType = ResourceCode[eventCode];
@@ -86,6 +86,7 @@ servicesModule.factory('eventService', ['$location', '$modal','$q', '$rootScope'
                 });
                 modalInstance.result.then(deferred.resolve, deferred.reject);
             }
+            return deferred.promise;
         };        
         eventService.getEventRange = function (reading, unit, ranges) {
             var resultRange = null;

@@ -73,16 +73,7 @@ ControllersModule.controller('inputUserController', ['$scope', '$rootScope', '$m
                         $scope.errorMessage = error.error;
                         $scope.creatingUser = false;
                     });
-        };
-        /*
-         $scope.hitEnter = function(evt) {
-         if (angular.equals(evt.keyCode, 13) && $scope.user) {
-         if (!((angular.equals($scope.user.username, null) || angular.equals($scope.user.username, '')) && (angular.equals($scope.user.password, null) || angular.equals($scope.user.password, '')))) {
-         $scope.signUp();
-         }
-         }
-         };
-         */
+        };    
     }]);
 
 

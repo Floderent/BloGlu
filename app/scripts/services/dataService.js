@@ -391,7 +391,7 @@ servicesModule.factory('dataService', ['$q', '$filter', '$injector', '$locale', 
                             });
                         }
                         if (selectElement.transform) {
-                            value = selectElement.transform(value, row, localData);
+                            value = selectElement.transform(value, row, localData, selectElement);
                         }
                         if (selectElement.alias) {
                             resultRow[selectElement.alias] = value;
@@ -683,6 +683,21 @@ servicesModule.factory('dataService', ['$q', '$filter', '$injector', '$locale', 
                 }
                 return returnValue;
             }.bind({$filter: $filter}),
+            
+            getEventReading: function(value, row, localData, queryElement){
+                var returnValue = null;
+                var filter = angular.toJson(queryElement.filter);
+                debugger;
+                var code = filter['code'];
+                if(typeof code !== 'undefined' && row['code'] === code){
+                    returnValue = value;
+                    returnValue = returnValue * row.unit.coefficient;
+                    if (Utils.getDefaultUnit(localData, code) && Utils.getDefaultUnit(localData, code).coefficient) {
+                        returnValue = returnValue * Utils.getDefaultUnit(localData, code).coefficient;
+                    }
+                }                
+                return returnValue;
+            },
             //getBloodGlucose
             getBloodGlucose: function (value, row, localData) {
                 var returnValue = null;

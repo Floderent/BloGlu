@@ -96,7 +96,9 @@
                         <li ng-show="pending > 0">                            
                             <div class="navbar-text" ng-if="loadingMessages.length > 0">                                
                                 {{loadingMessages[loadingMessages.length - 1]}}
-                            </div>
+                            </div>                            
+                        </li>
+                        <li ng-show="pending > 0">
                             <img class="loading-icon" alt="loading" src="images/spinner.gif" />
                         </li>
                         <li ng-show="pending > 0">

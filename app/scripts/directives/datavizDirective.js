@@ -140,8 +140,10 @@ DirectivesModule.directive('tableDataviz', ['$q', '$translate', 'dataService', f
 
 
         function buildMultipleValueTable(headers, data, reportUnits, columnOrder) {
-            var table = document.createElement('table');
-            table.className = 'table';
+            var container = document.createElement('div');
+            container.className = 'table-responsive';
+            var table = document.createElement('table');            
+            table.className = 'table table-striped';            
             angular.forEach(headers, function (header) {
                 var th = document.createElement('th');
                 //th.addEventListener('click', headerClicked.bind({scope: scope, header: header}));
@@ -188,7 +190,9 @@ DirectivesModule.directive('tableDataviz', ['$q', '$translate', 'dataService', f
                 });
                 table.appendChild(tr);
             });
-            return table;
+            container.appendChild(table);
+            
+            return container;
         }
 
 

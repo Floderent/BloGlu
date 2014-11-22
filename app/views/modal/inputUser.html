@@ -4,13 +4,13 @@
     <ng-form name="nameDialog" novalidate role="form">
         <div class="form-group input-group-lg" ng-class="{true: 'has - error'}[nameDialog.username.$dirty && nameDialog.username.$invalid]">
             <label class="control-label" for="username">{{ 'inputUser.name' | translate }}</label>
-            <input type="text" class="form-control" name="username" id="username" ng-model="user.username" ng-keyup="hitEnter($event)" required>
+            <input type="text" class="form-control" name="username" id="username" ng-model="user.username" required>
             <label class="control-label" for="password">{{ 'inputUser.password' | translate }}</label>
-            <input type="password" class="form-control" name="password" id="password" ng-model="user.password" equals="{{confirmedPassword}}" ng-keyup="hitEnter($event)" required>                                 
+            <input type="password" class="form-control" name="password" id="password" ng-model="user.password" equals="{{confirmedPassword}}" required>                                 
             <label class="control-label" for="confirmPassword">{{ 'inputUser.confirmPassword' | translate }}</label>
             <input type="password" class="form-control" name="confirmPassword" id="confirmPassword" ng-model="confirmedPassword" equals="{{user.password}}" ng-keyup="hitEnter($event)" required>                                 
             <label class="control-label" for="email">{{ 'inputUser.email' | translate }}</label>
-            <input type="email" class="form-control" name="email" id="email" ng-model="user.email" ng-keyup="hitEnter($event)" required>
+            <input type="email" class="form-control" name="email" id="email" ng-model="user.email" required>
 
             <div class="alert alert-danger"  ng-show="nameDialog.email.$invalid && nameDialog.email.$dirty">                            
                 <strong>{{ 'inputUser.error' | translate }}!</strong> {{ 'inputUser.invalidEmail' | translate }}

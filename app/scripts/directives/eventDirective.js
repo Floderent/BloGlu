@@ -16,17 +16,12 @@ DirectivesModule.directive('blogluEvent', ['$compile', '$injector', '$q','eventS
 
         function renderEvent(event, scope, element) {
             
-            var resourceCode = $injector.get('ResourceCode');
-            //view reading by id
-            var viewEvent = function(code, objectId) {                
-                eventService.viewEvent(code, objectId);
-            };
+            var resourceCode = $injector.get('ResourceCode');            
             var template = getEventTemplate(event, resourceCode);
-            var dom = angular.element('<div ng-click="viewEvent(code, objectId)" class="panel panel-default">' + template + '</div>');
+            var dom = angular.element('<div ng-click="clickAction({code: code, objectId: objectId})" class="panel panel-default">' + template + '</div>');
 
             getScope(event, resourceCode).then(function(eventScope) {
-                scope = angular.extend(scope, eventScope);
-                scope.viewEvent = viewEvent;
+                scope = angular.extend(scope, eventScope);                
                 var compiled = $compile(dom);
                 angular.element(element).append(dom);
                 compiled(scope);
@@ -43,7 +38,7 @@ DirectivesModule.directive('blogluEvent', ['$compile', '$injector', '$q','eventS
                     template = '<div class="panel-body"><span class="glyphicon glyphicon-briefcase"></span>{{dateTime | date:"HH:mm"}} <span class="reading">{{reading}}</span> {{unit.name}}</div>';
                     break;
                 case resourceCode['weight']:
-                    
+                    template = '<div class="panel-body"><span class="glyphicon glyphicon-dashboard"></span>{{dateTime | date:"HH:mm"}} <span class="reading">{{reading}}</span> {{unit.name}}</div>';
                     break;
             }
             return template;
@@ -106,7 +101,8 @@ DirectivesModule.directive('blogluEvent', ['$compile', '$injector', '$q','eventS
             restrict: 'E', // only activate on element
             replace: true,
             scope: {
-                blogluEvent: '='
+                blogluEvent: '=',
+                clickAction: '&'
             },
             link: linkFunction
         };
