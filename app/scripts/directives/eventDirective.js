@@ -77,7 +77,11 @@ DirectivesModule.directive('blogluEvent', ['$compile', '$injector', '$q', 'event
             var userService = $injector.get('UserService');
             var resourceCode = $injector.get('ResourceCode');
 
-            var promiseArray = [dataService.queryLocal('Unit', {where: {code: event.code}}), dataService.queryLocal('Range'), userService.getDefaultUnit(resourceCode[event.code])];
+            var promiseArray = [
+                dataService.queryLocal('Unit', {where: {code: event.code}}), 
+                dataService.queryLocal('Range'), 
+                userService.getDefaultUnit(resourceCode[event.code])
+            ];
             return $q.all(promiseArray).then(function (results) {
                 var unit = null;
                 var defaultUnit = results[2];

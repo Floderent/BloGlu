@@ -7,7 +7,7 @@ servicesModule.factory('printService', ['$filter', function($filter) {
         var printService = {};
         
         printService.renderCell = function (rowIndex, columnIndex, cellData, tableData) {
-            var valueToDisplay = "";
+            var valueToDisplay = " ";
             if (cellData) {
                 if (rowIndex === 0) {
                     if (cellData.name) {
@@ -44,15 +44,14 @@ servicesModule.factory('printService', ['$filter', function($filter) {
                 
         
         printService.convertTableToPDF = function(tableData, renderCellFunction) {            
-            var doc = new jsPDF('l', 'pt', 'a4', true);
+            var doc = new jsPDF('l', 'pt', 'a4', true);            
             doc.cellInitialize();
             for (var rowIndex = 0; rowIndex < tableData.length; rowIndex++) {
                 var row = tableData[rowIndex];
-                for (var columnIndex = 0; columnIndex < row.length; columnIndex++) {
+                for (var columnIndex = 0; columnIndex < tableData[0].length; columnIndex++) {
                     var cell = row[columnIndex];
                     doc.cell(10, 50, 120, 50, renderCellFunction(rowIndex, columnIndex, cell, tableData), rowIndex);
-                }
-                ;
+                }                
             }
             doc.save('sample-file.pdf');
         };

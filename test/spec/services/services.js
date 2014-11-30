@@ -111,7 +111,7 @@ describe('Services: dataService', function() {
             {truc: "1", toto1: "2", test: "3", toto3: 4},
             {truc: "1", toto1: "2", test: "3", toto3: 4}];
         var expectedResult = [
-            {field1: "2", field2: 8}
+            {field1: "2", field2: '8.00'}
         ];
         var params = {
             select: [
@@ -136,7 +136,7 @@ describe('Services: dataService', function() {
             {truc: "1", toto1: "2", test: "3", toto3: 4},
             {truc: "1", toto1: "2", test: "3", toto3: 4}];
         var expectedResult = [
-            {field2: 8}
+            {field2: '8.00'}
         ];
         var params = {
             select: [
@@ -157,7 +157,7 @@ describe('Services: dataService', function() {
             {truc: "1", toto1: "2", test: "3", toto3: 4},
             {truc: "1", toto1: "2", test: "3", toto3: 4}];
         var expectedResult = [
-            {field2: 8}
+            {field2: '8.00'}
         ];
         var params = {
             select: [
@@ -182,8 +182,8 @@ describe('Services: dataService', function() {
             {truc: "2", toto1: "4", test: "3", toto3: 4}
         ];
         var expectedResult = [
-            {field1: "2", field2: 2},
-            {field1: "4", field2: 1}
+            {field1: "2", field2: '2'},
+            {field1: "4", field2: '1'}
         ];
         var params = {
             select: [
@@ -209,8 +209,8 @@ describe('Services: dataService', function() {
             {truc: "2", toto1: "4", test: "3", toto3: 4}
         ];
         var expectedResult = [
-            {toto1: "2", toto3: 2.5},
-            {toto1: "4", toto3: 4}
+            {toto1: "2", toto3: '2.50'},
+            {toto1: "4", toto3: '4.00'}
         ];
         var params = {
             select: [
@@ -238,7 +238,7 @@ describe('Services: dataService', function() {
             {truc: "3", toto1: 30, test: "3", toto3: 4}
         ];
         var expectedResult = [
-            {avg1: 2.5, avg2: 7, avg3: 25}
+            {avg1: '2.50', avg2: '7.00', avg3: '25.00'}
         ];
         var params = {
             select: [
@@ -293,9 +293,9 @@ describe('Services: dataService', function() {
             {truc: "2", toto1: 10, test: "juin", toto3: 4}
         ];
         var expectedResult = [
-            {test: "janvier", avg1: 2.5, avg2: ""},
-            {test: "fevrier", avg1: "", avg2: ""},
-            {test: "juin", avg1: "", avg2: 10}
+            {test: "janvier", avg1: '2.50', avg2: '0.00'},
+            {test: "fevrier", avg1: '0.00', avg2: '0.00'},
+            {test: "juin", avg1: '0.00', avg2: '10.00'}
         ];
         var params = {
             select: [
@@ -763,7 +763,7 @@ describe('Services: dateUtil', function() {
             }];
 
         periodOnMoreThanOneDay = dateUtilService.arePeriodsOnMoreThanOneDay(testPeriods);
-        expect(periodOnMoreThanOneDay).toBe(0);
+        expect(periodOnMoreThanOneDay).toBe(1);
 
     });
 });
@@ -841,29 +841,7 @@ describe('Services: localizationService', function() {
         localizationSvc = localizationService;
     }));
 
-    it('should apply template on string', function() {        
-        var testString = "[{name}] is a test case person";
-        var expectedString = "toto is a test case person";
-        
-        var templatedString = localizationSvc.applyTemplate(testString, {name: 'toto'});        
-        expect(templatedString).toBe(expectedString);
-    });
-    
-    it('should apply template on string', function() {        
-        var testString = "test [{name}]";
-        var expectedString = "test toto";
-        
-        var templatedString = localizationSvc.applyTemplate(testString, {name: 'toto'});        
-        expect(templatedString).toBe(expectedString);
-    });
-    
-    it('should apply template on string', function() {        
-        var testString = "test [{name}], [{firstName}]";
-        var expectedString = "test toto, titi";
-        
-        var templatedString = localizationSvc.applyTemplate(testString, {name: 'toto', firstName: 'titi'});        
-        expect(templatedString).toBe(expectedString);
-    });
+   
     
 
 

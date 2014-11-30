@@ -2,10 +2,10 @@ var DirectivesModule = angular.module("BloGlu.directives");
 
 DirectivesModule.directive('dataviz', function ($compile) {
     var linkFunction = function (scope, element, attrs) {
-        scope.$watch('config', function (newValue, oldValue) {
+        //scope.$watch('config', function (newValue, oldValue) {
             element.empty();
-            if (newValue) {
-                var config = angular.fromJson(newValue);
+            //if (newValue) {
+                var config = angular.fromJson(scope.config);
                 scope.datavizConfig = config;
                 var dataviz = null;
                 switch (config.type) {
@@ -23,8 +23,8 @@ DirectivesModule.directive('dataviz', function ($compile) {
                         break;
                 }
                 angular.element(element).append(dataviz);
-            }
-        });
+            //}
+        //});
     };
     return {
         restrict: 'E', // only activate on element
@@ -41,6 +41,8 @@ DirectivesModule.directive('dataviz', function ($compile) {
 
 DirectivesModule.directive('tableDataviz', ['$q', '$translate', 'dataService', function ($q, $translate, dataService) {
         var linkFunction = function (scope, element, attrs) {
+            buildTable(element, scope);
+            /*
             scope.$watch('config', function (newValue, oldValue) {
                 buildTable(element, scope);
             }, true);
@@ -48,7 +50,7 @@ DirectivesModule.directive('tableDataviz', ['$q', '$translate', 'dataService', f
             scope.$watch('columnOrder', function (newValue, oldValue) {
                 buildTable(element, scope);
             }, true);
-
+            */
         };
 
         function buildTable(element, scope) {
@@ -248,11 +250,13 @@ DirectivesModule.directive('tableDataviz', ['$q', '$translate', 'dataService', f
 DirectivesModule.directive('chartDataviz', ['$compile', '$q', 'dataService', 'reportService', function ($compile, $q, dataService, reportService) {
         var linkFunction = function (scope, element, attrs) {
             renderChart(scope, element);
+            /*
             scope.$watch('config', function (newValue, oldValue) {
                 if (newValue && newValue !== oldValue) {
                     renderChart(scope, element);
                 }
             });
+            */
         };
 
         function renderChart(scope, element) {

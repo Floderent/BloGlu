@@ -1,17 +1,70 @@
 'use strict';
 var ControllersModule = angular.module('BloGlu.controllers');
 
-ControllersModule.controller('applicationController', ['$scope', '$q', '$rootScope', '$modal', 'AUTH_EVENTS', '$location', '$route', '$timeout', 'UserSessionService', 'syncService', 'dataService', 'localizationService', 'MessageService', function Controller($scope, $q, $rootScope, $modal, AUTH_EVENTS, $location, $route, $timeout, UserSessionService, syncService, dataService, localizationService, MessageService) {
+ControllersModule.controller('applicationController', [
+    '$scope', 
+    '$q', 
+    '$rootScope', 
+    '$modal', 
+    'AUTH_EVENTS', 
+    '$location', 
+    '$route', 
+    '$timeout', 
+    'UserSessionService', 
+    'UserService',
+    'syncService', 
+    'dataService', 
+    'localizationService', 
+    'MessageService', function Controller(
+            $scope, 
+            $q, 
+            $rootScope, 
+            $modal, 
+            AUTH_EVENTS, 
+            $location, 
+            $route, 
+            $timeout, 
+            UserSessionService,
+            UserService,
+            syncService, 
+            dataService, 
+            localizationService, 
+            MessageService) {
 
         $rootScope.currentUser = UserSessionService.currentUser();
+        $rootScope.currentUserInfos = null;
         $rootScope.messages = [];
         $rootScope.loadingMessages = [];
         $rootScope.pending = 0;
         $rootScope.progress = 0;
 
         $rootScope.syncMessage = syncService.message;
-
+        
         var modal = null;
+        
+        function renderPage(){            
+            UserService.getCurrentUser().then(function(currentUser){
+                $rootScope.currentUserInfos = currentUser;
+            });
+        }        
+        
+        function resolveMessage(loadingMessageKey, values) {
+            var message = '';
+            if (loadingMessageKey) {
+                message = localizationService.get(loadingMessageKey);
+                if (values) {
+                    message = localizationService.applyLocalizedTemplate(message, values);
+                }
+            } else {
+                message = localizationService.get('loading');
+            }
+            return message;
+        }
+        
+        function progressHandler(progress, message){
+            $rootScope.progress = progress;
+        }
+        
 
         $rootScope.displaySignUpModal = function () {
             $scope.messages = [];
@@ -42,6 +95,7 @@ ControllersModule.controller('applicationController', ['$scope', '$q', '$rootSco
                     MessageService.cancelAll($rootScope.messages);
                     $rootScope.loadingMessages = [];
                     $rootScope.currentUser = null;
+                    $rootScope.currentUserInfos = null;
                     $rootScope.$broadcast(AUTH_EVENTS.notAuthenticated);
                     $rootScope.decreasePending('processingMessage.loggingOut');
                     deferred.resolve();
@@ -75,25 +129,6 @@ ControllersModule.controller('applicationController', ['$scope', '$q', '$rootSco
                 $rootScope.loadingMessages.splice(indexOfMessage, 1);
             }
         };
-
-
-        function resolveMessage(loadingMessageKey, values) {
-            var message = '';
-            if (loadingMessageKey) {
-                message = localizationService.get(loadingMessageKey);
-                if (values) {
-                    message = localizationService.applyLocalizedTemplate(message, values);
-                }
-            } else {
-                message = localizationService.get('loading');
-            }
-            return message;
-        }
-        
-        function progressHandler(progress, message){
-            $rootScope.progress = progress;
-        }
-        
 
 
         $rootScope.$on(AUTH_EVENTS.notAuthenticated, function (event) {
@@ -139,7 +174,9 @@ ControllersModule.controller('applicationController', ['$scope', '$q', '$rootSco
                 $route.reload();
             });
         });
-
+        
+        $rootScope.$on('dataReady', renderPage);
+        
     }]);
 
 
