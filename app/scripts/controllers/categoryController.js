@@ -1,7 +1,7 @@
 'use strict';
 var ControllersModule = angular.module('BloGlu.controllers');
 
-ControllersModule.controller('categoryController', ['$rootScope', '$scope', '$modal', 'MessageService', 'categoryService', 'ResourceName', function Controller($rootScope, $scope, $modal, MessageService, categoryService, ResourceName) {
+ControllersModule.controller('categoryController', ['$rootScope', '$scope', 'MessageService', 'categoryService', 'ResourceName', 'Utils', function Controller($rootScope, $scope, MessageService, categoryService, ResourceName, Utils) {
         
         $scope.eventsTypes = ResourceName;
         $scope.code = 1;
@@ -69,20 +69,14 @@ ControllersModule.controller('categoryController', ['$rootScope', '$scope', '$mo
         };
 
 
-        $scope.deleteCategory = function(category) {
-            var $modalScope = $rootScope.$new(true);
-            $modalScope.message = category.name;
-            var modalInstance = $modal.open({
-                templateUrl: "views/modal/confirm.html",
-                controller: "confirmModalController",
-                scope: $modalScope,
-                resolve: {
-                    confirmed: function() {
-                        return $scope.confirmed;
-                    }
-                }
-            });
-            modalInstance.result.then(function(confirmed) {
+        $scope.deleteCategory = function(category) {            
+            var modalScope = {
+                confirmTitle:'confirm.pageTitle',
+                confirmMessage:{id:'confirm.deletionMessageWithName', params:{objectName: category.name}},
+                confirmYes:'confirm.yes',
+                confirmNo:'confirm.no'                       
+            };
+            Utils.openConfirmModal(modalScope).then(function(confirmed) {
                 if (confirmed) {
                     if (category.objectId) {
                         $rootScope.increasePending("processingMessage.deletingData");

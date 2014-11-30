@@ -154,7 +154,7 @@ ControllersModule.controller('eventController',
                             break;
                     }
                 }                
-
+                                
                 $scope.open = function ($event) {
                     $event.preventDefault();
                     $event.stopPropagation();                    

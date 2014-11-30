@@ -86,10 +86,6 @@ body {
     height: 100%;
 }
 
-.blood-glucose-input{    
-    margin-right: 20px;
-}
-
 /* Page feedback */
 .message{
     width:50%;
@@ -113,11 +109,6 @@ body {
     height: 20px;
 }
 
-
-.blood-glucose-select{    
-    margin-right: 20px;
-    margin-bottom: 20px;
-}
 
 .login-panel{
     width: 100px;
@@ -182,6 +173,14 @@ body {
     box-sizing: initial;
     
 }
+.dataviz {
+    width: 320px;
+    height: 250px;
+    overflow-x: auto;
+    overflow-y: auto;
+}
+
+/*
 .table{
     display:table;
     width:100%;
@@ -191,7 +190,7 @@ body {
     display:table-cell;
     vertical-align:middle;
 }
-
+*/
 .content .rs{    
     width:auto;
     height:auto;

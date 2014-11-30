@@ -23,6 +23,12 @@ servicesModule.factory('dataService', ['$q', '$filter', '$injector', '$locale', 
             },
             $lt: function (value, comparison) {
                 return value < comparison;
+            },
+            $neq: function(value, comparison){
+                return value !== comparison;
+            },
+            $eq: function(value, comparison){
+                return value === comparison;
             }
         };
 
@@ -310,7 +316,7 @@ servicesModule.factory('dataService', ['$q', '$filter', '$injector', '$locale', 
             processedResult = [];
             var resultSize = queryResult.length;
             var isGrouped = params && params.groupBy || containsOnlyAggregates(params);            
-            for(var i = 0; i < resultSize;i++){
+            for(var i = 0; i < resultSize;i++){                
                 var row = queryResult[i];
                 if (applyWhere(row, params)) {
                     var selectedRow = applySelect(row, params);
@@ -329,7 +335,7 @@ servicesModule.factory('dataService', ['$q', '$filter', '$injector', '$locale', 
         };
 
         function containsOnlyAggregates(params) {
-            var containsOnlyAggregates = true;
+            var containsOnlyAggregates = true;            
             if (params && params.select) {
                 angular.forEach(params.select, function (queryElement) {
                     if (!queryElement.aggregate) {
@@ -686,8 +692,7 @@ servicesModule.factory('dataService', ['$q', '$filter', '$injector', '$locale', 
             
             getEventReading: function(value, row, localData, queryElement){
                 var returnValue = null;
-                var filter = angular.toJson(queryElement.filter);
-                debugger;
+                var filter = angular.fromJson(queryElement.filter);                
                 var code = filter['code'];
                 if(typeof code !== 'undefined' && row['code'] === code){
                     returnValue = value;
@@ -695,7 +700,7 @@ servicesModule.factory('dataService', ['$q', '$filter', '$injector', '$locale', 
                     if (Utils.getDefaultUnit(localData, code) && Utils.getDefaultUnit(localData, code).coefficient) {
                         returnValue = returnValue * Utils.getDefaultUnit(localData, code).coefficient;
                     }
-                }                
+                }
                 return returnValue;
             },
             //getBloodGlucose

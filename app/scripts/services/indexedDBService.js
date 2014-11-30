@@ -143,13 +143,11 @@ servicesModule.factory('indexeddbService', ['$window', '$q', 'Database', functio
 
         indexeddbService.clearCollections = function(collections, userId) {
             var deferred = $q.defer();
-            var promiseArray = [];
-            debugger;
+            var promiseArray = [];            
             openDatabase().then(function(db) {
                 var trans = db.transaction(collections, 'readwrite');
                 var def = $q.defer();
-                angular.forEach(collections, function(collection) {
-                    debugger;
+                angular.forEach(collections, function(collection) {                    
                     var store = trans.objectStore(collection);
                     var range = IDBKeyRange.only(userId);
                     var index = store.index('userIndex');
@@ -170,8 +168,7 @@ servicesModule.factory('indexeddbService', ['$window', '$q', 'Database', functio
                     def.resolve();
                     promiseArray.push(def.promise);                    
                 });
-            });   
-            debugger;
+            });
             $q.all(promiseArray).then(deferred.resolve, deferred.reject);            
             return deferred.promise;
         };

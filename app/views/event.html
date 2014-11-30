@@ -6,32 +6,61 @@
         <button ng-show="windowMode === 'MODAL'" ng-click="$dismiss()" type="button" class="close" data-dismiss="modal" aria-hidden="true">&times;</button>
 
         <div ng-switch="eventCode">
-            <h3 ng-switch-when="1" class="panel-title">{{ 'event.bgTitle' | translate }}</h3>
-            <h3 ng-switch-when="2" class="panel-title">{{ 'event.medicationTitle' | translate }}</h3>
-            <h3 ng-switch-when="3" class="panel-title">{{ 'event.weightTitle' | translate }}</h3>
+            <h3 ng-switch-when="0" class="panel-title"><span class="glyphicon glyphicon-tag"></span> {{ 'event.otherTitle' | translate }}</h3>
+            <h3 ng-switch-when="1" class="panel-title"><span class="glyphicon glyphicon-tint"></span> {{ 'event.bgTitle' | translate }}</h3>
+            <h3 ng-switch-when="2" class="panel-title"><span class="glyphicon glyphicon-briefcase"></span> {{ 'event.medicationTitle' | translate }}</h3>
+            <h3 ng-switch-when="3" class="panel-title"><span class="glyphicon glyphicon-dashboard"></span> {{ 'event.weightTitle' | translate }}</h3>
+            <h3 ng-switch-when="4" class="panel-title"><span class="glyphicon glyphicon-heart"></span> {{ 'event.bloodPressureTitle' | translate }}</h3>
+            <h3 ng-switch-when="5" class="panel-title"><span class="glyphicon glyphicon-file"></span> {{ 'event.a1cTitle' | translate }}</h3>
+            <h3 ng-switch-when="6" class="panel-title"><span class="glyphicon glyphicon-flash"></span> {{ 'event.exerciseTitle' | translate }}</h3>
         </div>
     </div>
     <div class="panel-body ">
-        <form novalidate class="simple-form">
-            
+        <div ng-form novalidate name="eventForm" class="event-form">
+
             <div class="input-group">                
                 <input type="text" class="form-control" datepicker-popup="dd/MM/yyyy" is-open="opened || $parent.opened" ng-model="date" ng-required="true" close-text="Close" />                                   
                 <span class="input-group-btn">                    
                     <button class="btn btn-default" ng-click="open($event)"><i class="glyphicon glyphicon-calendar"></i></button>
                 </span>
             </div>
-            
-            
+
+
             <div class="input-group">               
                 <div ng-model="date" ng-required="true">
                     <timepicker show-meridian="false"></timepicker>
                 </div>
             </div>
+            
+            <div ng-switch="eventCode" class="form-inline">
+                <!-- Nothing to display when event of type "other" -->
+                <div ng-switch-when="0"></div>
+                <div ng-switch-when="4"></div>
+                <div ng-switch-default class="form-group">                        
+                    <input type="number" min="0" step="any" required  class="input-lg" placeholder="{{placeholder}}" ng-model="event.reading" ng-disabled="!event.unit"/>
+                    <select class="input-lg" data-ng-model="event.unit" data-ng-options="unit.name for unit in units track by unit.objectId"></select>
+                </div>               
+            </div>
 
-            <div class="input-group">                        
-                <input type="number" min="0" required  class="blood-glucose-input blood-glucose-input-field pull-left input-lg" placeholder="{{placeholder}}" ng-model="event.reading" ng-disabled="!event.unit">
-                <select class="blood-glucose-select blood-glucose-input-field input-lg form-inline" data-ng-model="event.unit" data-ng-options="unit.name for unit in units track by unit.objectId"></select>                
-            </div>            
+            <!-- Display diastolic and systolic for blood pressure  -->
+            <div class="form-group">
+                <div class="form-inline" ng-switch="eventCode">
+                    <div ng-switch-when="4">
+                        <div class="form-group">
+                            <label class="sr-only" for="systolic">Systolic</label>
+                            <input id="systolic" type="number" min="0" step="any" required  class="input-lg" placeholder="{{placeholder}}" ng-model="event.reading" ng-disabled="!event.unit"/>
+                        </div>
+                        <div class="form-group">
+                            <label class="sr-only" for="diastolic">Diastolic</label>
+                            <input id="diastolic" type="number" min="0" step="any" required  class="input-lg" placeholder="{{placeholder}}" ng-model="event.diastolic" ng-disabled="!event.unit"/>
+                        </div>
+                        <div class="form-group">
+                            <select class="input-lg" data-ng-model="event.unit" data-ng-options="unit.name for unit in units track by unit.objectId"></select>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
 
             <div class="form-group" ng-switch="eventCode">
                 <div ng-switch-when="1" class="btn-group">
@@ -53,9 +82,9 @@
 
             <div class="form-group">
                 <button class="btn btn-primary btn-lg active pull-left" ng-show="isEdit" ng-click="delete()">{{ 'event.delete' | translate }}</button>
-                <button class="btn btn-primary btn-lg active pull-right" ng-click="update(event)">{{ 'event.save' | translate }}</button>
+                <button class="btn btn-primary btn-lg active pull-right" ng-disabled="((eventForm.$dirty && eventForm.$invalid) || eventForm.$pristine) || pending > 0" ng-click="update(event)">{{ 'event.save' | translate }}</button>
             </div>
 
-        </form>
+        </div>
     </div>
 </div>

@@ -61,7 +61,7 @@ DirectivesModule.directive('tableDataviz', ['$q', '$translate', 'dataService', f
                     $q.all([
                         scope.config.data,
                         scope.config.units
-                    ]).then(function (results) {
+                    ]).then(function (results) {                        
                         var data = results[0];
                         var units = results[1];
                         var headers = scope.config.headers;
@@ -79,7 +79,7 @@ DirectivesModule.directive('tableDataviz', ['$q', '$translate', 'dataService', f
                                 angular.element(element).append(buildTitle(scope.config.title));
                                 angular.element(element).append(htmlElement);
                             } else {
-                                htmlElement = buildMultipleValueTable(headers, data, units, columnOrder);
+                                htmlElement = buildMultipleValueTable(headers, data, units, columnOrder);                               
                                 angular.element(element).append(buildTitle(scope.config.title));
                                 angular.element(element).append(htmlElement);
                                 angular.element(element).append(buildUnitDescription(units));
@@ -108,7 +108,7 @@ DirectivesModule.directive('tableDataviz', ['$q', '$translate', 'dataService', f
             return unitDescriptionElement;
         }
 
-        function buildSingleValueTable(headers, data, reportUnits) {
+        function buildSingleValueTable(headers, data, reportUnits) {            
             var div = document.createElement('div');
             var title = document.createElement('h1');
             var value = document.createElement('span');
@@ -140,10 +140,11 @@ DirectivesModule.directive('tableDataviz', ['$q', '$translate', 'dataService', f
 
 
         function buildMultipleValueTable(headers, data, reportUnits, columnOrder) {
-            var container = document.createElement('div');
-            container.className = 'table-responsive';
+            var container = document.createElement('div');            
+            container.className = 'table-responsive dataviz';
             var table = document.createElement('table');            
-            table.className = 'table table-striped';            
+            table.className = 'table table-striped';
+            var tableBody = document.createElement('tbody');
             angular.forEach(headers, function (header) {
                 var th = document.createElement('th');
                 //th.addEventListener('click', headerClicked.bind({scope: scope, header: header}));
@@ -157,7 +158,7 @@ DirectivesModule.directive('tableDataviz', ['$q', '$translate', 'dataService', f
 
                 th.appendChild(headerLink);
                 th.appendChild(directionSpan);
-                table.appendChild(th);
+                tableBody.appendChild(th);
             });
 
             function getHeaderDirection(headerName) {
@@ -188,8 +189,9 @@ DirectivesModule.directive('tableDataviz', ['$q', '$translate', 'dataService', f
                     td.appendChild(document.createTextNode(row[header.name]));
                     tr.appendChild(td);
                 });
-                table.appendChild(tr);
+                tableBody.appendChild(tr);
             });
+            table.appendChild(tableBody);
             container.appendChild(table);
             
             return container;

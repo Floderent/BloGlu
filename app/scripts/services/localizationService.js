@@ -4,10 +4,7 @@ var servicesModule = angular.module('BloGlu.services');
 
 servicesModule.factory('localizationService', ['$window', '$translate', '$q', 'tmhDynamicLocale', function($window, $translate, $q, tmhDynamicLocale) {
 
-        var localizationService = {};
-
-        var templatePrefix = "[{";
-        var templateSuffix = "}]";
+        var localizationService = {};        
 
         localizationService.supportedLanguages = [
             'en',
@@ -28,8 +25,7 @@ servicesModule.factory('localizationService', ['$window', '$translate', '$q', 't
                 }
             }
             $translate.use(localizationService.language);
-            deferred.resolve(tmhDynamicLocale.set(localizationService.language));
-            //deferred.resolve();
+            deferred.resolve(tmhDynamicLocale.set(localizationService.language));            
             return deferred.promise;            
         };
 
@@ -43,22 +39,7 @@ servicesModule.factory('localizationService', ['$window', '$translate', '$q', 't
                 translatedValues[key] = localizationService.get(value, true);
             });
             return localizationService.applyTemplate(templatedString, translatedValues);
-        };
-
-
-        localizationService.applyTemplate = function(templatedString, values) {
-            var searchIndex = 0;
-            var offset = templatePrefix.length;
-            var resultStr = templatedString;            
-            while (resultStr.indexOf(templatePrefix, searchIndex) !== -1) {
-                var key = resultStr.substring(resultStr.indexOf(templatePrefix, searchIndex) + offset, resultStr.indexOf(templateSuffix, searchIndex));
-                var stringToReplace = templatePrefix + key + templateSuffix;
-                var replacement = values[key];
-                resultStr = resultStr.replace(stringToReplace, replacement);
-                searchIndex = resultStr.indexOf(templatePrefix, searchIndex);
-            }
-            return resultStr;
-        };
+        };        
 
 
         function isSupportedLanguage(language) {
@@ -73,10 +54,5 @@ servicesModule.factory('localizationService', ['$window', '$translate', '$q', 't
             }
             return supported;
         }
-
-
-
-
         return localizationService;
     }]);
-

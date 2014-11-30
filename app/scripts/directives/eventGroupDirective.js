@@ -40,29 +40,30 @@ DirectivesModule.directive('blogluEventGroup', ['$compile', '$injector', '$q','e
             switch (eventGroup.code) {
                 default:
                 case resourceCode['bloodGlucose']:
-                    template = 
-                                '<div class="list-group">'+
-                                    '<a class="list-group-item active">'+
-                                        '<span class="glyphicon glyphicon-tint">{{title | translate}}</span>'+
-                                    '</a>'+
-                                    '<a class="list-group-item">{{"logBook.maximum" | translate}}<span class="label label-danger pull-right" ng-click="viewEvent(code, maximumIds)">{{maximum}} {{unit.name}}</span></a>'+
-                                    '<a class="list-group-item">{{"logBook.minimum"| translate}}<span class="label label-info pull-right" ng-click="viewEvent(code, minimumIds)">{{minimum}} {{unit.name}}</span></a>'+
-                                    '<a class="list-group-item">{{"logBook.average"|translate}} <span class="label label-default pull-right">{{average}} {{unit.name}}</span></a>'+
-                                    '<a class="list-group-item">{{"logBook.number"|translate}} <span class="label label-default pull-right">{{number}}</span></a>'+
-                                '</div>'
-                               ; 
-                    //<div ng-style="{\'border-left\': border, \'border-color\': color}">
-                            
+                    template = '<div class="panel panel-primary">'+
+                                    '<div class="panel-heading">'+
+                                        '<span class="glyphicon glyphicon-tint"></span> {{title | translate}}'+
+                                    '</div>'+
+                                    '<div class="panel-body">'+
+                                        '<p><button type="button" ng-style="{\'border-left\': border, \'border-color\': color}" class="btn btn-default">{{"logBook.average" | translate}} <span class="reading">{{average}}</span> {{unit.name}}</button></p>'+
+                                        '<p><button type="button" class="btn btn-default" ng-click="viewEvent(code, maximumIds)">{{"logBook.maximum" | translate}} <span class="reading">{{maximum}}</span> {{unit.name}}</button></p>'+
+                                        '<p><button type="button" class="btn btn-default" ng-click="viewEvent(code, minimumIds)">{{"logBook.minimum" | translate}} <span class="reading">{{minimum}}</span> {{unit.name}}</button></p>'+                                        
+                                        '<p><button type="button" class="btn btn-default">{{"logBook.number" | translate}} <span class="reading">{{number}}</span></button></p>'+
+                                    '</div>'+
+                                '</div>'; 
                     break;
                 case resourceCode['medication']:
-                    template = '<div class="list-group">'+
-                                    '<a class="list-group-item active">'+
-                                        '<span class="glyphicon glyphicon-briefcase">{{title | translate}}</span>'+
-                                    '</a>'+                                    
-                                    '<a class="list-group-item">{{"logBook.maximum" | translate}}<span class="label label-danger pull-right">{{maximum}} {{unit.name}}</span></a>'+
-                                    '<a class="list-group-item">{{"logBook.minimum"| translate}}<span class="label label-info pull-right">{{minimum}} {{unit.name}}</span></a>'+
-                                    '<a class="list-group-item">{{"logBook.average"|translate}}<span class="label label-default pull-right">{{average}} {{unit.name}}</span></a>'+
-                                    '<a class="list-group-item">{{"logBook.number"|translate}}<span class="label label-default pull-right">{{number}}</span></a>'+                                    
+                    template = '<div class="panel panel-primary">'+
+                                    '<div class="panel-heading">'+
+                                        '<span class="glyphicon glyphicon-briefcase"></span> {{title | translate}}'+
+                                    '</div>'+
+                                    '<div class="panel-body">'+
+                                        //'<p><button type="button" class="btn btn-default">{{"logBook.average" | translate}} <span class="reading">{{average}}</span> {{unit.name}}</button></p>'+
+                                        '<p><button type="button" class="btn btn-default">{{"logBook.maximum" | translate}} <span class="reading">{{maximum}}</span> {{unit.name}}</button></p>'+
+                                        '<p><button type="button" class="btn btn-default">{{"logBook.minimum" | translate}} <span class="reading">{{minimum}}</span> {{unit.name}}</button></p>'+
+                                        '<p><button type="button" class="btn btn-default">{{"logBook.total" | translate}} <span class="reading">{{total}}</span> {{unit.name}}</button></p>'+
+                                        '<p><button type="button" class="btn btn-default">{{"logBook.number" | translate}} <span class="reading">{{number}}</span></button></p>'+
+                                    '</div>'+
                                 '</div>';
                     break;
             }
@@ -103,10 +104,11 @@ DirectivesModule.directive('blogluEventGroup', ['$compile', '$injector', '$q','e
                 scope.title = event.title;
 
                 scope.number = event.number;
+                scope.total = event.total;
 
                 scope.average = getConvertedReading(event.average, unit, unitService.getReferenceUnit(units));
                 scope.minimum = getConvertedReading(event.minimum, unit, unitService.getReferenceUnit(units));
-                scope.maximum = getConvertedReading(event.maximum, unit, unitService.getReferenceUnit(units));
+                scope.maximum = getConvertedReading(event.maximum, unit, unitService.getReferenceUnit(units));                
 
                 scope.minimumIds = event.minimumIds;
                 scope.maximumIds = event.maximumIds;

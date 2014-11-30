@@ -1,27 +1,28 @@
 var DirectivesModule = angular.module("BloGlu.directives");
 
 
-DirectivesModule.directive('blogluEvent', ['$compile', '$injector', '$q','eventService', function($compile, $injector, $q, eventService) {
-        var linkFunction = function(scope, element, attrs) {                
-            var event = scope.blogluEvent;            
+DirectivesModule.directive('blogluEvent', ['$compile', '$injector', '$q', 'eventService', function ($compile, $injector, $q, eventService) {
+        var linkFunction = function (scope, element, attrs) {
+            var event = scope.blogluEvent;
             renderEvent(event, scope, element);
-           
-            scope.$watch('blogluEvent', function(newValue, oldValue){                 
-                if(newValue !== oldValue){
+            /*
+            scope.$watch('blogluEvent', function (newValue, oldValue) {
+                if (newValue !== oldValue) {
                     element.html('');
                     renderEvent(newValue, scope, element);
                 }
-            },true);           
+            }, true);
+            */
         };
 
         function renderEvent(event, scope, element) {
-            
-            var resourceCode = $injector.get('ResourceCode');            
+
+            var resourceCode = $injector.get('ResourceCode');
             var template = getEventTemplate(event, resourceCode);
             var dom = angular.element('<div ng-click="clickAction({code: code, objectId: objectId})" class="panel panel-default">' + template + '</div>');
 
-            getScope(event, resourceCode).then(function(eventScope) {
-                scope = angular.extend(scope, eventScope);                
+            getScope(event, resourceCode).then(function (eventScope) {
+                scope = angular.extend(scope, eventScope);
                 var compiled = $compile(dom);
                 angular.element(element).append(dom);
                 compiled(scope);
@@ -31,15 +32,27 @@ DirectivesModule.directive('blogluEvent', ['$compile', '$injector', '$q','eventS
         function getEventTemplate(event, resourceCode) {
             var template = "";
             switch (event.code) {
-                case resourceCode['bloodGlucose']:                    
-                    template = '<div ng-style="{\'border-left\': border, \'border-color\': color}"  class="panel-body"><span class="glyphicon glyphicon-tint"></span>{{dateTime | date:"HH:mm"}} <span class="reading">{{reading}}</span class="reading"> {{unit.name}}</div>';
+                case resourceCode['other']:
+                    template = '<div class="panel-body"><span class="glyphicon glyphicon-tag"></span> {{dateTime | date:"HH:mm"}} <span>{{comment}}</span> {{category.name}}</div>';
+                    break;
+                case resourceCode['bloodGlucose']:
+                    template = '<div ng-style="{\'border-left\': border, \'border-color\': color}"  class="panel-body"><span class="glyphicon glyphicon-tint"></span> {{dateTime | date:"HH:mm"}} <span class="reading">{{reading}}</span class="reading"> {{unit.name}}</div>';
                     break;
                 case resourceCode['medication']:
-                    template = '<div class="panel-body"><span class="glyphicon glyphicon-briefcase"></span>{{dateTime | date:"HH:mm"}} <span class="reading">{{reading}}</span> {{unit.name}}</div>';
+                    template = '<div class="panel-body"><span class="glyphicon glyphicon-briefcase"></span> {{dateTime | date:"HH:mm"}} <span class="reading">{{reading}}</span> {{unit.name}}</div>';
                     break;
                 case resourceCode['weight']:
-                    template = '<div class="panel-body"><span class="glyphicon glyphicon-dashboard"></span>{{dateTime | date:"HH:mm"}} <span class="reading">{{reading}}</span> {{unit.name}}</div>';
+                    template = '<div class="panel-body"><span class="glyphicon glyphicon-dashboard"></span> {{dateTime | date:"HH:mm"}} <span class="reading">{{reading}}</span> {{unit.name}}</div>';
                     break;
+                case resourceCode['bloodPressure']:
+                    template = '<div class="panel-body"><span class="glyphicon glyphicon-heart"></span> {{dateTime | date:"HH:mm"}} <span class="reading">{{reading}}</span> / <span class="reading">{{diastolic}}</span> {{unit.name}}</div>';
+                    break;
+                case resourceCode['a1c']:
+                    template = '<div class="panel-body"><span class="glyphicon glyphicon-file"></span> {{dateTime | date:"HH:mm"}} <span class="reading">{{reading}}</span> {{unit.name}}</div>';
+                    break;                
+                case resourceCode['exercise']:
+                    template = '<div class="panel-body"><span class="glyphicon glyphicon-flash"></span> {{dateTime | date:"HH:mm"}} <span class="reading">{{reading}}</span> {{unit.name}}</div>';
+                    break;                    
             }
             return template;
         }
@@ -63,12 +76,12 @@ DirectivesModule.directive('blogluEvent', ['$compile', '$injector', '$q','eventS
             var dataService = $injector.get('dataService');
             var userService = $injector.get('UserService');
             var resourceCode = $injector.get('ResourceCode');
-            
+
             var promiseArray = [dataService.queryLocal('Unit', {where: {code: event.code}}), dataService.queryLocal('Range'), userService.getDefaultUnit(resourceCode[event.code])];
-            return $q.all(promiseArray).then(function(results) {                
+            return $q.all(promiseArray).then(function (results) {
                 var unit = null;
-                var defaultUnit = results[2]
-                
+                var defaultUnit = results[2];
+
                 var reading = event.reading;
                 if (defaultUnit) {
                     unit = defaultUnit;
@@ -76,16 +89,16 @@ DirectivesModule.directive('blogluEvent', ['$compile', '$injector', '$q','eventS
                 } else {
                     unit = event.unit;
                 }
-                var range = eventService.getEventRange(reading, unit, results[1]);                
+                var range = eventService.getEventRange(reading, unit, results[1]);
                 scope.reading = reading;
-                scope.unit = unit;                
+                scope.unit = unit;
                 scope.code = event.code;
                 scope.objectId = event.objectId;
                 scope.dateTime = event.dateTime;
-                
-                if (range) {                    
+
+                if (range) {
                     scope.color = range.color;
-                    scope.border = "5px solid";                    
+                    scope.border = "5px solid";
                 }
                 return scope;
             });

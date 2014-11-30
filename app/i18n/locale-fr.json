@@ -33,22 +33,30 @@
     "currentYear": "Année en cours",
     "currentMonth": "Mois en cours",
     "lastSevenDays": "Sept dernier jours",
+    
+    "sumUnit": "Total traitement",
     "averageWeight": "Poids moyen",
     "bgInterval": "Intervalle de glycémie",
     "weekDay": "Jour de la semaine",
     "comment": "Commentaire",
     "category": "Catégorie",
     "analysisPeriod": "Période d'analyse",
+    
     "bgMinium": "La glycémie minimum",
     "bgMaximum": "Glycémie maximum",
     "bgNb": "Nombre de glycémies",
     "bgAverage": "Glycémie moyenne",
     "month": "Mois",
     "year": "Année",
+    
+    
+    
     "weight": "Poids",
     "bg": "Glycémie",
     "date": "Date",
     "eventGrp": "Evènement",
+    "unitGrp": "Traitement",
+    
     "error": "Erreur",
     "success": "Succès",
     "processingMessage": {
@@ -144,9 +152,13 @@
         "addnewReport": "Ajouter un nouveau rapport"
     },
     "event": {
+        "otherTitle": "Saisir un événement",
         "bgTitle": "Saisir une mesure de glycémie",
         "medicationTitle": "Saisir un traitement",
         "weightTitle": "Saisir un poids",
+        "bloodPressureTitle": "Saisir une pression artérielle",
+        "a1cTitle": "Saisir une mesure HBA1C",
+        "exerciseTitle": "Saisir une activité physique",
         "bgBeforeMeal": "Pré prandial",
         "bgAfterMeal": "Post prandial",
         "category": "Catégorie",
@@ -180,6 +192,7 @@
         "minimum": "Minimum",
         "average": "Moyenne",
         "number": "Nombre",
+        "total": "Total",
         "next": "Suivant",
         "previous": "Précédent"
     },
@@ -195,6 +208,8 @@
         "edit": "Modifier",
         "cancel": "Annuler",
         "error": "Erreur",
+        "errorDate": "La de début de la période doit être inférieure à la date de fin",
+        "errorIntersection": "Les périodes ne doivent pas se chevaucher",
         "success": "Réussite"
     },
     "range": {

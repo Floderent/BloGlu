@@ -77,7 +77,7 @@ servicesModule.factory('reportService', ['$q', 'ModelUtil', 'dataService', 'quer
                     var orderByElements = [];
                     angular.forEach(query.select, function (selectElementName) {
                         selectElements.push(getMDMElement(mdm, selectElementName));
-                    });
+                    });                    
                     if (query.orderBy && Array.isArray(query.orderBy)) {
                         angular.forEach(query.orderBy, function (orderElement) {
                             orderByElements.push(getMDMElement(mdm, orderElement.name));
@@ -131,7 +131,7 @@ servicesModule.factory('reportService', ['$q', 'ModelUtil', 'dataService', 'quer
 
 
         reportService.executeReportQuery = function (query) {
-            return reportService.getFullQuery(query).then(function (result) {                
+            return reportService.getFullQuery(query).then(function (result) {                    
                     return {
                         headers: result.headers,
                         data: dataService.queryLocal('Event', result.query),
@@ -144,8 +144,7 @@ servicesModule.factory('reportService', ['$q', 'ModelUtil', 'dataService', 'quer
             var deferred = $q.defer();
             if(queryElement && queryElement.filter){
                 var filterObject = angular.fromJson(queryElement.filter);
-                if(filterObject.code){
-                    debugger;
+                if(filterObject.code){                    
                     unitService.getUnit(filterObject.code).then(deferred.resolve, deferred.reject);
                 }else{
                     deferred.resolve(null);
@@ -203,9 +202,11 @@ servicesModule.factory('reportService', ['$q', 'ModelUtil', 'dataService', 'quer
                 fieldSelect.field = queryElement.field;
                 fieldSelect.alias = queryElement.name;
                 fieldSelect.transform = dataService.select[queryElement.expression];
+                fieldSelect.filter = queryElement.filter;
                 if (queryElement.aggregate) {
                     fieldSelect.aggregate = queryElement.aggregate;
                 }
+                
             }
             select.push(fieldSelect);
         }
@@ -236,7 +237,7 @@ servicesModule.factory('reportService', ['$q', 'ModelUtil', 'dataService', 'quer
         function getMDMElement(mdm, elementName) {
             var result = null;
             angular.forEach(mdm, function (mdmElement) {
-                if (mdmElement.name === elementName) {
+                if (mdmElement.name === elementName) {                    
                     result = mdmElement;
                 }
             });

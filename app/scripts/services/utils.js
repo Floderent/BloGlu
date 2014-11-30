@@ -144,6 +144,18 @@ servicesModule.factory('dateUtil', ['$filter', function ($filter) {
             return date;
         }
         
+        function getPeriodDuration(period){
+            var duration = null;
+            if(period && period.begin && period.end){
+                if(period.end.getHours() === 0){                    
+                    duration = dateUtil.getDateHourAndMinuteToMillis(period.end, true) - dateUtil.getDateHourAndMinuteToMillis(period.begin);
+                }else{
+                    duration = dateUtil.getDateHourAndMinuteToMillis(period.end) - dateUtil.getDateHourAndMinuteToMillis(period.begin);
+                }                
+            }            
+            return duration;
+        }
+        
         
         dateUtil.processDateTime = function(dateStr) {
             var date = null;
@@ -250,10 +262,14 @@ servicesModule.factory('dateUtil', ['$filter', function ($filter) {
             return valid;
         };
 
-        dateUtil.getDateHourAndMinuteToMillis = function (date) {
+        dateUtil.getDateHourAndMinuteToMillis = function (date, use24) {
             var hourCoef = 60 * 60 * 1000;
             var minuteCoef = 60 * 1000;
-            return date.getHours() * hourCoef + date.getMinutes() * minuteCoef;
+            var hours = date.getHours();
+            if(hours === 0 && use24){
+                hours = 24;
+            }
+            return hours * hourCoef + date.getMinutes() * minuteCoef;
         };
 
         dateUtil.getMonthWeek = function (date) {
@@ -376,10 +392,10 @@ servicesModule.factory('dateUtil', ['$filter', function ($filter) {
         dateUtil.arePeriodsOnMoreThanOneDay = function (periods) {
             var total = 0;
             var result = 0;
-            var max = 86400000;
+            var max = 86400000;            
             for (var index = 0; index < periods.length; index++) {
                 var period = periods[index];
-                var duration = dateUtil.getDateHourAndMinuteToMillis(period.end) - dateUtil.getDateHourAndMinuteToMillis(period.begin);
+                var duration = getPeriodDuration(period);                            
                 total += Math.abs(duration);
                 if (total > max) {
                     break;

@@ -6,7 +6,7 @@ servicesModule.factory('logBookService', ['$q', '$filter', '$translate', 'UserSe
         var logBookService = {};
 
         function getBloodGlucoseReadingsBetweenDates(beginDate, endDate, params) {
-            var where = ModelUtil.addClauseToFilter({dateTime: {$gt: beginDate, $lt: endDate}}, params.where);
+            var where = ModelUtil.addClauseToFilter({dateTime: {$gt: beginDate, $lt: endDate}}, params.where);            
             delete params.where;
             var queryParams = angular.extend({where: where}, params);
             return dataService.queryLocal('Event', queryParams);

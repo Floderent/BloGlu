@@ -3,13 +3,13 @@
         <h3 class="panel-title">{{ 'report.pageTitle' | translate }}</h3>
     </div>
     <div class="panel-body">
-        <ng-form name="reportForm" novalidate role="form">
+        <div ng-form name="reportForm" novalidate role="form">
             <div class="form-group">
-                <label for="reportTitle">{{'report.reportTitle'| translate }}</label>
+                <label class="control-label" for="reportTitle">{{'report.reportTitle'| translate }}</label>
                 <input class="form-control" id="reportTitle" type="text" placeholder="{{'report.reportTitle'| translate }}" ng-model="report.title" required>
             </div>
             <div class="form-group">
-                <label for="reportDescription">{{ 'report.comment' | translate }}</label>
+                <label class="control-label" for="reportDescription">{{ 'report.comment' | translate }}</label>
                 <textarea id="reportDescription" class="form-control" ng-model="report.description"  placeholder="{{ 'report.comment' | translate }}"></textarea>
             </div>
             
@@ -28,11 +28,11 @@
             <!-- Period to use -->
             <div class="form-group">                
                 <div class="input-group">
-                    <label for="period">{{ 'report.analysisPeriod' | translate }}</label>
+                    <label class="control-label" for="period">{{ 'report.analysisPeriod' | translate }}</label>
                     <select id="period" class="form-control" data-ng-model="selectedFilter" data-ng-options="key as value.title for (key, value) in filters"></select>                    
                 </div>
             </div>
-        </ng-form>
+        </div>
         
         
         <div class="panel panel-default">
@@ -55,15 +55,15 @@
         
         <div class="form-group">                
                 <div class="input-group">
-                    <label for="dataviz">{{ 'report.dataviz' | translate }}</label>
+                    <label class="control-label" for="dataviz">{{ 'report.dataviz' | translate }}</label>
                     <select id="dataviz" class="form-control" data-ng-model="report.display" data-ng-options="key as value for (key, value) in datavizTypes"></select>
                 </div>
         </div>
         
         <button class="btn-large btn-primary" ng-click="executeQuery()">{{ 'report.execute' | translate }}</button>
         <button class="btn-large btn-primary" ng-click="clear()">{{ 'report.clear' | translate }}</button>
-        <button class="btn btn-primary btn-lg active pull-right" ng-disabled="pending > 0" ng-show="isEdit" ng-click="delete()">{{ 'report.delete' | translate }}</button>
-        <button class="btn btn-primary btn-lg active pull-right" ng-disabled="pending > 0" ng-click="update()">{{ 'report.save' | translate }}</button>
+        <button class="btn btn-primary btn-lg active pull-left" ng-disabled="pending > 0" ng-show="isEdit" ng-click="delete()">{{ 'report.delete' | translate }}</button>
+        <button class="btn btn-primary btn-lg active pull-right" ng-disabled="((reportForm.$dirty && reportForm.$invalid) || reportForm.$pristine) || pending > 0" ng-click="update()">{{ 'report.save' | translate }}</button>
     </div>
     <div class="table-responsive">
         <dataviz config="datavizConfig" column-order="report.sort"></dataviz>

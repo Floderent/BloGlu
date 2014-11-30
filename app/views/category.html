@@ -33,7 +33,7 @@
                 <th></th>
                 <tr ng-repeat="category in categories">
                     <td>
-                        <div ng-show="!period.isEdit">{{category.name}}</div>
+                        <div ng-show="!category.isEdit">{{category.name}}</div>
                         <input type="text" required class="input-sm" ng-show="category.isEdit" data-ng-model="category.name">
                     </td>
                     <td>

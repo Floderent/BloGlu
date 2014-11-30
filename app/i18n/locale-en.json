@@ -36,6 +36,7 @@
     "currentMonth" : "Current month",
     "lastSevenDays" : "Last seven days",
     
+    "sumUnit": "Total of medication",
     "averageWeight" : "Average weight",
     "bgInterval" : "Blood glucose interval",
     "weekDay" : "Week day",
@@ -53,6 +54,7 @@
     "bg" : "Blood glucose",
     "date" : "Date",
     "eventGrp": "Event",
+    "unitGrp": "Medication",
     
     "error": "Error",
     "success" : "Success",
@@ -168,9 +170,13 @@
         "addnewReport": "Add new report"
     },
     "event": {
+        "otherTitle": "Enter an event",
         "bgTitle": "Enter a blood glucose reading",
         "medicationTitle": "Enter a medication",        
         "weightTitle": "Enter a weight",
+        "bloodPressureTitle": "Enter a blood pressure",
+        "a1cTitle": "Enter an a1c",
+        "exerciseTitle": "Enter a physical activity",
         "bgBeforeMeal": "Before meal",
         "bgAfterMeal": "After meal",
         "category": "Category",
@@ -204,6 +210,7 @@
         "minimum": "Minimum",
         "average": "Average",
         "number": "Number",
+        "total": "Total",
         "next": "Next",
         "previous": "Previous"
     },
@@ -219,6 +226,8 @@
         "edit": "Edit",
         "cancel": "Cancel",
         "error": "Error",
+        "errorDate": "Period begining must be inferior to period end",
+        "errorIntersection": "The period must not intersects with another",
         "success": "Success"
     },
     "range": {

@@ -3,7 +3,7 @@
 var servicesModule = angular.module('BloGlu.services');
 
 
-servicesModule.factory('periodService', ['genericDaoService', 'dateUtil', function(genericDaoService, dateUtil) {
+servicesModule.factory('periodService', ['$translate','genericDaoService', 'dateUtil', function($translate, genericDaoService, dateUtil) {
 
         var resourceName = 'Period';
         var periodService = {};
@@ -73,12 +73,12 @@ servicesModule.factory('periodService', ['genericDaoService', 'dateUtil', functi
                 periodArray.push(newPeriod);
                 if (newPeriod.end.getHours() !== 0 && newPeriod.end.getMinutes() !== 0) {
                     if (newPeriod.begin > newPeriod.end) {
-                        errorMessages.push("Period begining must be inferior to period end.");
+                        errorMessages.push($translate.instant("period.errorDate"));
                     }
                 }
             }
             if (dateUtil.arePeriodsIntersecting(periodArray)) {
-                errorMessages.push("The period is intersecting with another.");
+                errorMessages.push($translate.instant("period.errorIntersection"));
             }
             return errorMessages;
         };

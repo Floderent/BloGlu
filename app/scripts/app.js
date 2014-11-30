@@ -44,7 +44,7 @@ mainModule.config(['$routeProvider',
         $routeProvider.when('/userPreferences', {controller: 'userPreferencesController', templateUrl: 'views/userPreferences.html'});
         $routeProvider.when('/dashboard', {controller: 'dashboardController', templateUrl: 'views/dashboard.html'});
         $routeProvider.when('/index', {controller: 'indexController', templateUrl: 'views/index.html'});
-        $routeProvider.otherwise({redirectTo: '/'});
+        $routeProvider.otherwise({redirectTo: '/dashboard'});
     }]);
 
 mainModule.config(['$translateProvider', function($translateProvider) {
@@ -76,13 +76,15 @@ mainModule.constant('ResourceCode', {
     bloodPressure: 4,
     a1c: 5,
     exercise: 6,
+    foodIntake: 7,
     0: 'other',
     1: 'bloodGlucose',
     2: 'medication',
     3: 'weight',
     4: 'bloodPressure',
     5: 'a1c',
-    6: 'exercise'
+    6: 'exercise',
+    7: 'foodIntake'
 });
 
 mainModule.constant('Database', {
@@ -108,6 +110,16 @@ mainModule.constant('ResourceName', {
     4: 'bloodPressureEvent',
     5: 'a1cEvent',
     6: 'exerciseEvent'   
+});
+
+mainModule.constant('ResourceIcon',{
+   0:'glyphicon glyphicon-tag' ,
+   1:'glyphicon glyphicon-tint',
+   2:'glyphicon glyphicon-briefcase',
+   3:'glyphicon glyphicon-dashboard',
+   4:'glyphicon glyphicon-heart',
+   5:'glyphicon glyphicon-file',
+   6:'glyphicon glyphicon-flash'
 });
 
 mainModule.constant('DataVisualization', {

@@ -8,8 +8,8 @@ ControllersModule.controller('logBookController', [
     '$routeParams',
     '$modal',
     'eventService',
-    'ResourceName',
-    'ResourceCode',
+    'ResourceIcon',
+    'ResourceName',   
     'logBookService',
     'MessageService',
     'printService', function Controller(
@@ -19,14 +19,15 @@ ControllersModule.controller('logBookController', [
             $routeParams,
             $modal,
             eventService,
-            ResourceName,
-            ResourceCode,
+            ResourceIcon,
+            ResourceName,        
             logBookService,
             MessageService,
             printService) {
 
         $scope.data = [];
         $scope.eventsTypes = ResourceName;
+        $scope.eventsIcons = ResourceIcon;
         $scope.display = [1];
         //default display blood glucose
 
@@ -161,7 +162,7 @@ ControllersModule.controller('logBookController', [
                     }
                 });
                 modalInstance.result.then(function (eventCode) {                    
-                    if (eventCode) {
+                    if (angular.isDefined(eventCode)) {                        
                         eventService.goToAddEvent(eventCode, day, period).then(renderPage, renderPage);                        
                     }                    
                 }, function () {                   
