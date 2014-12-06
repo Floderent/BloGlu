@@ -105,7 +105,8 @@
         "reportCreated": "Rapport créé",
         "reportUpdated": "Rapport mis à jour",
         "dataImported": "Données importées",
-        "rangeUpdated" : "Intervalle mis à jour",
+        "rangeCreated" : "Intervalle créé",
+        "rangeUpdated" : "Intervalle mis à jour",        
         "userUpdated": "Utilisateur mis à jour"
     },
     "resource": {
@@ -164,7 +165,13 @@
         "category": "Catégorie",
         "comment": "Commentaire",
         "delete": "Supprimer",
-        "save": "Enregistrer"
+        "save": "Enregistrer",
+        
+        "closeDatePicker": "Fermer",
+        "clearDatePicker": "Effacer",
+        "currentDatePicker": "Aujourd'hui",
+        "weeksDatePicker": "Semaines"
+        
     },
     "import": {
         "pageTitle": "Importer des glycémies",
@@ -219,13 +226,18 @@
         "upperLimit": "Limite supérieure",
         "normalRange": "Zone normale",
         "color": "Couleur",
+        "selectColor": "Sélectionner",
+        "cancelColor": "Annuler",
         "error": "Erreur",
         "success": "Réussite",
         "add": "Ajouter",
         "delete": "Supprimer",
         "update": "Mettre à jour",
         "edit": "Modifier",
-        "cancel": "Annuler"
+        "cancel": "Annuler",
+        "errorValue": "La limite inférieure ne peut pas avoir une valeur plus importante que la valeur supérieure",
+        "errorNormalAlreadyDefined": "Il ne peut pas y avoir deux zones normales",
+        "errorIntersection": "L'intervalle est en intersection avec un autre"
     },
     "report": {
         "pageTitle": "Analyser vos données",

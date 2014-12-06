@@ -283,18 +283,24 @@ servicesModule.factory('dateUtil', ['$filter', function ($filter) {
             var used = firstOfMonth.getDay() + lastOfMonth.getDate();
             return Math.ceil(used / 7);
         };
+        
+        dateUtil.addDays = function(date, days) {
+            var result = new Date(date);
+            result.setDate(date.getDate() + days);
+            return result;
+        };
 
 
         dateUtil.getDateWeekBeginAndEndDate = function (date, indexOfFirstDay) {
             var beginDate = null;
             var endDate = null;
+            
             indexOfFirstDay = parseInt(indexOfFirstDay);
 
             if (date.getDay() === indexOfFirstDay) {
                 beginDate = new Date(date.getTime());
-                endDate = new Date(date.getTime());
-                endDate.setDate(beginDate.getDate() + 6);
-
+                endDate = new Date(date.getTime());                
+                endDate = dateUtil.addDays(beginDate, 6);
             } else {
                 if (date.getDay() < indexOfFirstDay) {
                     var index = date.getDay();
@@ -304,7 +310,7 @@ servicesModule.factory('dateUtil', ['$filter', function ($filter) {
                     beginDate = new Date(date.getTime());
                     endDate = new Date(date.getTime());
                     beginDate.setDate(date.getDate() - (7 - index));
-                    endDate.setDate(beginDate.getDate() + 6);
+                    endDate = dateUtil.addDays(beginDate, 6);
                 } else {
                     var index = date.getDay();
                     var adjust = 0;
@@ -315,8 +321,7 @@ servicesModule.factory('dateUtil', ['$filter', function ($filter) {
                     beginDate = new Date(date.getTime());
                     beginDate.setDate(date.getDate() - adjust);
                     endDate = new Date(beginDate.getTime());
-                    endDate.setDate(beginDate.getDate() + 6);
-
+                    endDate = dateUtil.addDays(beginDate, 6);
                 }
             }
             beginDate.setHours(0);

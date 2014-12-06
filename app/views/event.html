@@ -19,7 +19,17 @@
         <div ng-form novalidate name="eventForm" class="event-form">
 
             <div class="input-group">                
-                <input type="text" class="form-control" datepicker-popup="dd/MM/yyyy" is-open="opened || $parent.opened" ng-model="date" ng-required="true" close-text="Close" />                                   
+                <input type="text" 
+                       class="form-control" 
+                       datepicker-popup="dd/MM/yyyy" 
+                       is-open="opened || $parent.opened"
+                       ng-model="date"
+                       ng-required="true"                       
+                       close-text="{{ 'event.closeDatePicker' | translate }}"
+                       clear-text="{{ 'event.clearDatePicker' | translate }}"
+                       toggle-weeks-text="{{ 'event.weeksDatePicker' | translate }}"
+                       current-text="{{ 'event.currentDatePicker' | translate }}"   />
+                
                 <span class="input-group-btn">                    
                     <button class="btn btn-default" ng-click="open($event)"><i class="glyphicon glyphicon-calendar"></i></button>
                 </span>

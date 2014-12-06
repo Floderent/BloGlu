@@ -1,29 +1,41 @@
 'use strict';
 var ControllersModule = angular.module('BloGlu.controllers');
 
-ControllersModule.controller('rangeController', ['$scope', '$rootScope', '$q', 'dataService', 'MessageService', 'UserService', 'unitService', 'Utils', function Controller($scope, $rootScope, $q, dataService, MessageService, UserService, unitService, Utils) {
+ControllersModule.controller('rangeController', [
+    '$scope', 
+    '$rootScope', 
+    '$q', 
+    'MessageService',     
+    'unitService', 
+    'Utils', 
+    'rangeService', function Controller(
+            $scope, 
+            $rootScope, 
+            $q, 
+            MessageService,             
+            unitService, 
+            Utils, 
+            rangeService) {
 
-        $scope.newRange = {};
-        var resourceName = 'Range';
+        $scope.newRange = {};        
         var eventCode = 1;
 
         renderPage();
 
         function renderPage() {
             $rootScope.increasePending("processingMessage.loading");
-            $q.all([
-                dataService.queryLocal(resourceName),
+            $q.all([                
+                rangeService.getRanges(),
                 unitService.getUnitsByCode(eventCode),
-                UserService.getDefaultUnit(resourceName)
+                rangeService.getDefaultUnit()
             ]).then(function(results) {              
                 $scope.ranges = results[0];
                 $scope.units = results[1];
-                $scope.defaultUnit = results[2];
-                
+                $scope.defaultUnit = results[2];                
                 handleNewRangeUnit();
-                processRanges($scope.ranges);
+                $scope.newRange = rangeService.processRanges($scope.ranges, $scope.newRange.unit);
                 $scope.$watch('ranges', function(newValue, oldValue) {                   
-                    processRanges($scope.ranges);
+                    $scope.newRange = rangeService.processRanges($scope.ranges, $scope.newRange.unit);
                 }, true);
             }, function(error) {
                 $rootScope.messages.push(MessageService.errorMessage("errorMessage.loadingError", 2000));
@@ -34,27 +46,19 @@ ControllersModule.controller('rangeController', ['$scope', '$rootScope', '$q', '
         }
       
 
-        function handleNewRangeUnit() {
-            if ($scope.newRange.unit) {
+        function handleNewRangeUnit() {           
+            if (!$scope.newRange.unit && $scope.defaultUnit) {
                 angular.forEach($scope.units, function(unit) {
-                    if (unit.objectId === $scope.newRange.unit.objectId) {
-                        $scope.newRangeUnit = unit;
+                    if (unit.objectId === $scope.defaultUnit.objectId) {
+                        $scope.newRange.unit = unit;
+                        return;
                     }
                 });
-            } else {
-                if ($scope.defaultUnit) {
-                    angular.forEach($scope.units, function(unit) {
-                        if (unit.objectId === $scope.defaultUnit.objectId) {
-                            $scope.newRangeUnit = unit;
-                            return;
-                        }
-                    });
-                }
-                if (!$scope.newRange.unit && $scope.units.length > 0) {
-                    $scope.newRangeUnit = $scope.units[0];
-                }
-            }
-            $scope.$watch('newRangeUnit', function(newValue, oldValue) {
+            }            
+            if (!$scope.newRange.unit && $scope.units.length > 0) {
+                $scope.newRange.unit = $scope.units[0];
+            }            
+            $scope.$watch('newRange.unit', function(newValue, oldValue) {
                 if (newValue && oldValue) {
                     if ($scope.newRange && $scope.newRange.lowerLimit) {
                         $scope.newRange.lowerLimit = $scope.newRange.lowerLimit * oldValue.coefficient / newValue.coefficient;
@@ -63,38 +67,18 @@ ControllersModule.controller('rangeController', ['$scope', '$rootScope', '$q', '
                         $scope.newRange.upperLimit = $scope.newRange.upperLimit * oldValue.coefficient / newValue.coefficient;
                     }
                 }
+            });            
+        }
+      
+        function checkRanges(existingPeriods, newPeriod) {
+            var errorMessages = rangeService.checkRanges(existingPeriods, newPeriod);
+            angular.forEach(errorMessages, function(errorMessage) {
+                $rootScope.messages.push(MessageService.errorMessage(errorMessage, 2000));
             });
+            return errorMessages.length === 0;
         }
-
-
-        function processRanges(rangeArray) {
-            $scope.newRange = getNewRange(rangeArray);
-        }
-
-
-        function getNewRange(rangeArray) {
-            var maxUpperLimit = 0;
-            angular.forEach(rangeArray, function(range) {
-                if (range.upperLimit > maxUpperLimit) {
-                    maxUpperLimit = range.upperLimit;
-                }
-            });
-            var newRange = {
-                unit: $scope.newRangeUnit,
-                lowerLimit: maxUpperLimit,
-                upperLimit: maxUpperLimit,
-                normal: false,
-                color: ''
-            };
-            return newRange;
-        }
-
-
-        function checkRanges(existingRanges, newRange) {
-            var rangeValid = true;
-            return rangeValid;
-        }
-
+      
+      
         $scope.getLowerLimit = function(range) {
             return range.lowerLimit;
         };
@@ -104,16 +88,10 @@ ControllersModule.controller('rangeController', ['$scope', '$rootScope', '$q', '
             if (range && range.lowerLimit !== null && range.upperLimit !== null) {
                 if (checkRanges($scope.ranges, range)) {
                     $rootScope.increasePending("processingMessage.savingData");
-                    dataService.save(resourceName, {
-                        unit: range.unit,
-                        lowerLimit: range.lowerLimit,
-                        upperLimit: range.upperLimit,
-                        normal: range.normal,
-                        color: range.color
-                    }).then(function(result) {
+                    rangeService.saveRange(range, false).then(function(result) {
                         angular.extend(range, result);
                         $scope.ranges.push(range);
-                        processRanges($scope.ranges);
+                        $scope.newRange = rangeService.processRanges($scope.ranges, $scope.newRange.unit);
                         $rootScope.messages.push(MessageService.successMessage("successMessage.rangeCreated", 2000));
                     }, function(error) {
                         $rootScope.messages.push(MessageService.errorMessage("errorMessage.creatingError", 2000));
@@ -126,19 +104,13 @@ ControllersModule.controller('rangeController', ['$scope', '$rootScope', '$q', '
 
         $scope.updateRange = function(range) {
             if (!checkRanges($scope.ranges)) {
-                $scope.cancelEditPeriod(range);
+                $scope.cancelEditRange(range);
             } else {
                 if (range.objectId) {
                     $rootScope.increasePending("processingMessage.updatingData");
-                    dataService.update(resourceName, range.objectId, {
-                        unit: range.unit,
-                        lowerLimit: range.lowerLimit,
-                        upperLimit: range.upperLimit,
-                        normal: range.normal,
-                        color: range.color
-                    }).then(function(result) {
+                    rangeService.saveRange(range, true).then(function(result) {
                         range.isEdit = false;
-                        processRanges($scope.ranges);
+                        $scope.newRange = rangeService.processRanges($scope.ranges, $scope.newRange.unit);
                         $rootScope.messages.push(MessageService.successMessage("successMessage.rangeUpdated", 2000));
                     }, function(error) {
                         $scope.cancelEditRange(range);
@@ -161,10 +133,10 @@ ControllersModule.controller('rangeController', ['$scope', '$rootScope', '$q', '
             Utils.openConfirmModal(modalScope).then(function(confirmed) {
                 if (confirmed) {
                     if (range.objectId) {
-                        $rootScope.increasePending("processingMessage.deletingData");
-                        dataService.delete(resourceName, range.objectId).then(function(result) {
+                        $rootScope.increasePending("processingMessage.deletingData");                        
+                        rangeService.deleteRange(range).then(function(result) {
                             var rangeIndex = -1;
-                            angular.forEach($scope.periods, function(rg, index) {
+                            angular.forEach($scope.ranges, function(rg, index) {
                                 if (rg.objectId && rg.objectId === range.objectId) {
                                     rangeIndex = index;
                                 }
@@ -172,7 +144,7 @@ ControllersModule.controller('rangeController', ['$scope', '$rootScope', '$q', '
                             if (rangeIndex !== -1) {
                                 $scope.ranges.splice(rangeIndex, 1);
                             }
-                            processRanges($scope.ranges);
+                            $scope.newRange = rangeService.processRanges($scope.ranges, $scope.newRange.unit);
                         }, function(error) {
                             $rootScope.messages.push(MessageService.errorMessage('errorMessage.deletingError', 2000));
                         })['finally'](function() {

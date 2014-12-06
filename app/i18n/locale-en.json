@@ -182,7 +182,12 @@
         "category": "Category",
         "comment": "Comment",
         "delete": "Delete",
-        "save": "Save"
+        "save": "Save",
+        
+        "closeDatePicker": "Close",
+        "clearDatePicker": "Clear",
+        "currentDatePicker": "Today",
+        "weeksDatePicker": "Weeks"
     },
     "import": {
         "pageTitle": "Import your blood glucose readings",
@@ -237,13 +242,18 @@
         "upperLimit": "Upper limit",
         "normalRange": "Normal range",
         "color": "Color",
+        "selectColor": "Select",
+        "cancelColor": "Cancel",
         "error": "Error",
         "success": "Success",
         "add": "Add",
         "delete": "Delete",
         "update": "Update",
         "edit": "Edit",
-        "cancel": "Cancel"
+        "cancel": "Cancel",
+        "errorValue": "Lower limit cannot be greater than upper limit",
+        "errorNormalAlreadyDefined": "There can't be two normal range",
+        "errorIntersection": "The range is intersecting with another"
     },
     "report": {
         "pageTitle": "Analyse your data",

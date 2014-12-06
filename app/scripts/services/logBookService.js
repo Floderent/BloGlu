@@ -90,7 +90,7 @@ servicesModule.factory('logBookService', ['$q', '$filter', '$translate', 'UserSe
             var deferred = $q.defer();
             var baseDate = new Date(timeInterval.begin.getTime());
             var month = baseDate.getMonth();
-
+            
             UserService.getFirstDayOfWeek().then(function (firstDayOfWeek) {
                 while (baseDate.getMonth() <= timeInterval.end.getMonth() && baseDate.getFullYear() === timeInterval.end.getFullYear()) {
                     var index = 0;
@@ -263,7 +263,7 @@ servicesModule.factory('logBookService', ['$q', '$filter', '$translate', 'UserSe
             return $q.all([
                 getBloodGlucoseReadingsBetweenDates(timeInterval.begin, timeInterval.end, params),
                 getAnalysisPeriods(timeInterval)
-            ]).then(function (result) {
+            ]).then(function (result) {   
                 var bloodGlucoseReadings = result[0];
                 var analysisPeriods = result[1];
                 var dataArray = [];

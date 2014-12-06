@@ -123,7 +123,7 @@ ControllersModule.controller('reportController', [
 
         $scope.executeQuery = function() {
             $rootScope.increasePending("processingMessage.executingQuery");
-            $scope.report.query = reportService.getQuery($scope.selectedQueryElements, $scope.selectedFilter);
+            $scope.report.query = reportService.getQuery($scope.selectedQueryElements, $scope.selectedFilter);            
             if ($scope.report.query) {
                 reportService.executeReportQuery($scope.report.query).then(function(queryResult) {
                     queryResult.type = $scope.report.display;

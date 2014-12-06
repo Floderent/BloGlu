@@ -785,6 +785,7 @@ servicesModule.factory('dataService', ['$q', '$filter', '$injector', '$locale', 
                     return {$gt: beginDate, $lt: endDate};
                 }
             },
+            //last year
             currentMonth: {
                 title: 'currentMonth',
                 filterFunction: function () {
@@ -794,6 +795,7 @@ servicesModule.factory('dataService', ['$q', '$filter', '$injector', '$locale', 
                     return {$gt: beginDate, $lt: endDate};
                 }
             },
+            //last month
             lastSevenDays: {
                 title: 'lastSevenDays',
                 filterFunction: function () {
@@ -804,6 +806,10 @@ servicesModule.factory('dataService', ['$q', '$filter', '$injector', '$locale', 
                     return {$gt: beginDate, $lt: endDate};
                 }
             }
+            //current week
+            //last week
+            //last 30 days
+            //last three months
         };
 
 
