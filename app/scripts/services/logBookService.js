@@ -299,8 +299,8 @@ servicesModule.factory('logBookService', ['$q', '$filter', '$translate', 'UserSe
                 var dataArrayLength = dataArray.length;
                 for (var indexOfRow = 1; indexOfRow < dataArrayLength; indexOfRow++) {
                     for (var indexOfColumn = 0; indexOfColumn < dataArray[0].length; indexOfColumn++) {
-                        if (dataArray[indexOfRow][indexOfColumn].length > 0) {
-                            dataArray[indexOfRow][indexOfColumn] = [statsService.getStatsFromBloodGlucoseReadingList(dataArray[indexOfRow][indexOfColumn])];
+                        if (dataArray[indexOfRow][indexOfColumn].length > 0) {                            
+                            dataArray[indexOfRow][indexOfColumn] = [statsService.getStatsFromBloodGlucoseReadingList(dataArray[indexOfRow][indexOfColumn], analysisPeriods[indexOfColumn])];
                         }
                     }
                 }

@@ -82,7 +82,7 @@ servicesModule.factory('chartService', ['$q', 'overViewService', 'dataService', 
 servicesModule.factory('statsService', ['$filter', 'ResourceName', function ($filter, ResourceName) {
         var statsService = {};
 
-        statsService.getStatsFromBloodGlucoseReadingList = function (bloodGlucoseReadings) {
+        statsService.getStatsFromBloodGlucoseReadingList = function (bloodGlucoseReadings, period) {
             var stats = {};
             angular.forEach(bloodGlucoseReadings, function (bloodGlucoseReading) {
 
@@ -94,7 +94,9 @@ servicesModule.factory('statsService', ['$filter', 'ResourceName', function ($fi
                             minimum: null,
                             minimumIds: [],
                             number: 0,
-                            total: 0
+                            total: 0,
+                            beginDate: period.begin,
+                            endDate: period.end        
                         };
                     }
                     var reading = bloodGlucoseReading.reading * bloodGlucoseReading.unit.coefficient;

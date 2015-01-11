@@ -201,7 +201,8 @@
         "number": "Nombre",
         "total": "Total",
         "next": "Suivant",
-        "previous": "Précédent"
+        "previous": "Précédent",
+        "viewDetails": "Détails"
     },
     "period": {
         "pageTitle": "Voir ou modifier les périodes d'analyse",

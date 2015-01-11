@@ -4,7 +4,7 @@ DirectivesModule.directive('blogluEventGroup', ['$compile', '$injector', '$q','e
 
         var resourceCode = $injector.get('ResourceCode');
 
-        var linkFunction = function (scope, element, attrs) {
+        var linkFunction = function (scope, element, attrs) {            
             var event = scope.blogluGroupedEvent;
             renderEvent(event, scope, element);
             scope.$watch('blogluGroupedEvent', function (newValue, oldValue) {
@@ -28,7 +28,9 @@ DirectivesModule.directive('blogluEventGroup', ['$compile', '$injector', '$q','e
             var dom = angular.element(template);
             getScope(event, resourceCode).then(function (eventScope) {
                 scope = angular.extend(scope, eventScope);
-                scope.viewEvent = viewEvent;
+                scope.beginDate = event.beginDate;
+                scope.endDate = event.endDate;
+                scope.viewEvent = viewEvent;                
                 var compiled = $compile(dom);
                 angular.element(element).append(dom);
                 compiled(scope);
@@ -49,6 +51,7 @@ DirectivesModule.directive('blogluEventGroup', ['$compile', '$injector', '$q','e
                                         '<p><button type="button" class="btn btn-default" ng-click="viewEvent(code, maximumIds)">{{"logBook.maximum" | translate}} <span class="reading">{{maximum}}</span> {{unit.name}}</button></p>'+
                                         '<p><button type="button" class="btn btn-default" ng-click="viewEvent(code, minimumIds)">{{"logBook.minimum" | translate}} <span class="reading">{{minimum}}</span> {{unit.name}}</button></p>'+                                        
                                         '<p><button type="button" class="btn btn-default">{{"logBook.number" | translate}} <span class="reading">{{number}}</span></button></p>'+
+                                        '<p><button type="button" class="btn btn-primary pull-right" ng-click="blogluGroupedEventZoomInInterval({date:beginDate})">{{"logBook.viewDetails" | translate}}</button></p>'+
                                     '</div>'+
                                 '</div>'; 
                     break;
@@ -63,6 +66,7 @@ DirectivesModule.directive('blogluEventGroup', ['$compile', '$injector', '$q','e
                                         '<p><button type="button" class="btn btn-default">{{"logBook.minimum" | translate}} <span class="reading">{{minimum}}</span> {{unit.name}}</button></p>'+
                                         '<p><button type="button" class="btn btn-default">{{"logBook.total" | translate}} <span class="reading">{{total}}</span> {{unit.name}}</button></p>'+
                                         '<p><button type="button" class="btn btn-default">{{"logBook.number" | translate}} <span class="reading">{{number}}</span></button></p>'+
+                                        '<p><button type="button" class="btn btn-primary pull-right" ng-click="blogluGroupedEventZoomInInterval({date:beginDate})">{{"logBook.viewDetails" | translate}}</button></p>'+
                                     '</div>'+
                                 '</div>';
                     break;
@@ -84,7 +88,7 @@ DirectivesModule.directive('blogluEventGroup', ['$compile', '$injector', '$q','e
         function getBloodGlucoseScope(event, resourceCode) {
             var scope = {};
             var dataService = $injector.get('dataService');
-            var userService = $injector.get('UserService');            
+            var userService = $injector.get('UserService');
             
             var promiseArray = [dataService.queryLocal('Unit', {where: {code: event.code}}), dataService.queryLocal('Range'), userService.getDefaultUnit(resourceCode[event.code])];
             return $q.all(promiseArray).then(function (results) {
@@ -132,7 +136,8 @@ DirectivesModule.directive('blogluEventGroup', ['$compile', '$injector', '$q','e
             restrict: 'E', // only activate on element
             replace: true,
             scope: {
-                blogluGroupedEvent: '='
+                blogluGroupedEvent: '=',                
+                blogluGroupedEventZoomInInterval: '&'
             },
             link: linkFunction
         };

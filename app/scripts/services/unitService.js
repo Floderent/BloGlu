@@ -21,13 +21,20 @@ servicesModule.factory('unitService', ['$q','dataService', 'UserService','Resour
         });
     };
     
+    unitService.getReferenceUnitByResourceName = function(resourceName){        
+        return unitService.getReferenceUnitByCode(ResourceCode[resourceName]);        
+    };    
     
-    unitService.getUnit = function(code){        
-        var deferred = $q.defer();
+    unitService.getUnit = function(code){
         var resourceName = ResourceCode[parseInt(code)];
+        return unitService.getUnitByResourceName(resourceName);
+    };
+    
+    unitService.getUnitByResourceName = function(resourceName){
+        var deferred = $q.defer();
         UserService.getDefaultUnit(resourceName).then(function(defaultUnit){
             if(!defaultUnit){
-                unitService.getReferenceUnitByCode(code).then(deferred.resolve, deferred.reject);
+                unitService.getReferenceUnitByResourceName(resourceName).then(deferred.resolve, deferred.reject);
             }else{
                 deferred.resolve(defaultUnit);
             }

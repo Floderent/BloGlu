@@ -5,11 +5,11 @@ var servicesModule = angular.module('BloGlu.services');
 servicesModule.factory('UserService', [
     '$q',
     'genericDaoService',
-    'UserSessionService',
+    'UserSessionService',    
         function (
             $q,
             genericDaoService,
-            UserSessionService
+            UserSessionService            
             ) {
         
         var UserService = {};
@@ -52,7 +52,7 @@ servicesModule.factory('UserService', [
                 if(preferences && preferences.firstDayOfWeek){
                     deferred.resolve(preferences.firstDayOfWeek);
                 }else{
-                    deferred.resolve(firstDayOfWeek)
+                    deferred.resolve(firstDayOfWeek);
                 }
             },deferred.reject);
             return deferred.promise;

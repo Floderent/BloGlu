@@ -34,7 +34,6 @@ ControllersModule.controller('logBookController', [
         $scope.currentDate = null;
         $scope.interval = 'week';
 
-
         if ($routeParams && $routeParams.weekDate) {
             $scope.currentDate = new Date($routeParams.weekDate);
         } else {
@@ -76,7 +75,7 @@ ControllersModule.controller('logBookController', [
                 logBookService.getTableData($scope.timeInterval, params).then(
                         function(result) {
                             $scope.header = result[0];
-                            $scope.data = result;
+                            $scope.data = result;                            
                         },
                         function(error) {
                             $rootScope.messages.push(MessageService.errorMessage("errorMessage.loadingError", 2000));
@@ -130,9 +129,7 @@ ControllersModule.controller('logBookController', [
         };
 
         $scope.printToPDF = function () {
-            printService.convertTableToPDF($scope.data, printService.renderCell.bind({
-                interval: $scope.interval
-            }));
+            return printService.printLogBook($scope.data, $scope.interval,$scope.timeInterval, $scope.display);
         };
 
         /**
@@ -172,7 +169,7 @@ ControllersModule.controller('logBookController', [
         };
 
 
-        $scope.zoomInInterval = function (date) {
+        $scope.zoomInInterval = function (date) {            
             var newInterval = '';
             switch ($scope.interval) {
                 case 'month':

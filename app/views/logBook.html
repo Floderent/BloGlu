@@ -63,10 +63,10 @@
                     <div ng-if="interval !== 'week' && interval !== 'day' && bloodGlucoseReadings.length > 0">
                         <div ng-if="bloodGlucoseReadings.length > 0">                                
                             <div ng-repeat="(key, value) in bloodGlucoseReadings[0]">
-
-                                <div ng-click="zoomInInterval(header[$index].begin)">
-                                    <bloglu-event-group bloglu-grouped-event="value"></bloglu-event-group>
-                                </div>
+                                
+                                <!-- ng-click="zoomInInterval(header[$index].begin)" -->                                
+                                <bloglu-event-group bloglu-grouped-event="value" bloglu-grouped-event-zoom-in-interval="zoomInInterval(date)"></bloglu-event-group>
+                                
 
                             </div>
                         </div>
