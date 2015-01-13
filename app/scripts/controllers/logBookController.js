@@ -129,7 +129,7 @@ ControllersModule.controller('logBookController', [
         };
 
         $scope.printToPDF = function () {
-            return printService.printLogBook($scope.data, $scope.interval,$scope.timeInterval, $scope.display);
+            return printService.printLogBook($scope.data, $scope.timeInterval, $scope.display);
         };
 
         /**
