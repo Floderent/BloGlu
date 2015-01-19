@@ -14,10 +14,14 @@ servicesModule.factory('printService', ['$q', '$filter', '$translate', 'Resource
                 titleTextFontType: "bold",
                 cellHeight: 35,
                 contentCellWidth: 100,
-                titleCellWidth: 130
+                titleCellWidth: 130                
             },
             title: {
-                fontSize: 25
+                fontSize: 25,
+                dayKey: 'logbook.day',
+                weekKey: 'logbook.week',
+                monthKey: 'logbook.month',
+                yearKey: 'logbook.year'                
             }
         };
 

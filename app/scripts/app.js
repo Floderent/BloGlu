@@ -28,22 +28,26 @@ var mainModule = angular
 mainModule.config(['$routeProvider',
     function($routeProvider) {
         $routeProvider.when('/login', {controller: 'loginController', templateUrl: 'views/login.html'});
+        //events
         $routeProvider.when('/event/:eventType/:objectId', {controller: 'eventController', templateUrl: 'views/event.html'});
         $routeProvider.when('/event/:eventType', {controller: 'eventController', templateUrl: 'views/event.html'});
+        //log book
         $routeProvider.when('/logBook', {controller: 'logBookController', templateUrl: 'views/logBook.html'});
-        $routeProvider.when('/period', {controller: 'periodController', templateUrl: 'views/period.html'});
-        $routeProvider.when('/category', {controller: 'categoryController', templateUrl: 'views/category.html'});
-        $routeProvider.when('/range', {controller: 'rangeController', templateUrl: 'views/range.html'});
-        $routeProvider.when('/charts', {controller: 'chartController', templateUrl: 'views/charts.html'});
-        $routeProvider.when('/report/:objectId', {controller: 'reportController', templateUrl: 'views/report.html'});
-        $routeProvider.when('/report', {controller: 'reportController', templateUrl: 'views/report.html'});
-        $routeProvider.when('/reportList', {controller: 'reportListController', templateUrl: 'views/reportList.html'});
-        $routeProvider.when('/import', {controller: 'importController', templateUrl: 'views/import.html'});
-        $routeProvider.when('/import/:objectId', {controller: 'importController', templateUrl: 'views/import.html'});
-        $routeProvider.when('/importList', {controller: 'importListController', templateUrl: 'views/importList.html'});
+        //reports        
+        $routeProvider.when('/reports', {controller: 'reportListController', templateUrl: 'views/reportList.html'});
+        $routeProvider.when('/reports/:objectId', {controller: 'reportController', templateUrl: 'views/report.html'});
+        //Data
+        ///Imports
+        $routeProvider.when('/imports', {controller: 'importListController', templateUrl: 'views/importList.html'});
+        $routeProvider.when('/imports/:objectId', {controller: 'importController', templateUrl: 'views/import.html'});        
+        //Parameters
+        $routeProvider.when('/ranges', {controller: 'rangeController', templateUrl: 'views/range.html'});
+        $routeProvider.when('/periods', {controller: 'periodController', templateUrl: 'views/period.html'});
+        $routeProvider.when('/eventTypes', {controller: 'categoryController', templateUrl: 'views/category.html'});
+        
         $routeProvider.when('/userPreferences', {controller: 'userPreferencesController', templateUrl: 'views/userPreferences.html'});
         $routeProvider.when('/dashboard', {controller: 'dashboardController', templateUrl: 'views/dashboard.html'});
-        $routeProvider.when('/index', {controller: 'indexController', templateUrl: 'views/index.html'});
+        //$routeProvider.when('/index', {controller: 'indexController', templateUrl: 'views/index.html'});
         $routeProvider.otherwise({redirectTo: '/dashboard'});
     }]);
 

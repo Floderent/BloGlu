@@ -6,7 +6,7 @@ servicesModule.factory('logBookService', ['$q', '$filter', '$translate', 'UserSe
         var logBookService = {};
 
         function getBloodGlucoseReadingsBetweenDates(beginDate, endDate, params) {
-            var where = ModelUtil.addClauseToFilter({dateTime: {$gt: beginDate, $lt: endDate}}, params.where);            
+            var where = ModelUtil.addClauseToFilter({dateTime: {$gt: beginDate, $lt: endDate}}, params.where);
             delete params.where;
             var queryParams = angular.extend({where: where}, params);
             return dataService.queryLocal('Event', queryParams);
@@ -54,7 +54,7 @@ servicesModule.factory('logBookService', ['$q', '$filter', '$translate', 'UserSe
                 periodEndDate.setSeconds(59);
                 periodEndDate.setMilliseconds(999);
                 var analysisPeriod = {
-                    name: $filter('date')(baseDate, 'EEEE d MMMM yyyy'),
+                    name: $filter('date')(baseDate, 'EEEE d'),
                     begin: new Date(baseDate),
                     end: new Date(periodEndDate)
                 };
@@ -75,7 +75,7 @@ servicesModule.factory('logBookService', ['$q', '$filter', '$translate', 'UserSe
             for (var year = baseDate.getFullYear(); year <= endDate.getFullYear(); year++) {
                 for (var indexOfMonth = 0; indexOfMonth < 12; indexOfMonth++) {
                     var analysisPeriod = dateUtil.getDateMonthBeginAndEndDate(baseDate);
-                    analysisPeriod.name = $filter('date')(baseDate, 'MMMM yyyy');
+                    analysisPeriod.name = $filter('date')(baseDate, 'MMMM');
                     analysisPeriods.push(analysisPeriod);
                     baseDate.setMonth(baseDate.getMonth() + 1);
                 }
@@ -90,13 +90,13 @@ servicesModule.factory('logBookService', ['$q', '$filter', '$translate', 'UserSe
             var deferred = $q.defer();
             var baseDate = new Date(timeInterval.begin.getTime());
             var month = baseDate.getMonth();
-            
+
             UserService.getFirstDayOfWeek().then(function (firstDayOfWeek) {
                 while (baseDate.getMonth() <= timeInterval.end.getMonth() && baseDate.getFullYear() === timeInterval.end.getFullYear()) {
                     var index = 0;
                     while (baseDate.getMonth() === month) {
                         var analysisPeriod = dateUtil.getDateWeekBeginAndEndDate(baseDate, firstDayOfWeek);
-                        analysisPeriod.name = $filter('date')(baseDate, 'MMMM yyyy') + " " + $translate.instant('logBook.week') + " " + (index + 1);
+                        analysisPeriod.name = $translate.instant('logBook.week') + " " + (index + 1);
                         analysisPeriods.push(analysisPeriod);
                         baseDate.setDate(baseDate.getDate() + 7);
                         index++;
@@ -125,7 +125,21 @@ servicesModule.factory('logBookService', ['$q', '$filter', '$translate', 'UserSe
             });
         }
 
-
+        function getMonthWeekNumber(baseDate) {            
+            var month = baseDate.getMonth()
+                    , year = baseDate.getFullYear()
+                    , firstWeekday = new Date(year, month, 1).getDay()
+                    , lastDateOfMonth = new Date(year, month + 1, 0).getDate()
+                    , offsetDate = baseDate.getDate() + firstWeekday - 1
+                    , index = 1 // start index at 0 or 1, your choice
+                    , weeksInMonth = index + Math.ceil((lastDateOfMonth + firstWeekday - 7) / 7)
+                    , week = index + Math.floor(offsetDate / 7)
+                    ;
+            if (baseDate || week < 2 + index){
+                return week;
+            }
+            return week === weeksInMonth ? index + 5 : week;
+        }
 
         function isDateInPeriod(timeIntervalName, date, period) {
             var isPeriodInDate = false;
@@ -189,6 +203,30 @@ servicesModule.factory('logBookService', ['$q', '$filter', '$translate', 'UserSe
             return days.indexOf(date.getDate());
         }
 
+        logBookService.getTimeIntervalTitle = function (timeInterval) {
+            var title = "";
+            if (timeInterval) {
+                switch (timeInterval.name) {
+                    case 'day':
+                        title = $filter('date')(timeInterval.begin, 'EEEE d MMMM yyyy');
+                        break;
+                    case 'week':
+                        title = $filter('date')(timeInterval.begin, 'MMMM yyyy') + " " + $translate.instant('logBook.week') + " " + getMonthWeekNumber(timeInterval.begin);
+                        break;
+                    case 'month':
+                        title = $filter('date')(timeInterval.begin, 'MMMM yyyy');
+                        break;
+                    case 'year':
+                        title = $filter('date')(timeInterval.begin, 'yyyy');
+                        break;
+                    default:
+                        break;
+
+                }
+            }
+            return title;
+        };
+
 
         logBookService.getEventTypes = function (display) {
             var eventTypes = {};
@@ -211,24 +249,24 @@ servicesModule.factory('logBookService', ['$q', '$filter', '$translate', 'UserSe
 
         logBookService.getTimeInterval = function (intervalName, date) {
             var deferred = $q.defer();
-            var timeInterval = null;            
-            UserService.getFirstDayOfWeek().then(function(firstDayOfWeek){
+            var timeInterval = null;
+            UserService.getFirstDayOfWeek().then(function (firstDayOfWeek) {
                 switch (intervalName) {
-                case 'day':
-                    timeInterval = dateUtil.getDateDayBeginAndEndDate(date);
-                    break;
-                case 'week':
-                    timeInterval = dateUtil.getDateWeekBeginAndEndDate(date, firstDayOfWeek);
-                    break;
-                case 'month':
-                    timeInterval = dateUtil.getDateMonthBeginAndEndDate(date);
-                    break;
-                case 'year':
-                    timeInterval = dateUtil.getDateYearBeginAndEndDate(date);
-                    break;
-                default:
-                    timeInterval = dateUtil.getDateWeekBeginAndEndDate(date, firstDayOfWeek);
-                    break;
+                    case 'day':
+                        timeInterval = dateUtil.getDateDayBeginAndEndDate(date);
+                        break;
+                    case 'week':
+                        timeInterval = dateUtil.getDateWeekBeginAndEndDate(date, firstDayOfWeek);
+                        break;
+                    case 'month':
+                        timeInterval = dateUtil.getDateMonthBeginAndEndDate(date);
+                        break;
+                    case 'year':
+                        timeInterval = dateUtil.getDateYearBeginAndEndDate(date);
+                        break;
+                    default:
+                        timeInterval = dateUtil.getDateWeekBeginAndEndDate(date, firstDayOfWeek);
+                        break;
                 }
                 deferred.resolve(timeInterval);
             }, deferred.reject);
@@ -263,7 +301,7 @@ servicesModule.factory('logBookService', ['$q', '$filter', '$translate', 'UserSe
             return $q.all([
                 getBloodGlucoseReadingsBetweenDates(timeInterval.begin, timeInterval.end, params),
                 getAnalysisPeriods(timeInterval)
-            ]).then(function (result) {   
+            ]).then(function (result) {
                 var bloodGlucoseReadings = result[0];
                 var analysisPeriods = result[1];
                 var dataArray = [];
@@ -287,7 +325,7 @@ servicesModule.factory('logBookService', ['$q', '$filter', '$translate', 'UserSe
                 }
                 //put blood glucose readings in right row and column
                 var readingsLength = bloodGlucoseReadings.length;
-                for(var index = 0; index < readingsLength; index++){
+                for (var index = 0; index < readingsLength; index++) {
                     var bloodGlucoseReading = bloodGlucoseReadings[index];
                     var indexOfRow = 1;
                     var indexOfColumn = getBloodGlucoseReadingColumnByDate(timeInterval, analysisPeriods, bloodGlucoseReading.dateTime);
@@ -299,7 +337,7 @@ servicesModule.factory('logBookService', ['$q', '$filter', '$translate', 'UserSe
                 var dataArrayLength = dataArray.length;
                 for (var indexOfRow = 1; indexOfRow < dataArrayLength; indexOfRow++) {
                     for (var indexOfColumn = 0; indexOfColumn < dataArray[0].length; indexOfColumn++) {
-                        if (dataArray[indexOfRow][indexOfColumn].length > 0) {                            
+                        if (dataArray[indexOfRow][indexOfColumn].length > 0) {
                             dataArray[indexOfRow][indexOfColumn] = [statsService.getStatsFromBloodGlucoseReadingList(dataArray[indexOfRow][indexOfColumn], analysisPeriods[indexOfColumn])];
                         }
                     }
@@ -349,14 +387,14 @@ servicesModule.factory('logBookService', ['$q', '$filter', '$translate', 'UserSe
                 }
                 //put blood glucose readings in right row and column
                 var readingsLength = bloodGlucoseReadings.length;
-                for(var index = 0; index < readingsLength; index++){
+                for (var index = 0; index < readingsLength; index++) {
                     var bloodGlucodeReading = bloodGlucoseReadings[index];
                     var indexOfRow = getBloodGlucoseReadingRowByDate(days, bloodGlucodeReading.dateTime) + 1;
                     //var indexOfRow = dateUtil.convertToNormalFormat(bloodGlucodeReading.dateTime).getDay() + 1;
                     var indexOfColumn = getBloodGlucoseReadingColumnByDate(timeInterval, analysisPeriods, bloodGlucodeReading.dateTime) + 1;
                     if (Array.isArray(dataArray[indexOfRow][indexOfColumn])) {
                         dataArray[indexOfRow][indexOfColumn].push(bloodGlucodeReading);
-                    }                    
+                    }
                 }
                 return dataArray;
             });

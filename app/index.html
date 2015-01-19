@@ -47,40 +47,42 @@
                 </div>
                 <div class="collapse navbar-collapse" id="bloglu-navigation-bar">
                     <ul class="nav navbar-nav">
+                        <!-- Event menu -->
                         <li class="dropdown">
-                            <a href="#" class="dropdown-toggle" data-toggle="dropdown"><b>{{ 'menu.bloodGlucose' | translate }}</b> <b class="caret"></b></a>
-                            <ul class="dropdown-menu">
-                                <li><a href="#event/bloodGlucose">{{ 'menu.bgReading' | translate }}</a></li>                            
-                                <li><a href="#range">{{ 'menu.bgRange' | translate }}</a></li>
-                                <li><a href="#logBook">{{ 'menu.bgNotebook' | translate }}</a></li>                                
-                                <li><a href="#importList">{{ 'menu.bgImportList' | translate }}</a></li>
-                                <li><a href="#import">{{ 'menu.bgImport' | translate }}</a></li>
+                            <a href="#" class="dropdown-toggle" data-toggle="dropdown"><b>{{ 'menu.event' | translate }}</b> <b class="caret"></b></a>
+                            <ul class="dropdown-menu">                                
+                                <li><a href="#event/other">{{ 'menu.other' | translate }}</a></li>
+                                <li><a href="#event/bloodGlucose">{{ 'menu.bloodGlucose' | translate }}</a></li>
+                                <li><a href="#event/medication">{{ 'menu.medication' | translate }}</a></li>
+                                <li><a href="#event/weight">{{ 'menu.weight' | translate }}</a></li>
+                                <li><a href="#event/bloodPressure">{{ 'menu.bloodPressure' | translate }}</a></li>
+                                <li><a href="#event/a1c">{{ 'menu.a1c' | translate }}</a></li>
+                                <li><a href="#event/exercise">{{ 'menu.exercise' | translate }}</a></li>
+                                <li><a href="#event/foodIntake">{{ 'menu.foodIntake' | translate }}</a></li>
                             </ul> 
                         </li>
+                        <!-- Logbook menu -->
                         <li class="dropdown">
-                            <a href="#" class="dropdown-toggle" data-toggle="dropdown"><b>{{ 'menu.report' | translate }}</b> <b class="caret"></b></a>
+                            <a href="#logBook"><b>{{ 'menu.logbook' | translate }}</b></a>                            
+                        </li>
+                        <!-- Report menu -->
+                        <li class="dropdown">
+                            <a href="#reports"><b>{{ 'menu.reports' | translate }}</b></a>                            
+                        </li>
+                        <!-- Data menu -->
+                        <li class="dropdown">
+                            <a href="#" class="dropdown-toggle" data-toggle="dropdown"><b>{{ 'menu.data' | translate }}</b> <b class="caret"></b></a>
                             <ul class="dropdown-menu">
-                                <li><a href="#reportList">{{ 'menu.reportList' | translate }}</a></li>
-                                <li><a href="#report">{{ 'menu.createReport' | translate }}</a></li>
+                                <li><a href="#imports">{{ 'menu.imports' | translate }}</a></li>                            
                             </ul> 
                         </li>
+                        <!-- Parameter menu -->
                         <li class="dropdown">
-                            <a href="#" class="dropdown-toggle" data-toggle="dropdown"><b>{{ 'menu.weight' | translate }}</b> <b class="caret"></b></a>
+                            <a href="#" class="dropdown-toggle" data-toggle="dropdown"><b>{{ 'menu.parameters' | translate }}</b> <b class="caret"></b></a>
                             <ul class="dropdown-menu">
-                                <li><a href="#event/weight">{{ 'menu.newWeight' | translate }}</a></li>                            
-                            </ul> 
-                        </li>
-                        <li class="dropdown">
-                            <a href="#" class="dropdown-toggle" data-toggle="dropdown"><b>{{ 'menu.medication' | translate }}</b> <b class="caret"></b></a>
-                            <ul class="dropdown-menu">
-                                <li><a href="#event/medication">{{ 'menu.newMedication' | translate }}</a></li>                            
-                            </ul> 
-                        </li>
-                        <li class="dropdown">
-                            <a href="#" class="dropdown-toggle" data-toggle="dropdown"><b>{{ 'menu.settings' | translate }}</b> <b class="caret"></b></a>
-                            <ul class="dropdown-menu">
-                                <li><a href="#period">{{ 'menu.settingsPeriods' | translate }}</a></li>
-                                <li><a href="#category">{{ 'menu.settingsCategories' | translate }}</a></li>
+                                <li><a href="#ranges">{{ 'menu.bgRanges' | translate }}</a></li>
+                                <li><a href="#periods">{{ 'menu.analysisPeriods' | translate }}</a></li>
+                                <li><a href="#eventTypes">{{ 'menu.eventTypes' | translate }}</a></li>
                             </ul> 
                         </li>
                     </ul>
@@ -90,6 +92,7 @@
                             <a href="" class="dropdown-toggle" data-toggle="dropdown"><b>{{ 'welcome' | translate }} {{currentUserInfos.username}}</b><b class="caret"></b></a>
                             <ul class="dropdown-menu">
                                 <li><a href="#userPreferences">{{ 'preferences' | translate }}</a></li>
+                                <li class="divider"></li>
                                 <li><a href="#" ng-click="logOut(user)">{{ 'logOut' | translate }}</a></li>
                             </ul>
                         </li>                        

@@ -175,6 +175,18 @@ ControllersModule.controller('applicationController', [
             });
         });
         
+        /*
+        $rootScope.$on('$routeChangeStart', function(){
+            $rootScope.increasePending();            
+        });        
+        $rootScope.$on('$routeChangeSuccess', function(){
+            $rootScope.decreasePending();            
+        });
+        $rootScope.$on('$routeChangeError', function(){
+            $rootScope.decreasePending();            
+        });
+        */
+        
         $rootScope.$on('dataReady', renderPage);
         
     }]);

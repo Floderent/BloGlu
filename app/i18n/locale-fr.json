@@ -4,7 +4,7 @@
     "appStatus": "Alpha",
     "appVersion": "@@version",
     
-    "mainScreenMessage": "Gérer votre glycémie",
+    "mainScreenMessage": "Votre santé, vos données",
     "signUp": "S'enregistrer",
     "forgotPwd": "Mot de passe oublié",
     "or": "ou",
@@ -113,23 +113,27 @@
         "category": "categorie"
     },
     "menu": {
+        "event": "Évènement",
+        "other": "Évènement libre",
         "bloodGlucose": "Glycémie",
-        "bgReading": "Entrer une mesure de glycémie",
-        "bgRange": "Entrer un intervalle de glycémie",
-        "bgNotebook": "Voir le carnet",
-        "bgCharts": "Voir les graphique",
-        "bgImportList": "Voir les import",
-        "bgImport": "Import",
-        "report": "Rapport",
-        "reportList": "Voir la liste des rapports",
-        "createReport": "Créer un rapport",
-        "weight": "Poids",
-        "newWeight": "Entrer un poids",
         "medication": "Traitement",
-        "newMedication": "Entrer un traitement",
-        "settings": "Réglages",
-        "settingsPeriods": "Périodes",
-        "settingsCategories": "Catégories"
+        "weight": "Poids",
+        "bloodPressure": "Pression artérielle",
+        "a1c": "Mesure Hba1c",
+        "exercise": "Exercice physique",
+        "foodIntake": "Repas",
+        
+        "logbook": "Carnet",
+        
+        "reports": "Rapports",
+        
+        "data": "Données",
+        "imports": "Imports",
+        
+        "parameters": "Paramètres",
+        "bgRanges": "Intervalles de glycémie",
+        "analysisPeriods": "Périodes d'analyse",
+        "eventTypes": "Catégories d'évènement"
     },
     "category": {
         "pageTitle": "Voir ou modifier les catégories d'évènement",

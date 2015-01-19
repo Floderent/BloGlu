@@ -190,7 +190,7 @@ servicesModule.factory('indexeddbService', ['$window', '$q', 'Database', functio
             }, deferred.reject);
             return deferred.promise;
         };
-
+        /*
         indexeddbService.addRecords = function(collection, records) {
             var deferred = $q.defer();
             var i = 0;
@@ -212,7 +212,7 @@ servicesModule.factory('indexeddbService', ['$window', '$q', 'Database', functio
             }, deferred.reject);
             return deferred.promise;
         };
-
+        */
         indexeddbService.addRecords = function(collection, userId, records) {
             var deferred = $q.defer();
             var i = 0;
@@ -221,7 +221,7 @@ servicesModule.factory('indexeddbService', ['$window', '$q', 'Database', functio
                 var itemStore = transaction.objectStore(collection);
                 putNext();
                 function putNext() {
-                    if (i < records.length) {
+                    if (i < records.length) {                        
                         records[i].userId = userId;
                         itemStore.put(records[i]).onsuccess = putNext;
                         itemStore.put(records[i]).onerror = function(error) {

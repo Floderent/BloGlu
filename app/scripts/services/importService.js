@@ -10,7 +10,8 @@ servicesModule.factory('importService', [
     'dataService', 
     'dateUtil',
     'Event', 
-    'ServerService', function(
+    'ServerService',
+    'UserSessionService', function(
             $http, 
             $q, 
             $upload, 
@@ -18,7 +19,8 @@ servicesModule.factory('importService', [
             dataService,
             dateUtil,
             Event, 
-            ServerService) {
+            ServerService,
+            UserSessionService) {
         var importService = {};
         var uploadUrl = ServerService.baseUrl + 'files/';
         var fileHeaders = angular.extend({'Content-Type': 'text/plain'}, ServerService.headers);
@@ -104,16 +106,21 @@ servicesModule.factory('importService', [
 
 
         importService.processFile = function(file, dataset) {
+            var deferred = $q.defer();
             var resultData = {};
             resultData.dataset = dataset;
             var dataArray = CSVToArray(file, ";");
             resultData.fileLines = dataArray.length;
-            var promiseArray = importService.batchRequestProcess(dataArray);
-            resultData.processedRecords = promiseArray.length;
-            return $q.all(promiseArray).then(function(result) {
-                resultData.remoteimportResult = result;
-                return resultData;
-            });
+            var promiseArrays = importService.batchRequestProcess(dataArray);
+            resultData.processedRecords = promiseArrays.remote.length;
+            $q.all(promiseArrays.remote).then(function(remoteImportResult) {
+                resultData.remoteImportResult = remoteImportResult;                
+                $q.all(promiseArrays.local).then(function(localImportResult){
+                    resultData.localImportResult = localImportResult;
+                    deferred.resolve(resultData);
+                }, deferred.reject);                
+            }, deferred.reject);
+            return deferred.promise;
         };
 
         function getEventFromData(dataArray) {
@@ -147,8 +154,7 @@ servicesModule.factory('importService', [
                 }
             }            
             return event;
-        }
-        ;
+        };
 
         importService.singleRequestProcess = function(data) {
             var promiseArray = [];
@@ -164,7 +170,8 @@ servicesModule.factory('importService', [
 
         importService.batchRequestProcess = function(data, importUUID) {
             var batchSize = 50;
-            var promiseArray = [];
+            var promiseArrayRemote = [];
+            var promiseArrayLocal = [];
             var batchData = [];
             for (var i in data) {
                 var event = getEventFromData(data[i]);                
@@ -172,18 +179,20 @@ servicesModule.factory('importService', [
                     batchData.push(event);
                     if (batchData.length % batchSize === 0) {
                         //add remote
-                        promiseArray.push(Batch.batchEvent({}, batchData));
+                        promiseArrayRemote.push(Batch(UserSessionService.headers()).batchEvent({}, angular.copy(batchData)));
                         //add local
-                        promiseArray.push(dataService.addRecords('Event',batchData));
+                        //promiseArrayLocal.push(dataService.addRecords('Event', batchData));
                         batchData = [];
                     }
                 }
             }
             if (batchData.length > 0) {
-                promiseArray.push(Batch.batchEvent({}, batchData));
-                promiseArray.push(dataService.addRecords('Event',batchData));
+                //add remote
+                promiseArrayRemote.push(Batch(UserSessionService.headers()).batchEvent({}, angular.copy(batchData)));
+                //add local
+                //promiseArrayLocal.push(dataService.addRecords('Event', batchData));                
             }
-            return promiseArray;
+            return {remote: promiseArrayRemote, local: promiseArrayLocal};
         };
 
 

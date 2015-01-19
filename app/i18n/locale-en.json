@@ -4,7 +4,7 @@
     "appStatus" : "Alpha",
     "appVersion" : "@@version",
     
-    "mainScreenMessage": "Handle your blood glucose",
+    "mainScreenMessage": "Your health, your data",
     "signUp": "Sign up",
     "forgotPwd": "Forgot your password",
     "or": "or",
@@ -130,23 +130,27 @@
 
     
     "menu": {
+        "event": "Event",
+        "other": "Free event",
         "bloodGlucose": "Blood Glucose",
-        "bgReading": "Enter blood glucose reading",
-        "bgRange": "Enter blood glucose range",
-        "bgNotebook": "View your notebook",
-        "bgCharts": "See charts",
-        "bgImportList": "View the import list",
-        "bgImport": "Import",
-        "report": "Report",
-        "reportList": "View the report list",
-        "createReport": "Create a report",
-        "weight": "Weight",
-        "newWeight": "Enter weight",
         "medication": "Medication",
-        "newMedication": "Enter medication",
-        "settings": "Settings",
-        "settingsPeriods": "Periods",
-        "settingsCategories": "Categories"
+        "weight": "Weight",
+        "bloodPressure": "Blood pressure",
+        "a1c": "A1C",
+        "exercise": "Exercise",
+        "foodIntake": "Food intake",
+        
+        "logbook": "Logbook",
+        
+        "reports": "Reports",
+        
+        "data": "Data",
+        "imports": "Imports",
+        
+        "parameters": "Parameters",
+        "bgRanges": "Blood glucose ranges",
+        "analysisPeriods": "Analysis periods",
+        "eventTypes": "Event types"
     },
     "category": {
         "pageTitle": "View or modify the events categories",

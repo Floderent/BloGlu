@@ -26,6 +26,7 @@ ControllersModule.controller('logBookController', [
             printService) {
 
         $scope.data = [];
+        $scope.logBookTitle = '';
         $scope.eventsTypes = ResourceName;
         $scope.eventsIcons = ResourceIcon;
         $scope.display = [1];
@@ -71,6 +72,7 @@ ControllersModule.controller('logBookController', [
             $rootScope.increasePending("processingMessage.loadingData");
             logBookService.getTimeInterval($scope.interval, $scope.currentDate).then(function (timeInterval) {
                 $scope.timeInterval = timeInterval;
+                $scope.logBookTitle = logBookService.getTimeIntervalTitle(timeInterval);
                 var params = {where: {code: {$in: $scope.display}}};
                 logBookService.getTableData($scope.timeInterval, params).then(
                         function(result) {
@@ -118,11 +120,11 @@ ControllersModule.controller('logBookController', [
                     newDate.setFullYear(newDate.getFullYear() + (1 * coef));
                     break;
             }
-            $scope.currentDate = newDate;
+            $scope.currentDate = newDate;            
             $location.url($location.path());
             $location.path('logBook').search('weekDate', $scope.currentDate.toISOString()).search('interval', interval).search('display', logBookService.getDisplayParam($scope.display));
         }
-        
+       
         //view reading by id
         $scope.viewEvent = function(code, objectId) {            
             eventService.viewEvent(code, objectId).then(renderPage, renderPage);
@@ -195,7 +197,7 @@ ControllersModule.controller('logBookController', [
         };
 
         $scope.currentWeek = function () {
-            currentDate = new Date();
+            $scope.currentDate = new Date();
             changeInterval($scope.currentDate, $scope.interval, 0);
         };
         $rootScope.$on('dataReady', renderPage);
