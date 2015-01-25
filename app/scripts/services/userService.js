@@ -20,11 +20,15 @@ servicesModule.factory('UserService', [
         };
         
         UserService.getUser = function (userId) {
-            return genericDaoService.get(resourceName, userId);
+            return genericDaoService.get(resourceName, userId).then(function(user){
+                return angular.copy(user);
+            });
         };
         
         UserService.getCurrentUser = function(){
-            return genericDaoService.get(resourceName, UserSessionService.userId());
+            return genericDaoService.get(resourceName, UserSessionService.userId()).then(function(user){
+                return angular.copy(user);
+            });
         };
         
         UserService.getPreferences = function(){

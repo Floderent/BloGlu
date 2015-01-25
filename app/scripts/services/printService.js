@@ -14,14 +14,14 @@ servicesModule.factory('printService', ['$q', '$filter', '$translate', 'Resource
                 titleTextFontType: "bold",
                 cellHeight: 35,
                 contentCellWidth: 100,
-                titleCellWidth: 130                
+                titleCellWidth: 130
             },
             title: {
                 fontSize: 25,
                 dayKey: 'logbook.day',
                 weekKey: 'logbook.week',
                 monthKey: 'logbook.month',
-                yearKey: 'logbook.year'                
+                yearKey: 'logbook.year'
             }
         };
 
@@ -33,27 +33,47 @@ servicesModule.factory('printService', ['$q', '$filter', '$translate', 'Resource
             return title;
         }
 
-        function getCellHeight(rowIndex, columnIndex, interval, cellData, tableData, params) {
-            var cellHeight = params.table.cellHeight;
-            if (Array.isArray(cellData) && cellData.length > 0) {
-                cellHeight = cellData.length * cellHeight;
+
+        function getRowHeights(tableData, interval, params) {
+            var rowHeights = [];
+            for (var rowIndex = 0; rowIndex < tableData.length; rowIndex++) {
+                var row = tableData[rowIndex];
+                var rowHeight = params.table.cellHeight;
+                for (var columnIndex = 0; columnIndex < tableData[0].length; columnIndex++) {
+                    var cellData = row[columnIndex];
+                    if (rowIndex !== 0 && interval !== 'week') {
+                        rowHeight = rowHeight * 5;
+                    } else {
+                        if (Array.isArray(cellData) && cellData.length > 0) {
+                            var newRowHeight = cellData.length * rowHeight;
+                            if (newRowHeight > rowHeight) {
+                                rowHeight = newRowHeight;
+                            }
+                        }
+                    }
+                }
+                rowHeights.push(rowHeight);
             }
-            if(rowIndex !== 0 && interval !== 'week'){
-                cellHeight = cellHeight * 5;
-            }
-            return cellHeight;
+            return rowHeights;
         }
 
-        function getCellWidth(rowIndex, columnIndex, interval, cellData, tableData, params) {
-            var cellWidth = params.table.contentCellWidth;
-            if (columnIndex === 0) {
-                cellWidth = params.table.titleCellWidth;
+        function getColumnWidths(tableData, interval, params) {
+            var columnWidths = [];
+            if (tableData.length > 0) {                                
+                for (var columnIndex = 0; columnIndex < tableData[0].length; columnIndex++) {
+                    var columnWidth = params.table.contentCellWidth;
+                    if (columnIndex === 0) {
+                        columnWidth = params.table.titleCellWidth;
+                    }else{
+                        if (interval !== 'week') {
+                            columnWidth = params.table.titleCellWidth * 1.5;
+                        }
+                    }
+                    columnWidths.push(columnWidth);
+                }                
             }
-            if (interval !== 'week') {
-                cellWidth = params.table.titleCellWidth * 1.5;
-            }
-            return cellWidth;
-        }
+            return columnWidths;
+        }        
 
         function getParameters(eventTypes) {
             var deferred = $q.defer();
@@ -74,8 +94,8 @@ servicesModule.factory('printService', ['$q', '$filter', '$translate', 'Resource
 
         function renderCell(doc, rowIndex, columnIndex, interval, cellData, tableData, params) {
 
-            var height = getCellHeight(rowIndex, columnIndex, interval, cellData, tableData, params);
-            var width = getCellWidth(rowIndex, columnIndex, interval, cellData, tableData, params);
+            var height = params.rowHeights[rowIndex];                    
+            var width = params.columnWidths[columnIndex];                    
 
             var valueToDisplay = " ";
 
@@ -100,19 +120,20 @@ servicesModule.factory('printService', ['$q', '$filter', '$translate', 'Resource
 
             }
             doc.cell(10, 50, width, height, valueToDisplay, rowIndex);
-        };
+        }
+        ;
 
 
         function renderWeekCell(doc, rowIndex, columnIndex, interval, cellData, tableData, params) {
-            var valueToDisplay = "";
+            var valueToDisplay = " ";
             if (columnIndex === 0) {
                 doc.setFontType(params.table.titleTextFontType);
                 doc.setFontSize(params.table.titleTextFontSize);
                 valueToDisplay = $filter('date')(cellData.date, 'EEEE d MMM');
-            } else {                
+            } else {
                 if (cellData && Array.isArray(cellData)) {
                     angular.forEach(cellData, function (element) {
-                        valueToDisplay += $filter('date')(element.dateTime, 'HH:mm') + "\n " + element.reading + " " + params[element.code].name;
+                        valueToDisplay += $filter('date')(element.dateTime, 'HH:mm') + "\n " + element.reading + " " + params[element.code].name + "\n";
                     });
                 }
             }
@@ -120,12 +141,12 @@ servicesModule.factory('printService', ['$q', '$filter', '$translate', 'Resource
         }
 
         function renderAggregatedCell(doc, rowIndex, columnIndex, interval, cellData, tableData, params) {
-            var valueToDisplay = "";            
+            var valueToDisplay = "";
             if (cellData && Array.isArray(cellData)) {
-                angular.forEach(cellData, function (element) {                    
-                    if(element){
-                        angular.forEach(element, function(value, key){                            
-                            valueToDisplay = 
+                angular.forEach(cellData, function (element) {
+                    if (element) {
+                        angular.forEach(element, function (value, key) {
+                            valueToDisplay =
                                     " Maximum: " + value.maximum + " " + params[value.code].name +
                                     " \n Minimum: " + value.minimum + " " + params[value.code].name +
                                     " \n Average: " + value.average + " " + params[value.code].name +
@@ -143,6 +164,10 @@ servicesModule.factory('printService', ['$q', '$filter', '$translate', 'Resource
             getParameters(eventTypes).then(function (params) {
                 var printParams = angular.extend(inputParams, params);
                 doc.cellInitialize();
+                
+                printParams.rowHeights = getRowHeights(tableData, interval, printParams);;
+                printParams.columnWidths = getColumnWidths(tableData, interval, printParams);
+                
                 for (var rowIndex = 0; rowIndex < tableData.length; rowIndex++) {
                     var row = tableData[rowIndex];
                     for (var columnIndex = 0; columnIndex < tableData[0].length; columnIndex++) {
@@ -154,8 +179,7 @@ servicesModule.factory('printService', ['$q', '$filter', '$translate', 'Resource
                 deferred.resolve();
             });
             return deferred.promise;
-        }
-        ;
+        };
 
         printService.printLogBook = function (tableData, timeInterval, eventTypes, inputParams) {
             var deferred = $q.defer();

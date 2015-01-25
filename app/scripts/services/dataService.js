@@ -707,10 +707,11 @@ servicesModule.factory('dataService', ['$q', '$filter', '$injector', '$locale', 
             getBloodGlucose: function (value, row, localData) {
                 var returnValue = null;
                 if (row.code && row.code === 1) {
-                    returnValue = value;
-                    returnValue = returnValue * row.unit.coefficient;
+                    returnValue = value;                    
                     if (Utils.getDefaultUnit(localData, 1) && Utils.getDefaultUnit(localData, 1).coefficient) {
                         returnValue = returnValue * Utils.getDefaultUnit(localData, 1).coefficient;
+                    }else{
+                        returnValue = returnValue * row.unit.coefficient;
                     }
                 }
                 return returnValue;
