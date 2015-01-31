@@ -32,12 +32,8 @@ servicesModule.service('genericDaoService', ['dataService', function(dataService
         };
         
         genericDaoService.get = function(resourceName, objectId){            
-            return dataService.queryLocal(resourceName, {where: {objectId: objectId}}).then(function(result) {
-                var report = {};
-                if (result && result.length === 1) {
-                    report = result[0];
-                }
-                return report;
+            return dataService.get(resourceName, objectId).then(function(result) {
+                return result;
             });
         };
         genericDaoService.delete = function(resourceName, object){

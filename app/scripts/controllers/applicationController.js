@@ -42,7 +42,7 @@ ControllersModule.controller('applicationController', [
         
         var modal = null;
         
-        function renderPage(){            
+        function renderPage(){  
             UserService.getCurrentUser().then(function(currentUser){
                 $rootScope.currentUserInfos = currentUser;
             });
@@ -146,9 +146,14 @@ ControllersModule.controller('applicationController', [
             }
         });
 
-        $rootScope.$on(AUTH_EVENTS.loginSuccess, function (event, next) {
-            $rootScope.increasePending('processingMessage.synchronizing');
-            syncService.sync(progressHandler).then(
+        $rootScope.$on(AUTH_EVENTS.loginSuccess, function (event, params) {
+            $rootScope.increasePending('processingMessage.synchronizing');   
+            var syncMode = "online";
+            if(params){
+                syncMode = params.mode;
+            }
+            
+            syncService.sync(progressHandler, params.mode).then(
                     function resolve() {
                         $rootScope.progress = 100;
                     },

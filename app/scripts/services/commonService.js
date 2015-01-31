@@ -76,13 +76,5 @@ servicesModule.factory('MessageService', ['$timeout', 'localizationService', fun
             }
         };
 
-        messageService.applyTemplate = function(text, values) {            
-            var translatedText = localizationService.get(text);
-            if (values) {
-                translatedText = localizationService.applyLocalizedTemplate(translatedText, values);
-            }
-            return translatedText;
-        };
-
         return messageService;
     }]);

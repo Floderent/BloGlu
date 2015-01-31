@@ -14,7 +14,7 @@ servicesModule.factory('localizationService', ['$window', '$translate', '$q', 't
         localizationService.browserLanguage = $window.navigator.userLanguage || $window.navigator.language;
         localizationService.language = null;
 
-        localizationService.setLanguage = function(language) {
+        localizationService.setLanguage = function(language) {            
             var deferred = $q.defer();
             localizationService.language = localizationService.defaultLanguage;            
             if (isSupportedLanguage(language)) {
@@ -33,15 +33,6 @@ servicesModule.factory('localizationService', ['$window', '$translate', '$q', 't
             return $translate.instant(key);
         };
        
-        localizationService.applyLocalizedTemplate = function(templatedString, values) {
-            var translatedValues = {};
-            angular.forEach(values, function(value, key) {
-                translatedValues[key] = localizationService.get(value, true);
-            });
-            return localizationService.applyTemplate(templatedString, translatedValues);
-        };        
-
-
         function isSupportedLanguage(language) {
             var supported = false;
             if (language) {

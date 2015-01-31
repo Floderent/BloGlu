@@ -7,8 +7,7 @@ angular.module('BloGlu.directives', []);
 
 
 var mainModule = angular
-        .module('BloGlu', [
-            'ipCookie',           
+        .module('BloGlu', [            
             'ngResource',
             'ngSanitize',
             'ngRoute',
@@ -19,6 +18,7 @@ var mainModule = angular
             'pascalprecht.translate',
             'tmh.dynamicLocale',
             'ngTouch',
+            'LocalStorageModule',
             'BloGlu.services',
             'BloGlu.controllers',
             'BloGlu.filters',
@@ -36,6 +36,7 @@ mainModule.config(['$routeProvider',
         //reports        
         $routeProvider.when('/reports', {controller: 'reportListController', templateUrl: 'views/reportList.html'});
         $routeProvider.when('/reports/:objectId', {controller: 'reportController', templateUrl: 'views/report.html'});
+        $routeProvider.when('/report/', {controller: 'reportController', templateUrl: 'views/report.html'});
         //Data
         ///Imports
         $routeProvider.when('/imports', {controller: 'importListController', templateUrl: 'views/importList.html'});
@@ -140,9 +141,13 @@ mainModule.run(['$rootScope', 'localizationService', 'AUTH_EVENTS', 'UserSession
             $rootScope.$broadcast('language-change', localizationService.language);
             UserSessionService.isTokenValid().then(function(tokenValid) {
                 if (!tokenValid) {
-                    $rootScope.$broadcast(AUTH_EVENTS.notAuthenticated);
-                } else {
-                    $rootScope.$broadcast(AUTH_EVENTS.loginSuccess);
+                    if(tokenValid === null){
+                        $rootScope.$broadcast(AUTH_EVENTS.loginSuccess, {mode: "offline"});
+                    }else{
+                        $rootScope.$broadcast(AUTH_EVENTS.notAuthenticated);
+                    }
+                } else {                    
+                    $rootScope.$broadcast(AUTH_EVENTS.loginSuccess, {mode: "online"});
                 }
             });
         });

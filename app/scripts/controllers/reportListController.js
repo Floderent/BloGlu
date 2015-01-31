@@ -53,7 +53,7 @@ ControllersModule.controller('reportListController', ['$scope', '$rootScope', '$
         };
 
         $scope.editReport = function(report) {
-            var path = 'report/' + report.objectId;
+            var path = 'reports/' + report.objectId;
             $location.url($location.path());
             $location.path(path);            
         };

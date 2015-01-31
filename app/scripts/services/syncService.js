@@ -109,13 +109,13 @@ servicesModule.factory('syncService', ['$q', '$injector', '$rootScope', 'Databas
             });
         };
 
-        syncService.sync = function (notify) {
+        syncService.sync = function (notify, mode) {
             var deferred = $q.defer();
             var notificationFunc = computeProgression(1, notify);
 
             var promiseArray = [];
-            if (syncService.syncStatus === 'upToDate') {
-                deferred.resolve();
+            if (syncService.syncStatus === 'upToDate' || mode === 'offline') {
+                triggerSync(notificationFunc).then(deferred.resolve, deferred.reject);                
             } else {
                 syncService.checkSyncStatus().then(function (syncStatus) {
                     notificationFunc(1, "syncStatusChecked");
@@ -127,11 +127,7 @@ servicesModule.factory('syncService', ['$q', '$injector', '$rootScope', 'Databas
                     });
                     $q.all(promiseArray).then(function (result) {
                         notificationFunc = computeProgression(1, notify);
-                        dataService.init(true).then(function (result) {
-                            notificationFunc(1, "syncDone");
-                            triggerDataReadyEvent();
-                            deferred.resolve();
-                        }, deferred.reject);
+                        triggerSync(notificationFunc);
                     }, deferred.reject, deferred.notify);
                 }, deferred.reject);
             }
@@ -141,7 +137,7 @@ servicesModule.factory('syncService', ['$q', '$injector', '$rootScope', 'Databas
         function computeProgression(num, progress) {
             var total = 0;
             return function (progression, message) {
-                total += progression;                
+                total += progression;
                 if (progress && typeof progress === 'function') {
                     progress(((total / num) * 100).toFixed(2), message);
                 }
@@ -156,6 +152,16 @@ servicesModule.factory('syncService', ['$q', '$injector', '$rootScope', 'Databas
                 }
             });
             return numberOfOutOfSyncCollections;
+        }
+
+        function triggerSync(notificationFunc) {            
+            var deferred = $q.defer();
+            dataService.init(true).then(function (result) {
+                notificationFunc(1, "syncDone");
+                triggerDataReadyEvent();
+                deferred.resolve();
+            }, deferred.reject);
+            return deferred.promise;
         }
 
 

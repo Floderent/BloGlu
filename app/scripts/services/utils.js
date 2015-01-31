@@ -2,7 +2,7 @@
 
 var servicesModule = angular.module('BloGlu.services');
 
-servicesModule.factory('Utils', ['$modal','$rootScope','$translate','ResourceName', 'UserSessionService' , function ($modal, $rootScope, $translate, ResourceName, UserSessionService) {
+servicesModule.factory('Utils', ['$modal', '$rootScope', '$translate', 'ResourceName', 'UserSessionService', function ($modal, $rootScope, $translate, ResourceName, UserSessionService) {
         var Utils = {};
         Utils.guid = (function () {
             function s4() {
@@ -17,16 +17,16 @@ servicesModule.factory('Utils', ['$modal','$rootScope','$translate','ResourceNam
         })();
 
 
-        Utils.openConfirmModal = function (scopeOptions, modalOptions) {            
+        Utils.openConfirmModal = function (scopeOptions, modalOptions) {
             var modalScope = $rootScope.$new();
-            modalScope = angular.extend(modalScope, scopeOptions);            
+            modalScope = angular.extend(modalScope, scopeOptions);
             if (scopeOptions) {
                 angular.forEach(scopeOptions, function (value, key) {
                     if (typeof value === 'object') {
-                        if(value.id && value.params){
+                        if (value.id && value.params) {
                             modalScope[key] = $translate.instant(value.id, value.params);
                         }
-                    }else{
+                    } else {
                         modalScope[key] = $translate.instant(value);
                     }
                 });
@@ -39,14 +39,14 @@ servicesModule.factory('Utils', ['$modal','$rootScope','$translate','ResourceNam
             var defaultModalOptions = angular.extend(defaultModalOptions, modalOptions);
             return $modal.open(defaultModalOptions).result;
         };
-        
-        
-        Utils.getConnectedUser = function(localData){
+
+
+        Utils.getConnectedUser = function (localData) {
             var currentUserId = UserSessionService.userId();
             var connectedUser = null;
-            if(localData && localData.User){
-                angular.forEach(localData.User, function(user){
-                    if(user.objectId === currentUserId){
+            if (localData && localData.User) {
+                angular.forEach(localData.User, function (user) {
+                    if (user.objectId === currentUserId) {
                         connectedUser = user;
                         return;
                     }
@@ -54,12 +54,12 @@ servicesModule.factory('Utils', ['$modal','$rootScope','$translate','ResourceNam
             }
             return connectedUser;
         };
-        
-        Utils.getReferenceUnit = function(localData, resourceCode){
+
+        Utils.getReferenceUnit = function (localData, resourceCode) {
             var referenceUnit = null;
-            if(localData && localData.Unit){
-                angular.forEach(localData.Unit, function(unit){
-                    if(unit.code === resourceCode && unit.coefficient === 1){
+            if (localData && localData.Unit) {
+                angular.forEach(localData.Unit, function (unit) {
+                    if (unit.code === resourceCode && unit.coefficient === 1) {
                         referenceUnit = unit;
                         return;
                     }
@@ -67,18 +67,33 @@ servicesModule.factory('Utils', ['$modal','$rootScope','$translate','ResourceNam
             }
             return referenceUnit;
         };
-        
-        
-        Utils.getDefaultUnit = function(localData, resourceCode){
+
+
+        Utils.getDefaultUnit = function (localData, resourceCode) {
             var defaultUnit = null;
             var connectedUser = Utils.getConnectedUser(localData);
-            if(connectedUser.preferences && connectedUser.preferences.defaultUnits && connectedUser.preferences.defaultUnits[ResourceName[parseInt(resourceCode)]]){
+            if (connectedUser.preferences && connectedUser.preferences.defaultUnits && connectedUser.preferences.defaultUnits[ResourceName[parseInt(resourceCode)]]) {
                 defaultUnit = connectedUser.preferences.defaultUnits[ResourceName[parseInt(resourceCode)]];
-            }else{
+            } else {
                 defaultUnit = Utils.getReferenceUnit(localData, resourceCode);
             }
             return defaultUnit;
         };
+
+        Utils.getConvertedReading = function (value, row, localData, resourceCode) {
+            var returnValue = null;
+            if (row.code && row.code === resourceCode) {
+                returnValue = value;
+                if (Utils.getDefaultUnit(localData, resourceCode) && Utils.getDefaultUnit(localData, resourceCode).coefficient) {
+                    returnValue = returnValue * Utils.getDefaultUnit(localData, 1).coefficient;
+                } else {
+                    returnValue = returnValue * row.unit.coefficient;
+                }
+            }
+            return returnValue;
+        };
+
+
 
         return Utils;
     }]);
@@ -113,7 +128,7 @@ servicesModule.factory('dateUtil', ['$filter', function ($filter) {
             var _MS_PER_HOUR = 1000 * 60 * 60;
             return dateDiff(a, b, _MS_PER_HOUR);
         }
-        
+
         function processDate(dateStr) {
             var date = null;
             if (dateStr) {
@@ -143,21 +158,21 @@ servicesModule.factory('dateUtil', ['$filter', function ($filter) {
             }
             return date;
         }
-        
-        function getPeriodDuration(period){
+
+        function getPeriodDuration(period) {
             var duration = null;
-            if(period && period.begin && period.end){
-                if(period.end.getHours() === 0){                    
+            if (period && period.begin && period.end) {
+                if (period.end.getHours() === 0) {
                     duration = dateUtil.getDateHourAndMinuteToMillis(period.end, true) - dateUtil.getDateHourAndMinuteToMillis(period.begin);
-                }else{
+                } else {
                     duration = dateUtil.getDateHourAndMinuteToMillis(period.end) - dateUtil.getDateHourAndMinuteToMillis(period.begin);
-                }                
-            }            
+                }
+            }
             return duration;
         }
-        
-        
-        dateUtil.processDateTime = function(dateStr) {
+
+
+        dateUtil.processDateTime = function (dateStr) {
             var date = null;
             if (dateStr) {
                 var splittedDateTime = dateStr.split(' ');
@@ -180,7 +195,7 @@ servicesModule.factory('dateUtil', ['$filter', function ($filter) {
 
             }
             return date;
-        };        
+        };
 
         dateUtil.getPeriodMaxDate = function (periodArray, dateField) {
             var maxDate = null;
@@ -266,7 +281,7 @@ servicesModule.factory('dateUtil', ['$filter', function ($filter) {
             var hourCoef = 60 * 60 * 1000;
             var minuteCoef = 60 * 1000;
             var hours = date.getHours();
-            if(hours === 0 && use24){
+            if (hours === 0 && use24) {
                 hours = 24;
             }
             return hours * hourCoef + date.getMinutes() * minuteCoef;
@@ -283,8 +298,8 @@ servicesModule.factory('dateUtil', ['$filter', function ($filter) {
             var used = firstOfMonth.getDay() + lastOfMonth.getDate();
             return Math.ceil(used / 7);
         };
-        
-        dateUtil.addDays = function(date, days) {
+
+        dateUtil.addDays = function (date, days) {
             var result = new Date(date);
             result.setDate(date.getDate() + days);
             return result;
@@ -294,12 +309,12 @@ servicesModule.factory('dateUtil', ['$filter', function ($filter) {
         dateUtil.getDateWeekBeginAndEndDate = function (date, indexOfFirstDay) {
             var beginDate = null;
             var endDate = null;
-            
+
             indexOfFirstDay = parseInt(indexOfFirstDay);
 
             if (date.getDay() === indexOfFirstDay) {
                 beginDate = new Date(date.getTime());
-                endDate = new Date(date.getTime());                
+                endDate = new Date(date.getTime());
                 endDate = dateUtil.addDays(beginDate, 6);
             } else {
                 if (date.getDay() < indexOfFirstDay) {
@@ -397,10 +412,10 @@ servicesModule.factory('dateUtil', ['$filter', function ($filter) {
         dateUtil.arePeriodsOnMoreThanOneDay = function (periods) {
             var total = 0;
             var result = 0;
-            var max = 86400000;            
+            var max = 86400000;
             for (var index = 0; index < periods.length; index++) {
                 var period = periods[index];
-                var duration = getPeriodDuration(period);                            
+                var duration = getPeriodDuration(period);
                 total += Math.abs(duration);
                 if (total > max) {
                     break;

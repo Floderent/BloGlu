@@ -5,12 +5,12 @@ var servicesModule = angular.module('BloGlu.services');
 servicesModule.factory('UserSessionService', [
     '$http',
     '$q',
-    'ipCookie', 
+    'localStorageService', 
     'ServerService',
     function(
             $http,
             $q,
-            ipCookie,
+            localStorageService,
             ServerService
             ){
         
@@ -19,13 +19,13 @@ servicesModule.factory('UserSessionService', [
         var sessionInfos;
         
         
-        
         UserSessionService.signUp = function (user) {
             return $http.post(ServerService.baseUrl + 'users', user, { headers: ServerService.headers});
         };
         
-        UserSessionService.currentUser = function () {            
-            return sessionInfos || ipCookie(cookieKey);
+        UserSessionService.currentUser = function () {
+            //debugger;
+            return sessionInfos || localStorageService.get(cookieKey);
         };   
         
         
@@ -42,7 +42,7 @@ servicesModule.factory('UserSessionService', [
                     sessionToken: result.sessionToken, 
                     userId: result.objectId
                 };
-                ipCookie(cookieKey, sessionInfos, {expire: 7});                
+                localStorageService.set(cookieKey, sessionInfos);                
                 return result;
             })
             .error(function (error) {
@@ -66,7 +66,7 @@ servicesModule.factory('UserSessionService', [
         
         UserSessionService.logOut = function () {
             sessionInfos = null;
-            ipCookie.remove(cookieKey);
+            localStorageService.remove(cookieKey);
         };
         
         UserSessionService.sessionToken = function(){            
@@ -74,8 +74,8 @@ servicesModule.factory('UserSessionService', [
             if(sessionInfos && sessionInfos.sessionToken){
                 result = sessionInfos.sessionToken;
             }else{
-                if(ipCookie(cookieKey) && ipCookie(cookieKey).sessionToken){
-                    result = ipCookie(cookieKey).sessionToken;
+                if(localStorageService.get(cookieKey) && localStorageService.get(cookieKey).sessionToken){
+                    result = localStorageService.get(cookieKey).sessionToken;
                 }
             }
             return result;            
@@ -86,8 +86,8 @@ servicesModule.factory('UserSessionService', [
             if(sessionInfos && sessionInfos.userId){
                 result = sessionInfos.userId;
             }else{
-                if(ipCookie(cookieKey) && ipCookie(cookieKey).userId){
-                    result = ipCookie(cookieKey).userId;
+                if(localStorageService.get(cookieKey) && localStorageService.get(cookieKey).userId){
+                    result = localStorageService.get(cookieKey).userId;
                 }
             }
             return result;
@@ -104,7 +104,7 @@ servicesModule.factory('UserSessionService', [
                         deferred.resolve(true);
                     })
                     .error(function (error) {
-                        var sessionValid = true;
+                        var sessionValid = null;
                         if (error && error.code === 101) {
                             sessionValid = false;
                         }
@@ -118,8 +118,8 @@ servicesModule.factory('UserSessionService', [
             if(sessionInfos && sessionInfos.sessionToken){
                 result = sessionInfos.sessionToken;
             }else{
-                if(ipCookie(cookieKey) && ipCookie(cookieKey).sessionToken){
-                    result = ipCookie(cookieKey).sessionToken;
+                if(localStorageService.get(cookieKey) && localStorageService.get(cookieKey).sessionToken){
+                    result = localStorageService.get(cookieKey).sessionToken;
                 }
             }
             return result;            
@@ -130,8 +130,8 @@ servicesModule.factory('UserSessionService', [
             if(sessionInfos && sessionInfos.userId){
                 result = sessionInfos.userId;
             }else{
-                if(ipCookie(cookieKey) && ipCookie(cookieKey).userId){
-                    result = ipCookie(cookieKey).userId;
+                if(localStorageService.get(cookieKey) && localStorageService.get(cookieKey).userId){
+                    result = localStorageService.get(cookieKey).userId;
                 }
             }
             return result;

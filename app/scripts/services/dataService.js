@@ -181,14 +181,13 @@ servicesModule.factory('dataService', ['$q', '$filter', '$injector', '$locale', 
         };
 
         dataService.get = function (collection, objectId) {
-            return dataService.init().then(function (localData) {
-                return dataService.processResult(localData[collection], {where: {objectId: objectId}}).then(function (results) {
-                    var result = null;
-                    if (results && results.length === 1) {
-                        result = results[0];
-                    }
-                    return result;
-                });
+            return dataService.init().then(function (localData) {                
+                var results = dataService.processResult(localData[collection], {where: {objectId: objectId}});
+                var result = null;
+                if (results && results.length === 1) {
+                    result = angular.copy(results[0]);
+                }
+                return result;                
             });
         };
 
@@ -705,24 +704,11 @@ servicesModule.factory('dataService', ['$q', '$filter', '$injector', '$locale', 
             },
             //getBloodGlucose
             getBloodGlucose: function (value, row, localData) {
-                var returnValue = null;
-                if (row.code && row.code === 1) {
-                    returnValue = value;                    
-                    if (Utils.getDefaultUnit(localData, 1) && Utils.getDefaultUnit(localData, 1).coefficient) {
-                        returnValue = returnValue * Utils.getDefaultUnit(localData, 1).coefficient;
-                    }else{
-                        returnValue = returnValue * row.unit.coefficient;
-                    }
-                }
-                return returnValue;
-            }.bind({$injector: $injector, Utils: Utils}),
+                return Utils.getConvertedReading(value, row, localData, 1);
+            },
             //get weight
             getWeight: function (value, row, localData) {
-                var returnValue = null;
-                if (row.code && row.code === 3) {
-                    returnValue = value;
-                }
-                return returnValue;
+                return Utils.getConvertedReading(value, row, localData, 3);                
             },
             getAnalysisPeriod: function (dateTime, row, localData) {
                 var returnValue = '';
@@ -806,11 +792,27 @@ servicesModule.factory('dataService', ['$q', '$filter', '$injector', '$locale', 
                     beginDate.setDate(beginDate.getDate() - 7);
                     return {$gt: beginDate, $lt: endDate};
                 }
-            }
-            //current week
+            },
+            //current week            
             //last week
             //last 30 days
+            lastThirtyDays:{
+                title: 'lastThirtyDays',
+                filterFunction: function(){
+                    var date = new Date();
+                    var endDate = new Date();
+                    var beginDate = new Date(date.getFullYear(), date.getMonth(), date.getDate());
+                    beginDate.setDate(beginDate.getDate() - 30);
+                    return {$gt: beginDate, $lt: endDate};
+                }
+            },
             //last three months
+            lastThreeMonths: {
+                title: 'lastThreeMonths',
+                filterFunction: function(){
+                    
+                }
+            }
         };
 
 
