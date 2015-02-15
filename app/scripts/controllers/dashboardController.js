@@ -8,9 +8,9 @@ ControllersModule.controller('dashboardController', ['$scope', '$rootScope', '$l
 
         renderPage();
 
-        $scope.chooseReport = function(row, column) {
+        $scope.chooseReport = function(row, column) {            
             dashboardService.setNewReport(row, column);
-            $location.path('reportList');
+            $location.path('reports');
         };
         
         $scope.clearReport = function(row, column){            

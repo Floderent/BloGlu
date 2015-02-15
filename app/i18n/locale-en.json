@@ -25,6 +25,7 @@
     "bloodPressureEvent": "Blood Pressure",
     "a1cEvent": "a1c",
     "exerciseEvent": "Exercise",
+    "foodIntakeEvent": "Carbohydrates intake",
     
     "tableDataviz" : "Table",
     "chartDataviz" : "Chart",
@@ -35,6 +36,7 @@
     "currentYear" : "Current year",
     "currentMonth" : "Current month",
     "lastSevenDays" : "Last seven days",
+    "customBetweenDates": "Custom",
     
     "sumUnit": "Total of medication",
     "averageWeight" : "Average weight",
@@ -138,7 +140,7 @@
         "bloodPressure": "Blood pressure",
         "a1c": "A1C",
         "exercise": "Exercise",
-        "foodIntake": "Food intake",
+        "foodIntake": "Carbohydrates intake",
         
         "logbook": "Logbook",
         
@@ -174,13 +176,15 @@
         "addnewReport": "Add new report"
     },
     "event": {
-        "otherTitle": "Enter an event",
-        "bgTitle": "Enter a blood glucose reading",
-        "medicationTitle": "Enter a medication",        
-        "weightTitle": "Enter a weight",
-        "bloodPressureTitle": "Enter a blood pressure",
-        "a1cTitle": "Enter an a1c",
-        "exerciseTitle": "Enter a physical activity",
+        "otherTitle": "Event",
+        "bgTitle": "Blood glucose reading",
+        "medicationTitle": "Medication",        
+        "weightTitle": "Weight",
+        "bloodPressureTitle": "Blood pressure",
+        "a1cTitle": "A1c",
+        "exerciseTitle": "Physical activity",
+        "foodIntakeTitle": "Carbohydrates intake",
+        
         "bgBeforeMeal": "Before meal",
         "bgAfterMeal": "After meal",
         "category": "Category",
@@ -266,6 +270,8 @@
         "queryElements" : "Data to analyse",
         "addElement": "Add the data",
         "analysisPeriod" : "Analysis period",
+        "beginDate": "Begin date",
+        "endDate": "End date",
         "dataviz" : "Visualisation",
         "reportTitle": "Report title",
         "execute": "Execute",

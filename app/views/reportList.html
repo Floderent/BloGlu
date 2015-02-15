@@ -18,7 +18,7 @@
             <th></th>            
             </thead>
             <tbody>
-                <tr ng-repeat="report in reports">
+                <tr ng-repeat="report in reports | orderBy:'updatedAt':true">
                     <td>
                         <span>{{report.title}}</span>
                     </td>

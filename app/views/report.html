@@ -12,56 +12,90 @@
                 <label class="control-label" for="reportDescription">{{ 'report.comment' | translate }}</label>
                 <textarea id="reportDescription" class="form-control" ng-model="report.description"  placeholder="{{ 'report.comment' | translate }}"></textarea>
             </div>
-            
+
             <!-- query elements -->
             <div class="form-group">
                 <label for="selectQueryElement">{{ 'report.queryElements' | translate }}</label>
-                <div class="input-group">                    
-                    <select id="selectQueryElement" class="form-control" data-ng-model="selectedQueryElement" data-ng-options="queryElement.title group by queryElement.group for queryElement in queryElements"></select>
+                <div class="input-group">
+                    <select id="selectQueryElement" class="form-control" data-ng-model="selectedQueryElement" data-ng-options="queryElement.title | translate group by queryElement.group | translate for queryElement in queryElements"></select>
                     <span class="input-group-btn">
                         <button class="btn btn-default" ng-click="addQueryElement(selectedQueryElement)">{{ 'report.addElement' | translate }}</button>
                     </span>
                 </div>
             </div>
-            
-            
+
             <!-- Period to use -->
             <div class="form-group">                
+                <label class="control-label" for="period">{{ 'report.analysisPeriod' | translate }}</label>
                 <div class="input-group">
-                    <label class="control-label" for="period">{{ 'report.analysisPeriod' | translate }}</label>
-                    <select id="period" class="form-control" data-ng-model="selectedFilter" data-ng-options="key as value.title for (key, value) in filters"></select>                    
+                    <select id="period" class="form-control" data-ng-model="selectedFilter" data-ng-options="filter as filter.title | translate for filter in filters"></select>
+                    <span class="input-group-btn">
+                        <button class="btn btn-default" ng-click="addFilter(selectedFilter)">{{ 'report.addElement' | translate }}</button>
+                    </span>
                 </div>
+            </div>           
+
+            <!-- Custom input for period -->
+            <div data-ng-form="form.filterValueForm" class="form-group" data-ng-show="selectedFilter.customParameters">
+                <div class="input-group">
+                    <label class="control-label" for="beginDate">{{ 'report.beginDate' | translate }}</label>
+                    <input                        
+                        id="beginDate" 
+                        data-ng-required="selectedFilter.customParameters"
+                        class="form-control" 
+                        datepicker-popup="dd/MM/yyyy"
+                        close-text="{{ 'event.closeDatePicker' | translate }}"
+                        clear-text="{{ 'event.clearDatePicker' | translate }}"
+                        toggle-weeks-text="{{ 'event.weeksDatePicker' | translate }}"
+                        current-text="{{ 'event.currentDatePicker' | translate }}"
+                        data-ng-model="beginDate"/>
+                    <label class="control-label" for="endDate">{{ 'report.endDate' | translate }}</label>
+                    <input 
+                        id="endDate" 
+                        data-ng-required="selectedFilter.customParameters"
+                        class="form-control" 
+                        datepicker-popup="dd/MM/yyyy"
+                        close-text="{{ 'event.closeDatePicker' | translate }}"
+                        clear-text="{{ 'event.clearDatePicker' | translate }}"
+                        toggle-weeks-text="{{ 'event.weeksDatePicker' | translate }}"
+                        current-text="{{ 'event.currentDatePicker' | translate }}"
+                        data-ng-model="endDate"/>
+                </div>                
             </div>
+
         </div>
-        
-        
+
+        <!-- Query elements -->
         <div class="panel panel-default">
-            <div class="panel-body">
-                <span data-ng-repeat="selectedElement in selectedQueryElements">
-                    {{selectedElement.title}}
-                    <button class="btn-mini glyphicon glyphicon-remove" ng-click="removeQueryElement(selectedElement)"></button>
-                </span>
+            <div class="panel-body">                
+                <button class="btn btn-primary" type="button" ng-click="removeQueryElement(selectedElement)" data-ng-repeat="selectedElement in report.select">
+                    {{selectedElement.title| translate}}
+                </button>
             </div>
         </div>
         <!-- Filter -->
         <div class="panel panel-default">
             <div class="panel-body">                
-                <span ng-if="selectedFilter">
-                    {{filters[selectedFilter].title}}
-                    <button class="btn-mini glyphicon glyphicon-remove" ng-click="removeFilter()"></button>
-                </span>                
+                <button class="btn btn-info" type="button" ng-click="removeFilter(selectedFilter)" data-ng-repeat="selectedFilter in report.filter">
+                    <span data-ng-repeat="(key, value) in selectedFilter">
+                        {{value.title| translate}}
+                        <span data-ng-if="value.filterValue">
+                            <span data-ng-repeat="(key, value) in value.filterValue">{{value | date:'dd/MM/yyyy'}} </span>
+                        </span>
+                    </span>                    
+                </button>                
             </div>
         </div>
-        
+
+        <!-- Display -->
         <div class="form-group">                
-                <div class="input-group">
-                    <label class="control-label" for="dataviz">{{ 'report.dataviz' | translate }}</label>
-                    <select id="dataviz" class="form-control" data-ng-model="report.display" data-ng-options="key as value for (key, value) in datavizTypes"></select>
-                </div>
-        </div>
-        
-        <button class="btn-large btn-primary" ng-click="executeQuery()">{{ 'report.execute' | translate }}</button>
-        <button class="btn-large btn-primary" ng-click="clear()">{{ 'report.clear' | translate }}</button>
+            <div class="input-group">
+                <label class="control-label" for="dataviz">{{ 'report.dataviz' | translate }}</label>
+                <select id="dataviz" class="form-control" ng-init="report.display = report.display || datavizTypes[0].id" data-ng-change="changeDisplay()" data-ng-model="report.display" data-ng-options="datavizType.id as datavizType.title | translate for datavizType in datavizTypes"></select>
+            </div>
+        </div>        
+
+        <!--<button class="btn-large btn-primary" ng-click="clear()">{{ 'report.clear' | translate }}</button>-->
         <button class="btn btn-primary btn-lg active pull-left" ng-disabled="pending > 0" ng-show="isEdit" ng-click="delete()">{{ 'report.delete' | translate }}</button>
         <button class="btn btn-primary btn-lg active pull-right" ng-disabled="((reportForm.$dirty && reportForm.$invalid) || reportForm.$pristine) || pending > 0" ng-click="update()">{{ 'report.save' | translate }}</button>
     </div>

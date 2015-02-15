@@ -12,8 +12,7 @@ DirectivesModule.directive('dataviz', function ($compile) {
                 switch (config.type) {
                     case 'table':
                         dataviz = $compile('<table-dataviz column-order="columnOrder" config="config"></table-dataviz>')(scope);
-                        break;
-                    case 'chart':
+                        break;                        
                     case 'pieChart':
                     case 'barChart':
                     case 'lineChart':
@@ -44,16 +43,16 @@ DirectivesModule.directive('dataviz', function ($compile) {
 
 DirectivesModule.directive('tableDataviz', ['$q', '$translate', 'dataService', function ($q, $translate, dataService) {
         var linkFunction = function (scope, element, attrs) {
-            
-            buildTable(element, scope);  
+
+            buildTable(element, scope);
             /*
              scope.$watch('config', function (newValue, oldValue) {
              buildTable(element, scope);
              }, true);            
-            scope.$watch('columnOrder', function (newValue, oldValue) {
-                buildTable(element, scope);
-            }, true);
-            */
+             scope.$watch('columnOrder', function (newValue, oldValue) {
+             buildTable(element, scope);
+             }, true);
+             */
         };
 
         function buildTable(element, scope) {
@@ -82,7 +81,7 @@ DirectivesModule.directive('tableDataviz', ['$q', '$translate', 'dataService', f
                                 htmlElement = buildNoValueDisplay();
                                 angular.element(element).append(buildTitle(scope.config.title));
                                 angular.element(element).append(htmlElement);
-                            } else {                                
+                            } else {
                                 htmlElement = buildMultipleValueTable(element, headers, data, scope, columnOrder);
                                 angular.element(element).append(buildTitle(scope.config.title));
                                 angular.element(element).append(htmlElement);
@@ -157,7 +156,7 @@ DirectivesModule.directive('tableDataviz', ['$q', '$translate', 'dataService', f
                 var th = document.createElement('th');
                 th.addEventListener('click', headerClicked.bind({element: element, columnOrder: columnOrder, header: header, scope: scope, data: data, buildTable: buildTable}));
                 var headerLink = document.createElement('a');
-                headerLink.appendChild(document.createTextNode(header.title));
+                headerLink.appendChild(document.createTextNode($translate.instant(header.title)));
                 var directionSpan = document.createElement('span');
 
                 directionSpan.className = getHeaderDirection(header.name);
@@ -207,7 +206,7 @@ DirectivesModule.directive('tableDataviz', ['$q', '$translate', 'dataService', f
 
 
         function headerClicked(eventInfo) {
-            var containsClause = false;            
+            var containsClause = false;
             if (!this.scope.columnOrder) {
                 this.scope.columnOrder = [];
             } else {
@@ -238,8 +237,8 @@ DirectivesModule.directive('tableDataviz', ['$q', '$translate', 'dataService', f
                     sortClause.sort = this.header.sort;
                 }
                 this.scope.columnOrder.push(sortClause);
-            }            
-            this.buildTable(this.element, this.scope);            
+            }
+            this.buildTable(this.element, this.scope);
         }
         return {
             restrict: 'E', // only activate on element
@@ -254,7 +253,7 @@ DirectivesModule.directive('tableDataviz', ['$q', '$translate', 'dataService', f
 
 
 
-DirectivesModule.directive('chartDataviz', ['$compile', '$q', 'dataService', 'reportService', function ($compile, $q, dataService, reportService) {
+DirectivesModule.directive('chartDataviz', ['$compile', '$q', '$translate', 'dataService', function ($compile, $q, $translate, dataService) {
         var linkFunction = function (scope, element, attrs) {
             renderChart(scope, element);
             /*
@@ -378,16 +377,16 @@ DirectivesModule.directive('chartDataviz', ['$compile', '$q', 'dataService', 're
 
             angular.forEach(config.headers, function (queryElement) {
                 if (queryElement.aggregate) {
-                    scope.chartConfig.series.push({name: getSerieTitle(reportUnits, queryElement.title), data: []});
+                    scope.chartConfig.series.push({name: getSerieTitle(reportUnits, $translate.instant(queryElement.title)), data: []});
                 }
             });
             for (var lineIndex = 0; lineIndex < data.length; lineIndex++) {
                 var textValue = '';
                 for (var columnIndex = 0; columnIndex < config.headers.length; columnIndex++) {
-                    var propertyTitle = getSerieTitle(reportUnits, config.headers[columnIndex].title);
+                    var propertyTitle = getSerieTitle(reportUnits, $translate.instant(config.headers[columnIndex].title));
                     var propertyName = config.headers[columnIndex].name;
                     if (config.headers[columnIndex].aggregate) {
-                        var serie = getSerieByTitle(scope.chartConfig.series, propertyTitle);
+                        var serie = getSerieByName(scope.chartConfig.series, propertyTitle);
                         serie.data.push(parseInt(data[lineIndex][propertyName]));
                     } else {
                         textValue += " " + data[lineIndex][propertyName];
@@ -414,7 +413,7 @@ DirectivesModule.directive('chartDataviz', ['$compile', '$q', 'dataService', 're
         }
 
 
-        function getSerieByTitle(series, name) {
+        function getSerieByName(series, name) {            
             var foundSerie = null;
             angular.forEach(series, function (serie) {
                 if (serie.name === name) {

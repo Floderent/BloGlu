@@ -25,6 +25,8 @@
     "bloodPressureEvent": "Pression artérielle",
     "a1cEvent": "Hba1c",
     "exerciseEvent": "Activité physique",
+    "foodIntakeEvent": "Prise de glucides",
+    
     "tableDataviz": "Tableau",
     "chartDataviz": "Graphique",
     "pieChartDataviz": "Camembert",
@@ -33,6 +35,7 @@
     "currentYear": "Année en cours",
     "currentMonth": "Mois en cours",
     "lastSevenDays": "Sept dernier jours",
+    "customBetweenDates": "Personnalisée",
     
     "sumUnit": "Total traitement",
     "averageWeight": "Poids moyen",
@@ -121,7 +124,7 @@
         "bloodPressure": "Pression artérielle",
         "a1c": "Mesure Hba1c",
         "exercise": "Exercice physique",
-        "foodIntake": "Repas",
+        "foodIntake": "Prise de glucides",
         
         "logbook": "Carnet",
         
@@ -157,13 +160,15 @@
         "addnewReport": "Ajouter un nouveau rapport"
     },
     "event": {
-        "otherTitle": "Saisir un événement",
-        "bgTitle": "Saisir une mesure de glycémie",
-        "medicationTitle": "Saisir un traitement",
-        "weightTitle": "Saisir un poids",
-        "bloodPressureTitle": "Saisir une pression artérielle",
-        "a1cTitle": "Saisir une mesure HBA1C",
-        "exerciseTitle": "Saisir une activité physique",
+        "otherTitle": "Événement",
+        "bgTitle": "Mesure de glycémie",
+        "medicationTitle": "Traitement",
+        "weightTitle": "Poids",
+        "bloodPressureTitle": "Pression artérielle",
+        "a1cTitle": "Mesure HBA1C",
+        "exerciseTitle": "Activité physique",
+        "foodIntakeTitle": "Prise de glucides",
+        
         "bgBeforeMeal": "Pré prandial",
         "bgAfterMeal": "Post prandial",
         "category": "Catégorie",
@@ -250,6 +255,8 @@
         "queryElements": "Eléments à analyser",
         "addElement": "Ajouter l'élément",
         "analysisPeriod": "Période de l'analyse",
+        "beginDate": "Date de début",
+        "endDate": "Date de fin",
         "dataviz": "Visualisation",
         "reportTitle": "Titre du rapport",
         "execute": "Exécuter",

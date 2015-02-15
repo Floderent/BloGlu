@@ -3,7 +3,7 @@
 var servicesModule = angular.module('BloGlu.services');
 
 
-servicesModule.factory('dashboardService', ['$q', 'dataService', 'queryService', 'genericDaoService', 'DataVisualization', 'localizationService', 'reportService', function($q, dataService, queryService, genericDaoService, DataVisualization, localizationService, reportService) {
+servicesModule.factory('dashboardService', ['$q', 'genericDaoService', 'reportService', function($q, genericDaoService, reportService) {
 
         var dashboardService = {
             rowNumber: 2,
@@ -69,16 +69,19 @@ servicesModule.factory('dashboardService', ['$q', 'dataService', 'queryService',
         };
 
         dashboardService.getDashboard = function() {
-            return dashboardService.getDashboards().then(function(dashboards) {
+            var deferred = $q.defer();
+            dashboardService.getDashboards().then(function(dashboards) {
                 var dashboard = {
                     name: 'mainPage',
                     reports: []
                 };
-                if (dashboards && dashboards.length > 0) {
-                    dashboard = dashboards[0];
-                }
-                return dashboard;
-            });
+                if (dashboards && dashboards.length > 0) {                    
+                    deferred.resolve(dashboards[0]);
+                }else{
+                    deferred.resolve(dashboard);
+                }                
+            }, deferred.reject);
+            return deferred.promise;
         };
 
         dashboardService.initTab = function() {

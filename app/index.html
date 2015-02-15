@@ -105,9 +105,9 @@
                             <img class="loading-icon" alt="loading" src="images/spinner.gif" />
                         </li>
                         <li ng-show="pending > 0">
-                            <div class="navbar-text">
+                            <div class="nav navbar-text progress" style="margin-top:10px">
                                 <progressbar ng-if="progress !== 100" value="progress">{{progress | number:0}} % {{loadingMessages[loadingMessages.length - 1]}}</progressbar>
-                            </div>                            
+                            </div>
                         </li>
                     </ul>
                 </div>

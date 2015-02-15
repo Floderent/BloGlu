@@ -4,24 +4,19 @@ var servicesModule = angular.module('BloGlu.services');
 
 servicesModule.factory('queryService', ['$q', 'dataService', 'ModelUtil', 'localizationService', function($q, dataService, ModelUtil, localizationService) {
         var queryService = {};
-
+        
+        var resourceName = 'Metadatamodel';
+        
         queryService.getMetadatamodel = function() {            
-            var mdmPromise = dataService.queryLocal('Metadatamodel').then(function(mdm){
-                var translatedMdm = [];
-                angular.forEach(mdm, function(mdmElement){
-                    translatedMdm.push(translateElement(mdmElement));
-                });
-                return translatedMdm;
-            });
-            return mdmPromise;
+            return dataService.queryLocal(resourceName);            
         };
         
         queryService.getMeasures = function() {
             var measures = [];
-            return dataService.queryLocal('Metadatamodel').then(function(mdm) {
+            return dataService.queryLocal(resourceName).then(function(mdm) {
                 angular.forEach(mdm, function(mdmElement) {                   
                     if (mdmElement.aggregate) {
-                        measures.push(translateElement(mdmElement));
+                        measures.push(mdmElement);
                     }
                 });
                 return measures;
@@ -30,10 +25,10 @@ servicesModule.factory('queryService', ['$q', 'dataService', 'ModelUtil', 'local
 
         queryService.getLevels = function() {
             var levels = [];
-            return dataService.queryLocal('Metadatamodel').then(function(mdm) {
+            return dataService.queryLocal(resourceName).then(function(mdm) {
                 angular.forEach(mdm, function(mdmElement) {                    
                     if (!mdmElement.aggregate) {
-                        levels.push(translateElement(mdmElement));
+                        levels.push(mdmElement);
                     }
                 });
                 return levels;
@@ -41,23 +36,12 @@ servicesModule.factory('queryService', ['$q', 'dataService', 'ModelUtil', 'local
         };
 
         queryService.getFilters = function() {
-            var result = {};
-            angular.forEach(dataService.where, function(whereElement, key) {                
-                result[key] = translateElement(whereElement);
+            var result = [];
+            angular.forEach(dataService.where, function(whereElement) {                
+                result.push(whereElement);
             });
             return result;
         };
-        
-        function translateElement(element){
-            if(element.title){
-                element.title = localizationService.get(element.title);
-            }
-            if(element.group){                
-                element.group = localizationService.get(element.group);
-            }
-            return element;
-        }
-        
         
         return queryService;
     }]);

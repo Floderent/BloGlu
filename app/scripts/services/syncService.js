@@ -110,10 +110,9 @@ servicesModule.factory('syncService', ['$q', '$injector', '$rootScope', 'Databas
         };
 
         syncService.sync = function (notify, mode) {
-            var deferred = $q.defer();
+            var deferred = $q.defer();            
             var notificationFunc = computeProgression(1, notify);
-
-            var promiseArray = [];
+            var promiseArray = [];            
             if (syncService.syncStatus === 'upToDate' || mode === 'offline') {
                 triggerSync(notificationFunc).then(deferred.resolve, deferred.reject);                
             } else {
@@ -128,6 +127,7 @@ servicesModule.factory('syncService', ['$q', '$injector', '$rootScope', 'Databas
                     $q.all(promiseArray).then(function (result) {
                         notificationFunc = computeProgression(1, notify);
                         triggerSync(notificationFunc);
+                        deferred.resolve();
                     }, deferred.reject, deferred.notify);
                 }, deferred.reject);
             }

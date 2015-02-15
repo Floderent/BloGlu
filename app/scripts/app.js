@@ -114,7 +114,8 @@ mainModule.constant('ResourceName', {
     3: 'weightEvent',
     4: 'bloodPressureEvent',
     5: 'a1cEvent',
-    6: 'exerciseEvent'   
+    6: 'exerciseEvent',
+    7: 'foodIntakeEvent'
 });
 
 mainModule.constant('ResourceIcon',{
@@ -124,16 +125,16 @@ mainModule.constant('ResourceIcon',{
    3:'glyphicon glyphicon-dashboard',
    4:'glyphicon glyphicon-heart',
    5:'glyphicon glyphicon-file',
-   6:'glyphicon glyphicon-flash'
+   6:'glyphicon glyphicon-flash',
+   7:'glyphicon glyphicon-cutlery'
 });
 
-mainModule.constant('DataVisualization', {
-    table: 'tableDataviz',
-    chart: 'chartDataviz',
-    pieChart: 'pieChartDataviz',
-    barChart: 'barChartDataviz',
-    lineChart: 'lineChartDataviz'
-});
+mainModule.constant('DataVisualization', [
+    {id: 'table', title:'tableDataviz'},    
+    {id: 'pieChart', title:'pieChartDataviz'},
+    {id: 'barChart', title:'barChartDataviz'},
+    {id: 'lineChart', title:'lineChartDataviz'}
+]);
 
 
 mainModule.run(['$rootScope', 'localizationService', 'AUTH_EVENTS', 'UserSessionService', function($rootScope, localizationService, AUTH_EVENTS, UserSessionService) {        

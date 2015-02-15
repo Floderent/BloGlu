@@ -6,13 +6,13 @@ DirectivesModule.directive('blogluEvent', ['$compile', '$injector', '$q', 'event
             var event = scope.blogluEvent;
             renderEvent(event, scope, element);
             /*
-            scope.$watch('blogluEvent', function (newValue, oldValue) {
-                if (newValue !== oldValue) {
-                    element.html('');
-                    renderEvent(newValue, scope, element);
-                }
-            }, true);
-            */
+             scope.$watch('blogluEvent', function (newValue, oldValue) {
+             if (newValue !== oldValue) {
+             element.html('');
+             renderEvent(newValue, scope, element);
+             }
+             }, true);
+             */
         };
 
         function renderEvent(event, scope, element) {
@@ -49,10 +49,13 @@ DirectivesModule.directive('blogluEvent', ['$compile', '$injector', '$q', 'event
                     break;
                 case resourceCode['a1c']:
                     template = '<div class="panel-body"><span class="glyphicon glyphicon-file"></span> {{dateTime | date:"HH:mm"}} <span class="reading">{{reading}}</span> {{unit.name}}</div>';
-                    break;                
+                    break;
                 case resourceCode['exercise']:
                     template = '<div class="panel-body"><span class="glyphicon glyphicon-flash"></span> {{dateTime | date:"HH:mm"}} <span class="reading">{{reading}}</span> {{unit.name}}</div>';
-                    break;                    
+                    break;
+                case resourceCode['foodIntake']:
+                    template = '<div class="panel-body"><span class="glyphicon glyphicon-cutlery"></span> {{dateTime | date:"HH:mm"}} <span class="reading">{{reading}}</span> {{unit.name}}</div>';
+                    break;
             }
             return template;
         }
@@ -77,8 +80,8 @@ DirectivesModule.directive('blogluEvent', ['$compile', '$injector', '$q', 'event
             var userService = $injector.get('UserService');
             var resourceCode = $injector.get('ResourceCode');
 
-            var promiseArray = [                
-                dataService.queryLocal('Range'), 
+            var promiseArray = [
+                dataService.queryLocal('Range'),
                 userService.getDefaultUnit(resourceCode[event.code])
             ];
             return $q.all(promiseArray).then(function (results) {

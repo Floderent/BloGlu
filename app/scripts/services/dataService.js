@@ -762,9 +762,11 @@ servicesModule.factory('dataService', ['$q', '$filter', '$injector', '$locale', 
 
         };
 
-        dataService.where = {
-            currentYear: {
+        dataService.where = [
+            {
+                id: 'currentYear',
                 title: 'currentYear',
+                field: 'dateTime',
                 filterFunction: function () {
                     var date = new Date();
                     var beginDate = new Date(date.getFullYear(), 0, 1);
@@ -773,8 +775,10 @@ servicesModule.factory('dataService', ['$q', '$filter', '$injector', '$locale', 
                 }
             },
             //last year
-            currentMonth: {
+            {
+                id: 'currentMonth',
                 title: 'currentMonth',
+                field: 'dateTime',
                 filterFunction: function () {
                     var date = new Date();
                     var beginDate = new Date(date.getFullYear(), date.getMonth());
@@ -783,8 +787,10 @@ servicesModule.factory('dataService', ['$q', '$filter', '$injector', '$locale', 
                 }
             },
             //last month
-            lastSevenDays: {
+            {
+                id: 'lastSevenDays',
                 title: 'lastSevenDays',
+                field: 'dateTime',
                 filterFunction: function () {
                     var date = new Date();
                     var endDate = new Date();
@@ -794,26 +800,22 @@ servicesModule.factory('dataService', ['$q', '$filter', '$injector', '$locale', 
                 }
             },
             //current week            
-            //last week
-            //last 30 days
-            lastThirtyDays:{
-                title: 'lastThirtyDays',
-                filterFunction: function(){
-                    var date = new Date();
-                    var endDate = new Date();
-                    var beginDate = new Date(date.getFullYear(), date.getMonth(), date.getDate());
-                    beginDate.setDate(beginDate.getDate() - 30);
-                    return {$gt: beginDate, $lt: endDate};
-                }
-            },
-            //last three months
-            lastThreeMonths: {
-                title: 'lastThreeMonths',
-                filterFunction: function(){
-                    
-                }
+            //last week            
+            //custom
+            {
+                id: 'customBetweenDates',
+                title: 'customBetweenDates',
+                field: 'dateTime',
+                filterFunction: function(filterParams){
+                    var filter = null;                    
+                    if(filterParams && filterParams.beginDate && filterParams.endDate){
+                        filter = {$gt: new Date(filterParams.beginDate), $lt: new Date(filterParams.endDate)};
+                    }
+                    return filter;
+                },
+                customParameters:['beginDate', 'endDate']
             }
-        };
+        ];
 
 
         dataService.sort = {

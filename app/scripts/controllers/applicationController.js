@@ -151,16 +151,15 @@ ControllersModule.controller('applicationController', [
             var syncMode = "online";
             if(params){
                 syncMode = params.mode;
-            }
-            
-            syncService.sync(progressHandler, params.mode).then(
-                    function resolve() {
+            }            
+            syncService.sync(progressHandler, syncMode).then(
+                    function() {                        
                         $rootScope.progress = 100;
                     },
-                    function reject() {
+                    function() {
                         MessageService.errorMessage('errorMessage.synchronisationError', 5000);
                     }
-            )['finally'](function (result) {
+            )['finally'](function (result) {                
                 $rootScope.decreasePending('processingMessage.synchronizing');
             });
         });

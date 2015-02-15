@@ -23,8 +23,7 @@ servicesModule.factory('UserSessionService', [
             return $http.post(ServerService.baseUrl + 'users', user, { headers: ServerService.headers});
         };
         
-        UserSessionService.currentUser = function () {
-            //debugger;
+        UserSessionService.currentUser = function () {            
             return sessionInfos || localStorageService.get(cookieKey);
         };   
         

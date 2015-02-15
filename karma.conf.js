@@ -15,8 +15,7 @@ module.exports = function(config) {
 	
       'app/bower_components/angular/angular.js',
       'app/bower_components/angular-mocks/angular-mocks.js',
-      'app/bower_components/angular-resource/angular-resource.js',
-      'app/bower_components/angular-cookie/angular-cookie.js',
+      'app/bower_components/angular-resource/angular-resource.js',      
       'app/bower_components/angular-sanitize/angular-sanitize.js',
       'app/bower_components/angular-route/angular-route.js',
 	  
@@ -34,6 +33,8 @@ module.exports = function(config) {
 	  'app/bower_components/angular-dynamic-locale/src/tmhDynamicLocale.js',
 	  'app/bower_components/angular-touch/angular-touch.js',
 	  'app/bower_components/IndexedDBShim/dist/IndexedDBShim.js',
+	  'app/bower_components/angular-local-storage/dist/angular-local-storage.min.js',
+	  
 	  
 	  
       'app/scripts/*.js',
