@@ -5,54 +5,56 @@ var servicesModule = angular.module('BloGlu.services');
 servicesModule.factory('UserSessionService', [
     '$http',
     '$q',
-    'localStorageService', 
+    'Facebook',
+    'localStorageService',
     'ServerService',
-    function(
+    function (
             $http,
             $q,
+            Facebook,
             localStorageService,
             ServerService
-            ){
-        
+            ) {
+
         var UserSessionService = {};
-        var cookieKey = 'sessionInfos';        
+        var cookieKey = 'sessionInfos';
         var sessionInfos;
-        
-        
+
+
         UserSessionService.signUp = function (user) {
-            return $http.post(ServerService.baseUrl + 'users', user, { headers: ServerService.headers});
+            return $http.post(ServerService.baseUrl + 'users', user, {headers: ServerService.headers});
         };
-        
-        UserSessionService.currentUser = function () {            
+
+        UserSessionService.currentUser = function () {
             return sessionInfos || localStorageService.get(cookieKey);
-        };   
-        
-        
-        UserSessionService.logIn = function (username, password) {
+        };
+
+
+        UserSessionService.logIn = function (username, password, authData) {
             return $http.get(ServerService.baseUrl + 'login',
                     {
                         headers: ServerService.headers,
                         params: {'username': username,
-                                'password': password}
+                            'password': password}
                     }
-            ).success(function (result) {                
+            ).success(function (result) {
                 delete result.email;
                 sessionInfos = {
-                    sessionToken: result.sessionToken, 
+                    sessionToken: result.sessionToken,
                     userId: result.objectId
                 };
-                localStorageService.set(cookieKey, sessionInfos);                
+                localStorageService.set(cookieKey, sessionInfos);
                 return result;
             })
-            .error(function (error) {
-                return error;
-            });
+                    .error(function (error) {
+                        return error;
+                    });
         };
-        
+
         UserSessionService.isAuthenticated = function () {
             return UserSessionService.userId() && UserSessionService.sessionToken();
         };
-        
+
         UserSessionService.requestPasswordReset = function (email) {
             return $http({
                 method: 'POST',
@@ -61,37 +63,37 @@ servicesModule.factory('UserSessionService', [
                 headers: ServerService.headers
             });
         };
-                
-        
+
+
         UserSessionService.logOut = function () {
             sessionInfos = null;
             localStorageService.remove(cookieKey);
         };
-        
-        UserSessionService.sessionToken = function(){            
+
+        UserSessionService.sessionToken = function () {
             var result = null;
-            if(sessionInfos && sessionInfos.sessionToken){
+            if (sessionInfos && sessionInfos.sessionToken) {
                 result = sessionInfos.sessionToken;
-            }else{
-                if(localStorageService.get(cookieKey) && localStorageService.get(cookieKey).sessionToken){
+            } else {
+                if (localStorageService.get(cookieKey) && localStorageService.get(cookieKey).sessionToken) {
                     result = localStorageService.get(cookieKey).sessionToken;
                 }
             }
-            return result;            
+            return result;
         };
-        
-        UserSessionService.userId = function(){
+
+        UserSessionService.userId = function () {
             var result = null;
-            if(sessionInfos && sessionInfos.userId){
+            if (sessionInfos && sessionInfos.userId) {
                 result = sessionInfos.userId;
-            }else{
-                if(localStorageService.get(cookieKey) && localStorageService.get(cookieKey).userId){
+            } else {
+                if (localStorageService.get(cookieKey) && localStorageService.get(cookieKey).userId) {
                     result = localStorageService.get(cookieKey).userId;
                 }
             }
             return result;
         };
-        
+
         UserSessionService.isTokenValid = function () {
             var deferred = $q.defer();
             $http({
@@ -111,38 +113,38 @@ servicesModule.factory('UserSessionService', [
                     });
             return deferred.promise;
         };
-        
-        UserSessionService.sessionToken = function(){            
+
+        UserSessionService.sessionToken = function () {
             var result = null;
-            if(sessionInfos && sessionInfos.sessionToken){
+            if (sessionInfos && sessionInfos.sessionToken) {
                 result = sessionInfos.sessionToken;
-            }else{
-                if(localStorageService.get(cookieKey) && localStorageService.get(cookieKey).sessionToken){
+            } else {
+                if (localStorageService.get(cookieKey) && localStorageService.get(cookieKey).sessionToken) {
                     result = localStorageService.get(cookieKey).sessionToken;
                 }
             }
-            return result;            
+            return result;
         };
-        
-        UserSessionService.userId = function(){
+
+        UserSessionService.userId = function () {
             var result = null;
-            if(sessionInfos && sessionInfos.userId){
+            if (sessionInfos && sessionInfos.userId) {
                 result = sessionInfos.userId;
-            }else{
-                if(localStorageService.get(cookieKey) && localStorageService.get(cookieKey).userId){
+            } else {
+                if (localStorageService.get(cookieKey) && localStorageService.get(cookieKey).userId) {
                     result = localStorageService.get(cookieKey).userId;
                 }
             }
             return result;
         };
-        
-        
+
+
         UserSessionService.ownerReadWriteACL = function () {
-            var ownerReadWriteACL = {};            
+            var ownerReadWriteACL = {};
             var userId = UserSessionService.userId();
             ownerReadWriteACL[userId] = {};
             ownerReadWriteACL[userId].read = true;
-            ownerReadWriteACL[userId].write = true;            
+            ownerReadWriteACL[userId].write = true;
             return ownerReadWriteACL;
         };
 
@@ -163,9 +165,24 @@ servicesModule.factory('UserSessionService', [
             }
             return headers;
         };        
-        
-        
-        
+
+        UserSessionService.logInWithFacebook = function () {
+            var deferred = $q.defer();
+            Facebook.login(function (response) {
+                var parseFacebookUser = {
+                    authData:{
+                        facebook:{
+                            id: response.id,
+                            accessToken: response.accessToken,
+                            expiration_date: response.expiration_date
+                        }
+                    }
+                };                
+                UserSessionService.signUp(parseFacebookUser).then(deferred.resolve, deferred.reject);
+            }, deferred.reject);
+            return deferred.promise;
+        };
+
         return UserSessionService;
-}]);
+    }]);
 
