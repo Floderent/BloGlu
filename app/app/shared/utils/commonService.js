@@ -1,0 +1,92 @@
+(function () {
+'use strict';
+
+angular.module('bloglu.utils')
+        .factory('ServerService', ServerService)
+        .factory('MyInterceptor', MyInterceptor)
+        .factory('MessageService', MessageService)
+;
+
+MyInterceptor.$inject = ['$q', '$rootScope', 'AUTH_EVENTS'];
+MessageService.$inject = ['$timeout'];
+
+
+function ServerService() {
+        var applicationId = 'U5hc606XgvqC5cNoBW9EUOYRPN28bGsiowBYLVbv';
+        var restApiKey = 'PPawPdkaltJhjHktfeHaQeBoVOYgphPn0ByIZl5v';
+        return {
+            headers: {
+                "Content-Type": 'application/json',
+                "X-Parse-Application-Id": applicationId,
+                "X-Parse-REST-API-Key": restApiKey
+            },
+            baseUrl: 'https://api.parse.com/1/',
+            applicationId: applicationId,
+            restApiKey: restApiKey
+        };
+    }
+
+
+function MyInterceptor($q, $rootScope, AUTH_EVENTS) {
+        return {
+            responseError: function(rejection) {
+                switch (rejection.status) {
+                    case 401:
+                        $rootScope.$broadcast(AUTH_EVENTS.notAuthenticated, rejection);
+                        break;
+                    case 403:
+                        $rootScope.$broadcast(AUTH_EVENTS.notAuthorized, rejection);
+                        break;
+                    case 419:
+                    case 440:
+                        $rootScope.$broadcast(AUTH_EVENTS.sessionTimeout, rejection);
+                        break;
+                }
+                return $q.reject(rejection);
+            }
+        };
+    }
+
+
+function MessageService($timeout) {
+        var messageService = {};
+        messageService.message = function(type, text, delay) {
+            var message = {
+                display: true,
+                text: text,
+                type: type
+            };
+            if (delay) {
+                message.autoclose = function() {
+                    var that = this;
+                    that.promise = $timeout(function() {
+                        that.display = false;
+                        //
+                    }, delay);
+                }.bind(message);
+                message.autoclose();
+            }
+            return message;
+        };
+        messageService.errorMessage = function(text, delay) {
+            return messageService.message('error', text, delay);
+        };
+        messageService.successMessage = function(text, delay) {
+            return messageService.message('success', text, delay);
+        };
+        messageService.cancel = function(message) {
+            if (message.promise) {
+                $timeout.cancel(message.promise);
+            }
+        };
+        messageService.cancelAll = function(messages) {
+            if (messages && Array.isArray(messages)) {
+                angular.forEach(messages, function(message) {
+                    messageService.cancel(message);
+                });
+            }
+        };
+
+        return messageService;
+    }
+})();

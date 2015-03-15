@@ -16,7 +16,7 @@
         <!-- endbower -->
         <!-- endbuild -->
         <!-- build:css({.tmp,app}) styles/main.css -->
-        <link rel="stylesheet" href="styles/main.css">
+        <link rel="stylesheet" href="assets/styles/main.css">
         <!-- endbuild -->
         
         
@@ -40,7 +40,7 @@
                             <span class="icon-bar"></span>
                         </span>
                         <span ng-show="pending > 0">
-                            <img class="loading-icon-small" alt="loading" src="images/spinner.gif" />                            
+                            <img class="loading-icon-small" alt="loading" src="assets/images/spinner.gif" />                            
                         </span>
                     </button>                    
                     <a class="navbar-brand" href="#dashboard">{{ 'appName' | translate }}</a>
@@ -187,55 +187,90 @@
         <!-- endbuild -->
 
         <!-- build:js({.tmp,app}) scripts/scripts.js -->
-        <!-- Application -->
-        <script src="scripts/app.js"></script>
-
-        <!-- Controllers -->
-        <script src="scripts/controllers/applicationController.js"></script>
-        <script src="scripts/controllers/categoryController.js"></script>
-        <script src="scripts/controllers/controllers.js"></script>
-        <script src="scripts/controllers/dashboardController.js"></script>
-        <script src="scripts/controllers/eventController.js"></script>
-        <script src="scripts/controllers/importController.js"></script>
-        <script src="scripts/controllers/importListController.js"></script>
-        <script src="scripts/controllers/logBookController.js"></script>
-        <script src="scripts/controllers/loginController.js"></script>
-        <script src="scripts/controllers/periodController.js"></script>
-        <script src="scripts/controllers/rangeController.js"></script>
-        <script src="scripts/controllers/reportController.js"></script>
-        <script src="scripts/controllers/reportListController.js"></script>
-        <script src="scripts/controllers/userPreferencesController.js"></script>
-
-        <!-- Services -->
-        <script src="scripts/services/categoryService.js"></script>
-        <script src="scripts/services/commonService.js"></script>
-        <script src="scripts/services/dashboardService.js"></script>
-        <script src="scripts/services/dataService.js"></script>
-        <script src="scripts/services/eventService.js"></script>
-        <script src="scripts/services/genericDaoService.js"></script>
-        <script src="scripts/services/importService.js"></script>
-        <script src="scripts/services/indexedDBService.js"></script>
-        <script src="scripts/services/localizationService.js"></script>
-        <script src="scripts/services/logBookService.js"></script>
-        <script src="scripts/services/modelsService.js"></script>
-        <script src="scripts/services/periodService.js"></script>
-        <script src="scripts/services/rangeService.js"></script>
-        <script src="scripts/services/printService.js"></script>
-        <script src="scripts/services/queryService.js"></script>
-        <script src="scripts/services/reportService.js"></script>
-        <script src="scripts/services/services.js"></script>                
-        <script src="scripts/services/syncService.js"></script>
-        <script src="scripts/services/unitService.js"></script>
-        <script src="scripts/services/userService.js"></script>
-        <script src="scripts/services/userSessionService.js"></script>
-        <script src="scripts/services/utils.js"></script>        
-
-        <!-- Directives -->
-        <script src="scripts/directives/datavizDirective.js"></script>
-        <script src="scripts/directives/directives.js"></script>
-        <script src="scripts/directives/eventDirective.js"></script>
-        <script src="scripts/directives/dashboardReport.js"></script>
-        <script src="scripts/directives/eventGroupDirective.js"></script>
+        
+        <!-- COMPONENTS -->
+        
+        <!-- application -->
+        <script src="app/app.js"></script>
+        <script src="app/components/application/controllers/applicationController.js"></script>
+        
+        <!-- category -->
+        <script src="app/components/category/controllers/categoryController.js"></script>
+        <script src="app/components/category/services/categoryService.js"></script>
+        
+        <!-- dashboard -->
+        <script src="app/components/dashboard/controllers/dashboardController.js"></script>
+        <script src="app/components/dashboard/services/dashboardService.js"></script>
+        
+        <!-- event -->
+        <script src="app/components/event/controllers/eventController.js"></script>
+        <script src="app/components/event/services/eventService.js"></script>
+        
+        <!-- import -->
+        <script src="app/components/import/controllers/importController.js"></script>
+        <script src="app/components/import/controllers/importListController.js"></script>
+        <script src="app/components/import/services/importService.js"></script>
+        
+        <!-- logbook -->
+        <script src="app/components/logbook/controllers/logbookController.js"></script>
+        <script src="app/components/logbook/controllers/chooseEventController.js"></script>
+        <script src="app/components/logbook/services/logbookService.js"></script>
+        <script src="app/components/logbook/services/statsService.js"></script>
+        
+        <!-- login -->
+        <script src="app/components/login/controllers/loginController.js"></script>
+        <script src="app/components/login/controllers/inputUserController.js"></script>
+        <script src="app/components/login/controllers/resetPasswordController.js"></script>
+        <script src="app/components/login/services/userSessionService.js"></script>
+        
+        <!-- period -->
+        <script src="app/components/period/controllers/periodController.js"></script>
+        <script src="app/components/period/services/periodService.js"></script>
+        
+        <!-- range -->
+        <script src="app/components/range/controllers/rangeController.js"></script>
+        <script src="app/components/range/controllers/rangeUnitSelectController.js"></script>
+        <script src="app/components/range/services/rangeService.js"></script>
+        
+        <!-- report -->
+        <script src="app/components/report/controllers/reportController.js"></script>
+        <script src="app/components/report/controllers/reportListController.js"></script>
+        <script src="app/components/report/services/reportService.js"></script>
+        
+        <!-- user preferences -->
+        <script src="app/components/userPreferences/controllers/userPreferencesController.js"></script>
+        
+        
+        <!-- SHARED -->        
+        <!-- chart -->
+        <script src="app/shared/chart/chartService.js"></script>
+        <!-- confirmModal -->
+        <script src="app/shared/confirmModal/controllers/confirmModaleController.js"></script>
+        <!-- dashboard report -->
+        <script src="app/shared/dashboardReport/dashboardReport.js"></script>
+        <!-- datavizDirective -->
+        <script src="app/shared/datavizDirective/datavizDirective.js"></script>
+        <!-- engine -->
+        <script src="app/shared/engine/dataService.js"></script>
+        <script src="app/shared/engine/genericDaoService.js"></script>
+        <script src="app/shared/engine/indexedDBService.js"></script>
+        <script src="app/shared/engine/modelsService.js"></script>
+        <script src="app/shared/engine/syncService.js"></script>
+        <!-- equals -->
+        <script src="app/shared/equals/equals.js"></script>
+        <!-- eventDirective -->
+        <script src="app/shared/eventDirective/eventDirective.js"></script>
+        <!-- eventGroupDirective -->
+        <script src="app/shared/eventGroupDirective/eventGroupDirective.js"></script>
+        <!-- print -->
+        <script src="app/shared/print/printService.js"></script>
+        <!-- utils -->
+        <script src="app/shared/utils/commonService.js"></script>
+        <script src="app/shared/utils/localizationService.js"></script>
+        <script src="app/shared/utils/queryService.js"></script>
+        <script src="app/shared/utils/unitService.js"></script>
+        <script src="app/shared/utils/userService.js"></script>
+        <script src="app/shared/utils/utils.js"></script>
 
         <!-- endbuild -->
     </body>
