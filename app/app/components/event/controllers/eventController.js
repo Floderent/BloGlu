@@ -5,13 +5,12 @@
             .module('bloglu.event')
             .controller('eventController', eventController);
 
-    eventController.$inject = ['$q', '$rootScope', '$routeParams', '$scope', '$window', 'categoryService', 'eventService', 'MessageService', 'ResourceCode', 'unitService', 'UserService', 'Utils'];
+    eventController.$inject = ['$q', '$rootScope', '$routeParams', '$window', 'categoryService', 'eventService', 'MessageService', 'ResourceCode', 'unitService', 'UserService', 'Utils'];
 
     function eventController(
             $q,
             $rootScope,
-            $routeParams,
-            $scope,
+            $routeParams,            
             $window,
             categoryService,
             eventService,
@@ -21,21 +20,41 @@
             UserService,
             Utils) {
 
-        initParams();
+        
+        var vm = this;
+        
+        vm.placeHolder = 100;        
+        //init routeParams
+        vm.objectId = vm.objectId || $routeParams.objectId;
+        vm.day = vm.day || $routeParams.day;
+        vm.time = vm.time || $routeParams.time;
+        vm.isEdit = vm.objectId;
+        vm.isPrefilledDateAndTime = vm.day && vm.time;
+        var eventType = vm.eventType || $routeParams.eventType || 'other';
+        //init scope params
+        vm.windowMode = vm.windowMode || 'NORMAL';
+        vm.eventCode = ResourceCode[eventType];
+        vm.resourceName = ResourceCode[vm.eventCode];
+        
+        vm.changeUnit = changeUnit;
+        vm.open = open;
+        vm.updateEvent = updateEvent;
+        vm.deleteEvent = deleteEvent;        
+        
         renderPage();
 
-        function renderPage() {
+        function renderPage() {            
             $rootScope.increasePending('processingMessage.synchronizing');
             $q.all([
                 getEvent(),
-                unitService.getUnitsByCode($scope.eventCode),
-                categoryService.getCategoriesByCode($scope.eventCode),
-                UserService.getDefaultUnit($scope.resourceName)
+                unitService.getUnitsByCode(vm.eventCode),
+                categoryService.getCategoriesByCode(vm.eventCode),
+                UserService.getDefaultUnit(vm.resourceName)
             ]).then(function (results) {
-                $scope.event = results[0];
-                $scope.units = results[1];
-                $scope.categories = results[2];
-                $scope.defaultUnit = results[3];
+                vm.event = results[0];
+                vm.units = results[1];
+                vm.categories = results[2];
+                vm.defaultUnit = results[3];
 
                 handleDate();
                 handleUnit();
@@ -44,78 +63,54 @@
                 $rootScope.messages.push(MessageService.errorMessage('errorMessage.loadingError', 2000));
             })['finally'](function () {
                 $rootScope.decreasePending('processingMessage.synchronizing');
-            });
-        }
-
-
-        function initParams() {
-            $scope.placeHolder = 100;
-            $scope.unitDisabled = true;
-
-            //init routeParams
-            $scope.objectId = $scope.objectId || $routeParams.objectId;
-            $scope.day = $scope.day || $routeParams.day;
-            $scope.time = $scope.time || $routeParams.time;
-
-            $scope.isEdit = $scope.objectId;
-            $scope.isPrefilledDateAndTime = $scope.day && $scope.time;
-
-            var eventType = $scope.eventType || $routeParams.eventType || 'other';
-
-            //init scope params
-            $scope.windowMode = $scope.windowMode || 'NORMAL';
-
-            $scope.eventCode = ResourceCode[eventType];
-            $scope.resourceName = ResourceCode[$scope.eventCode];
+            });            
         }
 
         function handleDate() {
             //=====handle date
             var currentDate = new Date();
-            if ($scope.event.dateTime) {
-                currentDate = $scope.event.dateTime;
+            if (vm.event.dateTime) {
+                currentDate = vm.event.dateTime;
             }
-            $scope.date = currentDate;
+            vm.date = currentDate;
         }
-
-
 
         function handleUnit() {
             //=====handle units
-            if (!$scope.event.unit) {
-                if ($scope.defaultUnit) {
-                    $scope.event.unit = $scope.defaultUnit;
+            if (!vm.event.unit) {
+                if (vm.defaultUnit) {
+                    vm.event.unit = vm.defaultUnit;
                 } else {
-                    if ($scope.units.length > 0) {
-                        $scope.event.unit = $scope.units[0];
+                    if (vm.units.length > 0) {
+                        vm.event.unit = vm.units[0];
                     }
                 }
-            }
-            $scope.$watch('event.unit', function (newValue, oldValue) {
-                if (newValue && oldValue && newValue !== oldValue) {
-                    if ($scope.event && $scope.event.reading) {
-                        $scope.event.reading = $scope.event.reading * oldValue.coefficient / newValue.coefficient;
-                    } else {
-                        $scope.placeHolder = $scope.placeHolder * oldValue.coefficient / newValue.coefficient;
-                    }
-                }
-            });
+            }            
         }
-
+        
+        function changeUnit(newUnit, oldUnitId){            
+            if(newUnit && (newUnit.objectId !== oldUnitId) && vm.event && vm.event.reading){
+                unitService.getUnitById(oldUnitId).then(function(oldUnit){                    
+                    vm.event.reading = vm.event.reading * oldUnit.coefficient / newUnit.coefficient;
+                });
+            }
+        }
+        
+        
 
         function getEvent() {
             var deferred = $q.defer();
-            if ($scope.isEdit) {
-                eventService.getEvent($scope.objectId).then(function (result) {
+            if (vm.isEdit) {
+                eventService.getEvent(vm.objectId).then(function (result) {
                     deferred.resolve(result);
                 }, function (error) {
-                    $scope.isEdit = false;
+                    vm.isEdit = false;
                     deferred.reject(error);
                 });
             } else {
-                if ($scope.isPrefilledDateAndTime) {
-                    var rgbDate = new Date($scope.day);
-                    var rgbTime = new Date($scope.time);
+                if (vm.isPrefilledDateAndTime) {
+                    var rgbDate = new Date(vm.day);
+                    var rgbTime = new Date(vm.time);
 
                     var newDate = new Date();
                     newDate.setFullYear(rgbDate.getFullYear());
@@ -135,52 +130,52 @@
         }
 
         function confirmAction() {
-            switch ($scope.windowMode) {
+            switch (vm.windowMode) {
                 case 'NORMAL':
                     $window.history.back();
                     break;
                 case 'MODAL':
-                    $scope.$dismiss();
+                    vm.$dismiss();
                     break;
                 default:
                     break;
             }
         }
 
-        $scope.open = function ($event) {
+        function open($event) {
             $event.preventDefault();
             $event.stopPropagation();
-            if ($scope.opened) {
-                $scope.opened = false;
+            if (vm.opened) {
+                vm.opened = false;
             } else {
-                $scope.opened = true;
+                vm.opened = true;
             }
 
         };
 
-        $scope.update = function (event) {
-            if ($scope.isEdit) {
+        function updateEvent(event) {
+            if (vm.isEdit) {
                 $rootScope.increasePending("processingMessage.updatingData");
             } else {
                 $rootScope.increasePending("processingMessage.savingData");
             }
-            event.dateTime = $scope.date;
-            event.code = $scope.eventCode;
-            eventService.saveEvent(event, $scope.isEdit).then(function resolve(result) {
-                if ($scope.isEdit) {
-                    $rootScope.messages.push(MessageService.successMessage(eventService.resolveUpdateMessage($scope.eventCode), 2000));
+            event.dateTime = vm.date;
+            event.code = vm.eventCode;
+            eventService.saveEvent(event, vm.isEdit).then(function resolve(result) {
+                if (vm.isEdit) {
+                    $rootScope.messages.push(MessageService.successMessage(eventService.resolveUpdateMessage(vm.eventCode), 2000));
                 } else {
-                    $rootScope.messages.push(MessageService.successMessage(eventService.resolveCreationMessage($scope.eventCode), 2000));
+                    $rootScope.messages.push(MessageService.successMessage(eventService.resolveCreationMessage(vm.eventCode), 2000));
                 }
                 confirmAction();
             }, function (error) {
-                if ($scope.isEdit) {
+                if (vm.isEdit) {
                     $rootScope.messages.push(MessageService.errorMessage('errorMessage.updatingError', 2000));
                 } else {
                     $rootScope.messages.push(MessageService.errorMessage('errorMessage.creatingError', 2000));
                 }
             })['finally'](function () {
-                if ($scope.isEdit) {
+                if (vm.isEdit) {
                     $rootScope.decreasePending("processingMessage.updatingData");
                 } else {
                     $rootScope.decreasePending("processingMessage.savingData");
@@ -188,7 +183,7 @@
             });
         };
 
-        $scope.delete = function () {
+        function deleteEvent() {
             var modalScope = {
                 confirmTitle: 'confirm.pageTitle',
                 confirmMessage: 'confirm.deletionMessage',
@@ -198,7 +193,7 @@
             Utils.openConfirmModal(modalScope).then(function (confirmed) {
                 if (confirmed) {
                     $rootScope.increasePending("processingMessage.deletingData");
-                    eventService.deleteEvent($scope.event.objectId).then(function (result) {
+                    eventService.deleteEvent(vm.event.objectId).then(function (result) {
                         confirmAction();
                     }, function (error) {
                         $rootScope.messages.push(MessageService.errorMessage('errorMessage.deletingError', 2000));
@@ -212,7 +207,5 @@
         };
 
         $rootScope.$on('dataReady', renderPage);
-
-
     }
 })();

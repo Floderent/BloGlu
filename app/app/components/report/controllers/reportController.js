@@ -31,32 +31,43 @@
             queryService,
             MessageService,
             Utils) {
+                
+        var vm = this;
 
-        $scope.isEdit = $routeParams && $routeParams.objectId;
-        $scope.form = {};
-        $scope.report = {};
+        vm.isEdit = $routeParams && $routeParams.objectId;
+        vm.form = {};
+        vm.report = {};
         //all available query elements
-        $scope.queryElements = [];
+        vm.queryElements = [];
         //available filters
-        $scope.filters = [];
+        vm.filters = [];
         //selected filter
-        $scope.selectedFilter = null;
-        $scope.datavizTypes = DataVisualization;
-        $scope.currentDataviz = null;
+        vm.selectedFilter = null;
+        vm.datavizTypes = DataVisualization;        
+        
+        vm.addQueryElement = addQueryElement;
+        vm.removeQueryElement = removeQueryElement;
+        vm.removeFilter = removeFilter;
+        vm.clear = clear;
+        vm.changeDisplay = changeDisplay;
+        vm.addFilter = addFilter;
+        vm.executeQuery = executeQuery;
+        vm.update = update;
+        vm.deleteReport = deleteReport;
 
         renderPage();
 
         function renderPage() {
             $rootScope.increasePending("processingMessage.loading");
-            $scope.filters = queryService.getFilters();
+            vm.filters = queryService.getFilters();
             $q.all([
                 getReport(),
                 queryService.getMetadatamodel()
             ]).then(function (results) {
                 if (results[0]) {
-                    $scope.report = results[0];
+                    vm.report = results[0];
                 }
-                $scope.queryElements = results[1];
+                vm.queryElements = results[1];
                 $scope.executeQuery();
             }, function () {
                 $rootScope.messages.push(MessageService.errorMessage("errorMessage.loadingError", 2000));
@@ -67,7 +78,7 @@
 
         function getReport() {
             var deferred = $q.defer();
-            if ($scope.isEdit) {
+            if (vm.isEdit) {
                 reportService.getReport($routeParams.objectId).then(function (result) {
                     deferred.resolve(result);
                 });
@@ -79,11 +90,11 @@
 
         function getFilterParams() {
             var filterparams = null;
-            if ($scope.selectedFilter) {
+            if (vm.selectedFilter) {
                 filterparams = {};
-                if ($scope.selectedFilter.customParameters) {
-                    angular.forEach($scope.selectedFilter.customParameters, function (customParameter) {
-                        filterparams[customParameter] = $scope[customParameter];
+                if (vm.selectedFilter.customParameters) {
+                    angular.forEach(vm.selectedFilter.customParameters, function (customParameter) {
+                        filterparams[customParameter] = vm[customParameter];
                     });
                 }
             }
@@ -101,72 +112,72 @@
             return newFilter;
         }
 
-        $scope.addQueryElement = function (queryElement) {
-            if (!$scope.report.select) {
-                $scope.report.select = [];
+        function addQueryElement(queryElement) {
+            if (!vm.report.select) {
+                vm.report.select = [];
             }
-            if (queryElement && reportService.indexOfElement($scope.report.select, queryElement) === -1) {
-                $scope.report.select.push({name: queryElement.name, title: queryElement.title});
+            if (queryElement && reportService.indexOfElement(vm.report.select, queryElement) === -1) {
+                vm.report.select.push({name: queryElement.name, title: queryElement.title});
                 $scope.executeQuery();
             }
-        };
+        }
 
-        $scope.removeQueryElement = function (queryElement) {
-            if (queryElement && reportService.indexOfElement($scope.report.select, queryElement) !== -1) {
-                $scope.report.select.splice(reportService.indexOfElement($scope.report.select, queryElement), 1);
+        function removeQueryElement(queryElement) {
+            if (queryElement && reportService.indexOfElement(vm.report.select, queryElement) !== -1) {
+                vm.report.select.splice(reportService.indexOfElement(vm.report.select, queryElement), 1);
                 $scope.executeQuery();
             }
-        };
+        }
 
-        $scope.removeFilter = function () {
-            $scope.report.filter = [];
+        function removeFilter() {
+            vm.report.filter = [];
             $scope.executeQuery();
-        };
+        }
 
-        $scope.clear = function () {
-            $scope.report.select = [];
-            $scope.report.filter = [];
-            $scope.datavizConfig = null;
+        function clear() {
+            vm.report.select = [];
+            vm.report.filter = [];
+            vm.datavizConfig = null;
             $scope.executeQuery();
-        };
+        }
 
-        $scope.changeDisplay = function () {
+        function changeDisplay() {
             $scope.executeQuery();
-        };
+        }
 
-        $scope.addFilter = function (selectedFilter) {
-            $scope.report.filter = [];
+        function addFilter(selectedFilter) {
+            vm.report.filter = [];
             if (selectedFilter.customParameters) {
-                if ($scope.form.filterValueForm.$valid) {
-                    $scope.report.filter.push(getSelectedFilter(selectedFilter));
+                if (vm.form.filterValueForm.$valid) {
+                    vm.report.filter.push(getSelectedFilter(selectedFilter));
                     $scope.executeQuery();
                 } else {
                     //error in filter value form
                 }
             } else {
-                $scope.report.filter.push(getSelectedFilter(selectedFilter));
+                vm.report.filter.push(getSelectedFilter(selectedFilter));
                 $scope.executeQuery();
             }
-        };
+        }
 
-        $scope.executeQuery = function () {
+        function executeQuery() {
             $rootScope.increasePending("processingMessage.executingQuery");
-            reportService.executeReportQuery($scope.report).then(function (queryResult) {
-                queryResult.type = $scope.report.display;
-                $scope.datavizConfig = queryResult;
+            reportService.executeReportQuery(vm.report).then(function (queryResult) {
+                queryResult.type = vm.report.display;
+                vm.datavizConfig = queryResult;
             }, function (error) {
                 $rootScope.messages.push(MessageService.errorMessage("errorMessage.executingQueryError", 2000));
             })['finally'](function () {
                 $rootScope.decreasePending("processingMessage.executingQuery");
             });
-        };
+        }
 
-        $scope.update = function () {
+        function update() {
             $rootScope.increasePending("processingMessage.updatingData");
-            reportService.saveReport($scope.report, $scope.isEdit).then(function (result) {
-                $scope.report = angular.extend($scope.report, result);
-                if (!$scope.isEdit) {
-                    var path = 'report/' + $scope.report.objectId;
+            reportService.saveReport(vm.report, vm.isEdit).then(function (result) {
+                vm.report = angular.extend(vm.report, result);
+                if (!vm.isEdit) {
+                    var path = 'report/' + vm.report.objectId;
                     $location.url($location.path());
                     $location.path(path);
                 }
@@ -176,9 +187,9 @@
             })['finally'](function () {
                 $rootScope.decreasePending("processingMessage.updatingData");
             });
-        };
+        }
 
-        $scope.delete = function () {
+        function deleteReport() {
             var modalScope = {
                 confirmTitle: 'confirm.pageTitle',
                 confirmMessage: 'confirm.deletionMessage',
@@ -188,7 +199,7 @@
             Utils.openConfirmModal(modalScope).then(function (confirmed) {
                 if (confirmed) {
                     $rootScope.increasePending("processingMessage.deletingData");
-                    reportService.deleteReport($scope.report).then(function (result) {
+                    reportService.deleteReport(vm.report).then(function (result) {
                         $window.history.back();
                     }, function (error) {
                         $rootScope.messages.push(MessageService.errorMessage('errorMessage.deletingError', 2000));
@@ -199,7 +210,7 @@
             }, function () {
                 //exit
             });
-        };
+        }
 
         $rootScope.$on('dataReady', renderPage);
     }

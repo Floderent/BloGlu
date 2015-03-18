@@ -69,27 +69,27 @@ angular
             'bloglu.utils'])
 .config(['$routeProvider',
     function ($routeProvider) {
-        $routeProvider.when('/login', {controller: 'loginController', templateUrl: 'app/components/login/templates/login.html'});
+        $routeProvider.when('/login', {controller: 'loginController', controllerAs: 'vm', templateUrl: 'app/components/login/templates/login.html'});
         //events
-        $routeProvider.when('/event/:eventType/:objectId', {controller: 'eventController', templateUrl: 'app/components/event/templates/event.html'});
-        $routeProvider.when('/event/:eventType', {controller: 'eventController', templateUrl: 'app/components/event/templates/event.html'});
+        $routeProvider.when('/event/:eventType/:objectId', {controller: 'eventController', controllerAs:'vm', templateUrl: 'app/components/event/templates/event.html'});
+        $routeProvider.when('/event/:eventType', {controller: 'eventController', controllerAs:'vm', templateUrl: 'app/components/event/templates/event.html'});
         //log book
-        $routeProvider.when('/logBook', {controller: 'logBookController', templateUrl: 'app/components/logbook/templates/logBook.html'});
+        $routeProvider.when('/logBook', {controller: 'logBookController', controllerAs:'vm', templateUrl: 'app/components/logbook/templates/logBook.html'});
         //reports        
-        $routeProvider.when('/reports', {controller: 'reportListController', templateUrl: 'app/components/report/templates/reportList.html'});
-        $routeProvider.when('/reports/:objectId', {controller: 'reportController', templateUrl: 'app/components/report/templates/report.html'});
-        $routeProvider.when('/report/', {controller: 'reportController', templateUrl: 'app/components/report/templates/report.html'});
+        $routeProvider.when('/reports', {controller: 'reportListController', controllerAs:'vm', templateUrl: 'app/components/report/templates/reportList.html'});
+        $routeProvider.when('/reports/:objectId', {controller: 'reportController', controllerAs:'vm', templateUrl: 'app/components/report/templates/report.html'});
+        $routeProvider.when('/report/', {controller: 'reportController', controllerAs:'vm', templateUrl: 'app/components/report/templates/report.html'});
         //Data
         ///Imports
-        $routeProvider.when('/imports', {controller: 'importListController', templateUrl: 'app/components/import/templates/importList.html'});
-        $routeProvider.when('/imports/:objectId', {controller: 'importController', templateUrl: 'app/components/import/templates/import.html'});
+        $routeProvider.when('/imports', {controller: 'importListController', controllerAs:'vm', templateUrl: 'app/components/import/templates/importList.html'});
+        $routeProvider.when('/imports/:objectId', {controller: 'importController', controllerAs:'vm', templateUrl: 'app/components/import/templates/import.html'});
         //Parameters
-        $routeProvider.when('/ranges', {controller: 'rangeController', templateUrl: 'app/components/range/templates/range.html'});
-        $routeProvider.when('/periods', {controller: 'periodController', templateUrl: 'app/components/period/templates/period.html'});
-        $routeProvider.when('/eventTypes', {controller: 'categoryController', templateUrl: 'app/components/category/templates/category.html'});
+        $routeProvider.when('/ranges', {controller: 'rangeController',controllerAs:'vm', templateUrl: 'app/components/range/templates/range.html'});
+        $routeProvider.when('/periods', {controller: 'periodController', controllerAs:'vm', templateUrl: 'app/components/period/templates/period.html'});
+        $routeProvider.when('/eventTypes', {controller: 'categoryController', controllerAs:'vm', templateUrl: 'app/components/category/templates/category.html'});
 
-        $routeProvider.when('/userPreferences', {controller: 'userPreferencesController', templateUrl: 'app/components/userPreferences/templates/userPreferences.html'});
-        $routeProvider.when('/dashboard', {controller: 'dashboardController', templateUrl: 'app/components/dashboard/templates/dashboard.html'});
+        $routeProvider.when('/userPreferences', {controller: 'userPreferencesController', controllerAs:'vm', templateUrl: 'app/components/userPreferences/templates/userPreferences.html'});
+        $routeProvider.when('/dashboard', {controller: 'dashboardController', controllerAs:'vm', templateUrl: 'app/components/dashboard/templates/dashboard.html'});
         
         $routeProvider.otherwise({redirectTo: '/dashboard'});
     }])

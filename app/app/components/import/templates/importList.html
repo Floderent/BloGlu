@@ -13,7 +13,7 @@
             <th>{{ 'importList.date' | translate }}</th>
             <th>{{ 'importList.file' | translate }}</th>            
             <th></th>
-            <tr ng-repeat="import in imports" ng-dblclick="editImport(import)">
+            <tr ng-repeat="import in vm.imports" ng-dblclick="editImport(import)">
                 <td>
                     <span>{{import.name}}</span>
                 </td>
@@ -24,7 +24,7 @@
                     <span>{{import.file}}</span>
                 </td>              
                 <td>
-                    <button type="button" class="btn" ng-click="deleteImport(import)">{{ 'importList.delete' | translate }}</button>                    
+                    <button type="button" class="btn" ng-click="vm.deleteImport(import)">{{ 'importList.delete' | translate }}</button>                    
                 </td>
             </tr>
 

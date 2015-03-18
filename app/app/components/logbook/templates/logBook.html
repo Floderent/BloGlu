@@ -4,15 +4,15 @@
     <div class="panel-heading">
         <ul class="pager">
             <li class="previous">
-                <a ng-click="back()" href="" >&larr; {{'logBook.previous'| translate}}</a>
+                <a ng-click="vm.back()" href="" >&larr; {{'logBook.previous'| translate}}</a>
             </li>            
             <li class="next">
-                <a ng-click="advance()" href="">{{'logBook.next'| translate}} &rarr;</a>
+                <a ng-click="vm.advance()" href="">{{'logBook.next'| translate}} &rarr;</a>
             </li>
             <li>
                 <form class="form-inline"> 
                     <div class="form-group">
-                        <select id="interval" class="form-control input-sm" ng-model="interval" ng-change="change()">
+                        <select id="interval" class="form-control input-sm" ng-model="vm.interval" ng-change="change()">
                             <option value="day">{{ 'logBook.day' | translate }}</option>
                             <option value="week">{{ 'logBook.week' | translate }}</option>
                             <option value="month">{{ 'logBook.month' | translate }}</option>
@@ -22,14 +22,14 @@
                     </div>
                     <div class="form-group">
                         <div class="btn-group">
-                            <button ng-repeat="(key, value) in eventsTypes track by $index" type="button" class="btn btn-info" ng-model="resource[key]" btn-checkbox>
+                            <button ng-repeat="(key, value) in vm.eventsTypes track by $index" type="button" class="btn btn-info" ng-model="resource[key]" ng-click="vm.changeResource(resource[key])" btn-checkbox>
                                 <span class="{{eventsIcons[key]}}"></span>
                             </button>                        
                         </div>
-                        <button ng-disabled="pending > 0" ng-click="printToPDF()" type="button" class="btn">{{ 'logBook.print' | translate }}</button>
+                        <button ng-disabled="pending > 0" ng-click="vm.printToPDF()" type="button" class="btn">{{ 'logBook.print' | translate }}</button>
                     </div>
                     <div class="text-center">
-                        <h3>{{logBookTitle}} <small class="">{{timeInterval.begin | date:'dd/MM/yyyy'}} - {{timeInterval.end | date:'dd/MM/yyyy'}}</small></h3>
+                        <h3>{{logBookTitle}} <small class="">{{vm.timeInterval.begin | date:'dd/MM/yyyy'}} - {{vm.timeInterval.end | date:'dd/MM/yyyy'}}</small></h3>
                     </div>
                 </form>
             </li>
@@ -39,36 +39,36 @@
     <!-- Event table -->
     <div class="table-responsive">
         <table class="table">
-            <th ng-repeat="period in header track by $index">
+            <th ng-repeat="period in vm.header track by $index">
                 {{period.name}}
             </th>
-            <tr ng-repeat="line in data track by $index" ng-if="$index != 0">
+            <tr ng-repeat="line in vm.data track by $index" ng-if="$index != 0">
                 <td ng-repeat="bloodGlucoseReadings in line track by $index">
                     <!-- Row header -->
                     <div ng-if="$index == 0">
-                        <div ng-if="interval == 'week'">
+                        <div ng-if="vm.interval == 'week'">
                             <strong>{{bloodGlucoseReadings.date| date:'EEEE d MMM'}}</strong>
                         </div>
-                        <div ng-if="interval != 'week'">
+                        <div ng-if="vm.interval != 'week'">
                             <strong>{{bloodGlucoseReadings.text}}</strong>
                         </div>                            
                     </div>
                     <div ng-if="($index != 0 && interval === 'week') || (interval === 'day')">
                         <div ng-repeat="bloodGlucoseReading in bloodGlucoseReadings| orderBy:'dateTime'">                            
                             <div>
-                                <bloglu-event bloglu-event="bloodGlucoseReading" click-action="viewEvent(code, objectId)"></bloglu-event>                                
+                                <bloglu-event bloglu-event="bloodGlucoseReading" click-action="vm.viewEvent(code, objectId)"></bloglu-event>                                
                             </div>
                         </div>
                         <!-- handle case of empty section -->
                         <div ng-if="bloodGlucoseReadings.length === 0">
-                            <button ng-click="addEvent(line[0], header[$index])" class="center-block btn btn-primary"><span class="glyphicon glyphicon-plus-sign"></span></button>
+                            <button ng-click="vm.addEvent(line[0], header[$index])" class="center-block btn btn-primary"><span class="glyphicon glyphicon-plus-sign"></span></button>
                         </div>
                     </div>
 
-                    <div ng-if="interval !== 'week' && interval !== 'day' && bloodGlucoseReadings.length > 0">
+                    <div ng-if="vm.interval !== 'week' && vm.interval !== 'day' && bloodGlucoseReadings.length > 0">
                         <div ng-if="bloodGlucoseReadings.length > 0">                                
                             <div ng-repeat="(key, value) in bloodGlucoseReadings[0]">
-                                <bloglu-event-group bloglu-grouped-event="value" bloglu-grouped-event-zoom-in-interval="zoomInInterval(date)"></bloglu-event-group>
+                                <bloglu-event-group bloglu-grouped-event="value" bloglu-grouped-event-zoom-in-interval="vm.zoomInInterval(date)"></bloglu-event-group>
                             </div>
                         </div>                        
                     </div>

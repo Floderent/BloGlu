@@ -5,19 +5,25 @@
     angular.module('bloglu.report')
             .controller('reportListController', reportListController);
 
-    reportListController.$inject = ['$scope', '$rootScope', '$location', 'reportService', 'MessageService', 'dashboardService', 'Utils'];
+    reportListController.$inject = ['$rootScope', '$location', 'reportService', 'MessageService', 'dashboardService', 'Utils'];
 
 
-    function reportListController($scope, $rootScope, $location, reportService, MessageService, dashboardService, Utils) {
-
-        $scope.reports = [];
-        $scope.addReportMode = dashboardService.hasNewReport();
+    function reportListController($rootScope, $location, reportService, MessageService, dashboardService, Utils) {
+        
+        var vm = this;
+        
+        vm.reports = [];
+        vm.addReportMode = dashboardService.hasNewReport();
+        
+        vm.deleteReport = deleteReport;
+        vm.editReport = editReport;
+        vm.addReportToDashboard = addReportToDashboard;
 
         renderPage();
         function renderPage() {
             $rootScope.increasePending("processingMessage.loadingData");
             reportService.getReports().then(function (reports) {
-                $scope.reports = reports;
+                vm.reports = reports;
             }, function (error) {
                 $rootScope.messages.push(MessageService.errorMessage('Cannot get the reports', 2000));
             })['finally'](function () {
@@ -25,7 +31,7 @@
             });
         }
 
-        $scope.deleteReport = function (report) {
+        function deleteReport(report) {
             var modalScope = {
                 confirmTitle: 'confirm.pageTitle',
                 confirmMessage: 'confirm.deletionMessage',
@@ -39,13 +45,13 @@
                         $rootScope.increasePending("processingMessage.deletingData");
                         reportService.deleteReport(report).then(function (result) {
                             var reportIndex = -1;
-                            angular.forEach($scope.reports, function (rep, index) {
+                            angular.forEach(vm.reports, function (rep, index) {
                                 if (rep.objectId && rep.objectId === report.objectId) {
                                     reportIndex = index;
                                 }
                             });
                             if (reportIndex !== -1) {
-                                $scope.reports.splice(reportIndex, 1);
+                                vm.reports.splice(reportIndex, 1);
                             }
                         }, function (error) {
                             $rootScope.messages.push(MessageService.errorMessage('errorMessage.deletingError', 2000));
@@ -57,18 +63,18 @@
             }, function () {
                 //exit
             });
-        };
+        }
 
-        $scope.editReport = function (report) {
+        function editReport(report) {
             var path = 'reports/' + report.objectId;
             $location.url($location.path());
             $location.path(path);
-        };
+        }
 
-        $scope.addReportToDashboard = function (report) {
+        function addReportToDashboard(report) {
             dashboardService.setNewReportId(report.objectId);
             $location.path('dashboard');
-        };
+        }
 
 
         $rootScope.$on('dataReady', renderPage);

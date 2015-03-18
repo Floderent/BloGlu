@@ -1,20 +1,18 @@
 
-<div class="panel content-panel">
-    
+<div class="panel content-panel">    
     
     <div data-ng-show="pending > 0">
         <h3>{{'loading' | translate}}</h3>
-    </div>
-    
+    </div>    
     
     <div data-ng-show="pending === 0"> 
-        <div class="row" ng-repeat="line in reportTab track by $index"> 
-            <div class="col-sm-6 col-lg-3 panel panel-default small-report" ng-repeat="reportConfig in reportTab[$index] track by $index">            
+        <div class="row" ng-repeat="line in vm.reportTab track by $index"> 
+            <div class="col-sm-6 col-lg-3 panel panel-default small-report" ng-repeat="reportConfig in vm.reportTab[$index] track by $index">            
                 <div ng-if="reportConfig.queryResult && reportConfig.queryResult.data && reportConfig.queryResult.headers">
-                    <a href="" ng-click="clearReport(reportTab.indexOf(line), $index)" class="glyphicon glyphicon-remove-circle right-corner"></a>                    
+                    <a href="" ng-click="vm.clearReport(vm.reportTab.indexOf(line), $index)" class="glyphicon glyphicon-remove-circle right-corner"></a>                    
                     <dataviz config="reportConfig.queryResult" column-order="reportConfig.columnOrder"></dataviz>
                 </div>
-                <button type="button" class="btn btn-primary empty-report" ng-if="!reportConfig.queryResult && !reportConfig.loading" ng-click="chooseReport(reportTab.indexOf(line), $index)">                    
+                <button type="button" class="btn btn-primary empty-report" ng-if="!reportConfig.queryResult && !reportConfig.loading" ng-click="vm.chooseReport(vm.reportTab.indexOf(line), $index)">                    
                     {{ 'dashboard.addnewReport' | translate }}
                 </button>               
             </div>

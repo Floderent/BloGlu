@@ -14,6 +14,10 @@
         unitService.getUnitsByCode = function (code) {
             return dataService.queryLocal(resourceName, {where: {code: code}});
         };
+        
+        unitService.getUnitById = function(objectId){
+            return dataService.get(resourceName, objectId);
+        };
 
         unitService.getReferenceUnitByCode = function (code) {
             return dataService.queryLocal(resourceName, {where: {code: code, coefficient: 1}}).then(function (results) {

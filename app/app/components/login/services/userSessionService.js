@@ -179,14 +179,14 @@
         UserSessionService.displaySignUpModal = function () {            
             $modal.open({
                 templateUrl: 'app/components/login/templates/inputUser.html',
-                controller: 'inputUserController'
+                controller: 'inputUserController as vm'
             });
         };
 
         UserSessionService.displayResetPasswordModal = function () {            
             $modal.open({
                 templateUrl: 'app/components/login/templates/resetPassword.html',
-                controller: 'resetPasswordController'
+                controller: 'resetPasswordController as vm'
             });
         };
         

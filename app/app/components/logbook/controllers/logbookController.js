@@ -4,8 +4,7 @@
     angular.module('bloglu.logbook')
             .controller('logBookController', logBookController);
 
-    logBookController.$inject = [
-        '$scope',
+    logBookController.$inject = [        
         '$rootScope',
         '$location',
         '$routeParams',
@@ -18,8 +17,7 @@
         'printService'];
 
 
-    function logBookController(
-            $scope,
+    function logBookController(            
             $rootScope,
             $location,
             $routeParams,
@@ -30,33 +28,62 @@
             logBookService,
             MessageService,
             printService) {
-
-        $scope.data = [];
-        $scope.logBookTitle = '';
-        $scope.eventsTypes = ResourceName;
-        $scope.eventsIcons = ResourceIcon;
-        $scope.display = [1];
+                
+                
+        var vm = this;
+                
+        vm.data = [];
+        vm.logBookTitle = '';
+        vm.eventsTypes = ResourceName;
+        vm.eventsIcons = ResourceIcon;
+        vm.display = [1];
+        vm.resource = {1: true};
         //default display blood glucose
 
-        $scope.currentDate = null;
-        $scope.interval = 'week';
+        vm.currentDate = null;
+        vm.interval = 'week';
+        
+        //functions
+        vm.changeResource = changeResource;
+        vm.viewEvent = viewEvent;
+        vm.printToPDF = printToPDF;
+        vm.change = change;
+        vm.addEvent = addEvent;
+        vm.zoomInInterval = zoomInInterval;
+        vm.advance = advance;
+        vm.back = back;
+        vm.currentWeek = currentWeek;
+        
 
         if ($routeParams && $routeParams.weekDate) {
-            $scope.currentDate = new Date($routeParams.weekDate);
+            vm.currentDate = new Date($routeParams.weekDate);
         } else {
-            $scope.currentDate = new Date();
+            vm.currentDate = new Date();
         }
         if ($routeParams && $routeParams.interval) {
-            $scope.interval = $routeParams.interval;
+            vm.interval = $routeParams.interval;
         }
         if ($routeParams && typeof $routeParams.display !== 'undefined') {
-            $scope.display = $routeParams.display;
+            vm.display = $routeParams.display;
             processDisplay();
-        } else {
-            $scope.display = [1];
-            $scope.resource = {1: true};
+        } 
+        
+        renderPage();
+        
+        
+        function changeResource(){
+            var resourceCodes = [];
+            angular.forEach(vm.resource, function (value, key) {
+                if (value) {
+                    resourceCodes.push(parseInt(key));
+                }
+            });
+            vm.display = resourceCodes;
+            $location.url($location.path());
+            $location.path('logBook').search('weekDate', vm.currentDate.toISOString()).search('interval', vm.interval).search('display', logBookService.getDisplayParam(vm.display));
         }
-
+        
+        /*
         $scope.$watch('resource', function (newValue, oldValue) {
             if (newValue !== oldValue) {
                 var resourceCodes = [];
@@ -64,31 +91,31 @@
                     if (value) {
                         resourceCodes.push(parseInt(key));
                     }
-                });
-                //renderPage();
+                });                
                 $scope.display = resourceCodes;
                 $location.url($location.path());
                 $location.path('logBook').search('weekDate', $scope.currentDate.toISOString()).search('interval', $scope.interval).search('display', logBookService.getDisplayParam($scope.display));
             }
         }, true);
+        */
 
-        renderPage();
+        
 
         function renderPage() {
             $rootScope.increasePending("processingMessage.loadingData");
-            logBookService.getTimeInterval($scope.interval, $scope.currentDate).then(function (timeInterval) {
-                $scope.timeInterval = timeInterval;
-                $scope.logBookTitle = logBookService.getTimeIntervalTitle(timeInterval);
-                var params = {where: {code: {$in: $scope.display}}};
-                logBookService.getTableData($scope.timeInterval, params).then(
+            logBookService.getTimeInterval(vm.interval, vm.currentDate).then(function (timeInterval) {
+                vm.timeInterval = timeInterval;
+                vm.logBookTitle = logBookService.getTimeIntervalTitle(timeInterval);
+                var params = {where: {code: {$in: vm.display}}};
+                logBookService.getTableData(vm.timeInterval, params).then(
                         function (result) {
-                            $scope.header = result[0];
-                            $scope.data = result;
+                            vm.header = result[0];
+                            vm.data = result;
                         },
                         function (error) {
                             $rootScope.messages.push(MessageService.errorMessage("errorMessage.loadingError", 2000));
-                            $scope.header = [];
-                            $scope.data = [];
+                            vm.header = [];
+                            vm.data = [];
                         })['finally'](function () {
                     $rootScope.decreasePending("processingMessage.loadingData");
                 });
@@ -96,7 +123,7 @@
         }
 
         function processDisplay() {
-            var intStrArray = $scope.display.split(',');
+            var intStrArray = vm.display.split(',');
             var intArray = [];
             var resource = {};
             angular.forEach(intStrArray, function (value, key) {
@@ -105,8 +132,8 @@
                     resource[parseInt(value)] = true;
                 }
             });
-            $scope.resource = resource;
-            $scope.display = intArray;
+            vm.resource = resource;
+            vm.display = intArray;
         }
 
 
@@ -126,43 +153,43 @@
                     newDate.setFullYear(newDate.getFullYear() + (1 * coef));
                     break;
             }
-            $scope.currentDate = newDate;
+            vm.currentDate = newDate;
             $location.url($location.path());
-            $location.path('logBook').search('weekDate', $scope.currentDate.toISOString()).search('interval', interval).search('display', logBookService.getDisplayParam($scope.display));
+            $location.path('logBook').search('weekDate', vm.currentDate.toISOString()).search('interval', interval).search('display', logBookService.getDisplayParam(vm.display));
         }
 
         //view reading by id
-        $scope.viewEvent = function (code, objectId) {
+        function viewEvent(code, objectId) {
             eventService.viewEvent(code, objectId).then(renderPage, renderPage);
-        };
+        }
 
-        $scope.printToPDF = function () {
-            return printService.printLogBook($scope.data, $scope.timeInterval, $scope.display);
-        };
+        function printToPDF() {
+            return printService.printLogBook(vm.data, vm.timeInterval, vm.display);
+        }
 
         /**
          * Change grouping
          */
-        $scope.change = function () {
-            changeInterval($scope.currentDate, $scope.interval, 0);
+        function change() {
+            changeInterval(vm.currentDate, vm.interval, 0);
         };
 
         //create new reading with prefilled date and time
-        $scope.addEvent = function (day, period) {
+        function addEvent(day, period) {
             //if only one event type selected, add this one            
-            if ($scope.display.length === 1) {
-                eventService.goToAddEvent($scope.display[0], day, period).then(renderPage, renderPage);
+            if (vm.display.length === 1) {
+                eventService.goToAddEvent(vm.display[0], day, period).then(renderPage, renderPage);
             } else {
                 //display modal window to choose the type of event
                 var $modalScope = $rootScope.$new(true);
-                $modalScope.eventsTypes = logBookService.getEventTypes($scope.display);
+                $modalScope.eventsTypes = logBookService.getEventTypes(vm.display);
                 var modalInstance = $modal.open({
                     templateUrl: "app/components/logbook/templates/chooseEvent.html",
                     controller: "chooseEventController",
                     scope: $modalScope,
                     resolve: {
                         confirmed: function () {
-                            return $scope.code;
+                            return vm.code;
                         }
                     }
                 });
@@ -177,9 +204,9 @@
         };
 
 
-        $scope.zoomInInterval = function (date) {
+        function zoomInInterval(date) {
             var newInterval = '';
-            switch ($scope.interval) {
+            switch (vm.interval) {
                 case 'month':
                     newInterval = 'week';
                     break;
@@ -187,25 +214,26 @@
                     newInterval = 'month';
                     break;
                 default:
-                    newInterval = $scope.interval;
+                    newInterval = vm.interval;
                     break;
             }
             $location.url($location.path());
             $location.path('logBook').search('weekDate', date.toISOString()).search('interval', newInterval);
-        };
+        }
 
-        $scope.advance = function () {
-            changeInterval($scope.currentDate, $scope.interval, +1);
-        };
+        function advance() {
+            changeInterval(vm.currentDate, vm.interval, +1);
+        }
 
-        $scope.back = function () {
-            changeInterval($scope.currentDate, $scope.interval, -1);
-        };
+        function back() {
+            changeInterval(vm.currentDate, vm.interval, -1);
+        }
 
-        $scope.currentWeek = function () {
-            $scope.currentDate = new Date();
-            changeInterval($scope.currentDate, $scope.interval, 0);
-        };
+        function currentWeek() {
+            vm.currentDate = new Date();
+            changeInterval(vm.currentDate, vm.interval, 0);
+        }
+        
         $rootScope.$on('dataReady', renderPage);
     }
 })();

@@ -3,25 +3,23 @@
         <h3 class="panel-title">{{ 'category.pageTitle' | translate }}</h3>
     </div>
     <div class="panel-body ">
-        
         <div class="btn-group">
-            <label ng-repeat="(key, value) in eventsTypes track by $index" class="btn btn-success" ng-model="code" ng-click="selectType(key,value)" btn-radio="{{key}}">{{value | translate}}</label>
+            <label ng-repeat="(key, value) in vm.eventsTypes track by $index" class="btn btn-success" ng-model="vm.code" ng-click="vm.selectType(key, value)" btn-radio="{{key}}">{{value| translate}}</label>
         </div>
-
     </div>
 
     <form novalidate class="simple-form">
         <div class="input-group">
             <div class="table-responsive">
                 <table class="table table-striped">
-                    <th>{{ 'category.new' | translate }} {{eventType | translate}}</th>
+                    <th>{{ 'category.new' | translate }} {{vm.eventType| translate}}</th>
                     <th></th>
                     <tr>
                         <td>
-                            <input type="text" required class="input-sm" data-ng-model="newCategory.name">
+                            <input type="text" required class="input-sm" data-ng-model="vm.newCategory.name">
                         </td>
                         <td>
-                            <button type="button" class="btn" ng-click="saveCategory(newCategory)">{{ 'category.add' | translate }}</button>
+                            <button type="button" class="btn" ng-click="vm.saveCategory(vm.newCategory)">{{ 'category.add' | translate }}</button>
                         </td>
                     </tr>
                 </table>
@@ -29,9 +27,9 @@
         </div>
         <div class="table-responsive">
             <table class="table table-striped">
-                <th>{{eventType | translate}}</th>
+                <th>{{vm.eventType| translate}}</th>
                 <th></th>
-                <tr ng-repeat="category in categories">
+                <tr ng-repeat="category in vm.categories">
                     <td>
                         <div ng-show="!category.isEdit">{{category.name}}</div>
                         <input type="text" required class="input-sm" ng-show="category.isEdit" data-ng-model="category.name">

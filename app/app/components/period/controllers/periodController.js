@@ -7,18 +7,29 @@
     periodController.$inject = ['$rootScope', '$scope', 'MessageService', 'periodService', 'Utils'];
 
     function periodController($rootScope, $scope, MessageService, periodService, Utils) {
-
-        $scope.arePeriodsOnMoreThanOneDay = true;
+        
+        var vm = this;
+        vm.periods = [];
+        vm.newPeriod = null;
+        vm.arePeriodsOnMoreThanOneDay = true;
+        
+        vm.getBeginDateHours = getBeginDateHours;
+        vm.savePeriod = savePeriod;
+        vm.updatePeriod = updatePeriod;
+        vm.deletePeriod = deletePeriod;
+        vm.editPeriod = editPeriod;
+        vm.cancelEditPeriod = cancelEditPeriod;
+        
         renderPage();
 
         function renderPage() {
             $rootScope.increasePending("processingMessage.loadingData");
             periodService.getPeriods().then(function (result) {
-                $scope.periods = result;
-                processPeriods($scope.periods);
+                vm.periods = result;
+                processPeriods(vm.periods);
                 $scope.$watch('periods', function (newValue, oldValue) {
-                    processPeriods($scope.periods);
-                    checkPeriods($scope.periods);
+                    processPeriods(vm.periods);
+                    checkPeriods(vm.periods);
                 }, true);
             }, function (error) {
                 $rootScope.messages.push(MessageService.errorMessage("errorMessage.loadingError", 2000));
@@ -28,8 +39,8 @@
         }
 
         function processPeriods(periodArray) {
-            $scope.arePeriodsOnMoreThanOneDay = periodService.arePeriodsOnMoreThanOneDay(periodArray);
-            $scope.newPeriod = periodService.getNewPeriod(periodArray);
+            vm.arePeriodsOnMoreThanOneDay = periodService.arePeriodsOnMoreThanOneDay(periodArray);
+            vm.newPeriod = periodService.getNewPeriod(periodArray);
         }
 
         function checkPeriods(existingPeriods, newPeriod) {
@@ -40,20 +51,20 @@
             return errorMessages.length === 0;
         }
 
-        $scope.getBeginDateHours = function (period) {
+        function getBeginDateHours(period) {
             var beginDateHours = period.begin.getHours();
             var beginDateMinutes = period.begin.getMinutes();
             return beginDateHours * 60 + beginDateMinutes;
-        };
+        }
 
-        $scope.savePeriod = function (period) {
+        function savePeriod(period) {
             if (period && period.begin && period.end) {
-                if (checkPeriods($scope.periods, period)) {
+                if (checkPeriods(vm.periods, period)) {
                     $rootScope.increasePending("processingMessage.savingData");
                     periodService.savePeriod(period).then(function (result) {
                         angular.extend(period, result);
-                        $scope.periods.push(period);
-                        processPeriods($scope.periods);
+                        vm.periods.push(period);
+                        processPeriods(vm.periods);
                         $rootScope.messages.push(MessageService.successMessage("successMessage.periodCreated", 2000));
                     }, function (error) {
                         $rootScope.messages.push(MessageService.errorMessage("errorMessage.creatingError", 2000));
@@ -62,20 +73,20 @@
                     });
                 }
             }
-        };
+        }
 
-        $scope.updatePeriod = function (period) {
-            if (!checkPeriods($scope.periods)) {
-                $scope.cancelEditPeriod(period);
+        function updatePeriod(period) {
+            if (!checkPeriods(vm.periods)) {
+                vm.cancelEditPeriod(period);
             } else {
                 if (period.objectId) {
                     $rootScope.increasePending("processingMessage.updatingData");
                     periodService.savePeriod(period, true).then(function (result) {
                         period.isEdit = false;
-                        processPeriods($scope.periods);
+                        processPeriods(vm.periods);
                         $rootScope.messages.push(MessageService.successMessage("successMessage.periodUpdated", 2000));
                     }, function (error) {
-                        $scope.cancelEditPeriod(period);
+                        vm.cancelEditPeriod(period);
                         $rootScope.messages.push(MessageService.errorMessage("errorMessage.updatingError", 2000));
                     })['finally'](function () {
                         $rootScope.decreasePending("processingMessage.updatingData");
@@ -83,10 +94,10 @@
 
                 }
             }
-        };
+        }
 
 
-        $scope.deletePeriod = function (period) {
+        function deletePeriod(period) {
             var modalScope = {
                 confirmTitle: 'confirm.pageTitle',
                 confirmMessage: {id: 'confirm.deletionMessageWithName', params: {objectName: period.name}},
@@ -99,15 +110,15 @@
                         $rootScope.increasePending("processingMessage.deletingData");
                         periodService.deletePeriod(period).then(function (result) {
                             var periodIndex = -1;
-                            angular.forEach($scope.periods, function (per, index) {
+                            angular.forEach(vm.periods, function (per, index) {
                                 if (per.objectId && per.objectId === period.objectId) {
                                     periodIndex = index;
                                 }
                             });
                             if (periodIndex !== -1) {
-                                $scope.periods.splice(periodIndex, 1);
+                                vm.periods.splice(periodIndex, 1);
                             }
-                            processPeriods($scope.periods);
+                            processPeriods(vm.periods);
                         }, function (error) {
                             $rootScope.messages.push(MessageService.errorMessage('errorMessage.deletingError', 2000));
                         })['finally'](function () {
@@ -119,21 +130,21 @@
                 //exit
             });
 
-        };
+        }
 
 
-        $scope.editPeriod = function (period) {
+        function editPeriod(period) {
             period.isEdit = true;
             period.original = angular.extend({}, period);
-        };
+        }
 
-        $scope.cancelEditPeriod = function (period) {
+        function cancelEditPeriod(period) {
             period.isEdit = false;
             period.begin = period.original.begin;
             period.end = period.original.end;
             period.name = period.original.name;
             delete period.original;
-        };
+        }
 
         $rootScope.$on('dataReady', renderPage);
     }

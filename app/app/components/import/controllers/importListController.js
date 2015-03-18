@@ -4,16 +4,21 @@
     angular.module('bloglu.import')
             .controller('importListController', importListController);
 
-    importListController.$inject = ['$scope', '$rootScope', 'importService', 'MessageService', 'Utils'];
+    importListController.$inject = ['$rootScope', 'importService', 'MessageService', 'Utils'];
 
-    function importListController($scope, $rootScope, importService, MessageService, Utils) {
-
+    function importListController($rootScope, importService, MessageService, Utils) {
+        
+        var vm = this;
+        
+        vm.deleteImport = deleteImport;
+        vm.imports = [];
+        
         renderPage();
 
         function renderPage() {
             $rootScope.increasePending('processingMessage.loadingData');
             importService.getImports().then(function (imports) {
-                $scope.imports = imports;
+                vm.imports = imports;
             }, function (error) {
                 $rootScope.messages.push(MessageService.errorMessage('errorMessage.loadingError', 2000));
             })['finally'](function () {
@@ -21,7 +26,7 @@
             });
         }
 
-        $scope.deleteImport = function (impor) {
+        function deleteImport(impor) {
             var modalScope = {
                 confirmTitle: 'confirm.pageTitle',
                 confirmMessage: {id: 'confirm.deletionMessageWithName', params: {objectName: impor.name}},
@@ -34,13 +39,13 @@
                         $rootScope.increasePending("processingMessage.deletingData");
                         importService.deleteImport(impor).then(function (result) {
                             var importIndex = -1;
-                            angular.forEach($scope.imports, function (imp, index) {
+                            angular.forEach(vm.imports, function (imp, index) {
                                 if (imp.objectId && imp.objectId === impor.objectId) {
                                     importIndex = index;
                                 }
                             });
                             if (importIndex !== -1) {
-                                $scope.imports.splice(importIndex, 1);
+                                vm.imports.splice(importIndex, 1);
                             }
                         }, function (error) {
                             $rootScope.messages.push(MessageService.errorMessage('errorMessage.deletingError', 2000));

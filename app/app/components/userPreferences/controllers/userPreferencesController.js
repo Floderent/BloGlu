@@ -4,36 +4,21 @@
     angular.module('bloglu.userPreferences')
             .controller('userPreferencesController', userPreferencesController);
 
-    userPreferencesController.$inject = [
-        '$q',
-        '$rootScope',
-        '$scope',
-        'dateUtil',
-        'MessageService',
-        'ResourceName',
-        'unitService',
-        'UserService',
-        'Utils'];
+    userPreferencesController.$inject = ['$q', '$rootScope', 'dateUtil', 'MessageService', 'ResourceName', 'unitService', 'UserService', 'Utils'];
 
-    function userPreferencesController(
-            $q,
-            $rootScope,
-            $scope,
-            dateUtil,
-            MessageService,
-            ResourceName,
-            unitService,
-            UserService,
-            Utils) {
+    function userPreferencesController($q, $rootScope, dateUtil, MessageService, ResourceName, unitService, UserService, Utils) {
         $rootScope.messages = [];
         $rootScope.pending = 0;
+        
+        var vm = this;
+        vm.eventsTypes = ResourceName;
+        delete vm.eventsTypes["0"];
 
-        $scope.eventsTypes = ResourceName;
-        delete $scope.eventsTypes["0"];
-
-        $scope.user = {};
-        $scope.days = dateUtil.getCurrentWeekSundayAndMonday();
-        $scope.units = [];
+        vm.user = {};
+        vm.days = dateUtil.getCurrentWeekSundayAndMonday();
+        vm.units = [];
+        vm.deleteUser = deleteUser;        
+        vm.update = update;
 
         renderPage();
 
@@ -43,21 +28,21 @@
 
         function initUser() {
             return UserService.getCurrentUser().then(function (currentUser) {
-                $scope.user = currentUser;
+                vm.user = currentUser;
                 initPreferences();
                 return;
             });
         }
 
         function initPreferences() {
-            if (!$scope.user.preferences) {
-                $scope.user.preferences = {};
+            if (!vm.user.preferences) {
+                vm.user.preferences = {};
             }
-            if ($scope.user && $scope.user.preferences && typeof $scope.user.preferences.firstDayOfWeek === 'undefined' && $scope.user.preferences.firstDayOfWeek === null) {
-                $scope.user.preferences.firstDayOfWeek = 0;
+            if (vm.user && vm.user.preferences && typeof vm.user.preferences.firstDayOfWeek === 'undefined' && vm.user.preferences.firstDayOfWeek === null) {
+                vm.user.preferences.firstDayOfWeek = 0;
             }
-            if (!$scope.user.preferences.defaultUnits) {
-                $scope.user.preferences.defaultUnits = {};
+            if (!vm.user.preferences.defaultUnits) {
+                vm.user.preferences.defaultUnits = {};
             }
         }
 
@@ -65,10 +50,10 @@
             var promiseArray = [];
             angular.forEach(ResourceName, function (value, key) {
                 promiseArray.push(unitService.getUnitsByCode(parseInt(key)).then(function (result) {
-                    $scope.units[value] = result;
+                    vm.units[value] = result;
                     //if no previous unit set, use reference unit
-                    if (!$scope.user.preferences.defaultUnits[value] && result && result.length > 0) {
-                        $scope.user.preferences.defaultUnits[value] = unitService.getReferenceUnit(result);
+                    if (!vm.user.preferences.defaultUnits[value] && result && result.length > 0) {
+                        vm.user.preferences.defaultUnits[value] = unitService.getReferenceUnit(result);
                     }
                     return;
                 }));
@@ -76,7 +61,7 @@
             return $q.all(promiseArray);
         }
 
-        $scope.update = function (user) {
+        function update(user) {
             $rootScope.increasePending("processingMessage.updatingData");
             UserService.saveUser(user).then(function (result) {
                 $rootScope.messages.push(MessageService.successMessage("successMessage.userUpdated", 2000));
@@ -85,9 +70,9 @@
             })['finally'](function () {
                 $rootScope.decreasePending("processingMessage.updatingData");
             });
-        };
+        }
 
-        $scope.delete = function (user) {
+        function deleteUser(user) {
             var modalScope = {
                 confirmTitle: 'confirm.pageTitle',
                 confirmMessage: 'userPreferences.confirmDeletion',
@@ -106,9 +91,7 @@
             }, function () {
                 //exit
             });
-        };
-
+        }
         $rootScope.$on('dataReady', renderPage);
-
     }
 })();

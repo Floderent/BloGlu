@@ -4,23 +4,27 @@
     angular.module('bloglu.import')
             .controller('importController', importController);
 
-    importController.$inject = ['$rootScope', '$scope', 'importService', 'MessageService'];
+    importController.$inject = ['$rootScope', 'importService', 'MessageService'];
 
-    function importController($rootScope, $scope, importService, MessageService) {
+    function importController($rootScope, importService, MessageService) {
+        
+        var vm = this;
+        
+        vm.file = null;
+        vm.import = {};
+        vm.onFileSelect = onFileSelect;
+        vm.importData = importData;
 
-        $scope.file = null;
-        $scope.import = {};
-
-        $scope.onFileSelect = function (files) {
+        function onFileSelect(files) {
             if (Array.isArray(files) && files.length > 0) {
-                $scope.file = files[0];
+                vm.file = files[0];
             }
         };
 
-        $scope.importData = function () {
+        function importData() {
             $rootScope.increasePending('processingMessage.importingData');
-            $scope.import.dateTime = new Date();
-            importService.importData($scope.import, $scope.file).then(function (importResult) {
+            vm.import.dateTime = new Date();
+            importService.importData(vm.import, vm.file).then(function (importResult) {
                 importService.saveImport(importResult.import, true).then(function (saveResult) {
                     MessageService.successMessage('successMessage.dataImported', 2000);
                 }, function (error) {

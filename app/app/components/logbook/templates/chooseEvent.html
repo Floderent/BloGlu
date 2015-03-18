@@ -4,11 +4,11 @@
 <div class="modal-body">
 
     <div class="btn-group">
-        <label ng-repeat="(key, value) in eventsTypes track by $index" class="btn btn-success" ng-model="code" ng-click="selectType(key, value)" btn-radio="{{key}}">{{value | translate}}</label>
+        <label ng-repeat="(key, value) in eventsTypes track by $index" class="btn btn-success" ng-model="code" ng-click="vm.selectType(key, value)" btn-radio="{{key}}">{{value | translate}}</label>
     </div>
 
 </div>
 <div class="modal-footer">
-    <button class="btn btn-primary" ng-click="ok()">{{ 'chooseEvent.add' | translate }}</button>
-    <button class="btn btn-warning" ng-click="cancel()">{{ 'chooseEvent.cancel' | translate }}</button>
+    <button class="btn btn-primary" ng-click="vm.ok()">{{ 'chooseEvent.add' | translate }}</button>
+    <button class="btn btn-warning" ng-click="vm.cancel()">{{ 'chooseEvent.cancel' | translate }}</button>
 </div>

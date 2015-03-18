@@ -6,10 +6,10 @@
         <div ng-form="importForm" novalidate role="form">
             <div class="form-group input-group-lg" ng-class="">
                 <label class="control-label" for="importName">{{ 'import.name' | translate }}</label>
-                <input type="text" class="form-control" name="importName" id="importName" ng-model="import.name" required>
+                <input type="text" class="form-control" name="importName" id="importName" ng-model="vm.import.name" required>
                 <label class="control-label" for="importFile">{{ 'import.file' | translate }}</label>
-                <input id="importFile" type="file" name="importFile" ng-file-select="onFileSelect($files)" >                
-                <button class="btn btn-primary btn-lg active pull-right" ng-disabled="((importForm.$dirty && importForm.$invalid) || importForm.$pristine) || pending > 0" ng-click="importData()">{{ 'import.importData' | translate }}</button>                
+                <input id="importFile" type="file" name="importFile" ng-file-select="vm.onFileSelect($files)" >                
+                <button class="btn btn-primary btn-lg active pull-right" ng-disabled="((importForm.$dirty && importForm.$invalid) || importForm.$pristine) || pending > 0" ng-click="vm.importData()">{{ 'import.importData' | translate }}</button>                
             </div>
         </div>
     </div>

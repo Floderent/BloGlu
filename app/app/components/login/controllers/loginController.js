@@ -4,11 +4,16 @@
     angular.module('bloglu.login')
             .controller('loginController', loginController);
 
-    loginController.$inject = ['$scope', '$rootScope', '$location', '$modal', 'UserSessionService', 'MessageService', 'AUTH_EVENTS'];
+    loginController.$inject = ['$rootScope', '$location', 'UserSessionService', 'MessageService', 'AUTH_EVENTS'];
 
-    function loginController($scope, $rootScope, $location, $modal, UserSessionService, MessageService, AUTH_EVENTS) {
+    function loginController($rootScope, $location, UserSessionService, MessageService, AUTH_EVENTS) {
         
-        var modal = null;
+        var vm = this;
+        
+        vm.logIn = logIn;
+        vm.logInWithFacebook = logInWithFacebook;
+        vm.displaySignUpModal = displaySignUpModal;
+        vm.displayResetPasswordModal = displayResetPasswordModal;        
         
         function loginSuccessful(authenticatedUser) {
             $rootScope.currentUser = authenticatedUser;
@@ -27,7 +32,7 @@
             }
         }
 
-        $scope.logIn = function (form) {
+        function logIn(form) {
             if (form) {
                 $rootScope.increasePending("processingMessage.connecting");
                 UserSessionService.logIn(form.username, form.password)
@@ -36,27 +41,23 @@
                     $rootScope.decreasePending("processingMessage.connecting");
                 });
             }
-        };
+        }
 
-        $scope.logInWithFacebook = function () {
+        function logInWithFacebook() {
             $rootScope.increasePending("processingMessage.connecting");
             UserSessionService.logInWithFacebook().then(loginSuccessful, loginFailed)['finally'](function () {
                 $rootScope.decreasePending("processingMessage.connecting");
             });
-        };
+        }      
         
-        
-        $scope.displaySignUpModal = function () {
-            $scope.messages = [];
+        function displaySignUpModal() {
+            vm.messages = [];
             UserSessionService.displaySignUpModal();
-        };
+        }
 
-        $scope.displayResetPasswordModal = function () {
+        function displayResetPasswordModal() {
             $rootScope.messages = [];
             UserSessionService.displayResetPasswordModal();
-        };
-        
-        
-        
+        }
     }
 })();

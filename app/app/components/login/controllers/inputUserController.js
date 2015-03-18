@@ -7,25 +7,32 @@
     inputUserController.$inject = ['$scope', '$modalInstance', 'UserSessionService'];
 
     function inputUserController($scope, $modalInstance, UserSessionService) {
-        $scope.user = {};
-        $scope.cancel = function () {
+        
+        var vm = this;
+        
+        vm.user = {};
+        vm.creatingUser = false;
+        vm.cancel = cancel;
+        vm.signUp = signUp;
+        
+        function cancel() {
             $modalInstance.dismiss('canceled');
-        };
-        $scope.creatingUser = false;
+        }
+        
 
-        $scope.signUp = function () {
-            $scope.successMessage = null;
-            $scope.erroMessage = null;
-            $scope.creatingUser = true;
-            UserSessionService.signUp($scope.user)
+        function signUp() {
+            vm.successMessage = null;
+            vm.erroMessage = null;
+            vm.creatingUser = true;
+            UserSessionService.signUp(vm.user)
                     .success(function (result) {
-                        $scope.creatingUser = false;
-                        $scope.successMessage = 'userCreated';
-                        $scope.cancel();
+                        vm.creatingUser = false;
+                        vm.successMessage = 'userCreated';
+                        vm.cancel();
                     })
                     .error(function (error) {
-                        $scope.errorMessage = error.error;
-                        $scope.creatingUser = false;
+                        vm.errorMessage = error.error;
+                        vm.creatingUser = false;
                     });
         };
     }

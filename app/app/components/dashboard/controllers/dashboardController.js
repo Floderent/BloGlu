@@ -5,34 +5,37 @@
             .module('bloglu.dashboard')
             .controller('dashboardController', dashboardController);
 
-    dashboardController.$inject = ['$scope', '$rootScope', '$location', 'dashboardService'];
+    dashboardController.$inject = ['$rootScope', '$location', 'dashboardService'];
 
 
-    function dashboardController($scope, $rootScope, $location, dashboardService) {
-
-        $scope.reportTab = dashboardService.initTab();
-        $scope.dashboard = null;
+    function dashboardController($rootScope, $location, dashboardService) {
+        
+        var vm = this;
+        
+        vm.reportTab = dashboardService.initTab();
+        vm.dashboard = null;
+        vm.chooseReport = chooseReport;
+        vm.clearReport = clearReport;        
 
         renderPage();
 
-        $scope.chooseReport = function (row, column) {
+        function chooseReport(row, column) {
             dashboardService.setNewReport(row, column);
             $location.path('reports');
-        };
+        }
 
-        $scope.clearReport = function (row, column) {
-            $scope.reportTab[row][column] = {};
-            dashboardService.clearReport($scope.dashboard, row, column);
-            dashboardService.saveDashboard($scope.dashboard);
-        };
-
+        function clearReport(row, column) {
+            vm.reportTab[row][column] = {};
+            dashboardService.clearReport(vm.dashboard, row, column);
+            dashboardService.saveDashboard(vm.dashboard);
+        }
 
         function renderPage() {
             $rootScope.increasePending("processingMessage.loadingData");
             dashboardService.getDashboard().then(function (dashboard) {
-                $scope.dashboard = dashboard;
+                vm.dashboard = dashboard;
                 dashboardService.addReport(dashboard).then(function () {
-                    dashboardService.executeDashboard(dashboard, $scope.reportTab).then(function () {
+                    dashboardService.executeDashboard(dashboard, vm.reportTab).then(function () {
                     }, function (executeDashboardError) {
                         //error message
                     })['finally'](function () {
@@ -45,8 +48,6 @@
                 $rootScope.decreasePending("processingMessage.loadingData");
             });
         }
-
         $rootScope.$on('dataReady', renderPage);
-
     }
 })();
