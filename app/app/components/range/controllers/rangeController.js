@@ -4,9 +4,9 @@
     angular.module('bloglu.range')
             .controller('rangeController', rangeController);
 
-    rangeController.$inject = ['$scope', '$rootScope', '$q', 'MessageService', 'unitService', 'Utils', 'rangeService'];
+    rangeController.$inject = ['$rootScope', '$scope', '$q', 'MessageService', 'unitService', 'Utils', 'rangeService'];
 
-    function rangeController($scope, $rootScope, $q, MessageService, unitService, Utils, rangeService) {
+    function rangeController($rootScope, $scope, $q, MessageService, unitService, Utils, rangeService) {
         
         var vm = this;        
         vm.newRange = {};
@@ -20,6 +20,7 @@
         vm.deleteRange = deleteRange;
         vm.editRange = editRange;
         vm.cancelEditRange = cancelEditRange;
+        vm.changeUnit = changeUnit;
         
         var eventCode = 1;
 
@@ -37,9 +38,11 @@
                 vm.defaultUnit = results[2];
                 handleNewRangeUnit();
                 vm.newRange = rangeService.processRanges(vm.ranges, vm.newRange.unit);
+                /*
                 $scope.$watch('ranges', function (newValue, oldValue) {
                     vm.newRange = rangeService.processRanges(vm.ranges, vm.newRange.unit);
                 }, true);
+                */
             }, function (error) {
                 $rootScope.messages.push(MessageService.errorMessage("errorMessage.loadingError", 2000));
             })['finally'](function () {
@@ -60,17 +63,22 @@
             }
             if (!vm.newRange.unit && vm.units.length > 0) {
                 vm.newRange.unit = vm.units[0];
+            }            
+        }
+        
+        
+        function changeUnit(newUnit, oldUnitId){
+            if(newUnit && (newUnit.objectId !== oldUnitId) && vm.newRange){
+                unitService.getUnitById(oldUnitId).then(function(oldUnit){
+                    if(vm.newRange.lowerLimit){
+                        vm.newRange.lowerLimit = vm.newRange.lowerLimit * oldUnit.coefficient / newUnit.coefficient;
+                    }
+                    if(vm.newRange.upperLimit){
+                        vm.newRange.upperLimit = vm.newRange.upperLimit * oldUnit.coefficient / newUnit.coefficient;
+                    }
+                    
+                });
             }
-            $scope.$watch('newRange.unit', function (newValue, oldValue) {
-                if (newValue && oldValue) {
-                    if (vm.newRange && vm.newRange.lowerLimit) {
-                        vm.newRange.lowerLimit = vm.newRange.lowerLimit * oldValue.coefficient / newValue.coefficient;
-                    }
-                    if (vm.newRange && vm.newRange.upperLimit) {
-                        vm.newRange.upperLimit = vm.newRange.upperLimit * oldValue.coefficient / newValue.coefficient;
-                    }
-                }
-            });
         }
 
         function checkRanges(existingPeriods, newPeriod) {
@@ -177,6 +185,7 @@
             delete range.original;
         };
 
-        $rootScope.$on('dataReady', renderPage);
+        var unbind = $rootScope.$on('dataReady', renderPage);
+        $scope.$on('destroy', unbind);
     }
 })();

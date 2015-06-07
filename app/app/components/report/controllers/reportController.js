@@ -5,38 +5,16 @@
     angular.module('bloglu.report')
             .controller('reportController', reportController);
 
-    reportController.$inject = [
-        '$scope',
-        '$rootScope',
-        '$q',
-        '$routeParams',
-        '$window',
-        '$location',
-        'DataVisualization',
-        'reportService',
-        'queryService',
-        'MessageService',
-        'Utils'];
+    reportController.$inject = ['$rootScope', '$scope', '$q', '$routeParams', '$window', '$location', 'DataVisualization', 'reportService', 'queryService', 'MessageService', 'Utils'];
 
-
-    function reportController(
-            $scope,
-            $rootScope,
-            $q,
-            $routeParams,
-            $window,
-            $location,
-            DataVisualization,
-            reportService,
-            queryService,
-            MessageService,
-            Utils) {
-                
+    function reportController($rootScope, $scope, $q, $routeParams, $window, $location, DataVisualization, reportService, queryService, MessageService, Utils) {
+        
         var vm = this;
 
         vm.isEdit = $routeParams && $routeParams.objectId;
         vm.form = {};
         vm.report = {};
+        vm.selectedQueryElement = null;
         //all available query elements
         vm.queryElements = [];
         //available filters
@@ -68,7 +46,7 @@
                     vm.report = results[0];
                 }
                 vm.queryElements = results[1];
-                $scope.executeQuery();
+                vm.executeQuery();
             }, function () {
                 $rootScope.messages.push(MessageService.errorMessage("errorMessage.loadingError", 2000));
             })['finally'](function () {
@@ -112,37 +90,37 @@
             return newFilter;
         }
 
-        function addQueryElement(queryElement) {
+        function addQueryElement(queryElement) {            
             if (!vm.report.select) {
                 vm.report.select = [];
             }
             if (queryElement && reportService.indexOfElement(vm.report.select, queryElement) === -1) {
                 vm.report.select.push({name: queryElement.name, title: queryElement.title});
-                $scope.executeQuery();
+                vm.executeQuery();
             }
         }
 
         function removeQueryElement(queryElement) {
             if (queryElement && reportService.indexOfElement(vm.report.select, queryElement) !== -1) {
                 vm.report.select.splice(reportService.indexOfElement(vm.report.select, queryElement), 1);
-                $scope.executeQuery();
+                vm.executeQuery();
             }
         }
 
         function removeFilter() {
             vm.report.filter = [];
-            $scope.executeQuery();
+            vm.executeQuery();
         }
 
         function clear() {
             vm.report.select = [];
             vm.report.filter = [];
             vm.datavizConfig = null;
-            $scope.executeQuery();
+            vm.executeQuery();
         }
 
         function changeDisplay() {
-            $scope.executeQuery();
+            vm.executeQuery();
         }
 
         function addFilter(selectedFilter) {
@@ -150,13 +128,13 @@
             if (selectedFilter.customParameters) {
                 if (vm.form.filterValueForm.$valid) {
                     vm.report.filter.push(getSelectedFilter(selectedFilter));
-                    $scope.executeQuery();
+                    vm.executeQuery();
                 } else {
                     //error in filter value form
                 }
             } else {
                 vm.report.filter.push(getSelectedFilter(selectedFilter));
-                $scope.executeQuery();
+                vm.executeQuery();
             }
         }
 
@@ -212,6 +190,7 @@
             });
         }
 
-        $rootScope.$on('dataReady', renderPage);
+        var unbind = $rootScope.$on('dataReady', renderPage);
+        $scope.$on('destroy', unbind);
     }
 })();

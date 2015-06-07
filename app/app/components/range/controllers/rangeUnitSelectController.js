@@ -11,7 +11,7 @@
         
         var vm = this;
         
-        $scope.$watch('range.isEdit', function (newValue, oldValue) {
+        $scope.$watch('vm.range.isEdit', function (newValue, oldValue) {
             if (newValue) {
                 angular.forEach(vm.units, function (unit) {
                     if (unit.objectId === vm.range.unit.objectId) {
@@ -20,7 +20,7 @@
                 });
             }
         });
-        $scope.$watch('editedRangeUnit', function (newValue, oldValue) {
+        $scope.$watch('vm.editedRangeUnit', function (newValue, oldValue) {
             if (newValue && oldValue && newValue !== oldValue) {
                 if (vm.range && vm.range.lowerLimit !== null) {
                     vm.range.lowerLimit = vm.range.lowerLimit * oldValue.coefficient / newValue.coefficient;

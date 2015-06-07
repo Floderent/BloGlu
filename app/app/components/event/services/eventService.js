@@ -61,7 +61,7 @@
                 $modalScope.windowMode = 'MODAL';
                 var modalInstance = $modal.open({
                     templateUrl: "app/components/event/templates/event.html",
-                    controller: "eventController",
+                    controller: "eventController as vm",
                     scope: $modalScope
                 });
                 modalInstance.result.then(deferred.resolve, deferred.reject);
@@ -78,14 +78,14 @@
                 $location.path(path);
                 deferred.resolve();
             } else {
-                var $modalScope = $rootScope.$new(true);
+                var $modalScope = $rootScope.$new(true);                
                 $modalScope.eventType = ResourceCode[eventCode];
                 $modalScope.objectId = eventId;
                 $modalScope.windowMode = 'MODAL';
 
                 var modalInstance = $modal.open({
-                    templateUrl: "views/event.html",
-                    controller: "eventController",
+                    templateUrl: "app/components/event/templates/event.html",
+                    controller: "eventController as vm",
                     scope: $modalScope
                 });
                 modalInstance.result.then(deferred.resolve, deferred.reject);

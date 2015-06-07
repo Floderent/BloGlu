@@ -40,7 +40,7 @@ function Utils($modal, $rootScope, $translate, ResourceName, UserSessionService)
             }
             var defaultModalOptions = {
                 templateUrl: "app/shared/confirmModal/templates/confirm.html",
-                controller: "confirmModalController",
+                controller: "confirmModalController as vm",
                 scope: modalScope
             };
             var defaultModalOptions = angular.extend(defaultModalOptions, modalOptions);

@@ -1,7 +1,12 @@
 (function () {
 'use strict';
 
-angular.module('bloglu.eventDirective').directive('blogluEvent', ['$compile', '$injector', '$q', 'eventService', function ($compile, $injector, $q, eventService) {
+angular.module('bloglu.eventDirective').directive('blogluEvent', blogluEvent);
+    
+    blogluEvent.$inject = ['$compile', '$injector', '$q', 'eventService'];
+    
+    
+    function blogluEvent($compile, $injector, $q, eventService) {
         var linkFunction = function (scope, element, attrs) {
             var event = scope.blogluEvent;
             renderEvent(event, scope, element);
@@ -125,5 +130,6 @@ angular.module('bloglu.eventDirective').directive('blogluEvent', ['$compile', '$
             },
             link: linkFunction
         };
-    }]);
+    }
+
 })();

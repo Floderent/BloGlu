@@ -12,7 +12,7 @@
             <li>
                 <form class="form-inline"> 
                     <div class="form-group">
-                        <select id="interval" class="form-control input-sm" ng-model="vm.interval" ng-change="change()">
+                        <select id="interval" class="form-control input-sm" ng-model="vm.interval" ng-change="vm.change()">
                             <option value="day">{{ 'logBook.day' | translate }}</option>
                             <option value="week">{{ 'logBook.week' | translate }}</option>
                             <option value="month">{{ 'logBook.month' | translate }}</option>
@@ -22,14 +22,14 @@
                     </div>
                     <div class="form-group">
                         <div class="btn-group">
-                            <button ng-repeat="(key, value) in vm.eventsTypes track by $index" type="button" class="btn btn-info" ng-model="resource[key]" ng-click="vm.changeResource(resource[key])" btn-checkbox>
-                                <span class="{{eventsIcons[key]}}"></span>
+                            <button ng-repeat="(key, value) in vm.eventsTypes track by $index" type="button" class="btn btn-info" ng-model="vm.resource[key]" ng-click="vm.changeResource(vm.resource[key])" btn-checkbox>
+                                <span class="{{vm.eventsIcons[key]}}"></span>
                             </button>                        
                         </div>
                         <button ng-disabled="pending > 0" ng-click="vm.printToPDF()" type="button" class="btn">{{ 'logBook.print' | translate }}</button>
                     </div>
                     <div class="text-center">
-                        <h3>{{logBookTitle}} <small class="">{{vm.timeInterval.begin | date:'dd/MM/yyyy'}} - {{vm.timeInterval.end | date:'dd/MM/yyyy'}}</small></h3>
+                        <h3>{{vm.logBookTitle}} <small class="">{{vm.timeInterval.begin | date:'dd/MM/yyyy'}} - {{vm.timeInterval.end | date:'dd/MM/yyyy'}}</small></h3>
                     </div>
                 </form>
             </li>
@@ -53,7 +53,7 @@
                             <strong>{{bloodGlucoseReadings.text}}</strong>
                         </div>                            
                     </div>
-                    <div ng-if="($index != 0 && interval === 'week') || (interval === 'day')">
+                    <div ng-if="($index != 0 && vm.interval === 'week') || (vm.interval === 'day')">
                         <div ng-repeat="bloodGlucoseReading in bloodGlucoseReadings| orderBy:'dateTime'">                            
                             <div>
                                 <bloglu-event bloglu-event="bloodGlucoseReading" click-action="vm.viewEvent(code, objectId)"></bloglu-event>                                

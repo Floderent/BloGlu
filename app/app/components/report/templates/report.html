@@ -17,9 +17,9 @@
             <div class="form-group">
                 <label for="selectQueryElement">{{ 'report.queryElements' | translate }}</label>
                 <div class="input-group">
-                    <select id="selectQueryElement" class="form-control" data-ng-model="selectedQueryElement" data-ng-options="queryElement.title | translate group by queryElement.group | translate for queryElement in vm.queryElements"></select>
+                    <select id="selectQueryElement" class="form-control" data-ng-model="vm.selectedQueryElement" data-ng-options="queryElement.title | translate group by queryElement.group | translate for queryElement in vm.queryElements"></select>
                     <span class="input-group-btn">
-                        <button class="btn btn-default" ng-click="vm.addQueryElement(selectedQueryElement)">{{ 'report.addElement' | translate }}</button>
+                        <button class="btn btn-default" ng-click="vm.addQueryElement(vm.selectedQueryElement)">{{ 'report.addElement' | translate }}</button>
                     </span>
                 </div>
             </div>
@@ -100,6 +100,6 @@
         <button class="btn btn-primary btn-lg active pull-right" ng-disabled="((reportForm.$dirty && reportForm.$invalid) || reportForm.$pristine) || pending > 0" ng-click="vm.update()">{{ 'report.save' | translate }}</button>
     </div>
     <div class="table-responsive">
-        <dataviz config="datavizConfig" column-order="vm.report.sort"></dataviz>
+        <dataviz config="vm.datavizConfig" column-order="vm.report.sort"></dataviz>
     </div>
 </div>

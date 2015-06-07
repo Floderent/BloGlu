@@ -30,7 +30,7 @@
                        clear-text="{{ 'event.clearDatePicker' | translate }}"
                        toggle-weeks-text="{{ 'event.weeksDatePicker' | translate }}"
                        current-text="{{ 'event.currentDatePicker' | translate }}"   />
-                
+
                 <span class="input-group-btn">                    
                     <button class="btn btn-default" ng-click="vm.open($event)"><i class="glyphicon glyphicon-calendar"></i></button>
                 </span>
@@ -38,11 +38,11 @@
 
 
             <div class="input-group">               
-                <div ng-model="date" ng-required="true">
+                <div ng-model="vm.date" ng-required="true">
                     <timepicker show-meridian="false"></timepicker>
                 </div>
             </div>
-            
+
             <div ng-switch="vm.eventCode" class="form-inline">
                 <!-- Nothing to display when event of type "other" -->
                 <div ng-switch-when="0"></div>

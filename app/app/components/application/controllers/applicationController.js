@@ -1,37 +1,13 @@
 (function () {
     'use strict';
 
-    angular.module('BloGlu')
+    angular.module('bloglu')
             .controller('applicationController', applicationController);
 
-    applicationController.$inject = [        
-        '$q',
-        '$rootScope',        
-        'AUTH_EVENTS',
-        '$location',
-        '$route',
-        '$timeout',
-        'UserSessionService',
-        'UserService',
-        'syncService',
-        'dataService',
-        'localizationService',
-        'MessageService'];
+    applicationController.$inject = ['$q','$scope', '$rootScope', 'AUTH_EVENTS', '$location', '$route', '$timeout', 'UserSessionService', 'UserService', 'syncService', 'dataService', 'localizationService', 'MessageService'];
 
 
-    function applicationController(            
-            $q,
-            $rootScope,            
-            AUTH_EVENTS,
-            $location,
-            $route,
-            $timeout,
-            UserSessionService,
-            UserService,
-            syncService,
-            dataService,
-            localizationService,
-            MessageService) {
+    function applicationController( $q, $scope, $rootScope, AUTH_EVENTS, $location, $route, $timeout, UserSessionService, UserService, syncService, dataService, localizationService, MessageService) {
 
         $rootScope.currentUser = UserSessionService.currentUser();
         $rootScope.currentUserInfos = null;
@@ -174,8 +150,9 @@
          $rootScope.decreasePending();            
          });
          */
-
-        $rootScope.$on('dataReady', renderPage);
+        
+        var unbind = $rootScope.$on('dataReady', renderPage);
+        $scope.$on('destroy', unbind);
 
     }
 })();

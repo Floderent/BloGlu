@@ -5,9 +5,9 @@
             .module('bloglu.category')
             .controller('categoryController', categoryController);
 
-    categoryController.$inject = ['$rootScope', 'MessageService', 'categoryService', 'ResourceName', 'Utils'];
+    categoryController.$inject = ['$rootScope','$scope', 'MessageService', 'categoryService', 'ResourceName', 'Utils'];
 
-    function categoryController($rootScope, MessageService, categoryService, ResourceName, Utils) {
+    function categoryController($rootScope, $scope, MessageService, categoryService, ResourceName, Utils) {
 
         var vm = this;
 
@@ -124,7 +124,8 @@
             delete category.original;
         }
 
-        $rootScope.$on('dataReady', renderPage);
+        var unbind = $rootScope.$on('dataReady', renderPage);
+        $scope.$on('destroy', unbind);
     }
 
 })();

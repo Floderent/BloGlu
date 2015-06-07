@@ -4,31 +4,10 @@
     angular.module('bloglu.logbook')
             .controller('logBookController', logBookController);
 
-    logBookController.$inject = [        
-        '$rootScope',
-        '$location',
-        '$routeParams',
-        '$modal',
-        'eventService',
-        'ResourceIcon',
-        'ResourceName',
-        'logBookService',
-        'MessageService',
-        'printService'];
+    logBookController.$inject = ['$rootScope','$scope', '$location', '$routeParams', '$modal', 'eventService', 'ResourceIcon', 'ResourceName', 'logBookService', 'MessageService', 'printService'];
 
 
-    function logBookController(            
-            $rootScope,
-            $location,
-            $routeParams,
-            $modal,
-            eventService,
-            ResourceIcon,
-            ResourceName,
-            logBookService,
-            MessageService,
-            printService) {
-                
+    function logBookController($rootScope, $scope, $location, $routeParams, $modal, eventService, ResourceIcon, ResourceName, logBookService, MessageService, printService) {                
                 
         var vm = this;
                 
@@ -185,7 +164,7 @@
                 $modalScope.eventsTypes = logBookService.getEventTypes(vm.display);
                 var modalInstance = $modal.open({
                     templateUrl: "app/components/logbook/templates/chooseEvent.html",
-                    controller: "chooseEventController",
+                    controller: "chooseEventController as vm",
                     scope: $modalScope,
                     resolve: {
                         confirmed: function () {
@@ -234,6 +213,7 @@
             changeInterval(vm.currentDate, vm.interval, 0);
         }
         
-        $rootScope.$on('dataReady', renderPage);
+        var unbind = $rootScope.$on('dataReady', renderPage);
+        $scope.$on('destroy', unbind);
     }
 })();

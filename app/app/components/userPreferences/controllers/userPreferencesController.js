@@ -4,9 +4,9 @@
     angular.module('bloglu.userPreferences')
             .controller('userPreferencesController', userPreferencesController);
 
-    userPreferencesController.$inject = ['$q', '$rootScope', 'dateUtil', 'MessageService', 'ResourceName', 'unitService', 'UserService', 'Utils'];
+    userPreferencesController.$inject = ['$q', '$rootScope', '$scope', 'dateUtil', 'MessageService', 'ResourceName', 'unitService', 'UserService', 'Utils'];
 
-    function userPreferencesController($q, $rootScope, dateUtil, MessageService, ResourceName, unitService, UserService, Utils) {
+    function userPreferencesController($q, $rootScope, $scope,dateUtil, MessageService, ResourceName, unitService, UserService, Utils) {
         $rootScope.messages = [];
         $rootScope.pending = 0;
         
@@ -92,6 +92,7 @@
                 //exit
             });
         }
-        $rootScope.$on('dataReady', renderPage);
+        var unbind = $rootScope.$on('dataReady', renderPage);
+        $scope.$on('destroy', unbind);
     }
 })();

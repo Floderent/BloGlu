@@ -15,11 +15,6 @@ module.exports = function (grunt) {
     // Time how long tasks take. Can help when optimizing build times
     require('time-grunt')(grunt);
 
-    // Load grunt exec
-    grunt.loadNpmTasks('grunt-exec');
-    // Load grunt replace
-    grunt.loadNpmTasks('grunt-replace');
-
     // Define the configuration for all the tasks
     grunt.initConfig({
         // Project settings
@@ -35,7 +30,7 @@ module.exports = function (grunt) {
                 tasks: ['bowerInstall']
             },
             js: {
-                files: ['<%= yeoman.app %>/scripts/{,*/}*.js'],
+                files: ['<%= yeoman.app %>/{,*/}*.js'],
                 tasks: ['newer:jshint:all'],
                 options: {
                     livereload: true
@@ -57,9 +52,9 @@ module.exports = function (grunt) {
                     livereload: '<%= connect.options.livereload %>'
                 },
                 files: [
-                    '<%= yeoman.app %>/{,*/}*.html',
+                    '<%= yeoman.app %>/**/*.html',
                     '.tmp/styles/{,*/}*.css',
-                    '<%= yeoman.app %>/images/{,*/}*.{png,jpg,jpeg,gif,webp,svg}'
+                    '<%= yeoman.app %>/assets/images/{,*/}*.{png,jpg,jpeg,gif,webp,svg}'
                 ]
             }
         },
@@ -156,10 +151,10 @@ module.exports = function (grunt) {
             dist: {
                 files: {
                     src: [
-                        '<%= yeoman.dist %>/scripts/{,*/}*.js',
-                        '<%= yeoman.dist %>/styles/{,*/}*.css',
-                        '<%= yeoman.dist %>/images/{,*/}*.{png,jpg,jpeg,gif,webp,svg}',
-                        '<%= yeoman.dist %>/styles/fonts/*'
+                        '<%= yeoman.dist %>/{,*/}*.js',
+                        '<%= yeoman.dist %>/assets/styles/{,*/}*.css',
+                        '<%= yeoman.dist %>/assets/images/{,*/}*.{png,jpg,jpeg,gif,webp,svg}',
+                        '<%= yeoman.dist %>/assets/styles/fonts/*'
                     ]
                 }
             }
@@ -174,7 +169,7 @@ module.exports = function (grunt) {
                 flow: {
                     html: {
                         steps: {
-                            js: ['concat', 'uglifyjs'],
+                            js: ['concat', /*'uglifyjs'*/],
                             css: ['cssmin']
                         },
                         post: {}
@@ -184,8 +179,8 @@ module.exports = function (grunt) {
         },
         // Performs rewrites based on rev and the useminPrepare configuration
         usemin: {
-            html: ['<%= yeoman.dist %>/{,*/}*.html'],
-            css: ['<%= yeoman.dist %>/styles/{,*/}*.css'],
+            html: ['<%= yeoman.dist %>/**/*.html'],
+            css: ['<%= yeoman.dist %>/assets/styles/{,*/}*.css'],
             options: {
                 assetsDirs: ['<%= yeoman.dist %>']
             }
@@ -200,9 +195,9 @@ module.exports = function (grunt) {
             dist: {
                 files: [{
                         expand: true,
-                        cwd: '<%= yeoman.app %>/images',
+                        cwd: '<%= yeoman.app %>/assets/images',
                         src: '{,*/}*.{png,jpg,jpeg,gif}',
-                        dest: '<%= yeoman.dist %>/images'
+                        dest: '<%= yeoman.dist %>/assets/images'
                     }]
             }
         },
@@ -210,9 +205,9 @@ module.exports = function (grunt) {
             dist: {
                 files: [{
                         expand: true,
-                        cwd: '<%= yeoman.app %>/images',
+                        cwd: '<%= yeoman.app %>/assets/images',
                         src: '{,*/}*.svg',
-                        dest: '<%= yeoman.dist %>/images'
+                        dest: '<%= yeoman.dist %>/assets/images'
                     }]
             }
         },
@@ -227,7 +222,7 @@ module.exports = function (grunt) {
                 files: [{
                         expand: true,
                         cwd: '<%= yeoman.dist %>',
-                        src: ['*.html', 'views/{,*/}*.html'],
+                        src: ['*.html', 'app/components/**/*.html', 'app/shared/**/*.html'],
                         dest: '<%= yeoman.dist %>'
                     }]
             }
@@ -260,12 +255,12 @@ module.exports = function (grunt) {
                     }
                 },
                 files: [{
-                        src: '<%= yeoman.dist %>/i18n/locale-en.json',
-                        dest: '<%= yeoman.dist %>/i18n/locale-en.json'
+                        src: '<%= yeoman.dist %>assets/i18n/locale-en.json',
+                        dest: '<%= yeoman.dist %>assets/i18n/locale-en.json'
                     },
                     {
-                        src: '<%= yeoman.dist %>/i18n/locale-fr.json',
-                        dest: '<%= yeoman.dist %>/i18n/locale-fr.json'
+                        src: '<%= yeoman.dist %>assets/i18n/locale-fr.json',
+                        dest: '<%= yeoman.dist %>assets/i18n/locale-fr.json'
                     }
                 ]
             }
@@ -283,10 +278,11 @@ module.exports = function (grunt) {
                             '*.{ico,png,txt}',
                             '.htaccess',
                             '*.html',
-                            'views/{,*/}*.html',
-                            'images/{,*/}*',
-                            'fonts/*',
-                            'i18n/*'
+                            'app/components/**/*.html',
+                            'app/shared/**/*.html',
+                            'assets/images/{,*/}*',
+                            'assets/fonts/*',
+                            'assets/i18n/*'
                         ]
                     }, {
                         expand: true,
@@ -310,12 +306,13 @@ module.exports = function (grunt) {
                     '*.{ico,png,txt}',
                     '.htaccess',
                     '*.html',
-                    'views/{,*/}*.html',
-                    'images/{,*/}*',
-                    'fonts/*',
-                    'i18n/*',
+                    'app/components/**/*.html',
+                    'app/shared/**/*.html',
+                    'assets/images/{,*/}*',
+                    'assets/fonts/*',
+                    'assets/i18n/*',
                     'scripts/*',
-                    'styles/*'
+                    'assets/styles/*'
                 ]
             }
         },
@@ -398,7 +395,7 @@ module.exports = function (grunt) {
         global.version = appBower['version'];
         grunt.option("version", global.version);
         grunt.log.writeln("Build version: " + grunt.option("version"));
-        
+
         grunt.task.run([
             'test',
             'build',
@@ -407,7 +404,7 @@ module.exports = function (grunt) {
             'copy:parse',
             'exec:deployToParse'
         ]);
-        
+
     });
 
 
@@ -416,7 +413,7 @@ module.exports = function (grunt) {
         grunt.log.warn('The `server` task has been deprecated. Use `grunt serve` to start a server.');
         grunt.task.run(['serve:' + target]);
     });
-
+    
     grunt.registerTask('test', [
         'clean:server',
         'concurrent:test',
@@ -431,12 +428,12 @@ module.exports = function (grunt) {
         'useminPrepare',
         'concurrent:dist',
         'autoprefixer',
-        'concat',
+        'concat',       
         'ngmin',
         'copy:dist',
         'cdnify',
         'cssmin',
-        'uglify',
+        //'uglify',
         'rev',
         'usemin',
         'htmlmin'

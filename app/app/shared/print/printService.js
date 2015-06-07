@@ -203,9 +203,6 @@
             });
             return deferred.promise;
         };
-
-
-
         return printService;
     }
 })();

@@ -4,9 +4,9 @@
     angular.module('bloglu.import')
             .controller('importListController', importListController);
 
-    importListController.$inject = ['$rootScope', 'importService', 'MessageService', 'Utils'];
+    importListController.$inject = ['$rootScope','$scope', 'importService', 'MessageService', 'Utils'];
 
-    function importListController($rootScope, importService, MessageService, Utils) {
+    function importListController($rootScope, $scope, importService, MessageService, Utils) {
         
         var vm = this;
         
@@ -59,6 +59,7 @@
             });
         };
 
-        $rootScope.$on('dataReady', renderPage);
+        var unbind = $rootScope.$on('dataReady', renderPage);
+        $scope.$on('destroy', unbind);
     }
 })();

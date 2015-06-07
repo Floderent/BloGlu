@@ -5,10 +5,10 @@
             .module('bloglu.dashboard')
             .controller('dashboardController', dashboardController);
 
-    dashboardController.$inject = ['$rootScope', '$location', 'dashboardService'];
+    dashboardController.$inject = ['$scope','$rootScope', '$location', 'dashboardService'];
 
 
-    function dashboardController($rootScope, $location, dashboardService) {
+    function dashboardController($scope, $rootScope, $location, dashboardService) {
         
         var vm = this;
         
@@ -48,6 +48,9 @@
                 $rootScope.decreasePending("processingMessage.loadingData");
             });
         }
-        $rootScope.$on('dataReady', renderPage);
+        
+        var unbind = $rootScope.$on('dataReady', renderPage);
+        $scope.$on('destroy', unbind);        
+        
     }
 })();

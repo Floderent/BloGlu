@@ -5,10 +5,10 @@
     angular.module('bloglu.report')
             .controller('reportListController', reportListController);
 
-    reportListController.$inject = ['$rootScope', '$location', 'reportService', 'MessageService', 'dashboardService', 'Utils'];
+    reportListController.$inject = ['$rootScope', '$scope', '$location', 'reportService', 'MessageService', 'dashboardService', 'Utils'];
 
 
-    function reportListController($rootScope, $location, reportService, MessageService, dashboardService, Utils) {
+    function reportListController($rootScope, $scope, $location, reportService, MessageService, dashboardService, Utils) {
         
         var vm = this;
         
@@ -77,6 +77,7 @@
         }
 
 
-        $rootScope.$on('dataReady', renderPage);
+        var unbind = $rootScope.$on('dataReady', renderPage);
+        $scope.$on('destroy', unbind);
     }
 })();

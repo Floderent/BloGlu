@@ -7,19 +7,19 @@
     periodController.$inject = ['$rootScope', '$scope', 'MessageService', 'periodService', 'Utils'];
 
     function periodController($rootScope, $scope, MessageService, periodService, Utils) {
-        
+
         var vm = this;
         vm.periods = [];
         vm.newPeriod = null;
         vm.arePeriodsOnMoreThanOneDay = true;
-        
+
         vm.getBeginDateHours = getBeginDateHours;
         vm.savePeriod = savePeriod;
         vm.updatePeriod = updatePeriod;
         vm.deletePeriod = deletePeriod;
         vm.editPeriod = editPeriod;
         vm.cancelEditPeriod = cancelEditPeriod;
-        
+
         renderPage();
 
         function renderPage() {
@@ -27,10 +27,6 @@
             periodService.getPeriods().then(function (result) {
                 vm.periods = result;
                 processPeriods(vm.periods);
-                $scope.$watch('periods', function (newValue, oldValue) {
-                    processPeriods(vm.periods);
-                    checkPeriods(vm.periods);
-                }, true);
             }, function (error) {
                 $rootScope.messages.push(MessageService.errorMessage("errorMessage.loadingError", 2000));
             })['finally'](function () {
@@ -39,6 +35,7 @@
         }
 
         function processPeriods(periodArray) {
+            checkPeriods(vm.periods);
             vm.arePeriodsOnMoreThanOneDay = periodService.arePeriodsOnMoreThanOneDay(periodArray);
             vm.newPeriod = periodService.getNewPeriod(periodArray);
         }
@@ -146,6 +143,7 @@
             delete period.original;
         }
 
-        $rootScope.$on('dataReady', renderPage);
+        var unbind = $rootScope.$on('dataReady', renderPage);
+        $scope.$on('destroy', unbind);
     }
 })();

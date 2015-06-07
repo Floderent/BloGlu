@@ -5,34 +5,22 @@
             .module('bloglu.event')
             .controller('eventController', eventController);
 
-    eventController.$inject = ['$q', '$rootScope', '$routeParams', '$window', 'categoryService', 'eventService', 'MessageService', 'ResourceCode', 'unitService', 'UserService', 'Utils'];
+    eventController.$inject = ['$scope', '$q', '$rootScope', '$routeParams', '$window', 'categoryService', 'eventService', 'MessageService', 'ResourceCode', 'unitService', 'UserService', 'Utils'];
 
-    function eventController(
-            $q,
-            $rootScope,
-            $routeParams,            
-            $window,
-            categoryService,
-            eventService,
-            MessageService,
-            ResourceCode,
-            unitService,
-            UserService,
-            Utils) {
-
+    function eventController($scope, $q, $rootScope, $routeParams, $window, categoryService, eventService, MessageService, ResourceCode, unitService, UserService, Utils) {
         
         var vm = this;
         
         vm.placeHolder = 100;        
         //init routeParams
-        vm.objectId = vm.objectId || $routeParams.objectId;
-        vm.day = vm.day || $routeParams.day;
-        vm.time = vm.time || $routeParams.time;
+        vm.objectId = $scope.objectId || $routeParams.objectId;
+        vm.day = $scope.day || $routeParams.day;
+        vm.time = $scope.time || $routeParams.time;
         vm.isEdit = vm.objectId;
         vm.isPrefilledDateAndTime = vm.day && vm.time;
-        var eventType = vm.eventType || $routeParams.eventType || 'other';
+        var eventType = $scope.eventType || $routeParams.eventType || 'other';
         //init scope params
-        vm.windowMode = vm.windowMode || 'NORMAL';
+        vm.windowMode = $scope.windowMode || 'NORMAL';
         vm.eventCode = ResourceCode[eventType];
         vm.resourceName = ResourceCode[vm.eventCode];
         
@@ -206,6 +194,7 @@
             });
         };
 
-        $rootScope.$on('dataReady', renderPage);
+        var unbind = $rootScope.$on('dataReady', renderPage);
+        $scope.$on('destroy', unbind);
     }
 })();

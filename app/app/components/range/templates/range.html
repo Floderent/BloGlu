@@ -16,7 +16,7 @@
             <th></th>
             <tr>
                 <td>
-                    <select data-ng-model="vm.newRange.unit" data-ng-options="unit.name for unit in vm.units track by unit.objectId"></select>
+                    <select data-ng-model="vm.newRange.unit" data-ng-change="vm.changeUnit(vm.newRange.unit, '{{vm.newRange.unit.objectId}}')" data-ng-options="unit.name for unit in vm.units track by unit.objectId"></select>
                 </td>
                 <td>
                     <input type="number" step="any" min="0" required data-ng-model="vm.newRange.lowerLimit">

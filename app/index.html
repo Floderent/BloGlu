@@ -27,7 +27,7 @@
         <p class="browsehappy">You are using an <strong>outdated</strong> browser. Please <a href="http://browsehappy.com/">upgrade your browser</a> to improve your experience.</p>
       <![endif]-->
 
-    <body ng-app="BloGlu" ng-controller="applicationController">
+    <body ng-app="bloglu" ng-controller="applicationController">
         
         <nav class="navbar navbar-default" role="navigation" ng-show="currentUser">
             <div class="container-fluid">
@@ -102,7 +102,7 @@
                             </div>                            
                         </li>
                         <li ng-show="pending > 0">
-                            <img class="loading-icon" alt="loading" src="images/spinner.gif" />
+                            <img class="loading-icon" alt="loading" src="assets/images/spinner.gif" />
                         </li>
                         <li ng-show="pending > 0">
                             <div class="nav navbar-text progress" style="margin-top:10px">
@@ -166,12 +166,14 @@
         <script src="bower_components/jquery/dist/jquery.js"></script>
         <script src="bower_components/angular/angular.js"></script>
         <script src="bower_components/bootstrap/dist/js/bootstrap.js"></script>
-        <script src="bower_components/angular-resource/angular-resource.js"></script>        
+        <script src="bower_components/angular-resource/angular-resource.js"></script>
         <script src="bower_components/angular-sanitize/angular-sanitize.js"></script>
         <script src="bower_components/angular-route/angular-route.js"></script>
         <script src="bower_components/angular-bootstrap/ui-bootstrap-tpls.js"></script>
         <script src="bower_components/jspdf/dist/jspdf.min.js"></script>
         <script src="bower_components/highcharts/highcharts.js"></script>
+        <script src="bower_components/highcharts/highcharts-more.js"></script>
+        <script src="bower_components/highcharts/modules/exporting.src.js"></script>
         <script src="bower_components/highcharts-ng/dist/highcharts-ng.js"></script>
         <script src="bower_components/ng-file-upload/angular-file-upload.js"></script>
         <script src="bower_components/spectrum/spectrum.js"></script>
@@ -179,92 +181,131 @@
         <script src="bower_components/angular-translate-loader-static-files/angular-translate-loader-static-files.js"></script>
         <script src="bower_components/angular-spectrum-colorpicker/dist/angular-spectrum-colorpicker.js"></script>
         <script src="bower_components/angular-dynamic-locale/src/tmhDynamicLocale.js"></script>
-        <script src="bower_components/angular-touch/angular-touch.js"></script>        
+        <script src="bower_components/angular-touch/angular-touch.js"></script>
         <script src="bower_components/IndexedDBShim/dist/IndexedDBShim.js"></script>
-        <script src="bower_components/angular-local-storage/dist/angular-local-storage.min.js"></script>
+        <script src="bower_components/angular-local-storage/dist/angular-local-storage.js"></script>
         <script src="bower_components/angular-facebook/lib/angular-facebook.js"></script>
         <!-- endbower -->
         <!-- endbuild -->
-
+        
+        <!-- build:js({.tmp,app}) scripts/modules.js -->
+        <!-- modules -->
+        <script src="app/app.module.js"></script>
+        <script src="app/components/category/category.module.js"></script>
+        <script src="app/components/dashboard/dashboard.module.js"></script>
+        <script src="app/components/event/event.module.js"></script>
+        <script src="app/components/import/import.module.js"></script>
+        <script src="app/components/logbook/logbook.module.js"></script>
+        <script src="app/components/login/login.module.js"></script>
+        <script src="app/components/period/period.module.js"></script>
+        <script src="app/components/range/range.module.js"></script>
+        <script src="app/components/report/report.module.js"></script>
+        <script src="app/components/userPreferences/userPreferences.module.js"></script>
+        <script src="app/shared/chart/chart.module.js"></script>
+        <script src="app/shared/confirmModal/confirmModal.module.js"></script>
+        <script src="app/shared/datavizDirective/datavizDirective.module.js"></script>
+        <script src="app/shared/engine/engine.module.js"></script>
+        <script src="app/shared/equals/equals.module.js"></script>
+        <script src="app/shared/eventDirective/eventDirective.module.js"></script>
+        <script src="app/shared/eventGroupDirective/eventGroupDirective.module.js"></script>
+        <script src="app/shared/print/print.module.js"></script>
+        <script src="app/shared/utils/utils.module.js"></script>
+        <!-- endbuild -->
+        
         <!-- build:js({.tmp,app}) scripts/scripts.js -->
         
         <!-- COMPONENTS -->
         
-        <!-- application -->
+        
+        <!-- application -->        
+        <script src="app/app.config.js"></script>
         <script src="app/app.js"></script>
         <script src="app/components/application/controllers/applicationController.js"></script>
         
-        <!-- category -->
+        <!-- category -->        
+        <script src="app/components/category/category.route.js"></script>
         <script src="app/components/category/controllers/categoryController.js"></script>
         <script src="app/components/category/services/categoryService.js"></script>
         
-        <!-- dashboard -->
+        <!-- dashboard -->        
+        <script src="app/components/dashboard/dashboard.route.js"></script>
         <script src="app/components/dashboard/controllers/dashboardController.js"></script>
         <script src="app/components/dashboard/services/dashboardService.js"></script>
         
-        <!-- event -->
+        <!-- event -->        
+        <script src="app/components/event/event.route.js"></script>
         <script src="app/components/event/controllers/eventController.js"></script>
         <script src="app/components/event/services/eventService.js"></script>
         
-        <!-- import -->
+        <!-- import -->        
+        <script src="app/components/import/import.route.js"></script>
         <script src="app/components/import/controllers/importController.js"></script>
         <script src="app/components/import/controllers/importListController.js"></script>
         <script src="app/components/import/services/importService.js"></script>
         
-        <!-- logbook -->
+        <!-- logbook -->        
+        <script src="app/components/logbook/logbook.route.js"></script>
         <script src="app/components/logbook/controllers/logbookController.js"></script>
         <script src="app/components/logbook/controllers/chooseEventController.js"></script>
         <script src="app/components/logbook/services/logbookService.js"></script>
         <script src="app/components/logbook/services/statsService.js"></script>
         
-        <!-- login -->
+        <!-- login -->        
+        <script src="app/components/login/login.route.js"></script>
         <script src="app/components/login/controllers/loginController.js"></script>
         <script src="app/components/login/controllers/inputUserController.js"></script>
         <script src="app/components/login/controllers/resetPasswordController.js"></script>
         <script src="app/components/login/services/userSessionService.js"></script>
         
-        <!-- period -->
+        <!-- period -->        
+        <script src="app/components/period/period.route.js"></script>
         <script src="app/components/period/controllers/periodController.js"></script>
         <script src="app/components/period/services/periodService.js"></script>
         
-        <!-- range -->
+        <!-- range -->        
+        <script src="app/components/range/range.route.js"></script>
         <script src="app/components/range/controllers/rangeController.js"></script>
         <script src="app/components/range/controllers/rangeUnitSelectController.js"></script>
         <script src="app/components/range/services/rangeService.js"></script>
         
-        <!-- report -->
+        <!-- report -->        
+        <script src="app/components/report/report.route.js"></script>
         <script src="app/components/report/controllers/reportController.js"></script>
         <script src="app/components/report/controllers/reportListController.js"></script>
         <script src="app/components/report/services/reportService.js"></script>
         
-        <!-- user preferences -->
+        <!-- user preferences -->        
+        <script src="app/components/userPreferences/userPreferences.route.js"></script>
         <script src="app/components/userPreferences/controllers/userPreferencesController.js"></script>
         
         
         <!-- SHARED -->        
-        <!-- chart -->
+        <!-- chart -->        
         <script src="app/shared/chart/chartService.js"></script>
-        <!-- confirmModal -->
+        <!-- confirmModal -->        
         <script src="app/shared/confirmModal/controllers/confirmModaleController.js"></script>
         <!-- dashboard report -->
+        <script src="app/shared/dashboardReport/dashboardReport.module.js"></script>
         <script src="app/shared/dashboardReport/dashboardReport.js"></script>
-        <!-- datavizDirective -->
+        <!-- datavizDirective -->        
         <script src="app/shared/datavizDirective/datavizDirective.js"></script>
-        <!-- engine -->
+        <script src="app/shared/datavizDirective/chartDataviz.js"></script>
+        <script src="app/shared/datavizDirective/tableDataviz.js"></script>
+        <!-- engine -->        
         <script src="app/shared/engine/dataService.js"></script>
         <script src="app/shared/engine/genericDaoService.js"></script>
         <script src="app/shared/engine/indexedDBService.js"></script>
         <script src="app/shared/engine/modelsService.js"></script>
         <script src="app/shared/engine/syncService.js"></script>
-        <!-- equals -->
+        <!-- equals -->        
         <script src="app/shared/equals/equals.js"></script>
-        <!-- eventDirective -->
+        <!-- eventDirective -->        
         <script src="app/shared/eventDirective/eventDirective.js"></script>
-        <!-- eventGroupDirective -->
+        <!-- eventGroupDirective -->        
         <script src="app/shared/eventGroupDirective/eventGroupDirective.js"></script>
-        <!-- print -->
+        <!-- print -->        
         <script src="app/shared/print/printService.js"></script>
-        <!-- utils -->
+        <!-- utils -->        
         <script src="app/shared/utils/commonService.js"></script>
         <script src="app/shared/utils/localizationService.js"></script>
         <script src="app/shared/utils/queryService.js"></script>
