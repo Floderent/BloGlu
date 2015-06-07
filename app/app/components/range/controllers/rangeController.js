@@ -7,13 +7,13 @@
     rangeController.$inject = ['$rootScope', '$scope', '$q', 'MessageService', 'unitService', 'Utils', 'rangeService'];
 
     function rangeController($rootScope, $scope, $q, MessageService, unitService, Utils, rangeService) {
-        
-        var vm = this;        
+
+        var vm = this;
         vm.newRange = {};
         vm.ranges = [];
         vm.units = [];
-        vm.defaultUnit = null;        
-        
+        vm.defaultUnit = null;
+
         vm.getLowerLimit = getLowerLimit;
         vm.saveRange = saveRange;
         vm.updateRange = updateRange;
@@ -21,7 +21,8 @@
         vm.editRange = editRange;
         vm.cancelEditRange = cancelEditRange;
         vm.changeUnit = changeUnit;
-        
+        vm.rangeUnitChange = rangeUnitChange;
+
         var eventCode = 1;
 
         renderPage();
@@ -39,10 +40,10 @@
                 handleNewRangeUnit();
                 vm.newRange = rangeService.processRanges(vm.ranges, vm.newRange.unit);
                 /*
-                $scope.$watch('ranges', function (newValue, oldValue) {
-                    vm.newRange = rangeService.processRanges(vm.ranges, vm.newRange.unit);
-                }, true);
-                */
+                 $scope.$watch('ranges', function (newValue, oldValue) {
+                 vm.newRange = rangeService.processRanges(vm.ranges, vm.newRange.unit);
+                 }, true);
+                 */
             }, function (error) {
                 $rootScope.messages.push(MessageService.errorMessage("errorMessage.loadingError", 2000));
             })['finally'](function () {
@@ -63,23 +64,35 @@
             }
             if (!vm.newRange.unit && vm.units.length > 0) {
                 vm.newRange.unit = vm.units[0];
-            }            
+            }
         }
-        
-        
-        function changeUnit(newUnit, oldUnitId){
-            if(newUnit && (newUnit.objectId !== oldUnitId) && vm.newRange){
-                unitService.getUnitById(oldUnitId).then(function(oldUnit){
-                    if(vm.newRange.lowerLimit){
+
+
+        function changeUnit(newUnit, oldUnitId) {
+            if (newUnit && (newUnit.objectId !== oldUnitId) && vm.newRange) {
+                unitService.getUnitById(oldUnitId).then(function (oldUnit) {
+                    if (vm.newRange.lowerLimit) {
                         vm.newRange.lowerLimit = vm.newRange.lowerLimit * oldUnit.coefficient / newUnit.coefficient;
                     }
-                    if(vm.newRange.upperLimit){
+                    if (vm.newRange.upperLimit) {
                         vm.newRange.upperLimit = vm.newRange.upperLimit * oldUnit.coefficient / newUnit.coefficient;
                     }
-                    
+
                 });
             }
         }
+
+        function rangeUnitChange(range, oldUnitId) {
+            unitService.getUnitById(oldUnitId).then(function (oldUnit) {
+                if (range && range.lowerLimit !== null) {
+                    range.lowerLimit = range.lowerLimit * oldUnit.coefficient / range.unit.coefficient;
+                }
+                if (range && range.upperLimit !== null) {
+                    range.upperLimit = range.upperLimit * oldUnit.coefficient / range.unit.coefficient;
+                }
+            });
+        }
+
 
         function checkRanges(existingPeriods, newPeriod) {
             var errorMessages = rangeService.checkRanges(existingPeriods, newPeriod);
@@ -173,7 +186,8 @@
         function editRange(range) {
             range.isEdit = true;
             range.original = angular.extend({}, range);
-        };
+        }
+     
 
         function cancelEditRange(range) {
             range.isEdit = false;
@@ -183,7 +197,8 @@
             range.normal = range.original.normal;
             range.color = range.original.color;
             delete range.original;
-        };
+        }
+     
 
         var unbind = $rootScope.$on('dataReady', renderPage);
         $scope.$on('destroy', unbind);

@@ -56,7 +56,7 @@
             <tr ng-repeat="range in vm.ranges| orderBy:vm.getLowerLimit">
                 <td>
                     <div ng-show="!range.isEdit">{{range.unit.name}}</div>
-                    <select ng-controller="rangeUnitSelectController as vm" ng-show="range.isEdit" class="blood-glucose-select blood-glucose-input-field input-lg form-inline" data-ng-model="range.unit" data-ng-options="unit.name for unit in vm.units track by unit.objectId"></select>
+                    <select ng-show="range.isEdit" class="form-control" ng-change="vm.rangeUnitChange(range, '{{range.unit.objectId}}')" ng-model="range.unit" ng-options="unit.name for unit in vm.units track by unit.objectId"></select>                    
                 </td>
                 <td>
                     <div ng-show="!range.isEdit">{{range.lowerLimit}}</div>
