@@ -1,0 +1,88 @@
+<nav class="navbar navbar-default" role="navigation" ng-show="vm.currentUser" ng-cloak>
+    <div class="container-fluid">
+        <div class="navbar-header">                   
+            <button type="button" class="navbar-toggle" data-toggle="collapse" data-target="#bloglu-navigation-bar">
+                <span ng-show="vm.loadingState.pending <= 0">
+                    <span class="sr-only">Toggle navigation</span>
+                    <span class="icon-bar"></span>
+                    <span class="icon-bar"></span>
+                    <span class="icon-bar"></span>
+                </span>
+                <span ng-show="vm.loadingState.pending > 0">
+                    <img class="loading-icon-small" alt="loading" src="assets/images/spinner.gif" />                            
+                </span>
+            </button>
+            
+            <a class="navbar-brand" href="#/dashboard">
+                <img src="assets/images/bloglu_logo_small.png" alt="bloglu-logo">
+                {{ 'appName' | translate }}
+            </a>
+        </div>
+        <div class="collapse navbar-collapse" id="bloglu-navigation-bar">
+            <ul class="nav navbar-nav">
+                <!-- Event menu -->
+                <li class="dropdown">
+                    <a href="#" class="dropdown-toggle" data-toggle="dropdown"><b>{{ 'menu.event' | translate }}</b> <b class="caret"></b></a>
+                    <ul class="dropdown-menu">                                
+                        <li><a href="#/event/other">{{ 'menu.other' | translate }}</a></li>
+                        <li><a href="#/event/bloodGlucose">{{ 'menu.bloodGlucose' | translate }}</a></li>
+                        <li><a href="#/event/medication">{{ 'menu.medication' | translate }}</a></li>
+                        <li><a href="#/event/weight">{{ 'menu.weight' | translate }}</a></li>
+                        <li><a href="#/event/bloodPressure">{{ 'menu.bloodPressure' | translate }}</a></li>
+                        <li><a href="#/event/a1c">{{ 'menu.a1c' | translate }}</a></li>
+                        <li><a href="#/event/exercise">{{ 'menu.exercise' | translate }}</a></li>
+                        <li><a href="#/event/foodIntake">{{ 'menu.foodIntake' | translate }}</a></li>
+                    </ul> 
+                </li>
+                <!-- Logbook menu -->
+                <li class="dropdown">
+                    <a href="#/logBook"><b>{{ 'menu.logbook' | translate }}</b></a>                            
+                </li>
+                <!-- Report menu -->
+                <li class="dropdown">
+                    <a href="#/reports"><b>{{ 'menu.reports' | translate }}</b></a>                            
+                </li>
+                <!-- Data menu -->
+                <li class="dropdown">
+                    <a href="#" class="dropdown-toggle" data-toggle="dropdown"><b>{{ 'menu.data' | translate }}</b> <b class="caret"></b></a>
+                    <ul class="dropdown-menu">
+                        <li><a href="#/imports">{{ 'menu.imports' | translate }}</a></li>                            
+                    </ul> 
+                </li>
+                <!-- Parameter menu -->
+                <li class="dropdown">
+                    <a href="#" class="dropdown-toggle" data-toggle="dropdown"><b>{{ 'menu.parameters' | translate }}</b> <b class="caret"></b></a>
+                    <ul class="dropdown-menu">
+                        <li><a href="#/ranges">{{ 'menu.bgRanges' | translate }}</a></li>
+                        <li><a href="#/periods">{{ 'menu.analysisPeriods' | translate }}</a></li>
+                        <li><a href="#/eventTypes">{{ 'menu.eventTypes' | translate }}</a></li>
+                    </ul> 
+                </li>
+            </ul>
+            <!-- right part -->
+            <ul class="nav navbar-nav navbar-right" >
+                <li class="dropdown">                            
+                    <a href="" class="dropdown-toggle" data-toggle="dropdown"><b>{{ 'welcome' | translate }} {{vm.currentUser.username}}</b><b class="caret"></b></a>
+                    <ul class="dropdown-menu">
+                        <li><a href="#/userPreferences">{{ 'preferences' | translate }}</a></li>
+                        <li class="divider"></li>
+                        <li><a href="#" ng-click="vm.logOut()">{{ 'logOut' | translate }}</a></li>
+                    </ul>
+                </li>                        
+                <li ng-show="vm.loadingState.pending > 0">                            
+                    <div class="navbar-text" ng-if="vm.loadingState.loadingMessages.length > 0">                                
+                        {{vm.loadingState.loadingMessages[vm.loadingMessages.length - 1]}}
+                    </div>                            
+                </li>
+                <li ng-show="vm.loadingState.pending > 0">
+                    <img class="loading-icon" alt="loading" src="assets/images/spinner.gif" />
+                </li>
+                <li ng-show="vm.loadingState.pending > 0">
+                    <div class="nav navbar-text progress" style="margin-top:10px">
+                        <progressbar ng-if="vm.progress !== 100" value="progress">{{vm.progress| number:0}}&nbsp;%&nbsp;{{vm.loadingState.loadingMessages[vm.loadingState.loadingMessages.length - 1]}}</progressbar>
+                    </div>
+                </li>
+            </ul>
+        </div>
+    </div>
+</nav>

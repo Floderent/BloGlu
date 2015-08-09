@@ -1,12 +1,17 @@
 (function () {
     angular.module('bloglu.dashboard')
-        .config(configureRoute);
+            .config(configureRoute);
 
-        configureRoute.$inject = ['$routeProvider'];
-        
-        function configureRoute($routeProvider) {
-            $routeProvider.when('/dashboard', {controller: 'dashboardController', controllerAs:'vm', templateUrl: 'app/components/dashboard/templates/dashboard.html'});
-        }        
+    configureRoute.$inject = ['$stateProvider'];
+
+    function configureRoute($stateProvider) {
+        $stateProvider.state('dashboard', {
+            url: '/dashboard',
+            controller: 'dashboardController',
+            controllerAs: 'vm',
+            templateUrl: 'app/components/dashboard/templates/dashboard.html'
+        });
+    }
 })();
 
 

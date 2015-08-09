@@ -7,11 +7,192 @@
     dataService.$inject = ['$q', '$filter', '$injector', '$locale', 'indexeddbService', 'Database', 'Utils', 'UserSessionService'];
 
     function dataService($q, $filter, $injector, $locale, indexeddbService, Database, Utils, UserSessionService) {
+        /*
         var dataService = {};
         var localData = null;
         var maxResult = 1000;
         var idField = 'objectId';
+        */
+       
+       var select = {
+            //Year
+            year: function (value, row) {
+                var returnValue = "";
+                if (value && value.getFullYear) {
+                    returnValue = value.getFullYear();
+                }
+                return returnValue;
+            },
+            //MonthName
+            monthName: function (value, row) {
+                var returnValue = "";
+                if (value && value.getFullYear) {
+                    returnValue = this.$filter('date')(value, 'MMMM');
+                }
+                return returnValue;
+            }.bind({$filter: $filter}),
+            //Month
+            month: function (value, row, localData) {
+                var returnValue = "";
+                if (value && value.getFullYear) {
+                    returnValue = value.getMonth() + 1;
+                }
+                return returnValue;
+            },
+            //weekDay
+            weekDay: function (value, row, localData) {
+                var returnValue = "";
+                if (value && value.getFullYear) {
+                    returnValue = this.$filter('date')(value, 'EEEE');
+                }
+                return returnValue;
+            }.bind({$filter: $filter}),
+            getEventReading: function (value, row, localData, queryElement) {
+                var returnValue = null;
+                var filter = angular.fromJson(queryElement.filter);
+                var code = filter['code'];
+                if (typeof code !== 'undefined' && row['code'] === code) {
+                    returnValue = value;
+                    returnValue = returnValue * row.unit.coefficient;
+                    if (Utils.getDefaultUnit(localData, code) && Utils.getDefaultUnit(localData, code).coefficient) {
+                        returnValue = returnValue * Utils.getDefaultUnit(localData, code).coefficient;
+                    }
+                }
+                return returnValue;
+            },
+            //getBloodGlucose
+            getBloodGlucose: function (value, row, localData) {
+                return Utils.getConvertedReading(value, row, localData, 1);
+            },
+            //get weight
+            getWeight: function (value, row, localData) {
+                return Utils.getConvertedReading(value, row, localData, 3);
+            },
+            getAnalysisPeriod: function (dateTime, row, localData) {
+                var returnValue = '';
+                var periods = localData.Period;
+                angular.forEach(periods, function (period) {
+                    var dateHours = dateTime.getHours();
+                    var dateMinutes = dateTime.getMinutes();
 
+                    var beginDateHours = period.begin.getHours();
+                    var beginDateMinutes = period.begin.getMinutes();
+
+                    var endDateHours = period.end.getHours();
+                    if (endDateHours === 0) {
+                        endDateHours = 23;
+                    }
+                    var endDateMinutes = period.end.getMinutes();
+                    if (endDateHours === 23 && endDateMinutes === 0) {
+                        endDateMinutes = 59;
+                    }
+                    if (dateHours > beginDateHours && dateHours < endDateHours) {
+                        returnValue = period.name;
+                        return;
+                    } else {
+                        if (dateHours === beginDateHours && dateMinutes >= beginDateMinutes && dateHours < endDateHours) {
+                            returnValue = period.name;
+                            return;
+                        } else {
+                            if (dateHours > beginDateHours && dateHours === endDateHours && dateMinutes <= endDateMinutes) {
+                                returnValue = period.name;
+                                return;
+                            } else {
+                                //bad
+                            }
+                        }
+                    }
+                });
+                return returnValue;
+            },
+            getBloodGlucoseRange: function (reading, row, localData) {
+                var ranges = localData.Range;
+                var convertedReading = reading * row.unit.coefficient;
+                var returnValue = '';
+                angular.forEach(ranges, function (range) {
+                    if (convertedReading >= range.lowerLimit * range.unit.coefficient && convertedReading < range.upperLimit * range.unit.coefficient) {
+                        returnValue = " >= " + range.lowerLimit + " < " + range.upperLimit;
+                        return;
+                    }
+                });
+                return returnValue;
+            }
+
+        };
+
+        var where = [
+            {
+                id: 'currentYear',
+                title: 'currentYear',
+                field: 'dateTime',
+                filterFunction: function () {
+                    var date = new Date();
+                    var beginDate = new Date(date.getFullYear(), 0, 1);
+                    var endDate = new Date(date.getFullYear() + 1, 0, 0);
+                    return {$gt: beginDate, $lt: endDate};
+                }
+            },
+            //last year
+            {
+                id: 'currentMonth',
+                title: 'currentMonth',
+                field: 'dateTime',
+                filterFunction: function () {
+                    var date = new Date();
+                    var beginDate = new Date(date.getFullYear(), date.getMonth());
+                    var endDate = new Date(date.getFullYear(), date.getMonth() + 1, 0);
+                    return {$gt: beginDate, $lt: endDate};
+                }
+            },
+            //last month
+            {
+                id: 'lastSevenDays',
+                title: 'lastSevenDays',
+                field: 'dateTime',
+                filterFunction: function () {
+                    var date = new Date();
+                    var endDate = new Date();
+                    var beginDate = new Date(date.getFullYear(), date.getMonth(), date.getDate());
+                    beginDate.setDate(beginDate.getDate() - 7);
+                    return {$gt: beginDate, $lt: endDate};
+                }
+            },
+            //current week            
+            //last week            
+            //custom
+            {
+                id: 'customBetweenDates',
+                title: 'customBetweenDates',
+                field: 'dateTime',
+                filterFunction: function (filterParams) {
+                    var filter = null;
+                    if (filterParams && filterParams.beginDate && filterParams.endDate) {
+                        filter = {$gt: new Date(filterParams.beginDate), $lt: new Date(filterParams.endDate)};
+                    }
+                    return filter;
+                },
+                customParameters: ['beginDate', 'endDate']
+            }
+        ];
+
+
+        var sort = {
+            dayName: function (a, b) {
+                var datetime = this.$locale.DATETIME_FORMATS;
+                var days = datetime.DAY;
+                var indexOfA = days.indexOf(a);
+                var indexOfB = days.indexOf(b);
+                return indexOfA - indexOfB;
+            }.bind({$locale: $locale}),
+            monthName: function (a, b) {
+                var datetime = this.$locale.DATETIME_FORMATS;
+                var months = datetime.MONTH;
+                var indexOfA = months.indexOf(a);
+                var indexOfB = months.indexOf(b);
+                return indexOfA - indexOfB;
+            }.bind({$locale: $locale})
+        };
+        
         var operators = {
             $in: function (value, comparison) {
                 var match = false;
@@ -35,57 +216,86 @@
                 return value === comparison;
             }
         };
+        
+        
+        var service = {
+            localData: null,
+            maxResult: 1000,
+            idField: 'objectId',
+            logOut: logOut,
+            init: init,
+            clear: clear,
+            addRecords: addRecords,
+            clearWholeDatabase: clearWholeDatabase,
+            getWholeDatabase: getWholeDatabase,
+            save: save,
+            update: update,
+            remove: remove,
+            queryLocal: queryLocal,
+            get: get,
+            query: query,
+            queryParse: queryParse,
+            processResult: processResult,
+            orderBy: orderBy,
+            select: select,
+            where: where,
+            sort: sort
+        };
+        return service;
+        
+        
+        
 
 
-        dataService.logOut = function () {
-            localData = null;
-            return dataService.clearWholeDatabase().then(function () {
+         function logOut() {
+            service.localData = null;
+            return service.clearWholeDatabase().then(function () {
                 return UserSessionService.logOut();
             });
         };
 
 
-        dataService.init = function (forceRefresh) {
+        function init(forceRefresh) {            
             var deferred = $q.defer();
-            if (localData === null || forceRefresh) {
-                dataService.getWholeDatabase().then(function (result) {
-                    localData = result;
+            if (service.localData === null || forceRefresh) {                
+                service.getWholeDatabase().then(function (result) {                    
+                    service.localData = result;
                     deferred.resolve(result);
-                }, deferred.reject);
+                }, deferred.reject);            
             } else {
-                deferred.resolve(localData);
-            }
+                deferred.resolve(service.localData);
+            }            
             return deferred.promise;
         };
 
-        dataService.clear = function (collection) {
+        function clear(collection) {
             var deferred = $q.defer();
-            indexeddbService.clear(collection, UserSessionService.currentUser().userId).then(deferred.resolve, deferred.reject, deferred.notify);
+            indexeddbService.clear(collection, UserSessionService.getUserId()).then(deferred.resolve, deferred.reject, deferred.notify);
             return deferred.promise;
         };
 
-        dataService.addRecords = function (collection, records) {
-            var userId = UserSessionService.currentUser().userId;
+        function addRecords(collection, records) {
+            var userId = UserSessionService.getUserId();
             return indexeddbService.addRecords(collection, userId, records);
         };
 
-        dataService.clearWholeDatabase = function () {
+        function clearWholeDatabase() {
             var deferred = $q.defer();
             var promiseArray = [];
             angular.forEach(Database.schema, function (collectionName) {
-                promiseArray.push(indexeddbService.clear(collectionName, UserSessionService.currentUser().userId));
+                promiseArray.push(indexeddbService.clear(collectionName, UserSessionService.getUserId()));
             });
             $q.all(promiseArray).then(deferred.resolve, deferred.reject);
             return deferred.promise;
         };
 
 
-        dataService.getWholeDatabase = function () {
+        function getWholeDatabase() {
             var deferred = $q.defer();
             var promiseArray = [];
-            if (UserSessionService.currentUser()) {
+            if (UserSessionService.getCurrentUser()) {
                 angular.forEach(Database.schema, function (collectionName) {
-                    promiseArray.push(indexeddbService.getData(collectionName, UserSessionService.currentUser().userId));
+                    promiseArray.push(indexeddbService.getData(collectionName, UserSessionService.getUserId()));
                 });
             }
             $q.all(promiseArray).then(function (result) {
@@ -99,13 +309,13 @@
         };
 
 
-        dataService.save = function (collection, data, params) {
-            return dataService.init().then(function (localData) {
+        function save(collection, data, params) {
+            return service.init().then(function (localData) {
                 //save to indexedDB and to the cloud
                 var resource = $injector.get(collection)(UserSessionService.headers());
                 var createdObject = angular.extend({}, data);
                 return resource.save(data).$promise.then(function (result) {
-                    createdObject[idField] = result[idField];
+                    createdObject[service.idField] = result[service.idField];
                     //save in local data
                     updateObjectInfos(createdObject, true);
                     if (localData && localData[collection]) {
@@ -118,14 +328,14 @@
             });
         };
 
-        dataService.update = function (collection, objectId, data, params) {
-            return dataService.init().then(function (localData) {
+        function update(collection, objectId, data, params) {
+            return service.init().then(function (localData) {
                 var resource = $injector.get(collection)(UserSessionService.headers());
                 //save in local data
                 var updatedObject = null;
                 if (localData && localData[collection]) {
                     angular.forEach(localData[collection], function (record, index) {
-                        if (record[idField] === objectId) {
+                        if (record[service.idField] === objectId) {
                             updatedObject = angular.extend(localData[collection][index], data);
                             updateObjectInfos(updatedObject, false);
                             localData[collection][index] = updatedObject;
@@ -155,12 +365,12 @@
         }
 
 
-        dataService.delete = function (collection, objectId, params) {
-            return dataService.init().then(function (localData) {
+        function remove(collection, objectId, params) {
+            return service.init().then(function (localData) {
                 //save in local data
                 if (localData && localData[collection]) {
                     angular.forEach(localData[collection], function (record, index) {
-                        if (record[idField] === objectId) {
+                        if (record[service.idField] === objectId) {
                             localData[collection].splice(index, 1);
                         }
                     });
@@ -168,7 +378,7 @@
                 //save to indexedDB add to the cloud
                 var resource = $injector.get(collection)(UserSessionService.headers());
                 var recordToDelete = {};
-                recordToDelete[idField] = objectId;
+                recordToDelete[service.idField] = objectId;
                 return $q.all([
                     indexeddbService.deleteRecord(collection, recordToDelete),
                     resource.delete({'Id': objectId}).$promise
@@ -178,15 +388,15 @@
             });
         };
 
-        dataService.queryLocal = function (collection, params) {
-            return dataService.init().then(function (localData) {
-                return dataService.processResult(localData[collection], params);
+        function queryLocal(collection, params) {
+            return service.init().then(function (localData) {
+                return service.processResult(localData[collection], params);
             });
         };
 
-        dataService.get = function (collection, objectId) {
-            return dataService.init().then(function (localData) {
-                var results = dataService.processResult(localData[collection], {where: {objectId: objectId}});
+        function get(collection, objectId) {
+            return service.init().then(function (localData) {
+                var results = service.processResult(localData[collection], {where: {objectId: objectId}});
                 var result = null;
                 if (results && results.length === 1) {
                     result = angular.copy(results[0]);
@@ -196,13 +406,13 @@
         };
 
 
-        dataService.query = function (resourceObject, params) {
+        function query(resourceObject, params) {
             var deferred = $q.defer();
             if (resourceObject && resourceObject.query) {
                 //do parse query
                 queryParse(resourceObject, params).then(function (queryResult) {
                     //process result
-                    deferred.resolve(dataService.processResult(queryResult, params));
+                    deferred.resolve(service.processResult(queryResult, params));
                 });
             } else {
                 deferred.reject(resourceObject + ' is not a resource object');
@@ -232,7 +442,7 @@
             if (params && (params.limit || params.limit === 0)) {
                 parseParams.limit = params.limit;
             } else {
-                parseParams.limit = maxResult;
+                parseParams.limit = service.maxResult;
             }
             if (params && params.skip) {
                 parseParams.skip = params.skip;
@@ -253,19 +463,19 @@
             return doParseQuery(resourceObject, newParams).then(function (result) {
                 var queryPromise = null;
                 var resultCount = result.count;
-                if (resultCount <= maxResult) {
+                if (resultCount <= service.maxResult) {
                     queryPromise = doParseQuery(resourceObject, params);
                 } else {
                     var requestArray = [];
-                    var requestNumber = Math.floor(resultCount / maxResult);
-                    var lastRequestCount = resultCount % maxResult;
+                    var requestNumber = Math.floor(resultCount / service.maxResult);
+                    var lastRequestCount = resultCount % service.maxResult;
                     if (lastRequestCount > 0) {
                         requestNumber++;
                     }
                     for (var requestIndex = 0; requestIndex < requestNumber; requestIndex++) {
                         var requestParams = angular.extend({}, params);
-                        requestParams.limit = maxResult;
-                        requestParams.skip = requestIndex * maxResult;
+                        requestParams.limit = service.maxResult;
+                        requestParams.skip = requestIndex * service.maxResult;
                         var request = doParseQuery(resourceObject, requestParams);
                         requestArray.push(request);
                     }
@@ -281,23 +491,23 @@
             });
         }
 
-        dataService.queryParse = function (collection, resourceCount, params) {
+        function queryParse(collection, resourceCount, params) {
             var deferred = $q.defer();
 
             var resourceObject = $injector.get(collection)(UserSessionService.headers());
-            if (resourceCount <= maxResult) {
+            if (resourceCount <= service.maxResult) {
                 doParseQuery(resourceObject, params).then(deferred.resolve, deferred.reject);
             } else {
                 var requestArray = [];
-                var requestNumber = Math.floor(resourceCount / maxResult);
-                var lastRequestCount = resourceCount % maxResult;
+                var requestNumber = Math.floor(resourceCount / service.maxResult);
+                var lastRequestCount = resourceCount % service.maxResult;
                 if (lastRequestCount > 0) {
                     requestNumber++;
                 }
                 for (var requestIndex = 0; requestIndex < requestNumber; requestIndex++) {
                     var requestParams = angular.extend({}, params);
-                    requestParams.limit = maxResult;
-                    requestParams.skip = requestIndex * maxResult;
+                    requestParams.limit = service.maxResult;
+                    requestParams.skip = requestIndex * service.maxResult;
                     var request = doParseQuery(resourceObject, requestParams);
                     requestArray.push(request);
                 }
@@ -314,7 +524,7 @@
 
 
 
-        dataService.processResult = function (queryResult, params) {
+        function processResult(queryResult, params) {
             var processedResult = queryResult;
             processedResult = [];
             var resultSize = queryResult.length;
@@ -400,7 +610,7 @@
                             });
                         }
                         if (selectElement.transform) {
-                            value = selectElement.transform(value, row, localData, selectElement);
+                            value = selectElement.transform(value, row, service.localData, selectElement);
                         }
                         if (selectElement.alias) {
                             resultRow[selectElement.alias] = value;
@@ -538,8 +748,8 @@
                             if (typeof orderClause.sort === 'function') {
                                 sortFunction = orderClause.sort;
                             } else {
-                                if (typeof dataService.sort[orderClause.sort] === 'function') {
-                                    sortFunction = dataService.sort[orderClause.sort];
+                                if (typeof service.sort[orderClause.sort] === 'function') {
+                                    sortFunction = service.sort[orderClause.sort];
                                 }
                             }
                             if (sortFunction) {
@@ -654,193 +864,13 @@
         }
 
 
-        dataService.orderBy = function (data, orderBy) {
+        function orderBy(data, orderBy) {
             var params = {};
             params.orderBy = orderBy;
             return applyOrderBy(data, params);
         };
 
-        dataService.select = {
-            //Year
-            year: function (value, row) {
-                var returnValue = "";
-                if (value && value.getFullYear) {
-                    returnValue = value.getFullYear();
-                }
-                return returnValue;
-            },
-            //MonthName
-            monthName: function (value, row) {
-                var returnValue = "";
-                if (value && value.getFullYear) {
-                    returnValue = this.$filter('date')(value, 'MMMM');
-                }
-                return returnValue;
-            }.bind({$filter: $filter}),
-            //Month
-            month: function (value, row, localData) {
-                var returnValue = "";
-                if (value && value.getFullYear) {
-                    returnValue = value.getMonth() + 1;
-                }
-                return returnValue;
-            },
-            //weekDay
-            weekDay: function (value, row, localData) {
-                var returnValue = "";
-                if (value && value.getFullYear) {
-                    returnValue = this.$filter('date')(value, 'EEEE');
-                }
-                return returnValue;
-            }.bind({$filter: $filter}),
-            getEventReading: function (value, row, localData, queryElement) {
-                var returnValue = null;
-                var filter = angular.fromJson(queryElement.filter);
-                var code = filter['code'];
-                if (typeof code !== 'undefined' && row['code'] === code) {
-                    returnValue = value;
-                    returnValue = returnValue * row.unit.coefficient;
-                    if (Utils.getDefaultUnit(localData, code) && Utils.getDefaultUnit(localData, code).coefficient) {
-                        returnValue = returnValue * Utils.getDefaultUnit(localData, code).coefficient;
-                    }
-                }
-                return returnValue;
-            },
-            //getBloodGlucose
-            getBloodGlucose: function (value, row, localData) {
-                return Utils.getConvertedReading(value, row, localData, 1);
-            },
-            //get weight
-            getWeight: function (value, row, localData) {
-                return Utils.getConvertedReading(value, row, localData, 3);
-            },
-            getAnalysisPeriod: function (dateTime, row, localData) {
-                var returnValue = '';
-                var periods = localData.Period;
-                angular.forEach(periods, function (period) {
-                    var dateHours = dateTime.getHours();
-                    var dateMinutes = dateTime.getMinutes();
+        
 
-                    var beginDateHours = period.begin.getHours();
-                    var beginDateMinutes = period.begin.getMinutes();
-
-                    var endDateHours = period.end.getHours();
-                    if (endDateHours === 0) {
-                        endDateHours = 23;
-                    }
-                    var endDateMinutes = period.end.getMinutes();
-                    if (endDateHours === 23 && endDateMinutes === 0) {
-                        endDateMinutes = 59;
-                    }
-                    if (dateHours > beginDateHours && dateHours < endDateHours) {
-                        returnValue = period.name;
-                        return;
-                    } else {
-                        if (dateHours === beginDateHours && dateMinutes >= beginDateMinutes && dateHours < endDateHours) {
-                            returnValue = period.name;
-                            return;
-                        } else {
-                            if (dateHours > beginDateHours && dateHours === endDateHours && dateMinutes <= endDateMinutes) {
-                                returnValue = period.name;
-                                return;
-                            } else {
-                                //bad
-                            }
-                        }
-                    }
-                });
-                return returnValue;
-            },
-            getBloodGlucoseRange: function (reading, row, localData) {
-                var ranges = localData.Range;
-                var convertedReading = reading * row.unit.coefficient;
-                var returnValue = '';
-                angular.forEach(ranges, function (range) {
-                    if (convertedReading >= range.lowerLimit * range.unit.coefficient && convertedReading < range.upperLimit * range.unit.coefficient) {
-                        returnValue = " >= " + range.lowerLimit + " < " + range.upperLimit;
-                        return;
-                    }
-                });
-                return returnValue;
-            }
-
-        };
-
-        dataService.where = [
-            {
-                id: 'currentYear',
-                title: 'currentYear',
-                field: 'dateTime',
-                filterFunction: function () {
-                    var date = new Date();
-                    var beginDate = new Date(date.getFullYear(), 0, 1);
-                    var endDate = new Date(date.getFullYear() + 1, 0, 0);
-                    return {$gt: beginDate, $lt: endDate};
-                }
-            },
-            //last year
-            {
-                id: 'currentMonth',
-                title: 'currentMonth',
-                field: 'dateTime',
-                filterFunction: function () {
-                    var date = new Date();
-                    var beginDate = new Date(date.getFullYear(), date.getMonth());
-                    var endDate = new Date(date.getFullYear(), date.getMonth() + 1, 0);
-                    return {$gt: beginDate, $lt: endDate};
-                }
-            },
-            //last month
-            {
-                id: 'lastSevenDays',
-                title: 'lastSevenDays',
-                field: 'dateTime',
-                filterFunction: function () {
-                    var date = new Date();
-                    var endDate = new Date();
-                    var beginDate = new Date(date.getFullYear(), date.getMonth(), date.getDate());
-                    beginDate.setDate(beginDate.getDate() - 7);
-                    return {$gt: beginDate, $lt: endDate};
-                }
-            },
-            //current week            
-            //last week            
-            //custom
-            {
-                id: 'customBetweenDates',
-                title: 'customBetweenDates',
-                field: 'dateTime',
-                filterFunction: function (filterParams) {
-                    var filter = null;
-                    if (filterParams && filterParams.beginDate && filterParams.endDate) {
-                        filter = {$gt: new Date(filterParams.beginDate), $lt: new Date(filterParams.endDate)};
-                    }
-                    return filter;
-                },
-                customParameters: ['beginDate', 'endDate']
-            }
-        ];
-
-
-        dataService.sort = {
-            dayName: function (a, b) {
-                var datetime = this.$locale.DATETIME_FORMATS;
-                var days = datetime.DAY;
-                var indexOfA = days.indexOf(a);
-                var indexOfB = days.indexOf(b);
-                return indexOfA - indexOfB;
-            }.bind({$locale: $locale}),
-            monthName: function (a, b) {
-                var datetime = this.$locale.DATETIME_FORMATS;
-                var months = datetime.MONTH;
-                var indexOfA = months.indexOf(a);
-                var indexOfB = months.indexOf(b);
-                return indexOfA - indexOfB;
-            }.bind({$locale: $locale})
-        };
-
-
-
-        return dataService;
     }
 })();

@@ -5,9 +5,9 @@
             .module('bloglu.category')
             .controller('categoryController', categoryController);
 
-    categoryController.$inject = ['$rootScope','$scope', 'MessageService', 'categoryService', 'ResourceName', 'Utils'];
+    categoryController.$inject = ['$scope', 'menuHeaderService', 'MessageService', 'categoryService', 'ResourceName', 'Utils'];
 
-    function categoryController($rootScope, $scope, MessageService, categoryService, ResourceName, Utils) {
+    function categoryController($scope, menuHeaderService, MessageService, categoryService, ResourceName, Utils) {
 
         var vm = this;
 
@@ -35,29 +35,29 @@
         }
         
         function getCategories() {
-            $rootScope.increasePending("processingMessage.loadingCategoriesData");
+            menuHeaderService.increasePending("processingMessage.loadingCategoriesData");
             categoryService.getCategoriesByCode(vm.code).then(function (result) {
                 vm.categories = result;
             }, function (error) {
-                $rootScope.messages.push(MessageService.errorMessage("errorMessage.loadingError", 2000));
+                MessageService.errorMessage("errorMessage.loadingError", 2000);
             })['finally'](function () {
-                $rootScope.decreasePending("processingMessage.loadingCategoriesData");
+                menuHeaderService.decreasePending("processingMessage.loadingCategoriesData");
             });
         }
 
         function saveCategory(category) {
             if (category && category.name) {
-                $rootScope.increasePending("processingMessage.savingData");
+                menuHeaderService.increasePending("processingMessage.savingData");
                 category.code = vm.code;
                 categoryService.saveCategory(category).then(function (result) {
                     angular.extend(category, result);
                     vm.categories.push(category);
                     vm.newCategory = {};
-                    $rootScope.messages.push(MessageService.successMessage("successMessage.categoryCreated", 2000));
+                    MessageService.successMessage("successMessage.categoryCreated", 2000);
                 }, function (error) {
-                    $rootScope.messages.push(MessageService.errorMessage("errorMessage.creatingError", 2000));
+                    MessageService.errorMessage("errorMessage.creatingError", 2000);
                 })['finally'](function () {
-                    $rootScope.decreasePending();
+                    menuHeaderService.decreasePending();
                 });
             }
         }
@@ -65,16 +65,16 @@
 
         function updateCategory(category) {
             if (category.objectId) {
-                $rootScope.increasePending("processingMessage.updatingData");
+                menuHeaderService.increasePending("processingMessage.updatingData");
                 category.code = vm.code;
                 categoryService.saveCategory(category, true).then(function (result) {
                     category.isEdit = false;
-                    $rootScope.messages.push(MessageService.successMessage("successMessage.categoryUpdated", 2000));
+                    MessageService.successMessage("successMessage.categoryUpdated", 2000);
                 }, function (error) {
                     vm.cancelEditPeriod(category);
-                    $rootScope.messages.push(MessageService.errorMessage("errorMessage.updatingError", 2000));
+                    MessageService.errorMessage("errorMessage.updatingError", 2000);
                 })['finally'](function () {
-                    $rootScope.decreasePending("processingMessage.updatingData");
+                    menuHeaderService.decreasePending("processingMessage.updatingData");
                 });
             }
         }
@@ -89,7 +89,7 @@
             Utils.openConfirmModal(modalScope).then(function (confirmed) {
                 if (confirmed) {
                     if (category.objectId) {
-                        $rootScope.increasePending("processingMessage.deletingData");
+                        menuHeaderService.increasePending("processingMessage.deletingData");
                         categoryService.deleteCategory(category.objectId).then(function (result) {
                             var categoryIndex = -1;
                             angular.forEach(vm.categories, function (cat, index) {
@@ -101,9 +101,9 @@
                                 vm.categories.splice(categoryIndex, 1);
                             }
                         }, function (error) {
-                            $rootScope.messages.push(MessageService.errorMessage('errorMessage.deletingError', 2000));
+                            MessageService.errorMessage('errorMessage.deletingError', 2000);
                         })['finally'](function () {
-                            $rootScope.decreasePending("processingMessage.deletingData");
+                            menuHeaderService.decreasePending("processingMessage.deletingData");
                         });
                     }
                 }
@@ -124,7 +124,7 @@
             delete category.original;
         }
 
-        var unbind = $rootScope.$on('dataReady', renderPage);
+        var unbind = $scope.$on('dataReady', renderPage);
         $scope.$on('destroy', unbind);
     }
 

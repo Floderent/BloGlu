@@ -67,26 +67,64 @@
                 {id: 'pieChart', title: 'pieChartDataviz'},
                 {id: 'barChart', title: 'barChartDataviz'},
                 {id: 'lineChart', title: 'lineChartDataviz'}
-            ])
-            .run(run);
+            ]).run(run);
 
-    run.$inject = ['$rootScope', 'localizationService', 'AUTH_EVENTS', 'UserSessionService'];
+    run.$inject = ['$rootScope', '$state', 'UserSessionService', 'AUTH_EVENTS', 'menuHeaderService', 'syncService', 'MessageService'];
 
-    function run($rootScope, localizationService, AUTH_EVENTS, UserSessionService) {
-        localizationService.setLanguage().then(function () {
-            $rootScope.$broadcast('language-change', localizationService.language);
-            UserSessionService.isTokenValid().then(function (tokenValid) {
-                if (!tokenValid) {
-                    if (tokenValid === null) {
-                        $rootScope.$broadcast(AUTH_EVENTS.loginSuccess, {mode: "offline"});
-                    } else {
-                        $rootScope.$broadcast(AUTH_EVENTS.notAuthenticated);
+    function run($rootScope, $state, UserSessionService, AUTH_EVENTS, menuHeaderService, syncService, MessageService) {
+
+        // Call when the the client is confirmed
+        $rootScope.$on(AUTH_EVENTS.loginSuccess, function (event, params) {
+            $rootScope.authenticated = true;
+            $state.go('dashboard');
+
+            menuHeaderService.increasePending('processingMessage.synchronizing');
+            var syncMode = 'online';
+            if (params) {
+                syncMode = params.mode;
+            }            
+            syncService.sync(progressHandler, syncMode).then(
+                    function () {
+                        menuHeaderService.progress = 100;
+                    },
+                    function () {
+                        MessageService.errorMessage('errorMessage.synchronisationError', 5000);
                     }
-                } else {
-                    $rootScope.$broadcast(AUTH_EVENTS.loginSuccess, {mode: "online"});
-                }
+            )['finally'](function () {
+                menuHeaderService.decreasePending('processingMessage.synchronizing');
             });
         });
+
+        function progressHandler(progress, message) {
+            menuHeaderService.loadingState.progress = progress;
+            menuHeaderService.loadingState.syncMessage = message;
+        }
+
+        // Call when the 401 response is returned by the server
+        $rootScope.$on(AUTH_EVENTS.notAuthenticated, function () {
+            $rootScope.authenticated = false;
+            $state.go('login');
+        });
+
+
+        $rootScope.$on('$stateChangeStart', function (event, toState) {
+            if (toState.name !== 'login') {
+                if (!UserSessionService.getCurrentUser()) {
+                    event.preventDefault();
+                    $state.go('login');
+                }
+            }
+        });
+
+        $rootScope.$on('$stateChangeError',
+                function (event, toState, toParams, fromState, fromParams, error) {
+                    console.log(error);
+                }
+        );
+
+
+
+
     }
 
 })();

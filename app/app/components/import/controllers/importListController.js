@@ -4,9 +4,9 @@
     angular.module('bloglu.import')
             .controller('importListController', importListController);
 
-    importListController.$inject = ['$rootScope','$scope', 'importService', 'MessageService', 'Utils'];
+    importListController.$inject = ['menuHeaderService','$scope', 'importService', 'MessageService', 'Utils'];
 
-    function importListController($rootScope, $scope, importService, MessageService, Utils) {
+    function importListController(menuHeaderService, $scope, importService, MessageService, Utils) {
         
         var vm = this;
         
@@ -16,13 +16,13 @@
         renderPage();
 
         function renderPage() {
-            $rootScope.increasePending('processingMessage.loadingData');
+            menuHeaderService.increasePending('processingMessage.loadingData');
             importService.getImports().then(function (imports) {
                 vm.imports = imports;
             }, function (error) {
-                $rootScope.messages.push(MessageService.errorMessage('errorMessage.loadingError', 2000));
+                MessageService.errorMessage('errorMessage.loadingError', 2000);
             })['finally'](function () {
-                $rootScope.decreasePending('processingMessage.loadingData');
+                menuHeaderService.decreasePending('processingMessage.loadingData');
             });
         }
 
@@ -36,7 +36,7 @@
             Utils.openConfirmModal(modalScope).then(function (confirmed) {
                 if (confirmed) {
                     if (impor.objectId) {
-                        $rootScope.increasePending("processingMessage.deletingData");
+                        menuHeaderService.increasePending("processingMessage.deletingData");
                         importService.deleteImport(impor).then(function (result) {
                             var importIndex = -1;
                             angular.forEach(vm.imports, function (imp, index) {
@@ -48,9 +48,9 @@
                                 vm.imports.splice(importIndex, 1);
                             }
                         }, function (error) {
-                            $rootScope.messages.push(MessageService.errorMessage('errorMessage.deletingError', 2000));
+                            MessageService.errorMessage('errorMessage.deletingError', 2000);
                         })['finally'](function () {
-                            $rootScope.decreasePending("processingMessage.deletingData");
+                            menuHeaderService.decreasePending("processingMessage.deletingData");
                         });
                     }
                 }
@@ -59,7 +59,7 @@
             });
         };
 
-        var unbind = $rootScope.$on('dataReady', renderPage);
+        var unbind = $scope.$on('dataReady', renderPage);
         $scope.$on('destroy', unbind);
     }
 })();

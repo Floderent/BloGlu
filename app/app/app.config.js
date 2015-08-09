@@ -1,8 +1,8 @@
 (function () {
     angular.module('bloglu')
-            .config(['$routeProvider',
-                function ($routeProvider) {
-                    $routeProvider.otherwise({redirectTo: '/dashboard'});
+            .config(['$urlRouterProvider',
+                function ($urlRouterProvider) {
+                    $urlRouterProvider.otherwise('/dashboard');
                 }])
             .config(['$translateProvider', function ($translateProvider) {
                     $translateProvider.useStaticFilesLoader({

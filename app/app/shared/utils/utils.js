@@ -49,7 +49,7 @@ function Utils($modal, $rootScope, $translate, ResourceName, UserSessionService)
 
 
         Utils.getConnectedUser = function (localData) {
-            var currentUserId = UserSessionService.userId();
+            var currentUserId = UserSessionService.getUserId();
             var connectedUser = null;
             if (localData && localData.User) {
                 angular.forEach(localData.User, function (user) {

@@ -5,13 +5,14 @@
     angular.module('bloglu.report')
             .controller('reportController', reportController);
 
-    reportController.$inject = ['$rootScope', '$scope', '$q', '$routeParams', '$window', '$location', 'DataVisualization', 'reportService', 'queryService', 'MessageService', 'Utils'];
+    reportController.$inject = ['menuHeaderService', '$scope', '$q', '$stateParams', '$window', '$state', 'DataVisualization', 'reportService', 'queryService', 'MessageService', 'Utils'];
 
-    function reportController($rootScope, $scope, $q, $routeParams, $window, $location, DataVisualization, reportService, queryService, MessageService, Utils) {
+    function reportController(menuHeaderService, $scope, $q, $stateParams, $window, $state, DataVisualization, reportService, queryService, MessageService, Utils) {
         
         var vm = this;
-
-        vm.isEdit = $routeParams && $routeParams.objectId;
+        
+        vm.loadingState = menuHeaderService.loadingState;
+        vm.isEdit = $stateParams && $stateParams.objectId;
         vm.form = {};
         vm.report = {};
         vm.selectedQueryElement = null;
@@ -36,7 +37,7 @@
         renderPage();
 
         function renderPage() {
-            $rootScope.increasePending("processingMessage.loading");
+            menuHeaderService.increasePending("processingMessage.loading");
             vm.filters = queryService.getFilters();
             $q.all([
                 getReport(),
@@ -48,16 +49,16 @@
                 vm.queryElements = results[1];
                 vm.executeQuery();
             }, function () {
-                $rootScope.messages.push(MessageService.errorMessage("errorMessage.loadingError", 2000));
+                MessageService.errorMessage("errorMessage.loadingError", 2000);
             })['finally'](function () {
-                $rootScope.decreasePending("processingMessage.loading");
+                menuHeaderService.decreasePending("processingMessage.loading");
             });
         }
 
         function getReport() {
             var deferred = $q.defer();
             if (vm.isEdit) {
-                reportService.getReport($routeParams.objectId).then(function (result) {
+                reportService.getReport($stateParams.objectId).then(function (result) {
                     deferred.resolve(result);
                 });
             } else {
@@ -139,31 +140,29 @@
         }
 
         function executeQuery() {
-            $rootScope.increasePending("processingMessage.executingQuery");
+            menuHeaderService.increasePending("processingMessage.executingQuery");
             reportService.executeReportQuery(vm.report).then(function (queryResult) {
                 queryResult.type = vm.report.display;
                 vm.datavizConfig = queryResult;
             }, function (error) {
-                $rootScope.messages.push(MessageService.errorMessage("errorMessage.executingQueryError", 2000));
+                MessageService.errorMessage("errorMessage.executingQueryError", 2000);
             })['finally'](function () {
-                $rootScope.decreasePending("processingMessage.executingQuery");
+                menuHeaderService.decreasePending("processingMessage.executingQuery");
             });
         }
 
         function update() {
-            $rootScope.increasePending("processingMessage.updatingData");
+            menuHeaderService.increasePending("processingMessage.updatingData");
             reportService.saveReport(vm.report, vm.isEdit).then(function (result) {
                 vm.report = angular.extend(vm.report, result);
-                if (!vm.isEdit) {
-                    var path = 'report/' + vm.report.objectId;
-                    $location.url($location.path());
-                    $location.path(path);
+                if (!vm.isEdit) {                    
+                    $state.go('report',{objectId: vm.report.objectId})
                 }
-                $rootScope.messages.push(MessageService.successMessage('successMessage.reportUpdated', 2000));
+                MessageService.successMessage('successMessage.reportUpdated', 2000);
             }, function (error) {
-                $rootScope.messages.push(MessageService.errorMessage("errorMessage.creatingError", 2000));
+                MessageService.errorMessage("errorMessage.creatingError", 2000);
             })['finally'](function () {
-                $rootScope.decreasePending("processingMessage.updatingData");
+                menuHeaderService.decreasePending("processingMessage.updatingData");
             });
         }
 
@@ -176,13 +175,13 @@
             };
             Utils.openConfirmModal(modalScope).then(function (confirmed) {
                 if (confirmed) {
-                    $rootScope.increasePending("processingMessage.deletingData");
+                    menuHeaderService.increasePending("processingMessage.deletingData");
                     reportService.deleteReport(vm.report).then(function (result) {
                         $window.history.back();
                     }, function (error) {
-                        $rootScope.messages.push(MessageService.errorMessage('errorMessage.deletingError', 2000));
+                        MessageService.errorMessage('errorMessage.deletingError', 2000);
                     })['finally'](function () {
-                        $rootScope.decreasePending("processingMessage.deletingData");
+                        menuHeaderService.decreasePending("processingMessage.deletingData");
                     });
                 }
             }, function () {
@@ -190,7 +189,7 @@
             });
         }
 
-        var unbind = $rootScope.$on('dataReady', renderPage);
+        var unbind = $scope.$on('dataReady', renderPage);
         $scope.$on('destroy', unbind);
     }
 })();

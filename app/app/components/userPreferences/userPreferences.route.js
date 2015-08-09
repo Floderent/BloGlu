@@ -1,10 +1,15 @@
 (function () {
     angular.module('bloglu.userPreferences')
         .config(configureRoute);
-        configureRoute.$inject = ['$routeProvider'];
+        configureRoute.$inject = ['$stateProvider'];
         
-        function configureRoute($routeProvider) {
-            $routeProvider.when('/userPreferences', {controller: 'userPreferencesController', controllerAs:'vm', templateUrl: 'app/components/userPreferences/templates/userPreferences.html'});
+        function configureRoute($stateProvider) {
+            $stateProvider.state('userPreferences', {
+                url: '/userPreferences',
+                controller: 'userPreferencesController', 
+                controllerAs:'vm', 
+                templateUrl: 'app/components/userPreferences/templates/userPreferences.html'
+            });
         }        
 })();
 

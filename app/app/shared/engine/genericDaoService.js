@@ -10,14 +10,14 @@ function genericDaoService(dataService) {
 
         var genericDaoService  ={};
 
-        genericDaoService.delete = function(resourceName, object) {
+        genericDaoService.remove = function(resourceName, object) {
             var objectId = null;
             if (object && object.objectId) {
                 objectId = object.objectId;
             } else {
                 objectId = object;
             }
-            return dataService.delete(resourceName, objectId);
+            return dataService.remove(resourceName, objectId);
         };
         genericDaoService.getAll = function(resourceName) {
             return dataService.queryLocal(resourceName);
@@ -38,16 +38,7 @@ function genericDaoService(dataService) {
             return dataService.get(resourceName, objectId).then(function(result) {
                 return result;
             });
-        };
-        genericDaoService.delete = function(resourceName, object){
-            var objectId = null;
-            if (object && object.objectId) {
-                objectId = object.objectId;
-            } else {
-                objectId = object;
-            }
-            return dataService.delete(resourceName, objectId);
-        };
+        };        
         return genericDaoService;
     }
 })();

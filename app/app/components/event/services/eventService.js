@@ -5,9 +5,9 @@
             .module('bloglu.event')
             .factory('eventService', eventService);
 
-    eventService.$inject = ['$location', '$modal', '$q', '$rootScope', 'logBookService', 'genericDaoService', 'ResourceCode'];
+    eventService.$inject = ['$state', '$modal', '$q', '$rootScope', 'logBookService', 'genericDaoService', 'ResourceCode'];
 
-    function eventService($location, $modal, $q, $rootScope, logBookService, genericDaoService, ResourceCode) {
+    function eventService($state, $modal, $q, $rootScope, logBookService, genericDaoService, ResourceCode) {
 
 
         var eventService = {};
@@ -22,7 +22,7 @@
         };
 
         eventService.deleteEvent = function (event) {
-            return genericDaoService.delete(resourceName, event);
+            return genericDaoService.remove(resourceName, event);
         };
 
         eventService.resolveCreationMessage = function (eventCode) {
@@ -48,10 +48,10 @@
 
 
         eventService.goToAddEvent = function (eventCode, day, period, newPage) {
-            var deferred = $q.defer();
+            var deferred = $q.defer();            
             var newEventDate = logBookService.getMiddleTime(period);
             if (newPage) {
-                $location.path('event/' + ResourceCode[eventCode]).search('day', day.date.toISOString()).search('time', newEventDate.toISOString());
+                $state.go('event', {eventType: ResourceCode[eventCode],day: day.date.toISOString(), time: newEventDate.toISOString()});                
                 deferred.resolve();
             } else {
                 var $modalScope = $rootScope.$new(true);
@@ -73,9 +73,8 @@
         eventService.viewEvent = function (eventCode, eventId, newPage) {
             var deferred = $q.defer();
             var resource = ResourceCode[eventCode];
-            if (newPage) {
-                var path = 'event/' + resource + "/" + eventId;
-                $location.path(path);
+            if (newPage) {                
+                $state.go('event', {eventType: resource,objectId: eventId})                
                 deferred.resolve();
             } else {
                 var $modalScope = $rootScope.$new(true);                

@@ -34,7 +34,7 @@
 
 
         categoryService.deleteCategory = function (category) {
-            return genericDaoService.delete(resourceName, category);
+            return genericDaoService.remove(resourceName, category);
         };
 
 

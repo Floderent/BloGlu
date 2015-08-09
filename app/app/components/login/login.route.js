@@ -1,9 +1,14 @@
 (function () {
     angular.module('bloglu.login')
         .config(configureRoute);
-        configureRoute.$inject = ['$routeProvider'];
+        configureRoute.$inject = ['$stateProvider'];
         
-        function configureRoute($routeProvider) {
-            $routeProvider.when('/login', {controller: 'loginController', controllerAs: 'vm', templateUrl: 'app/components/login/templates/login.html'});
+        function configureRoute($stateProvider) {
+            $stateProvider.state('login', {
+                url: '/login',
+                controller: 'loginController', 
+                controllerAs: 'vm', 
+                templateUrl: 'app/components/login/templates/login.html'
+            });
         }        
 })();

@@ -2,10 +2,15 @@
     angular.module('bloglu.logbook')
         .config(configureRoute);
 
-        configureRoute.$inject = ['$routeProvider'];
+        configureRoute.$inject = ['$stateProvider'];
         
-        function configureRoute($routeProvider) {
-            $routeProvider.when('/logBook', {controller: 'logBookController', controllerAs:'vm', templateUrl: 'app/components/logbook/templates/logBook.html'});
+        function configureRoute($stateProvider) {
+            $stateProvider.state('logBook', {
+                url: '/logBook?weekDate&interval&display',
+                controller: 'logBookController', 
+                controllerAs:'vm', 
+                templateUrl: 'app/components/logbook/templates/logBook.html'
+            });
         }        
 })();
 

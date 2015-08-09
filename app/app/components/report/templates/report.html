@@ -96,8 +96,8 @@
         </div>        
 
         <!--<button class="btn-large btn-primary" ng-click="clear()">{{ 'report.clear' | translate }}</button>-->
-        <button class="btn btn-primary btn-lg active pull-left" ng-disabled="pending > 0" ng-show="vm.isEdit" ng-click="vm.deleteReport()">{{ 'report.delete' | translate }}</button>
-        <button class="btn btn-primary btn-lg active pull-right" ng-disabled="((reportForm.$dirty && reportForm.$invalid) || reportForm.$pristine) || pending > 0" ng-click="vm.update()">{{ 'report.save' | translate }}</button>
+        <button class="btn btn-primary btn-lg active pull-left" ng-disabled="vm.loadingState.pending > 0" ng-show="vm.isEdit" ng-click="vm.deleteReport()">{{ 'report.delete' | translate }}</button>
+        <button class="btn btn-primary btn-lg active pull-right" ng-disabled="((reportForm.$dirty && reportForm.$invalid) || reportForm.$pristine) || vm.loadingState.pending > 0" ng-click="vm.update()">{{ 'report.save' | translate }}</button>
     </div>
     <div class="table-responsive">
         <dataviz config="vm.datavizConfig" column-order="vm.report.sort"></dataviz>

@@ -4,9 +4,9 @@
     angular.module('bloglu.period')
             .controller('periodController', periodController);
 
-    periodController.$inject = ['$rootScope', '$scope', 'MessageService', 'periodService', 'Utils'];
+    periodController.$inject = ['menuHeaderService', '$scope', 'MessageService', 'periodService', 'Utils'];
 
-    function periodController($rootScope, $scope, MessageService, periodService, Utils) {
+    function periodController(menuHeaderService, $scope, MessageService, periodService, Utils) {
 
         var vm = this;
         vm.periods = [];
@@ -23,14 +23,14 @@
         renderPage();
 
         function renderPage() {
-            $rootScope.increasePending("processingMessage.loadingData");
+            menuHeaderService.increasePending("processingMessage.loadingData");
             periodService.getPeriods().then(function (result) {
                 vm.periods = result;
                 processPeriods(vm.periods);
             }, function (error) {
-                $rootScope.messages.push(MessageService.errorMessage("errorMessage.loadingError", 2000));
+                MessageService.errorMessage("errorMessage.loadingError", 2000);
             })['finally'](function () {
-                $rootScope.decreasePending("processingMessage.loadingData");
+                menuHeaderService.decreasePending("processingMessage.loadingData");
             });
         }
 
@@ -43,7 +43,7 @@
         function checkPeriods(existingPeriods, newPeriod) {
             var errorMessages = periodService.checkPeriods(existingPeriods, newPeriod);
             angular.forEach(errorMessages, function (errorMessage) {
-                $rootScope.messages.push(MessageService.errorMessage(errorMessage, 2000));
+                MessageService.errorMessage(errorMessage, 2000);
             });
             return errorMessages.length === 0;
         }
@@ -57,16 +57,16 @@
         function savePeriod(period) {
             if (period && period.begin && period.end) {
                 if (checkPeriods(vm.periods, period)) {
-                    $rootScope.increasePending("processingMessage.savingData");
+                    menuHeaderService.increasePending("processingMessage.savingData");
                     periodService.savePeriod(period).then(function (result) {
                         angular.extend(period, result);
                         vm.periods.push(period);
                         processPeriods(vm.periods);
-                        $rootScope.messages.push(MessageService.successMessage("successMessage.periodCreated", 2000));
+                        MessageService.successMessage("successMessage.periodCreated", 2000);
                     }, function (error) {
-                        $rootScope.messages.push(MessageService.errorMessage("errorMessage.creatingError", 2000));
+                        MessageService.errorMessage("errorMessage.creatingError", 2000);
                     })['finally'](function () {
-                        $rootScope.decreasePending("processingMessage.savingData");
+                        menuHeaderService.decreasePending("processingMessage.savingData");
                     });
                 }
             }
@@ -77,16 +77,16 @@
                 vm.cancelEditPeriod(period);
             } else {
                 if (period.objectId) {
-                    $rootScope.increasePending("processingMessage.updatingData");
+                    menuHeaderService.increasePending("processingMessage.updatingData");
                     periodService.savePeriod(period, true).then(function (result) {
                         period.isEdit = false;
                         processPeriods(vm.periods);
-                        $rootScope.messages.push(MessageService.successMessage("successMessage.periodUpdated", 2000));
+                        MessageService.successMessage("successMessage.periodUpdated", 2000);
                     }, function (error) {
                         vm.cancelEditPeriod(period);
-                        $rootScope.messages.push(MessageService.errorMessage("errorMessage.updatingError", 2000));
+                        MessageService.errorMessage("errorMessage.updatingError", 2000);
                     })['finally'](function () {
-                        $rootScope.decreasePending("processingMessage.updatingData");
+                        menuHeaderService.decreasePending("processingMessage.updatingData");
                     });
 
                 }
@@ -104,7 +104,7 @@
             Utils.openConfirmModal(modalScope).then(function (confirmed) {
                 if (confirmed) {
                     if (period.objectId) {
-                        $rootScope.increasePending("processingMessage.deletingData");
+                        menuHeaderService.increasePending("processingMessage.deletingData");
                         periodService.deletePeriod(period).then(function (result) {
                             var periodIndex = -1;
                             angular.forEach(vm.periods, function (per, index) {
@@ -117,9 +117,9 @@
                             }
                             processPeriods(vm.periods);
                         }, function (error) {
-                            $rootScope.messages.push(MessageService.errorMessage('errorMessage.deletingError', 2000));
+                            MessageService.errorMessage('errorMessage.deletingError', 2000);
                         })['finally'](function () {
-                            $rootScope.decreasePending("processingMessage.deletingData");
+                            menuHeaderService.decreasePending("processingMessage.deletingData");
                         });
                     }
                 }
@@ -143,7 +143,7 @@
             delete period.original;
         }
 
-        var unbind = $rootScope.$on('dataReady', renderPage);
+        var unbind = $scope.$on('dataReady', renderPage);
         $scope.$on('destroy', unbind);
     }
 })();

@@ -85,13 +85,13 @@
                 dataService.queryParse(collection, syncStatus.remoteCount, {limit: 1000}).then(function (result) {
                     dataService.clear(collection).then(function () {
                         dataService.addRecords(collection, result).then(function (addRecordsResult) {
-                            notify(1, collection + " sync");
+                            notify(1, collection + ' sync');
                             deferred.resolve();
                         }, deferred.reject);
                     }, deferred.reject);
                 }, deferred.reject);
             } else {
-                deferred.reject("No resource found for " + collection);
+                deferred.reject('No resource found for ' + collection);
             }
             return deferred.promise;
         }
@@ -122,7 +122,7 @@
                 triggerSync(notificationFunc).then(deferred.resolve, deferred.reject);
             } else {
                 syncService.checkSyncStatus().then(function (syncStatus) {
-                    notificationFunc(1, "syncStatusChecked");
+                    notificationFunc(1, 'syncStatusChecked');
                     notificationFunc = computeProgression(getNumberOfOutOfSyncCollections(syncStatus), notify);
                     angular.forEach(syncStatus, function (value, key) {
                         if (value.status === 'outOfDate') {
@@ -159,16 +159,13 @@
             return numberOfOutOfSyncCollections;
         }
 
-        function triggerSync(notificationFunc) {
-            var deferred = $q.defer();
-            dataService.init(true).then(function (result) {
-                notificationFunc(1, "syncDone");
+        function triggerSync(notificationFunc) {            
+            return dataService.init(true).then(function (result) {
+                notificationFunc(1, 'syncDone');
                 triggerDataReadyEvent();
-                deferred.resolve();
-            }, deferred.reject);
-            return deferred.promise;
+                return;
+            });            
         }
-
 
         function triggerDataReadyEvent() {
             var eventName = 'dataReady';

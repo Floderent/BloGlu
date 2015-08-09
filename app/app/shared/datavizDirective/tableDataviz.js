@@ -102,7 +102,7 @@
             var div = $document[ 0 ].createElement('div');
             var image = $document[ 0 ].createElement('img');
             image.alt = 'loading';
-            image.src = 'images/spinner.gif';
+            image.src = 'assets/images/spinner.gif';
             div.appendChild(image);
             return div;
         }

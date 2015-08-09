@@ -28,7 +28,7 @@
         };
 
         periodService.deletePeriod = function (period) {
-            return genericDaoService.delete(resourceName, period);
+            return genericDaoService.remove(resourceName, period);
         };
 
         periodService.processPeriods = function (periodArray) {

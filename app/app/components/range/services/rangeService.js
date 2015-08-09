@@ -32,7 +32,7 @@
         };
 
         rangeService.deleteRange = function (range) {
-            return genericDaoService.delete(resourceName, range);
+            return genericDaoService.remove(resourceName, range);
         };
 
 

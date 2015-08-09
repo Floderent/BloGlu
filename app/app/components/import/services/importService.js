@@ -54,7 +54,7 @@
             } else {
                 importId = impor;
             }
-            return dataService.delete('Report', importId);
+            return dataService.remove('Report', importId);
         };
 
         importService.importData = function (importObject, file, options) {

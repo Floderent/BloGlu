@@ -9,10 +9,12 @@
         <meta name="description" content="">
         <meta name="viewport" content="width=device-width">
         <!-- Place favicon.ico and apple-touch-icon.png in the root directory -->
+        <link rel="icon" type="image/png" href="favicon.png" />
         <!-- build:css styles/vendor.css -->
         <!-- bower:css -->
         <link rel="stylesheet" href="bower_components/bootstrap/dist/css/bootstrap.css" />
         <link rel="stylesheet" href="bower_components/spectrum/spectrum.css" />
+        <link rel="stylesheet" href="bower_components/angular-ui-notification/dist/angular-ui-notification.min.css" />
         <!-- endbower -->
         <!-- endbuild -->
         <!-- build:css({.tmp,app}) styles/main.css -->
@@ -27,119 +29,14 @@
         <p class="browsehappy">You are using an <strong>outdated</strong> browser. Please <a href="http://browsehappy.com/">upgrade your browser</a> to improve your experience.</p>
       <![endif]-->
 
-    <body ng-app="bloglu" ng-controller="applicationController">
+    <body ng-app="bloglu">
         
-        <nav class="navbar navbar-default" role="navigation" ng-show="currentUser">
-            <div class="container-fluid">
-                <div class="navbar-header">                   
-                    <button type="button" class="navbar-toggle" data-toggle="collapse" data-target="#bloglu-navigation-bar">
-                        <span ng-show="pending <= 0">
-                            <span class="sr-only">Toggle navigation</span>
-                            <span class="icon-bar"></span>
-                            <span class="icon-bar"></span>
-                            <span class="icon-bar"></span>
-                        </span>
-                        <span ng-show="pending > 0">
-                            <img class="loading-icon-small" alt="loading" src="assets/images/spinner.gif" />                            
-                        </span>
-                    </button>                    
-                    <a class="navbar-brand" href="#dashboard">{{ 'appName' | translate }}</a>
-                </div>
-                <div class="collapse navbar-collapse" id="bloglu-navigation-bar">
-                    <ul class="nav navbar-nav">
-                        <!-- Event menu -->
-                        <li class="dropdown">
-                            <a href="#" class="dropdown-toggle" data-toggle="dropdown"><b>{{ 'menu.event' | translate }}</b> <b class="caret"></b></a>
-                            <ul class="dropdown-menu">                                
-                                <li><a href="#event/other">{{ 'menu.other' | translate }}</a></li>
-                                <li><a href="#event/bloodGlucose">{{ 'menu.bloodGlucose' | translate }}</a></li>
-                                <li><a href="#event/medication">{{ 'menu.medication' | translate }}</a></li>
-                                <li><a href="#event/weight">{{ 'menu.weight' | translate }}</a></li>
-                                <li><a href="#event/bloodPressure">{{ 'menu.bloodPressure' | translate }}</a></li>
-                                <li><a href="#event/a1c">{{ 'menu.a1c' | translate }}</a></li>
-                                <li><a href="#event/exercise">{{ 'menu.exercise' | translate }}</a></li>
-                                <li><a href="#event/foodIntake">{{ 'menu.foodIntake' | translate }}</a></li>
-                            </ul> 
-                        </li>
-                        <!-- Logbook menu -->
-                        <li class="dropdown">
-                            <a href="#logBook"><b>{{ 'menu.logbook' | translate }}</b></a>                            
-                        </li>
-                        <!-- Report menu -->
-                        <li class="dropdown">
-                            <a href="#reports"><b>{{ 'menu.reports' | translate }}</b></a>                            
-                        </li>
-                        <!-- Data menu -->
-                        <li class="dropdown">
-                            <a href="#" class="dropdown-toggle" data-toggle="dropdown"><b>{{ 'menu.data' | translate }}</b> <b class="caret"></b></a>
-                            <ul class="dropdown-menu">
-                                <li><a href="#imports">{{ 'menu.imports' | translate }}</a></li>                            
-                            </ul> 
-                        </li>
-                        <!-- Parameter menu -->
-                        <li class="dropdown">
-                            <a href="#" class="dropdown-toggle" data-toggle="dropdown"><b>{{ 'menu.parameters' | translate }}</b> <b class="caret"></b></a>
-                            <ul class="dropdown-menu">
-                                <li><a href="#ranges">{{ 'menu.bgRanges' | translate }}</a></li>
-                                <li><a href="#periods">{{ 'menu.analysisPeriods' | translate }}</a></li>
-                                <li><a href="#eventTypes">{{ 'menu.eventTypes' | translate }}</a></li>
-                            </ul> 
-                        </li>
-                    </ul>
-                    <!-- right part -->
-                    <ul class="nav navbar-nav navbar-right" >
-                        <li class="dropdown">                            
-                            <a href="" class="dropdown-toggle" data-toggle="dropdown"><b>{{ 'welcome' | translate }} {{currentUserInfos.username}}</b><b class="caret"></b></a>
-                            <ul class="dropdown-menu">
-                                <li><a href="#userPreferences">{{ 'preferences' | translate }}</a></li>
-                                <li class="divider"></li>
-                                <li><a href="#" ng-click="logOut(user)">{{ 'logOut' | translate }}</a></li>
-                            </ul>
-                        </li>                        
-                        <li ng-show="pending > 0">                            
-                            <div class="navbar-text" ng-if="loadingMessages.length > 0">                                
-                                {{loadingMessages[loadingMessages.length - 1]}}
-                            </div>                            
-                        </li>
-                        <li ng-show="pending > 0">
-                            <img class="loading-icon" alt="loading" src="assets/images/spinner.gif" />
-                        </li>
-                        <li ng-show="pending > 0">
-                            <div class="nav navbar-text progress" style="margin-top:10px">
-                                <progressbar ng-if="progress !== 100" value="progress">{{progress | number:0}} % {{loadingMessages[loadingMessages.length - 1]}}</progressbar>
-                            </div>
-                        </li>
-                    </ul>
-                </div>
-            </div>
-        </nav>
+        <!-- Menu header -->
+        <span bloglu-menu-header></span>
 
-
-
-        <!-- Page feedback -->
-        <div ng-repeat="message in messages" ng-show="messages && messages.length > 0">
-            <!-- error message alert-dismissable-->
-            <div ng-if="message.type === 'error'">                
-                <div class="alert alert-danger message" ng-show="message.display">
-                    <!--<button type="button" class="close" data-dismiss="alert" aria-hidden="true">&times;</button>-->
-                    <strong>{{'error'| translate}}!</strong> {{message.text| translate}}
-                </div>
-            </div>
-            <!-- success message -->                
-            <div ng-if="message.type === 'success'">                
-                <div class="alert alert-success message" ng-show="message.display">
-                    <!--<button type="button" class="close" data-dismiss="alert" aria-hidden="true">&times;</button>-->
-                    <strong>{{'success'| translate}}!</strong> {{message.text| translate}}
-                </div>
-            </div>                
-        </div>
-
-
-
-        <!-- Hold the views of the application  ng-show="currentUser"-->
-        <!-- ng-switch on="currentUser" -->
+        <!-- Hold the views of the application-->        
         <div>
-            <div ng-view></div>
+            <div ui-view></div>
         </div>
 
 
@@ -178,13 +75,20 @@
         <script src="bower_components/ng-file-upload/angular-file-upload.js"></script>
         <script src="bower_components/spectrum/spectrum.js"></script>
         <script src="bower_components/angular-translate/angular-translate.js"></script>
-        <script src="bower_components/angular-translate-loader-static-files/angular-translate-loader-static-files.js"></script>
-        <script src="bower_components/angular-spectrum-colorpicker/dist/angular-spectrum-colorpicker.js"></script>
         <script src="bower_components/angular-dynamic-locale/src/tmhDynamicLocale.js"></script>
+        <script src="bower_components/angular-translate-loader-static-files/angular-translate-loader-static-files.js"></script>
+        <script src="bower_components/angular-translate-storage-cookie/angular-translate-storage-cookie.js"></script>
+        <script src="bower_components/angular-translate-storage-local/angular-translate-storage-local.js"></script>
+        <script src="bower_components/angular-translate-handler-log/angular-translate-handler-log.js"></script>
+        <script src="bower_components/angular-spectrum-colorpicker/dist/angular-spectrum-colorpicker.js"></script>        
         <script src="bower_components/angular-touch/angular-touch.js"></script>
         <script src="bower_components/IndexedDBShim/dist/IndexedDBShim.js"></script>
         <script src="bower_components/angular-local-storage/dist/angular-local-storage.js"></script>
         <script src="bower_components/angular-facebook/lib/angular-facebook.js"></script>
+        <script src="bower_components/angular-ui-notification/dist/angular-ui-notification.min.js"></script>
+        <script src="bower_components/angular-ui-router/release/angular-ui-router.min.js"></script>
+        <script src="bower_components/angular-translate-storage-local/angular-translate-storage-local.min.js"></script>
+        <script src="bower_components/angular-cookies/angular-cookies.min.js"></script>
         <!-- endbower -->
         <!-- endbuild -->
         
@@ -209,7 +113,9 @@
         <script src="app/shared/eventDirective/eventDirective.module.js"></script>
         <script src="app/shared/eventGroupDirective/eventGroupDirective.module.js"></script>
         <script src="app/shared/print/print.module.js"></script>
-        <script src="app/shared/utils/utils.module.js"></script>
+        <script src="app/shared/utils/utils.module.js"></script>        
+        <script src="app/shared/menuHeader/menuHeader.module.js"></script>
+        <script src="app/shared/translation/translation.module.js"></script>
         <!-- endbuild -->
         
         <!-- build:js({.tmp,app}) scripts/scripts.js -->
@@ -219,8 +125,7 @@
         
         <!-- application -->        
         <script src="app/app.config.js"></script>
-        <script src="app/app.js"></script>
-        <script src="app/components/application/controllers/applicationController.js"></script>
+        <script src="app/app.js"></script>        
         
         <!-- category -->        
         <script src="app/components/category/category.route.js"></script>
@@ -311,6 +216,15 @@
         <script src="app/shared/utils/unitService.js"></script>
         <script src="app/shared/utils/userService.js"></script>
         <script src="app/shared/utils/utils.js"></script>
+        <!-- translation -->
+        <script src="app/shared/translation/translation.config.js"></script>
+        <script src="app/shared/translation/translation.service.js"></script>
+        <script src="app/shared/translation/manager/translationManager.controller.js"></script>
+        <script src="app/shared/translation/manager/translationManager.directive.js"></script>        
+        <!-- menu header -->
+        <script src="app/shared/menuHeader/menuHeader.controller.js"></script>
+        <script src="app/shared/menuHeader/menuHeader.directive.js"></script>
+        <script src="app/shared/menuHeader/menuHeader.service.js"></script>
 
         <!-- endbuild -->
     </body>

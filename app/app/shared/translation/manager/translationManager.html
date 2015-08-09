@@ -1,0 +1,12 @@
+<div id="translation-row">
+    <a ng-repeat="locale in vm.locales"
+       href=""
+       style="text-decoration: none"
+       ng-click="vm.changeLanguage(locale.langKey);">        
+        <span ng-class="{ 'unselected-flag': locale.langKey !== vm.getCurrentLocale() }">
+            <span class="flag">
+                <span class="phoca-flag {{::locale.flagKey}}"></span>
+            </span>
+        </span>
+    </a>
+</div>

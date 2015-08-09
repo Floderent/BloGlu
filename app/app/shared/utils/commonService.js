@@ -8,8 +8,6 @@ angular.module('bloglu.utils')
 ;
 
 MyInterceptor.$inject = ['$q', '$rootScope', 'AUTH_EVENTS'];
-MessageService.$inject = ['$timeout'];
-
 
 function ServerService() {
         var applicationId = 'U5hc606XgvqC5cNoBW9EUOYRPN28bGsiowBYLVbv';
@@ -47,46 +45,21 @@ function MyInterceptor($q, $rootScope, AUTH_EVENTS) {
         };
     }
 
+MessageService.$inject = ['$translate', 'Notification'];
 
-function MessageService($timeout) {
-        var messageService = {};
-        messageService.message = function(type, text, delay) {
-            var message = {
-                display: true,
-                text: text,
-                type: type
-            };
-            if (delay) {
-                message.autoclose = function() {
-                    var that = this;
-                    that.promise = $timeout(function() {
-                        that.display = false;
-                        //
-                    }, delay);
-                }.bind(message);
-                message.autoclose();
-            }
-            return message;
+function MessageService($translate, Notification) {
+        var messageService = {            
+            errorMessage: errorMessage,
+            successMessage: successMessage
         };
-        messageService.errorMessage = function(text, delay) {
-            return messageService.message('error', text, delay);
-        };
-        messageService.successMessage = function(text, delay) {
-            return messageService.message('success', text, delay);
-        };
-        messageService.cancel = function(message) {
-            if (message.promise) {
-                $timeout.cancel(message.promise);
-            }
-        };
-        messageService.cancelAll = function(messages) {
-            if (messages && Array.isArray(messages)) {
-                angular.forEach(messages, function(message) {
-                    messageService.cancel(message);
-                });
-            }
-        };
-
         return messageService;
+        
+        function errorMessage(text, delay) {
+            return Notification.error({message: $translate.instant(text), delay: delay});
+        }
+        function successMessage(text, delay) {
+            return Notification.error({message: $translate.instant(text), delay: delay});            
+        }        
+        
     }
 })();

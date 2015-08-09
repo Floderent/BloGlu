@@ -26,7 +26,7 @@
             return genericDaoService.get(reportResourceName, reportId);
         };
         reportService.deleteReport = function (report) {
-            return genericDaoService.delete(reportResourceName, report);
+            return genericDaoService.remove(reportResourceName, report);
         };
 
         reportService.indexOfElement = function (elementList, element) {

@@ -23,7 +23,7 @@
         };
 
         UserService.getCurrentUser = function () {
-            return genericDaoService.get(resourceName, UserSessionService.userId()).then(function (user) {
+            return genericDaoService.get(resourceName, UserSessionService.getUserId()).then(function (user) {
                 return user;
             });
         };
@@ -43,7 +43,7 @@
 
 
         UserService.deleteUser = function (user) {
-            return genericDaoService.delete(resourceName, user);
+            return genericDaoService.remove(resourceName, user);
         };
 
         UserService.getFirstDayOfWeek = function () {

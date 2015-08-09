@@ -1,3 +1,3 @@
 (function () {
-    angular.module('bloglu.utils',[]);
+    angular.module('bloglu.utils',['ui-notification']);
 })();

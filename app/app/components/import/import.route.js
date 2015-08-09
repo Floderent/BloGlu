@@ -2,10 +2,20 @@
     angular.module('bloglu.import')
         .config(configureRoute);
 
-        configureRoute.$inject = ['$routeProvider'];
+        configureRoute.$inject = ['$stateProvider'];
         
-        function configureRoute($routeProvider) {
-            $routeProvider.when('/imports', {controller: 'importListController', controllerAs:'vm', templateUrl: 'app/components/import/templates/importList.html'});
-            $routeProvider.when('/imports/:objectId', {controller: 'importController', controllerAs:'vm', templateUrl: 'app/components/import/templates/import.html'});
+        function configureRoute($stateProvider) {
+            $stateProvider.state('imports', {
+                url: '/imports',
+                controller: 'importListController', 
+                controllerAs:'vm', 
+                templateUrl: 'app/components/import/templates/importList.html'
+            });
+            $stateProvider.state('imports.objectId', {
+                url: '/imports/:objectId',
+                controller: 'importController', 
+                controllerAs:'vm', 
+                templateUrl: 'app/components/import/templates/import.html'
+            });
         }        
 })();

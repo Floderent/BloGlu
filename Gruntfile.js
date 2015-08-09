@@ -154,7 +154,7 @@ module.exports = function (grunt) {
                         '<%= yeoman.dist %>/{,*/}*.js',
                         '<%= yeoman.dist %>/assets/styles/{,*/}*.css',
                         '<%= yeoman.dist %>/assets/images/{,*/}*.{png,jpg,jpeg,gif,webp,svg}',
-                        '<%= yeoman.dist %>/assets/styles/fonts/*'
+                        '<%= yeoman.dist %>/fonts/*'
                     ]
                 }
             }
@@ -169,7 +169,7 @@ module.exports = function (grunt) {
                 flow: {
                     html: {
                         steps: {
-                            js: ['concat', /*'uglifyjs'*/],
+                            js: ['concat'/*, 'uglifyjs'*/],
                             css: ['cssmin']
                         },
                         post: {}
@@ -180,14 +180,14 @@ module.exports = function (grunt) {
         // Performs rewrites based on rev and the useminPrepare configuration
         usemin: {
             html: ['<%= yeoman.dist %>/**/*.html'],
-            css: ['<%= yeoman.dist %>/assets/styles/{,*/}*.css'],
+            //css: ['<%= yeoman.dist %>/assets/styles/{,*/}*.css'],
             options: {
                 assetsDirs: ['<%= yeoman.dist %>']
             }
         },
         // The following *-min tasks produce minified files in the dist folder
         cssmin: {
-            options: {
+            options: {                
                 //root: '<%= yeoman.app %>/styles/{,*/}*.css'
             }
         },

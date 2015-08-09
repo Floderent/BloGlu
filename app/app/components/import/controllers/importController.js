@@ -4,12 +4,13 @@
     angular.module('bloglu.import')
             .controller('importController', importController);
 
-    importController.$inject = ['$rootScope', 'importService', 'MessageService'];
+    importController.$inject = ['menuHeaderService', 'importService', 'MessageService'];
 
-    function importController($rootScope, importService, MessageService) {
+    function importController(menuHeaderService, importService, MessageService) {
         
         var vm = this;
         
+        vm.loadingState = menuHeaderService.loadingState;
         vm.file = null;
         vm.import = {};
         vm.onFileSelect = onFileSelect;
@@ -22,7 +23,7 @@
         };
 
         function importData() {
-            $rootScope.increasePending('processingMessage.importingData');
+            menuHeaderService.increasePending('processingMessage.importingData');
             vm.import.dateTime = new Date();
             importService.importData(vm.import, vm.file).then(function (importResult) {
                 importService.saveImport(importResult.import, true).then(function (saveResult) {
@@ -33,7 +34,7 @@
             }, function (error) {
                 MessageService.errorMessage('errorMessage.errorImporting', 2000);
             })['finally'](function () {
-                $rootScope.decreasePending('processingMessage.importingData');
+                menuHeaderService.decreasePending('processingMessage.importingData');
             });
         };
     }

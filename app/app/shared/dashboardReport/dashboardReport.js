@@ -31,7 +31,7 @@ angular.module('bloglu.dashboardReport')
             template = '<a href="" ng-click="clearReport(reportTab.indexOf(line), $index)" class="glyphicon glyphicon-remove-circle pull-right"></a><dataviz config="queryResult" column-order="columnOrder"></dataviz>';
         } else {
             if (reportConfig && reportConfig.loading) {
-                template = '<img alt="loading" src="images/spinner.gif" />';
+                template = '<img alt="loading" src="assets/images/spinner.gif" />';
             } else {
                 template = '<button type="button" class="btn btn-primary" ng-click="chooseReport(reportTab.indexOf(line), $index)">{{ \'dashboard.addnewReport\' | translate }}</button>';
             }

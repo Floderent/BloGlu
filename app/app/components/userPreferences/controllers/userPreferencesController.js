@@ -4,17 +4,18 @@
     angular.module('bloglu.userPreferences')
             .controller('userPreferencesController', userPreferencesController);
 
-    userPreferencesController.$inject = ['$q', '$rootScope', '$scope', 'dateUtil', 'MessageService', 'ResourceName', 'unitService', 'UserService', 'Utils'];
+    userPreferencesController.$inject = ['$q', 'menuHeaderService', '$scope', 'dateUtil', 'MessageService', 'ResourceName', 'unitService', 'UserService', 'UserSessionService', 'Utils'];
 
-    function userPreferencesController($q, $rootScope, $scope,dateUtil, MessageService, ResourceName, unitService, UserService, Utils) {
-        $rootScope.messages = [];
-        $rootScope.pending = 0;
+    function userPreferencesController($q, menuHeaderService, $scope,dateUtil, MessageService, ResourceName, unitService, UserService, UserSessionService, Utils) {
+        
+        menuHeaderService.pending = 0;
         
         var vm = this;
         vm.eventsTypes = ResourceName;
         delete vm.eventsTypes["0"];
 
         vm.user = {};
+        vm.loadingState = menuHeaderService.loadingState;
         vm.days = dateUtil.getCurrentWeekSundayAndMonday();
         vm.units = [];
         vm.deleteUser = deleteUser;        
@@ -23,17 +24,22 @@
         renderPage();
 
         function renderPage() {
-            return initUser().then(initResourceUnits);
+            vm.user = UserSessionService.getCurrentUser();
+            initPreferences();
+            return initResourceUnits();
         }
-
+        /*
         function initUser() {
+            
+            
             return UserService.getCurrentUser().then(function (currentUser) {
-                vm.user = currentUser;
+                vm.user = currentUser.user;
                 initPreferences();
                 return;
-            });
+            });            
         }
-
+        */
+       
         function initPreferences() {
             if (!vm.user.preferences) {
                 vm.user.preferences = {};
@@ -62,13 +68,13 @@
         }
 
         function update(user) {
-            $rootScope.increasePending("processingMessage.updatingData");
+            menuHeaderService.increasePending("processingMessage.updatingData");
             UserService.saveUser(user).then(function (result) {
-                $rootScope.messages.push(MessageService.successMessage("successMessage.userUpdated", 2000));
+                MessageService.successMessage("successMessage.userUpdated", 2000);
             }, function (error) {
-                $rootScope.messages.push(MessageService.errorMessage('errorMessage.updatingError', 2000));
+               MessageService.errorMessage('errorMessage.updatingError', 2000);
             })['finally'](function () {
-                $rootScope.decreasePending("processingMessage.updatingData");
+                menuHeaderService.decreasePending("processingMessage.updatingData");
             });
         }
 
@@ -80,19 +86,19 @@
                 confirmNo: 'confirm.no'
             };
             Utils.openConfirmModal(modalScope).then(function (confirmed) {
-                $rootScope.increasePending("processingMessage.deletingData");
+                menuHeaderService.increasePending("processingMessage.deletingData");                
                 UserService.deleteUser(user).then(function () {
-                    $rootScope.logOut();
+                    menuHeaderService.logOut();
                 }, function (error) {
-                    $rootScope.messages.push(MessageService.errorMessage('errorMessage.deletingError', 2000));
+                    MessageService.errorMessage('errorMessage.deletingError', 2000);
                 })['finally'](function () {
-                    $rootScope.decreasePending("processingMessage.deletingData");
+                    menuHeaderService.decreasePending("processingMessage.deletingData");
                 });
             }, function () {
                 //exit
             });
         }
-        var unbind = $rootScope.$on('dataReady', renderPage);
+        var unbind = $scope.$on('dataReady', renderPage);
         $scope.$on('destroy', unbind);
     }
 })();

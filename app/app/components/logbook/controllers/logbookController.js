@@ -4,13 +4,14 @@
     angular.module('bloglu.logbook')
             .controller('logBookController', logBookController);
 
-    logBookController.$inject = ['$rootScope','$scope', '$location', '$routeParams', '$modal', 'eventService', 'ResourceIcon', 'ResourceName', 'logBookService', 'MessageService', 'printService'];
+    logBookController.$inject = ['menuHeaderService','$scope', '$state', '$stateParams', '$modal', 'eventService', 'ResourceIcon', 'ResourceName', 'logBookService', 'MessageService', 'printService'];
 
 
-    function logBookController($rootScope, $scope, $location, $routeParams, $modal, eventService, ResourceIcon, ResourceName, logBookService, MessageService, printService) {                
+    function logBookController(menuHeaderService, $scope, $state, $stateParams, $modal, eventService, ResourceIcon, ResourceName, logBookService, MessageService, printService) {                
                 
         var vm = this;
-                
+        
+        vm.loadingState = menuHeaderService.loadingState;
         vm.data = [];
         vm.logBookTitle = '';
         vm.eventsTypes = ResourceName;
@@ -23,7 +24,7 @@
         vm.interval = 'week';
         
         //functions
-        vm.changeResource = changeResource;
+        //vm.changeResource = changeResource;
         vm.viewEvent = viewEvent;
         vm.printToPDF = printToPDF;
         vm.change = change;
@@ -31,25 +32,24 @@
         vm.zoomInInterval = zoomInInterval;
         vm.advance = advance;
         vm.back = back;
-        vm.currentWeek = currentWeek;
+        vm.currentWeek = currentWeek;        
         
-
-        if ($routeParams && $routeParams.weekDate) {
-            vm.currentDate = new Date($routeParams.weekDate);
+        if ($stateParams && $stateParams.weekDate) {
+            vm.currentDate = new Date($stateParams.weekDate);
         } else {
             vm.currentDate = new Date();
         }
-        if ($routeParams && $routeParams.interval) {
-            vm.interval = $routeParams.interval;
+        if ($stateParams && $stateParams.interval) {
+            vm.interval = $stateParams.interval;
         }
-        if ($routeParams && typeof $routeParams.display !== 'undefined') {
-            vm.display = $routeParams.display;
+        if ($stateParams && typeof $stateParams.display !== 'undefined') {
+            vm.display = $stateParams.display;
             processDisplay();
         } 
         
         renderPage();
         
-        
+        /*
         function changeResource(){
             var resourceCodes = [];
             angular.forEach(vm.resource, function (value, key) {
@@ -61,9 +61,10 @@
             $location.url($location.path());
             $location.path('logBook').search('weekDate', vm.currentDate.toISOString()).search('interval', vm.interval).search('display', logBookService.getDisplayParam(vm.display));
         }
+        */
         
-        /*
-        $scope.$watch('resource', function (newValue, oldValue) {
+        
+        $scope.$watch('vm.resource', function (newValue, oldValue) {
             if (newValue !== oldValue) {
                 var resourceCodes = [];
                 angular.forEach(newValue, function (value, key) {
@@ -71,17 +72,21 @@
                         resourceCodes.push(parseInt(key));
                     }
                 });                
-                $scope.display = resourceCodes;
-                $location.url($location.path());
-                $location.path('logBook').search('weekDate', $scope.currentDate.toISOString()).search('interval', $scope.interval).search('display', logBookService.getDisplayParam($scope.display));
+                vm.display = resourceCodes;                
+                
+                $state.go('logBook', {
+                    weekDate: vm.currentDate.toISOString(),
+                    interval: vm.interval,
+                    display: logBookService.getDisplayParam(vm.display)
+                },{reload:true});
             }
         }, true);
-        */
+        
 
         
 
         function renderPage() {
-            $rootScope.increasePending("processingMessage.loadingData");
+            menuHeaderService.increasePending("processingMessage.loadingData");
             logBookService.getTimeInterval(vm.interval, vm.currentDate).then(function (timeInterval) {
                 vm.timeInterval = timeInterval;
                 vm.logBookTitle = logBookService.getTimeIntervalTitle(timeInterval);
@@ -92,11 +97,11 @@
                             vm.data = result;
                         },
                         function (error) {
-                            $rootScope.messages.push(MessageService.errorMessage("errorMessage.loadingError", 2000));
+                            MessageService.errorMessage("errorMessage.loadingError", 2000);
                             vm.header = [];
                             vm.data = [];
                         })['finally'](function () {
-                    $rootScope.decreasePending("processingMessage.loadingData");
+                    menuHeaderService.decreasePending("processingMessage.loadingData");
                 });
             });
         }
@@ -132,9 +137,15 @@
                     newDate.setFullYear(newDate.getFullYear() + (1 * coef));
                     break;
             }
-            vm.currentDate = newDate;
-            $location.url($location.path());
-            $location.path('logBook').search('weekDate', vm.currentDate.toISOString()).search('interval', interval).search('display', logBookService.getDisplayParam(vm.display));
+            vm.currentDate = newDate;            
+            
+            $state.go('logBook', {
+                    weekDate: vm.currentDate.toISOString(),
+                    interval: interval,
+                    display: logBookService.getDisplayParam(vm.display)
+                },{
+                    reload: true
+                });
         }
 
         //view reading by id
@@ -195,9 +206,12 @@
                 default:
                     newInterval = vm.interval;
                     break;
-            }
-            $location.url($location.path());
-            $location.path('logBook').search('weekDate', date.toISOString()).search('interval', newInterval);
+            }            
+            
+            $state.go('logBook',{
+               weekDate: date.toISOString(),
+               interval: newInterval
+            },{reload:true});
         }
 
         function advance() {
@@ -213,7 +227,7 @@
             changeInterval(vm.currentDate, vm.interval, 0);
         }
         
-        var unbind = $rootScope.$on('dataReady', renderPage);
+        var unbind = $scope.$on('dataReady', renderPage);
         $scope.$on('destroy', unbind);
     }
 })();

@@ -53,8 +53,8 @@
         
         </tabset>
         
-        <button class="btn btn-primary btn-lg active pull-left" ng-disabled="pending > 0" ng-click="vm.deleteUser(vm.user)">{{ 'userPreferences.delete' | translate }}</button>        
-        <button class="btn btn-primary btn-lg active pull-right" ng-disabled="pending > 0" ng-click="vm.update(vm.user)">{{ 'userPreferences.save' | translate }}</button>
+        <button class="btn btn-primary btn-lg active pull-left" ng-disabled="vm.loadingState.pending > 0" ng-click="vm.deleteUser(vm.user)">{{ 'userPreferences.delete' | translate }}</button>        
+        <button class="btn btn-primary btn-lg active pull-right" ng-disabled="vm.loadingState.pending > 0" ng-click="vm.update(vm.user)">{{ 'userPreferences.save' | translate }}</button>
     </div>
 </div>
 

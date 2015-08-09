@@ -93,7 +93,7 @@
 
             <div class="form-group">
                 <button class="btn btn-primary btn-lg active pull-left" ng-show="vm.isEdit" ng-click="vm.deleteEvent()">{{ 'event.delete' | translate }}</button>
-                <button class="btn btn-primary btn-lg active pull-right" ng-disabled="((eventForm.$dirty && eventForm.$invalid) || eventForm.$pristine) || pending > 0" ng-click="vm.updateEvent(vm.event)">{{ 'event.save' | translate }}</button>
+                <button class="btn btn-primary btn-lg active pull-right" ng-disabled="((eventForm.$dirty && eventForm.$invalid) || eventForm.$pristine) || vm.loadingState.pending > 0" ng-click="vm.updateEvent(vm.event)">{{ 'event.save' | translate }}</button>
             </div>
 
         </div>

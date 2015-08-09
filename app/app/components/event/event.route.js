@@ -1,13 +1,24 @@
 (function () {
     angular.module('bloglu.event')
-        .config(configureRoute);
+            .config(configureRoute);
 
-        configureRoute.$inject = ['$routeProvider'];
+    configureRoute.$inject = ['$stateProvider'];
+
+    function configureRoute($stateProvider) {
         
-        function configureRoute($routeProvider) {
-            $routeProvider.when('/event/:eventType/:objectId', {controller: 'eventController', controllerAs:'vm', templateUrl: 'app/components/event/templates/event.html'});
-            $routeProvider.when('/event/:eventType', {controller: 'eventController', controllerAs:'vm', templateUrl: 'app/components/event/templates/event.html'});
-        }        
+        $stateProvider.state('event-eventType-objectId', {
+            url: '/event/:eventType/:objectId',
+            controller: 'eventController',
+            controllerAs: 'vm',
+            templateUrl: 'app/components/event/templates/event.html'
+        });        
+        $stateProvider.state('event-eventType', {
+            url: '/event/:eventType',
+            controller: 'eventController',
+            controllerAs: 'vm',
+            templateUrl: 'app/components/event/templates/event.html'
+        });
+    }
 })();
 
 

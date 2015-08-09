@@ -1,9 +1,14 @@
 (function () {
     angular.module('bloglu.period')
         .config(configureRoute);
-        configureRoute.$inject = ['$routeProvider'];
+        configureRoute.$inject = ['$stateProvider'];
         
-        function configureRoute($routeProvider) {
-            $routeProvider.when('/periods', {controller: 'periodController', controllerAs:'vm', templateUrl: 'app/components/period/templates/period.html'});
+        function configureRoute($stateProvider) {
+            $stateProvider.state('periods', {
+                url: '/periods',
+                controller: 'periodController', 
+                controllerAs:'vm', 
+                templateUrl: 'app/components/period/templates/period.html'
+            });
         }        
 })();

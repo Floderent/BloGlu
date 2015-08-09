@@ -22,11 +22,11 @@
                     </div>
                     <div class="form-group">
                         <div class="btn-group">
-                            <button ng-repeat="(key, value) in vm.eventsTypes track by $index" type="button" class="btn btn-info" ng-model="vm.resource[key]" ng-click="vm.changeResource(vm.resource[key])" btn-checkbox>
+                            <button ng-repeat="(key, value) in vm.eventsTypes track by $index" type="button" class="btn btn-info" ng-model="vm.resource[key]" btn-checkbox>
                                 <span class="{{vm.eventsIcons[key]}}"></span>
                             </button>                        
                         </div>
-                        <button ng-disabled="pending > 0" ng-click="vm.printToPDF()" type="button" class="btn">{{ 'logBook.print' | translate }}</button>
+                        <button ng-disabled="vm.loadingState.pending > 0" ng-click="vm.printToPDF()" type="button" class="btn">{{ 'logBook.print' | translate }}</button>
                     </div>
                     <div class="text-center">
                         <h3>{{vm.logBookTitle}} <small class="">{{vm.timeInterval.begin | date:'dd/MM/yyyy'}} - {{vm.timeInterval.end | date:'dd/MM/yyyy'}}</small></h3>
@@ -61,7 +61,7 @@
                         </div>
                         <!-- handle case of empty section -->
                         <div ng-if="bloodGlucoseReadings.length === 0">
-                            <button ng-click="vm.addEvent(line[0], header[$index])" class="center-block btn btn-primary"><span class="glyphicon glyphicon-plus-sign"></span></button>
+                            <button ng-click="vm.addEvent(line[0], vm.header[$index])" class="center-block btn btn-primary"><span class="glyphicon glyphicon-plus-sign"></span></button>
                         </div>
                     </div>
 

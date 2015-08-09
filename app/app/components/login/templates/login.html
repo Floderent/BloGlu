@@ -1,30 +1,27 @@
 <div>
-    <div class='pull-right' ng-show="pending > 0">                            
-        <span class="navbar-text" ng-if="loadingMessages.length > 0">{{loadingMessages[loadingMessages.length - 1]}}</span>
-        <img class="loading-icon" alt="loading" src="images/spinner.gif" />
+    <div class='pull-right' ng-show="vm.loadingState.pending > 0">                            
+        <span class="navbar-text" ng-cloak ng-if="vm.loadingState.loadingMessages.length > 0">{{vm.loadingState.loadingMessages[vm.loadingState.loadingMessages.length - 1]}}</span>
+        <img class="loading-icon" alt="loading" src="assets/images/spinner.gif" />
     </div>
     <div class="page-header loginHeader">
-        <h1>{{ 'appName' | translate }} <small>{{ 'mainScreenMessage' | translate }}</small></h1>        
+        <h1 ng-cloak><img src="assets/images/bloglu_logo.png" alt="bloglu-logo">{{ 'appName' | translate }} <small ng-cloak>{{ 'mainScreenMessage' | translate }}</small></h1>        
     </div>
     <div class="panel-default">
         <form class="form-signin panel-body">
-            <h2 class="form-signin-heading">{{'connection'| translate}}</h2>
-            <input id="name" class="form-control" placeholder="{{'userName'| translate}}" required autofocus type="text" value="" name="name" ng-model="user.username" />
-            <input id="email" class="form-control" placeholder="{{'password'| translate}}" required type="password" value="" name="password" ng-model="user.password" />
-            <a href="#" ng-click="vm.displaySignUpModal()">{{ 'signUp' | translate }}</a> {{ 'or' | translate }} <a href="#" class="pull-right" ng-click="vm.displayResetPasswordModal()">{{ 'forgotPwd' | translate }} ?</a>
-            <button class="btn btn-primary btn-lg btn-block" ng-disabled="pending > 0" ng-click="vm.logIn(user)">{{ 'logIn' | translate }}</button>            
+            <h2 class="form-signin-heading" ng-cloak>{{'connection'| translate}}</h2>
+            <input id="name" class="form-control" placeholder="{{'userName'| translate}}" required autofocus type="text" value="" name="name" ng-cloak ng-model="user.username" />
+            <input id="email" class="form-control" placeholder="{{'password'| translate}}" required type="password" value="" name="password" ng-cloak ng-model="user.password" />
+            <a href="#" ng-cloak ng-click="vm.displaySignUpModal()">{{ 'signUp' | translate }}</a>&nbsp;{{ 'or' | translate }}&nbsp;<a href="#" class="pull-right" ng-cloak ng-click="vm.displayResetPasswordModal()">{{ 'forgotPwd' | translate }}&nbsp;?</a>
+            <button class="btn btn-primary btn-lg btn-block" ng-cloak ng-disabled="vm.loadingState.pending > 0" ng-click="vm.logIn(user)">{{ 'logIn' | translate }}</button>            
             <div class='pull-right'>
-                <p>
+                <p ng-cloak>
                     {{'appStatus'| translate}} {{'appVersion'| translate}}
                 </p>
             </div>
         </form>
-
-        <!--
-        <div class="panel-body">
-            <button class="btn btn-default btn-lg" ng-disabled="pending > 0" ng-click="vm.logInWithFacebook()">{{ 'logInWithFacebook' | translate }}</button>            
+        <div class="text-center">
+            <div bloglu-translation-manager></div>
         </div>
-        -->
 
     </div>
 </div>

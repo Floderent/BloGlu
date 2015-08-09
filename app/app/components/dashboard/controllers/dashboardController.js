@@ -1,27 +1,27 @@
 (function () {
     'use strict';
 
-    angular
-            .module('bloglu.dashboard')
+    angular.module('bloglu.dashboard')
             .controller('dashboardController', dashboardController);
 
-    dashboardController.$inject = ['$scope','$rootScope', '$location', 'dashboardService'];
+    dashboardController.$inject = ['$scope', 'menuHeaderService', '$state', 'dashboardService'];
 
 
-    function dashboardController($scope, $rootScope, $location, dashboardService) {
-        
+    function dashboardController($scope, menuHeaderService, $state, dashboardService) {
+
         var vm = this;
         
+        vm.loadingState = menuHeaderService.loadingState;
         vm.reportTab = dashboardService.initTab();
         vm.dashboard = null;
         vm.chooseReport = chooseReport;
-        vm.clearReport = clearReport;        
+        vm.clearReport = clearReport;
 
         renderPage();
 
-        function chooseReport(row, column) {
+        function chooseReport(row, column) {            
             dashboardService.setNewReport(row, column);
-            $location.path('reports');
+            $state.go('reports');
         }
 
         function clearReport(row, column) {
@@ -30,8 +30,8 @@
             dashboardService.saveDashboard(vm.dashboard);
         }
 
-        function renderPage() {
-            $rootScope.increasePending("processingMessage.loadingData");
+        function renderPage() {            
+            menuHeaderService.increasePending('processingMessage.loadingData');
             dashboardService.getDashboard().then(function (dashboard) {
                 vm.dashboard = dashboard;
                 dashboardService.addReport(dashboard).then(function () {
@@ -45,12 +45,12 @@
                 });
             }, function (dashboardError) {
             })['finally'](function () {
-                $rootScope.decreasePending("processingMessage.loadingData");
+                menuHeaderService.decreasePending('processingMessage.loadingData');
             });
         }
-        
-        var unbind = $rootScope.$on('dataReady', renderPage);
-        $scope.$on('destroy', unbind);        
-        
+
+        var unbind = $scope.$on('dataReady', renderPage);
+        $scope.$on('destroy', unbind);
+
     }
 })();

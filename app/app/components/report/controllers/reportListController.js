@@ -5,10 +5,10 @@
     angular.module('bloglu.report')
             .controller('reportListController', reportListController);
 
-    reportListController.$inject = ['$rootScope', '$scope', '$location', 'reportService', 'MessageService', 'dashboardService', 'Utils'];
+    reportListController.$inject = ['menuHeaderService', '$scope', '$state', 'reportService', 'MessageService', 'dashboardService', 'Utils'];
 
 
-    function reportListController($rootScope, $scope, $location, reportService, MessageService, dashboardService, Utils) {
+    function reportListController(menuHeaderService, $scope, $state, reportService, MessageService, dashboardService, Utils) {
         
         var vm = this;
         
@@ -21,13 +21,13 @@
 
         renderPage();
         function renderPage() {
-            $rootScope.increasePending("processingMessage.loadingData");
+            menuHeaderService.increasePending("processingMessage.loadingData");
             reportService.getReports().then(function (reports) {
                 vm.reports = reports;
             }, function (error) {
-                $rootScope.messages.push(MessageService.errorMessage('Cannot get the reports', 2000));
+                MessageService.errorMessage('Cannot get the reports', 2000);
             })['finally'](function () {
-                $rootScope.decreasePending("processingMessage.loadingData");
+                menuHeaderService.decreasePending("processingMessage.loadingData");
             });
         }
 
@@ -42,7 +42,7 @@
             Utils.openConfirmModal(modalScope).then(function (confirmed) {
                 if (confirmed) {
                     if (report.objectId) {
-                        $rootScope.increasePending("processingMessage.deletingData");
+                        menuHeaderService.increasePending("processingMessage.deletingData");
                         reportService.deleteReport(report).then(function (result) {
                             var reportIndex = -1;
                             angular.forEach(vm.reports, function (rep, index) {
@@ -54,9 +54,9 @@
                                 vm.reports.splice(reportIndex, 1);
                             }
                         }, function (error) {
-                            $rootScope.messages.push(MessageService.errorMessage('errorMessage.deletingError', 2000));
+                            MessageService.errorMessage('errorMessage.deletingError', 2000);
                         })['finally'](function () {
-                            $rootScope.decreasePending("processingMessage.deletingData");
+                            menuHeaderService.decreasePending("processingMessage.deletingData");
                         });
                     }
                 }
@@ -65,19 +65,17 @@
             });
         }
 
-        function editReport(report) {
-            var path = 'reports/' + report.objectId;
-            $location.url($location.path());
-            $location.path(path);
+        function editReport(report) {            
+            $state.go('reports',{objectId: report.objectId});            
         }
 
         function addReportToDashboard(report) {
             dashboardService.setNewReportId(report.objectId);
-            $location.path('dashboard');
+            $state.go('dashboard');            
         }
 
 
-        var unbind = $rootScope.$on('dataReady', renderPage);
+        var unbind = $scope.$on('dataReady', renderPage);
         $scope.$on('destroy', unbind);
     }
 })();

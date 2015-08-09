@@ -5,20 +5,22 @@
             .module('bloglu.event')
             .controller('eventController', eventController);
 
-    eventController.$inject = ['$scope', '$q', '$rootScope', '$routeParams', '$window', 'categoryService', 'eventService', 'MessageService', 'ResourceCode', 'unitService', 'UserService', 'Utils'];
+    eventController.$inject = ['$scope', '$q', 'menuHeaderService', '$stateParams', '$window', 'categoryService', 'eventService', 'MessageService', 'ResourceCode', 'unitService', 'UserService', 'Utils'];
 
-    function eventController($scope, $q, $rootScope, $routeParams, $window, categoryService, eventService, MessageService, ResourceCode, unitService, UserService, Utils) {
+    function eventController($scope, $q, menuHeaderService, $stateParams, $window, categoryService, eventService, MessageService, ResourceCode, unitService, UserService, Utils) {
         
         var vm = this;
         
+        vm.loadingState = menuHeaderService.loadingState;
+        
         vm.placeHolder = 100;        
         //init routeParams
-        vm.objectId = $scope.objectId || $routeParams.objectId;
-        vm.day = $scope.day || $routeParams.day;
-        vm.time = $scope.time || $routeParams.time;
+        vm.objectId = $scope.objectId || $stateParams.objectId;
+        vm.day = $scope.day || $stateParams.day;
+        vm.time = $scope.time || $stateParams.time;
         vm.isEdit = vm.objectId;
         vm.isPrefilledDateAndTime = vm.day && vm.time;
-        var eventType = $scope.eventType || $routeParams.eventType || 'other';
+        var eventType = $scope.eventType || $stateParams.eventType || 'other';
         //init scope params
         vm.windowMode = $scope.windowMode || 'NORMAL';
         vm.eventCode = ResourceCode[eventType];
@@ -32,7 +34,7 @@
         renderPage();
 
         function renderPage() {            
-            $rootScope.increasePending('processingMessage.synchronizing');
+            menuHeaderService.increasePending('processingMessage.synchronizing');
             $q.all([
                 getEvent(),
                 unitService.getUnitsByCode(vm.eventCode),
@@ -48,9 +50,9 @@
                 handleUnit();
 
             }, function () {
-                $rootScope.messages.push(MessageService.errorMessage('errorMessage.loadingError', 2000));
+                MessageService.errorMessage('errorMessage.loadingError', 2000);
             })['finally'](function () {
-                $rootScope.decreasePending('processingMessage.synchronizing');
+                menuHeaderService.decreasePending('processingMessage.synchronizing');
             });            
         }
 
@@ -143,30 +145,30 @@
 
         function updateEvent(event) {
             if (vm.isEdit) {
-                $rootScope.increasePending("processingMessage.updatingData");
+                menuHeaderService.increasePending("processingMessage.updatingData");
             } else {
-                $rootScope.increasePending("processingMessage.savingData");
+                menuHeaderService.increasePending("processingMessage.savingData");
             }
             event.dateTime = vm.date;
             event.code = vm.eventCode;
             eventService.saveEvent(event, vm.isEdit).then(function resolve(result) {
                 if (vm.isEdit) {
-                    $rootScope.messages.push(MessageService.successMessage(eventService.resolveUpdateMessage(vm.eventCode), 2000));
+                    MessageService.successMessage(eventService.resolveUpdateMessage(vm.eventCode), 2000);
                 } else {
-                    $rootScope.messages.push(MessageService.successMessage(eventService.resolveCreationMessage(vm.eventCode), 2000));
+                    MessageService.successMessage(eventService.resolveCreationMessage(vm.eventCode), 2000);
                 }
                 confirmAction();
             }, function (error) {
                 if (vm.isEdit) {
-                    $rootScope.messages.push(MessageService.errorMessage('errorMessage.updatingError', 2000));
+                    MessageService.errorMessage('errorMessage.updatingError', 2000);
                 } else {
-                    $rootScope.messages.push(MessageService.errorMessage('errorMessage.creatingError', 2000));
+                    MessageService.errorMessage('errorMessage.creatingError', 2000);
                 }
             })['finally'](function () {
                 if (vm.isEdit) {
-                    $rootScope.decreasePending("processingMessage.updatingData");
+                    menuHeaderService.decreasePending("processingMessage.updatingData");
                 } else {
-                    $rootScope.decreasePending("processingMessage.savingData");
+                    menuHeaderService.decreasePending("processingMessage.savingData");
                 }
             });
         };
@@ -180,13 +182,13 @@
             };
             Utils.openConfirmModal(modalScope).then(function (confirmed) {
                 if (confirmed) {
-                    $rootScope.increasePending("processingMessage.deletingData");
+                    menuHeaderService.increasePending("processingMessage.deletingData");
                     eventService.deleteEvent(vm.event.objectId).then(function (result) {
                         confirmAction();
                     }, function (error) {
-                        $rootScope.messages.push(MessageService.errorMessage('errorMessage.deletingError', 2000));
+                        MessageService.errorMessage('errorMessage.deletingError', 2000);
                     })['finally'](function () {
-                        $rootScope.decreasePending("processingMessage.deletingData");
+                        menuHeaderService.decreasePending("processingMessage.deletingData");
                     });
                 }
             }, function () {
@@ -194,7 +196,7 @@
             });
         };
 
-        var unbind = $rootScope.$on('dataReady', renderPage);
+        var unbind = $scope.$on('dataReady', renderPage);
         $scope.$on('destroy', unbind);
     }
 })();

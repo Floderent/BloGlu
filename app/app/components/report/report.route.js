@@ -1,11 +1,26 @@
 (function () {
     angular.module('bloglu.report')
         .config(configureRoute);
-        configureRoute.$inject = ['$routeProvider'];
+        configureRoute.$inject = ['$stateProvider'];
         
-        function configureRoute($routeProvider) {
-            $routeProvider.when('/reports', {controller: 'reportListController', controllerAs:'vm', templateUrl: 'app/components/report/templates/reportList.html'});
-            $routeProvider.when('/reports/:objectId', {controller: 'reportController', controllerAs:'vm', templateUrl: 'app/components/report/templates/report.html'});
-            $routeProvider.when('/report/', {controller: 'reportController', controllerAs:'vm', templateUrl: 'app/components/report/templates/report.html'});
+        function configureRoute($stateProvider) {
+            $stateProvider.state('reports', {
+                url: '/reports',
+                controller: 'reportListController', 
+                controllerAs:'vm', 
+                templateUrl: 'app/components/report/templates/reportList.html'
+            });
+            $stateProvider.state('reports.objectId', {
+                url: '/reports/:objectId',
+                controller: 'reportController', 
+                controllerAs:'vm', 
+                templateUrl: 'app/components/report/templates/report.html'
+            });
+            $stateProvider.state('report', {
+                url: '/report',
+                controller: 'reportController', 
+                controllerAs:'vm', 
+                templateUrl: 'app/components/report/templates/report.html'
+            });
         }        
 })();

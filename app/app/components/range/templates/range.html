@@ -16,22 +16,22 @@
             <th></th>
             <tr>
                 <td>
-                    <select data-ng-model="vm.newRange.unit" data-ng-change="vm.changeUnit(vm.newRange.unit, '{{vm.newRange.unit.objectId}}')" data-ng-options="unit.name for unit in vm.units track by unit.objectId"></select>
+                    <select class="form-control" data-ng-model="vm.newRange.unit" data-ng-change="vm.changeUnit(vm.newRange.unit, '{{vm.newRange.unit.objectId}}')" data-ng-options="unit.name for unit in vm.units track by unit.objectId"></select>
                 </td>
                 <td>
-                    <input type="number" step="any" min="0" required data-ng-model="vm.newRange.lowerLimit">
+                    <input class="form-control" type="number" step="any" min="0" required data-ng-model="vm.newRange.lowerLimit">
                 </td>
                 <td>
-                    <input type="number" step="any" min="0" required data-ng-model="vm.newRange.upperLimit">
+                    <input class="form-control" type="number" step="any" min="0" required data-ng-model="vm.newRange.upperLimit">
                 </td>
                 <td>
-                    <input ng-model="vm.newRange.normal" type="checkbox">
+                    <input class="form-control" ng-model="vm.newRange.normal" type="checkbox">
                 </td>
                 <td>
-            <spectrum-colorpicker ng-model="vm.newRange.color" options="{showPalette: true, preferredFormat: 'hex', chooseText:'{{'range.selectColor' | translate}}', cancelText:'{{'range.cancelColor' | translate}}'}"></spectrum-colorpicker>
+            <spectrum-colorpicker ng-model="vm.newRange.color" options="{showPalette: true, preferredFormat: 'hex', chooseText:'{{'range.selectColor'| translate}}', cancelText:'{{'range.cancelColor'| translate}}'}"></spectrum-colorpicker>
             </td>
             <td>
-                <button type="button" class="btn" ng-disabled="pending > 0" ng-click="vm.saveRange(vm.newRange)">{{ 'range.add' | translate }}</button>
+                <button type="button" class="btn" ng-disabled="vm.loadingState.pending > 0" ng-click="vm.saveRange(vm.newRange)">{{ 'range.add' | translate }}</button>
             </td>
             </tr>
         </table>
@@ -53,6 +53,7 @@
             <th>{{ 'range.normalRange' | translate }}</th>
             <th>{{ 'range.color' | translate }}</th>
             <th></th>
+            <th></th>
             <tr ng-repeat="range in vm.ranges| orderBy:vm.getLowerLimit">
                 <td>
                     <div ng-show="!range.isEdit">{{range.unit.name}}</div>
@@ -60,14 +61,14 @@
                 </td>
                 <td>
                     <div ng-show="!range.isEdit">{{range.lowerLimit}}</div>
-                    <input ng-show="range.isEdit" step="any" type="number" min="0" required class="input-sm" data-ng-model="range.lowerLimit">
+                    <input class="form-control" ng-show="range.isEdit" step="any" type="number" min="0" required class="input-sm" data-ng-model="range.lowerLimit">
                 </td>
                 <td>
                     <div ng-show="!range.isEdit">{{range.upperLimit}}</div>
-                    <input ng-show="range.isEdit" step="any" type="number" min="0" required class="input-sm" data-ng-model="range.upperLimit">
+                    <input class="form-control" ng-show="range.isEdit" step="any" type="number" min="0" required class="input-sm" data-ng-model="range.upperLimit">
                 </td>
                 <td>
-                    <input ng-model="range.normal" ng-disabled="!range.isEdit" type="checkbox">
+                    <input class="form-control" ng-model="range.normal" ng-disabled="!range.isEdit" type="checkbox">
                 </td>                    
                 <!--style="background-color: {{range.color}}" -->
 
@@ -77,10 +78,10 @@
             <spectrum-colorpicker ng-model="range.color" options="{showPalette: true, preferredFormat: 'hex'}"></spectrum-colorpicker>
             </td>
             <td>
-                <button type="button" class="btn" ng-disabled="pending > 0" ng-click="vm.deleteRange(range)">{{ 'range.delete' | translate }}</button>
-                <button type="button" class="btn" ng-disabled="pending > 0" ng-show="!range.isEdit" ng-click="vm.editRange(range)">{{ 'range.edit' | translate }}</button>
-                <button type="button" class="btn" ng-disabled="pending > 0" ng-show="range.isEdit" ng-click="vm.updateRange(range)">{{ 'range.update' | translate }}</button>
-                <button type="button" class="btn" ng-disabled="pending > 0" ng-show="range.isEdit" ng-click="vm.cancelEditRange(range)">{{ 'range.cancel' | translate }}</button>                            
+                <button type="button" class="btn" ng-disabled="vm.loadingState.pending > 0" ng-click="vm.deleteRange(range)">{{ 'range.delete' | translate }}</button>
+                <button type="button" class="btn" ng-disabled="vm.loadingState.pending > 0" ng-show="!range.isEdit" ng-click="vm.editRange(range)">{{ 'range.edit' | translate }}</button>
+                <button type="button" class="btn" ng-disabled="vm.loadingState.pending > 0" ng-show="range.isEdit" ng-click="vm.updateRange(range)">{{ 'range.update' | translate }}</button>
+                <button type="button" class="btn" ng-disabled="vm.loadingState.pending > 0" ng-show="range.isEdit" ng-click="vm.cancelEditRange(range)">{{ 'range.cancel' | translate }}</button>                            
             </td>
             </tr>
         </table>
