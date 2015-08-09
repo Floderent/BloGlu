@@ -79,7 +79,7 @@
                 </li>
                 <li ng-show="vm.loadingState.pending > 0">
                     <div class="nav navbar-text progress" style="margin-top:10px">
-                        <progressbar ng-if="vm.progress !== 100" value="progress">{{vm.progress| number:0}}&nbsp;%&nbsp;{{vm.loadingState.loadingMessages[vm.loadingState.loadingMessages.length - 1]}}</progressbar>
+                        <progressbar ng-if="vm.loadingState.progress !== 100" value="vm.loadingState.progress">{{vm.loadingState.progress| number:0}}&nbsp;%&nbsp;{{vm.loadingState.loadingMessages[vm.loadingState.loadingMessages.length - 1]}}</progressbar>
                     </div>
                 </li>
             </ul>
