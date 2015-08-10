@@ -106,8 +106,8 @@
             $state.go('login');
         });
 
-
-        $rootScope.$on('$stateChangeStart', function (event, toState) {
+        
+        $rootScope.$on('$stateChangeStart', function (event, toState) {            
             if (toState.name !== 'login') {
                 if (!UserSessionService.getCurrentUser()) {
                     event.preventDefault();
@@ -115,6 +115,7 @@
                 }
             }
         });
+        
 
         $rootScope.$on('$stateChangeError',
                 function (event, toState, toParams, fromState, fromParams, error) {

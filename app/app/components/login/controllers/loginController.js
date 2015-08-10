@@ -20,7 +20,7 @@
             $rootScope.$broadcast(AUTH_EVENTS.loginSuccess);            
         }
 
-        function loginFailed(error) {
+        function loginFailed(error) {            
             switch (error.code) {
                 case 101:
                     MessageService.errorMessage('errorMessage.wrongCredentials', 2000);
@@ -38,8 +38,8 @@
                     UserSessionService.logIn(form.username, form.password).then(function(){                        
                         loginSuccessful();
                         resolve();
-                    }, function(error){
-                        loginFailed();
+                    }, function(error){                        
+                        loginFailed(error.data);
                         reject();
                     })['finally'](function () {
                         menuHeaderService.decreasePending('processingMessage.connecting');

@@ -1,21 +1,23 @@
 <div class="modal-header">
     <h4 class="modal-title">{{ 'inputUser.pageTitle' | translate }}</h4></div>
 <div class="modal-body">
-    <div ng-form name="nameDialog" novalidate role="form">
-        <div class="form-group input-group-lg" ng-class="{true: 'has - error'}[nameDialog.username.$dirty && nameDialog.username.$invalid]">
+    <div ng-form="vm.nameDialog" novalidate role="form">
+        <div class="form-group input-group-lg" ng-class="{true: 'has - error'}[vm.nameDialog.username.$dirty && vm.nameDialog.username.$invalid]">
             <label class="control-label" for="username">{{ 'inputUser.name' | translate }}</label>
-            <input type="text" class="form-control" name="username" id="username" ng-model="vm.user.username" required>
+            <input type="text" class="form-control" name="username" id="username" ng-model="vm.user.username" ng-required="true">
             <label class="control-label" for="password">{{ 'inputUser.password' | translate }}</label>
-            <input type="password" class="form-control" name="password" id="password" ng-model="vm.user.password" equals="{{confirmedPassword}}" required>                                 
+            <!-- equals="{{confirmedPassword}}" -->
+            <input type="password" class="form-control" name="password" id="password" ng-model="vm.user.password" equals="{{vm.confirmedPassword}}" ng-required="true">                                 
             <label class="control-label" for="confirmPassword">{{ 'inputUser.confirmPassword' | translate }}</label>
-            <input type="password" class="form-control" name="confirmPassword" id="confirmPassword" ng-model="vm.confirmedPassword" equals="{{vm.user.password}}" required>                                 
+            <!-- equals="{{vm.user.password}}" -->
+            <input type="password" class="form-control" name="confirmPassword" id="confirmPassword" ng-model="vm.confirmedPassword" equals="{{vm.user.password}}" ng-required="true">                                 
             <label class="control-label" for="email">{{ 'inputUser.email' | translate }}</label>
-            <input type="email" class="form-control" name="email" id="email" ng-model="vm.user.email" required>
+            <input type="email" class="form-control" name="email" id="email" ng-model="vm.user.email" ng-required="true">
 
-            <div class="alert alert-danger"  ng-show="nameDialog.email.$invalid && nameDialog.email.$dirty">                            
+            <div class="alert alert-danger"  ng-show="vm.nameDialog.email.$invalid && vm.nameDialog.email.$dirty">                            
                 <strong>{{ 'inputUser.error' | translate }}!</strong> {{ 'inputUser.invalidEmail' | translate }}
             </div>
-            <div class="alert alert-danger"  ng-show="(nameDialog.password.$invalid && nameDialog.password.$dirty) && (nameDialog.confirmPassword.$invalid && nameDialog.confirmPassword.$dirty)">                            
+            <div class="alert alert-danger"  ng-show="(vm.nameDialog.password.$invalid && vm.nameDialog.password.$dirty) && (vm.nameDialog.confirmPassword.$invalid && vm.nameDialog.confirmPassword.$dirty)">                            
                 <strong>{{ 'inputUser.error' | translate }}!</strong> {{ 'inputUser.passwordMismatched' | translate }}
             </div>                        
             <div class="alert alert-danger"  ng-show="errorMessage">                            
@@ -29,5 +31,6 @@
 </div>
 <div class="modal-footer">
     <button type="button" class="btn btn-default" ng-click="vm.cancel()">{{ 'inputUser.cancel' | translate }}</button>
-    <button type="button" class="btn btn-primary" ng-click="vm.signUp(vm.user)" ng-disabled="((nameDialog.$dirty && nameDialog.$invalid) || nameDialog.$pristine) || vm.creatingUser">{{ 'inputUser.save' | translate }}</button>
+    <button ng-hide="vm.creatingUser" type="button" class="btn btn-primary" ng-disabled="((vm.nameDialog.$dirty && vm.nameDialog.$invalid) || vm.nameDialog.$pristine) || vm.creatingUser" ng-click="vm.signUp(vm.user)">{{ 'inputUser.save' | translate }}</button>
+    <img ng-show="vm.creatingUser" class="loading-icon" alt="loading" src="assets/images/spinner.gif" />
 </div>

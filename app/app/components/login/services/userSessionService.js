@@ -34,7 +34,7 @@
             return $http.post(ServerService.baseUrl + 'users', user, {headers: ServerService.headers});
         }
 
-        function logIn(username, password) {
+        function logIn(username, password) {            
             return $http.get(ServerService.baseUrl + 'login', {headers: ServerService.headers, params: {'username': username, 'password': password}}).then(function (response) {
                 var user = response.data;                
                 delete user.email;
@@ -45,8 +45,6 @@
                 };
                 localStorageService.set(UserSessionService.cookieKey, UserSessionService.sessionInfos);
                 return UserSessionService.sessionInfos;
-            }, function (error) {
-                return error;
             });
         }
         

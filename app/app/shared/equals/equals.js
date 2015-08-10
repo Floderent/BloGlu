@@ -9,10 +9,10 @@ angular.module('bloglu.equals').directive('equals', function() {
             if (!ngModel)
                 return; // do nothing if no ng-model
 
-            // watch own value and re-validate on change
+            // watch own value and re-validate on change          
             scope.$watch(attrs.ngModel, function() {
                 validate();
-            });
+            });          
 
             // observe the other value and re-validate on change
             attrs.$observe('equals', function(val) {
