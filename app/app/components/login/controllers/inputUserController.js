@@ -34,8 +34,7 @@
                         vm.errorMessage = error.error;
                         vm.creatingUser = false;
                     });
-
         }
-        ;
+  
     }
 })();

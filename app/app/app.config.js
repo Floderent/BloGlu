@@ -12,11 +12,8 @@
                 }])
             .config(['$httpProvider', function ($httpProvider) {
                     $httpProvider.interceptors.push('MyInterceptor');
-                }])
-            .config(function (FacebookProvider) {
-                var appId = '423840851054944';
-                FacebookProvider.init(appId);
-            });
+                }]);
+            
 })();
 
 

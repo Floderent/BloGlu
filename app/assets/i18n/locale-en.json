@@ -61,6 +61,8 @@
     "error": "Error",
     "success" : "Success",
     
+    "noData": "No data",
+    
     "processingMessage":{
         "connecting" : "Logging in...",
         "loggingOut" : "Logging out...",
@@ -200,8 +202,10 @@
     "import": {
         "pageTitle": "Import your blood glucose readings",
         "name": "Name",
+        "type": "Type",
         "file": "File",
-        "importData": "Import data"
+        "importData": "Import data",
+        "careLink": "CareLink"
     },
     "importList": {
         "pageTitle": "View the import list",
@@ -289,7 +293,7 @@
         "creationDate": "Creation Date",
         "delete": "Delete",
         "edit": "Edit",
-        "addToDashboard": "Add to dashboard"
+        "addToDashboard": "Add"
     },
     "userPreferences": {
         "account": "My account",

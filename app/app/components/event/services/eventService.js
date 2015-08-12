@@ -74,7 +74,7 @@
             var deferred = $q.defer();
             var resource = ResourceCode[eventCode];
             if (newPage) {                
-                $state.go('event', {eventType: resource,objectId: eventId})                
+                $state.go('event', {eventType: resource,objectId: eventId});
                 deferred.resolve();
             } else {
                 var $modalScope = $rootScope.$new(true);                
@@ -85,7 +85,7 @@
                 var modalInstance = $modal.open({
                     templateUrl: "app/components/event/templates/event.html",
                     controller: "eventController as vm",
-                    scope: $modalScope
+                    scope: $modalScope                    
                 });
                 modalInstance.result.then(deferred.resolve, deferred.reject);
             }

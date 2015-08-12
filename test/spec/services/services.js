@@ -828,21 +828,3 @@ describe('Services: indexeddbService', function() {
 
 
 });
-
-describe('Services: localizationService', function() {
-
-    // load the controller's module
-    beforeEach(module('BloGlu'));
-
-    var localizationSvc;
-
-    // Initialize the controller and a mock scope
-    beforeEach(inject(function(localizationService) {
-        localizationSvc = localizationService;
-    }));
-
-   
-    
-
-
-});

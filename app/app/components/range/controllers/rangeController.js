@@ -4,9 +4,9 @@
     angular.module('bloglu.range')
             .controller('rangeController', rangeController);
 
-    rangeController.$inject = ['menuHeaderService', '$scope', '$q', 'MessageService', 'unitService', 'Utils', 'rangeService'];
+    rangeController.$inject = ['menuHeaderService', '$scope', '$q', 'MessageService', 'unitService', 'Utils', 'rangeService', 'translationService'];
 
-    function rangeController(menuHeaderService, $scope, $q, MessageService, unitService, Utils, rangeService) {
+    function rangeController(menuHeaderService, $scope, $q, MessageService, unitService, Utils, rangeService, translationService) {
 
         var vm = this;
         vm.newRange = {};
@@ -23,6 +23,13 @@
         vm.cancelEditRange = cancelEditRange;
         vm.changeUnit = changeUnit;
         vm.rangeUnitChange = rangeUnitChange;
+        
+        vm.colorPickerOptions = {
+            showPalette: true, 
+            preferredFormat: 'hex', 
+            chooseText: translationService.translate('range.selectColor'), 
+            cancelText: translationService.translate('range.cancelColor')
+        };
 
         var eventCode = 1;
 

@@ -62,6 +62,9 @@
     
     "error": "Erreur",
     "success": "Succès",
+    
+    "noData": "Pas de données",
+    
     "processingMessage": {
         "connecting": "Connexion...",
         "loggingOut": "Déconnexion...",
@@ -72,7 +75,8 @@
         "savingData": "Enregistrement...",
         "deletingData": "Suppression...",
         "importingData": "Import en cours...",
-        "executingQuery": "Exécution de la requête..."
+        "executingQuery": "Exécution de la requête...",
+        "loading": "Chargement..."
     },
     "errorMessage": {
         "wrongCredentials": "Identifiant et/ou mot de passe incorrect(s)",
@@ -185,8 +189,10 @@
     "import": {
         "pageTitle": "Importer des glycémies",
         "name": "Nom",
+        "type": "Type",
         "file": "Fichier",
-        "importData": "Importer des données"
+        "importData": "Importer des données",
+        "careLink": "CareLink"
     },
     "importList": {
         "pageTitle": "Voir la liste des imports",
@@ -274,7 +280,7 @@
         "creationDate": "Date de création",
         "delete": "Supprimer",
         "edit": "Modifier",
-        "addToDashboard": "Ajouter au tableau de bord"
+        "addToDashboard": "Ajouter"
     },
     "userPreferences": {
         "account": "Mon compte",

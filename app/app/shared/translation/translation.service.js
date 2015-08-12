@@ -8,7 +8,7 @@
 
     function translationService($rootScope, $translate, LOCALES, tmhDynamicLocale) {
 
-        //by default set locale to preferred        
+        //by default set locale to preferred         
         if (!$translate.use()) {
             changeLanguage(LOCALES.preferredLocale);
         } else {

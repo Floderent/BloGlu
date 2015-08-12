@@ -4,9 +4,9 @@
     angular.module('bloglu.login')
             .factory('UserSessionService', UserSessionService);
 
-    UserSessionService.$inject = ['$http', '$q', '$modal', 'Facebook', 'localStorageService', 'ServerService'];
+    UserSessionService.$inject = ['$http', '$q', '$modal', 'localStorageService', 'ServerService'];
 
-    function UserSessionService($http, $q, $modal, Facebook, localStorageService, ServerService) {
+    function UserSessionService($http, $q, $modal, localStorageService, ServerService) {
 
         var UserSessionService = {
             cookieKey: 'sessionInfos',
@@ -23,7 +23,7 @@
             ownerReadWriteACL: ownerReadWriteACL,
             everyoneReadACL: everyoneReadACL,
             headers: headers,
-            logInWithFacebook: logInWithFacebook,
+            //logInWithFacebook: logInWithFacebook,
             displaySignUpModal: displaySignUpModal,
             displayResetPasswordModal: displayResetPasswordModal
         };        
@@ -147,7 +147,7 @@
             return headers;
         }
      
-
+        /*
         function logInWithFacebook() {
             var deferred = $q.defer();
             Facebook.login(function (response) {
@@ -164,7 +164,7 @@
             }, deferred.reject);
             return deferred.promise;
         }
-     
+        */
 
 
         function displaySignUpModal() {

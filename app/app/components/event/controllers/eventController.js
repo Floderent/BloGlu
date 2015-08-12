@@ -8,12 +8,12 @@
     eventController.$inject = ['$scope', '$q', 'menuHeaderService', '$stateParams', '$window', 'categoryService', 'eventService', 'MessageService', 'ResourceCode', 'unitService', 'UserService', 'Utils'];
 
     function eventController($scope, $q, menuHeaderService, $stateParams, $window, categoryService, eventService, MessageService, ResourceCode, unitService, UserService, Utils) {
-        
+
         var vm = this;
-        
+
         vm.loadingState = menuHeaderService.loadingState;
-        
-        vm.placeHolder = 100;        
+
+        vm.placeHolder = 100;
         //init routeParams
         vm.objectId = $scope.objectId || $stateParams.objectId;
         vm.day = $scope.day || $stateParams.day;
@@ -25,15 +25,15 @@
         vm.windowMode = $scope.windowMode || 'NORMAL';
         vm.eventCode = ResourceCode[eventType];
         vm.resourceName = ResourceCode[vm.eventCode];
-        
+
         vm.changeUnit = changeUnit;
         vm.open = open;
         vm.updateEvent = updateEvent;
-        vm.deleteEvent = deleteEvent;        
-        
+        vm.deleteEvent = deleteEvent;
+
         renderPage();
 
-        function renderPage() {            
+        function renderPage() {
             menuHeaderService.increasePending('processingMessage.synchronizing');
             $q.all([
                 getEvent(),
@@ -53,7 +53,7 @@
                 MessageService.errorMessage('errorMessage.loadingError', 2000);
             })['finally'](function () {
                 menuHeaderService.decreasePending('processingMessage.synchronizing');
-            });            
+            });
         }
 
         function handleDate() {
@@ -75,48 +75,48 @@
                         vm.event.unit = vm.units[0];
                     }
                 }
-            }            
+            }
         }
-        
-        function changeUnit(newUnit, oldUnitId){            
-            if(newUnit && (newUnit.objectId !== oldUnitId) && vm.event && vm.event.reading){
-                unitService.getUnitById(oldUnitId).then(function(oldUnit){                    
+
+        function changeUnit(newUnit, oldUnitId) {
+            if (newUnit && (newUnit.objectId !== oldUnitId) && vm.event && vm.event.reading) {
+                unitService.getUnitById(oldUnitId).then(function (oldUnit) {
                     vm.event.reading = vm.event.reading * oldUnit.coefficient / newUnit.coefficient;
                 });
             }
         }
-        
-        
+
+
 
         function getEvent() {
-            var deferred = $q.defer();
-            if (vm.isEdit) {
-                eventService.getEvent(vm.objectId).then(function (result) {
-                    deferred.resolve(result);
-                }, function (error) {
-                    vm.isEdit = false;
-                    deferred.reject(error);
-                });
-            } else {
-                if (vm.isPrefilledDateAndTime) {
-                    var rgbDate = new Date(vm.day);
-                    var rgbTime = new Date(vm.time);
-
-                    var newDate = new Date();
-                    newDate.setFullYear(rgbDate.getFullYear());
-                    newDate.setMonth(rgbDate.getMonth());
-                    newDate.setDate(rgbDate.getDate());
-
-                    newDate.setHours(rgbTime.getHours());
-                    newDate.setMinutes(rgbTime.getMinutes());
-                    newDate.setSeconds(0);
-                    newDate.setMilliseconds(0);
-                    deferred.resolve({dateTime: newDate});
+            return $q(function (resolve, reject) {
+                if (vm.isEdit) {
+                    eventService.getEvent(vm.objectId).then(function (result) {
+                        resolve(result);
+                    }, function (error) {
+                        vm.isEdit = false;
+                        reject(error);
+                    });
                 } else {
-                    deferred.resolve({});
+                    if (vm.isPrefilledDateAndTime) {
+                        var rgbDate = new Date(vm.day);
+                        var rgbTime = new Date(vm.time);
+
+                        var newDate = new Date();
+                        newDate.setFullYear(rgbDate.getFullYear());
+                        newDate.setMonth(rgbDate.getMonth());
+                        newDate.setDate(rgbDate.getDate());
+
+                        newDate.setHours(rgbTime.getHours());
+                        newDate.setMinutes(rgbTime.getMinutes());
+                        newDate.setSeconds(0);
+                        newDate.setMilliseconds(0);
+                        resolve({dateTime: newDate});
+                    } else {
+                        resolve({});
+                    }
                 }
-            }
-            return deferred.promise;
+            });
         }
 
         function confirmAction() {
@@ -141,7 +141,7 @@
                 vm.opened = true;
             }
 
-        };
+        }
 
         function updateEvent(event) {
             if (vm.isEdit) {
@@ -171,7 +171,7 @@
                     menuHeaderService.decreasePending("processingMessage.savingData");
                 }
             });
-        };
+        }
 
         function deleteEvent() {
             var modalScope = {
@@ -194,7 +194,7 @@
             }, function () {
                 //exit
             });
-        };
+        }
 
         var unbind = $scope.$on('dataReady', renderPage);
         $scope.$on('destroy', unbind);

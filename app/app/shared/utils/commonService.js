@@ -58,7 +58,7 @@ function MessageService($translate, Notification) {
             return Notification.error({message: $translate.instant(text), delay: delay});
         }
         function successMessage(text, delay) {
-            return Notification.error({message: $translate.instant(text), delay: delay});            
+            return Notification.success({message: $translate.instant(text), delay: delay});            
         }        
         
     }

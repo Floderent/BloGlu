@@ -10,9 +10,15 @@
                 controller: 'importListController', 
                 controllerAs:'vm', 
                 templateUrl: 'app/components/import/templates/importList.html'
-            });
-            $stateProvider.state('imports.objectId', {
+            });            
+            $stateProvider.state('imports-objectId', {
                 url: '/imports/:objectId',
+                controller: 'importController', 
+                controllerAs:'vm', 
+                templateUrl: 'app/components/import/templates/import.html'
+            });
+            $stateProvider.state('import', {
+                url: '/import',
                 controller: 'importController', 
                 controllerAs:'vm', 
                 templateUrl: 'app/components/import/templates/import.html'

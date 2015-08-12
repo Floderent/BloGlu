@@ -9,84 +9,91 @@
 
     function UserService($q, genericDaoService, UserSessionService) {
 
-        var UserService = {};
+        var UserService = {
+            saveUser: saveUser,
+            getUser: getUser,
+            getCurrentUser: getCurrentUser,
+            getPreferences: getPreferences,
+            deleteUser: deleteUser,
+            getFirstDayOfWeek: getFirstDayOfWeek,
+            getDefaultUnits: getDefaultUnits,
+            getDefaultUnit: getDefaultUnit
+        };
+        return UserService;
         var resourceName = 'User';
 
-        UserService.saveUser = function (user) {
+        function saveUser(user) {
             return genericDaoService.save(resourceName, user, true);
-        };
+        }
 
-        UserService.getUser = function (userId) {
+        function getUser(userId) {
             return genericDaoService.get(resourceName, userId).then(function (user) {
                 return user;
             });
-        };
+        }
 
-        UserService.getCurrentUser = function () {
+        function getCurrentUser() {
             return genericDaoService.get(resourceName, UserSessionService.getUserId()).then(function (user) {
                 return user;
             });
-        };
+        }
 
-        UserService.getPreferences = function () {
-            var deferred = $q.defer();
-            UserService.getCurrentUser().then(function (currentUser) {
-                if (currentUser.preferences) {
-                    deferred.resolve(currentUser.preferences);
-                } else {
-                    deferred.resolve(null);
-                }
-            }, deferred.reject);
+        function getPreferences() {
+            return $q(function (resolve, reject) {
+                UserService.getCurrentUser().then(function (currentUser) {
+                    if (currentUser && currentUser.preferences) {
+                        resolve(currentUser.preferences);
+                    } else {
+                        resolve(null);
+                    }
+                }, reject);
+            });
+        }
 
-            return deferred.promise;
-        };
-
-
-        UserService.deleteUser = function (user) {
+        function deleteUser(user) {
             return genericDaoService.remove(resourceName, user);
-        };
+        }
 
-        UserService.getFirstDayOfWeek = function () {
-            var deferred = $q.defer();
+        function getFirstDayOfWeek() {
             var firstDayOfWeek = 0;
-            UserService.getPreferences().then(function (preferences) {
-                if (preferences && preferences.firstDayOfWeek) {
-                    deferred.resolve(preferences.firstDayOfWeek);
-                } else {
-                    deferred.resolve(firstDayOfWeek);
-                }
-            }, deferred.reject);
-            return deferred.promise;
-        };
+            return $q(function (resolve, reject) {
+                UserService.getPreferences().then(function (preferences) {
+                    if (preferences && preferences.firstDayOfWeek) {
+                        resolve(preferences.firstDayOfWeek);
+                    } else {
+                        resolve(firstDayOfWeek);
+                    }
+                }, reject);
+            });
+        }
 
-        UserService.getDefaultUnits = function () {
-            var deferred = $q.defer();
+        function getDefaultUnits() {
             var defaultUnits = null;
-            UserService.getPreferences().then(function (preferences) {
-                if (preferences.defaultUnits) {
-                    deferred.resolve(preferences.defaultUnits);
-                } else {
-                    deferred.resolve(defaultUnits);
-                }
-            }, deferred.reject);
-            return deferred.promise;
-        };
+            return $q(function (resolve, reject) {
+                UserService.getPreferences().then(function (preferences) {
+                    if (preferences && preferences.defaultUnits) {
+                        resolve(preferences.defaultUnits);
+                    } else {
+                        resolve(defaultUnits);
+                    }
+                }, reject);
+            });
+        }
 
 
-        UserService.getDefaultUnit = function (resourceName) {
-            var deferred = $q.defer();
-            UserService.getDefaultUnits().then(function (defaultUnits) {
-                if (defaultUnits) {
-                    deferred.resolve(defaultUnits[resourceName]);
-                } else {
-                    deferred.resolve(null);
-                }
-            }, deferred.reject);
-            return deferred.promise;
-        };
+        function getDefaultUnit(resourceName) {
+            return $q(function (resolve, reject) {
+                UserService.getDefaultUnits().then(function (defaultUnits) {
+                    if (defaultUnits) {
+                        resolve(defaultUnits[resourceName]);
+                    } else {
+                        resolve(null);
+                    }
+                }, reject);
+            });
+        }
 
 
         return UserService;
     }
 })();
-

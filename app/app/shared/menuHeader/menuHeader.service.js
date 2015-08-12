@@ -3,9 +3,9 @@
     angular.module('bloglu.menuHeader')
             .factory('menuHeaderService', menuHeaderService);
 
-    menuHeaderService.$inject = ['$rootScope','$q','localizationService', 'UserSessionService', 'dataService', 'syncService', 'AUTH_EVENTS'];
+    menuHeaderService.$inject = ['$rootScope','$q','translationService', 'UserSessionService', 'dataService', 'syncService', 'AUTH_EVENTS'];
 
-    function menuHeaderService($rootScope, $q, localizationService, UserSessionService, dataService, syncService, AUTH_EVENTS) {
+    function menuHeaderService($rootScope, $q, translationService, UserSessionService, dataService, syncService, AUTH_EVENTS) {
         
         var service = {
             loadingState:{
@@ -47,9 +47,9 @@
         function resolveMessage(loadingMessageKey) {
             var message = '';
             if (loadingMessageKey) {
-                message = localizationService.get(loadingMessageKey);                
+                message = translationService.translate(loadingMessageKey);                
             } else {
-                message = localizationService.get('loading');
+                message = translationService.translate('loading');
             }
             return message;
         }

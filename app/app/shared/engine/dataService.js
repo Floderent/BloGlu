@@ -527,7 +527,10 @@
         function processResult(queryResult, params) {
             var processedResult = queryResult;
             processedResult = [];
-            var resultSize = queryResult.length;
+            var resultSize = 0;
+            if(queryResult){
+                resultSize = queryResult.length;
+            }            
             var isGrouped = params && params.groupBy || containsOnlyAggregates(params);
             for (var i = 0; i < resultSize; i++) {
                 var row = queryResult[i];

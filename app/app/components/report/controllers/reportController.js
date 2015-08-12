@@ -156,7 +156,7 @@
             reportService.saveReport(vm.report, vm.isEdit).then(function (result) {
                 vm.report = angular.extend(vm.report, result);
                 if (!vm.isEdit) {                    
-                    $state.go('report',{objectId: vm.report.objectId})
+                    $state.go('report',{objectId: vm.report.objectId});
                 }
                 MessageService.successMessage('successMessage.reportUpdated', 2000);
             }, function (error) {

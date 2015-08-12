@@ -18,12 +18,15 @@
     </div>
     <div class="panel-body ">
         <div ng-form novalidate name="eventForm" class="event-form">
-
+            
+            
+            <!--  || $parent.opened -->
+            
             <div class="input-group">                
                 <input type="text" 
                        class="form-control" 
                        datepicker-popup="dd/MM/yyyy" 
-                       is-open="opened || $parent.opened"
+                       is-open="vm.opened"
                        ng-model="vm.date"
                        ng-required="true"                       
                        close-text="{{ 'event.closeDatePicker' | translate }}"

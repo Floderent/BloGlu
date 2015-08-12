@@ -1,95 +1,104 @@
 (function () {
-'use strict';
+    'use strict';
 
-angular
-        .module('bloglu.dashboard')
-        .factory('dashboardService', dashboardService);
-    
+    angular
+            .module('bloglu.dashboard')
+            .factory('dashboardService', dashboardService);
+
     dashboardService.$inject = ['$q', 'genericDaoService', 'reportService'];
 
 
-function dashboardService($q, genericDaoService, reportService) {
+    function dashboardService($q, genericDaoService, reportService) {
 
         var dashboardService = {
             rowNumber: 2,
-            columnNumber: 4,
-            row: null,
-            column: null,
-            reportId: null
+            columnNumber: 4,            
+            getDashboards: getDashboards,
+            saveDashboard: saveDashboard,
+            addReport: addReport,
+            getDashboard: getDashboard,
+            initTab: initTab,
+            executeDashboard: executeDashboard,
+            clearReport: clearReport,
+            chooseReport: chooseReport
         };
-
-        dashboardService.setNewReport = function(row, column, reportId) {
-            dashboardService.row = row;
-            dashboardService.column = column;
-            dashboardService.reportId = reportId;
-        };
+        return dashboardService;
         
-        dashboardService.setNewReportId = function(reportId) {            
-            dashboardService.reportId = reportId;
-        };
-
-        dashboardService.getNewReport = function() {
-            return {
-                row: dashboardService.row,
-                column: dashboardService.column,
-                reportId: dashboardService.reportId
-            };
-        };
         
-        dashboardService.clearNewReport = function(){
-            dashboardService.row = null;
-            dashboardService.column = null;
-            dashboardService.reportId = null;
-        };
-        
-        dashboardService.hasNewReport = function(){
-            return dashboardService.column !== null && dashboardService.row !== null;
-        };
-        
-        dashboardService.getDashboards = function() {
+        function chooseReport(dashboard, row, column){            
+            return reportService.chooseReport(row, column).then(function(reportData){
+                return dashboardService.addReport(dashboard, reportData);
+            });
+        }
+       
+        function getDashboards() {
             return genericDaoService.getAll('Dashboard');
-        };
+        }
 
-        dashboardService.saveDashboard = function(dashboard) {
-            var isEdit = !!dashboard.objectId;            
+        function saveDashboard(dashboard) {
+            var isEdit = !!dashboard.objectId;
             return genericDaoService.save('Dashboard', dashboard, isEdit);
-        };
-
-        dashboardService.addReport = function(dashboard) {
-            var deferred = $q.defer();
-            //if (typeof row !== 'undefined' && row !== null && typeof column !== 'undefined' && column !== null && reportId) 
-            if(dashboardService.hasNewReport() && dashboardService.reportId !== null) {
-                if (dashboardService.row <= dashboardService.rowNumber && dashboardService.column <= dashboardService.columnNumber) {
-                    updateDashboardReport(dashboard, dashboardService.row, dashboardService.column, dashboardService.reportId).then(function(updatedDashboard){
-                        dashboardService.clearNewReport();
-                        deferred.resolve(updatedDashboard);
-                    }, deferred.reject);
+        }
+        
+        function updateDashboardReport(dashboard, row, column, reportId) {
+            return $q(function (resolve, reject) {
+                if (dashboard && dashboard.reports) {
+                    var reportFound = false;
+                    for (var i in dashboard.reports) {
+                        var report = dashboard.reports[i];
+                        if (report.column === column && report.row === row) {
+                            report.report = reportId;
+                            reportFound = true;
+                            break;
+                        }
+                    }
+                    if (!reportFound) {
+                        dashboard.reports.push({
+                            row: row,
+                            column: column,
+                            report: reportId
+                        });
+                    }
+                    dashboardService.saveDashboard(dashboard).then(resolve, reject);
                 } else {
-                    deferred.resolve();
+                    reject();
                 }
-            } else {
-                deferred.resolve();
-            }
-            return deferred.promise;
-        };
+            });
+        }
+        
+        function addReport(dashboard, reportData) {
+            return $q(function (resolve, reject) {                
+                if (reportData && reportData.report) {
+                    if (reportData.row <= dashboardService.rowNumber && reportData.column <= dashboardService.columnNumber) {
+                        updateDashboardReport(dashboard, reportData.row, reportData.column, reportData.report.reportId).then(function (updatedDashboard) {                            
+                            resolve(updatedDashboard);
+                        }, reject);
+                    } else {
+                        resolve();
+                    }
+                } else {
+                    resolve();
+                }
+            });
+        }
 
-        dashboardService.getDashboard = function() {
-            var deferred = $q.defer();
-            dashboardService.getDashboards().then(function(dashboards) {
-                var dashboard = {
-                    name: 'mainPage',
-                    reports: []
-                };
-                if (dashboards && dashboards.length > 0) {                    
-                    deferred.resolve(dashboards[0]);
-                }else{
-                    deferred.resolve(dashboard);
-                }                
-            }, deferred.reject);
-            return deferred.promise;
-        };
+        function getDashboard() {
+            return $q(function (resolve, reject) {
+                dashboardService.getDashboards().then(function (dashboards) {
+                    var dashboard = {
+                        name: 'mainPage',
+                        reports: []
+                    };
+                    if (dashboards && dashboards.length > 0) {
+                        resolve(dashboards[0]);
+                    } else {
+                        resolve(dashboard);
+                    }
+                }, reject);
+            });
+        }
 
-        dashboardService.initTab = function() {
+        function initTab() {
             var reportTab = [];
             for (var row = 0; row < dashboardService.rowNumber; row++) {
                 reportTab[row] = [];
@@ -98,73 +107,47 @@ function dashboardService($q, genericDaoService, reportService) {
                 }
             }
             return reportTab;
-        };
+        }
 
-        dashboardService.executeDashboard = function(dashboard, reportTab) {
-            var deferred = $q.defer();            
-            var promiseArray = [];
-            if (dashboard && dashboard.reports) {
-                angular.forEach(dashboard.reports, function(report) {
-                    promiseArray.push(executeReport(report, reportTab));
-                });
-                $q.all(promiseArray).then(deferred.resolve, deferred.reject);
-            } else {
-                deferred.resolve();
-            }
-            return deferred.promise;
-        };
-        
-        dashboardService.clearReport = function(dashboard, row, column){
-            angular.forEach(dashboard.reports, function(value, index){                
-                if(value.row === row && value.column === column){
+        function executeDashboard(dashboard, reportTab) {
+            return $q(function (resolve, reject) {
+                var promiseArray = [];
+                if (dashboard && dashboard.reports) {
+                    angular.forEach(dashboard.reports, function (report) {
+                        promiseArray.push(executeReport(report, reportTab));
+                    });
+                    $q.all(promiseArray).then(resolve, reject);
+                } else {
+                    resolve();
+                }
+            });
+        }
+
+        function clearReport(dashboard, row, column) {
+            angular.forEach(dashboard.reports, function (value, index) {
+                if (value.row === row && value.column === column) {
                     dashboard.reports.splice(index, 1);
                 }
             });
-        };
-        
-        function updateDashboardReport(dashboard, row, column, reportId) {
-            var deferred = $q.defer();
-            if (dashboard && dashboard.reports) {
-                var reportFound = false;
-                for (var i in dashboard.reports) {
-                    var report = dashboard.reports[i];
-                    if (report.column === column && report.row === row) {
-                        report.report = reportId;
-                        reportFound = true;
-                        break;
-                    }
-                }
-                if (!reportFound) {
-                    dashboard.reports.push({
-                        row: row,
-                        column: column,
-                        report: reportId
-                    });
-                }
-                dashboardService.saveDashboard(dashboard).then(deferred.resolve, deferred.reject);
-            } else {
-                deferred.reject();
-            }
-            return deferred.promise;
-        }
+        }        
 
 
-        function executeReport(report, reportTab) {            
+        function executeReport(report, reportTab) {
             reportTab[report.row][report.column] = {loading: true};
-            return reportService.getReport(report.report).then(function(completeReport) {                
-                reportService.executeReport(completeReport).then(function(reportQueryResult) {
-                    reportQueryResult.type = completeReport.display;                    
+            return reportService.getReport(report.report).then(function (completeReport) {
+                reportService.executeReport(completeReport).then(function (reportQueryResult) {
+                    reportQueryResult.type = completeReport.display;
                     reportQueryResult.title = completeReport.title;
-                    var dashboardReport = {                        
+                    var dashboardReport = {
                         queryResult: reportQueryResult,
                         columnOrder: completeReport.sort
-                    };                    
-                    return angular.extend(reportTab[report.row][report.column],dashboardReport);
-                })['finally'](function(){
-                    reportTab[report.row][report.column].loading = false;                    
+                    };
+                    return angular.extend(reportTab[report.row][report.column], dashboardReport);
+                })['finally'](function () {
+                    reportTab[report.row][report.column].loading = false;
                 });
             });
         }
-        return dashboardService;
+
     }
 })();

@@ -1,7 +1,6 @@
 <div class="panel panel-primary content-panel">
-    <div ng-switch="vm.addReportMode" class="panel-heading">        
-        <h3 ng-switch-when="false" class="panel-title">{{ 'reportList.pageTitle' | translate }}</h3>
-        <h3 ng-switch-when="true" class="panel-title">{{ 'reportList.addReportTitle' | translate }}</h3>
+    <div class="panel-heading">        
+        <h3 class="panel-title">{{ 'reportList.pageTitle' | translate }}</h3>        
     </div>
 
     <div ng-hide="vm.addReportMode" class="panel-body">
@@ -11,11 +10,13 @@
     <div class="table-responsive">
         <table class="table table-striped">
             <thead>
-            <th>{{ 'reportList.title' | translate }}</th>
-            <th>{{ 'reportList.description' | translate }}</th>
-            <th>{{ 'reportList.lastModificationDate' | translate }}</th>
-            <th>{{ 'reportList.creationDate' | translate }}</th>
-            <th></th>            
+                <tr>
+                    <th>{{ 'reportList.title' | translate }}</th>
+                    <th>{{ 'reportList.description' | translate }}</th>
+                    <th>{{ 'reportList.lastModificationDate' | translate }}</th>
+                    <th>{{ 'reportList.creationDate' | translate }}</th>
+                    <th></th>            
+                </tr>            
             </thead>
             <tbody>
                 <tr ng-repeat="report in vm.reports | orderBy:'updatedAt':true">
@@ -32,9 +33,8 @@
                         <span>{{report.createdAt| date:'dd/MM/yyyy'}}</span>
                     </td>
                     <td>
-                        <button ng-hide="vm.addReportMode" type="button" class="btn" ng-click="vm.deleteReport(report)">{{ 'reportList.delete' | translate }}</button>
-                        <button ng-hide="vm.addReportMode" type="button" class="btn" ng-click="vm.editReport(report)">{{ 'reportList.edit' | translate }}</button>
-                        <button ng-show="vm.addReportMode" type="button" class="btn" ng-click="vm.addReportToDashboard(report)">{{ 'reportList.addToDashboard' | translate }}</button>
+                        <button type="button" class="btn" ng-click="vm.deleteReport(report)">{{ 'reportList.delete' | translate }}</button>
+                        <button type="button" class="btn" ng-click="vm.editReport(report)">{{ 'reportList.edit' | translate }}</button>                        
                     </td>                    
                 </tr>
             </tbody>

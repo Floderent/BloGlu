@@ -4,25 +4,20 @@
     angular.module('bloglu.dashboard')
             .controller('dashboardController', dashboardController);
 
-    dashboardController.$inject = ['$scope', 'menuHeaderService', '$state', 'dashboardService'];
+    dashboardController.$inject = ['$scope', 'menuHeaderService', 'dashboardService'];
 
 
-    function dashboardController($scope, menuHeaderService, $state, dashboardService) {
+    function dashboardController($scope, menuHeaderService, dashboardService) {
 
         var vm = this;
         
         vm.loadingState = menuHeaderService.loadingState;
         vm.reportTab = dashboardService.initTab();
         vm.dashboard = null;
-        vm.chooseReport = chooseReport;
+        vm.chooseReport = dashboardService.chooseReport;
         vm.clearReport = clearReport;
 
         renderPage();
-
-        function chooseReport(row, column) {            
-            dashboardService.setNewReport(row, column);
-            $state.go('reports');
-        }
 
         function clearReport(row, column) {
             vm.reportTab[row][column] = {};

@@ -1,3 +1,3 @@
 (function () {
-    angular.module('bloglu.range',[]);
+    angular.module('bloglu.range',['angularSpectrumColorpicker']);
 })();

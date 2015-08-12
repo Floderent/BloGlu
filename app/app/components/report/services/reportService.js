@@ -4,10 +4,10 @@
     angular.module('bloglu.report')
             .factory('reportService', reportService);
 
-    reportService.$inject = ['$q', 'ModelUtil', 'dataService', 'queryService', 'genericDaoService', 'unitService', 'ResourceCode'];
+    reportService.$inject = ['$q', '$modal', 'ModelUtil', 'dataService', 'queryService', 'genericDaoService', 'unitService', 'ResourceCode'];
 
 
-    function reportService($q, ModelUtil, dataService, queryService, genericDaoService, unitService, ResourceCode) {
+    function reportService($q, $modal, ModelUtil, dataService, queryService, genericDaoService, unitService, ResourceCode) {
 
         var reportService = {};
 
@@ -248,6 +248,27 @@
             });
             return result;
         }
+        
+        reportService.chooseReport = function(row, column){
+            return $modal.open({
+                    templateUrl: "app/components/report/templates/chooseReport.html",
+                    controller: "chooseReportController as vm",
+                    size: 'lg',
+                    resolve:{
+                        row: function(){
+                            return row;
+                        },
+                        column: function(){
+                            return column;
+                        },
+                        reports: function(reportService){
+                            return reportService.getReports();
+                        }
+                    }
+                }).result;                
+        };
+        
+        
 
         return reportService;
     }

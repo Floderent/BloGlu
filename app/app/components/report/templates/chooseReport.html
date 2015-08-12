@@ -1,0 +1,45 @@
+<div>
+    <div class="modal-header">
+        <h3>{{ 'reportList.addReportTitle' | translate }}</h3>
+    </div>
+
+    <div class="modal-body">
+        <div class="table-responsive">
+            <table class="table table-striped">
+                <thead>
+                    <tr>
+                        <th>{{ 'reportList.title' | translate }}</th>
+                        <th>{{ 'reportList.description' | translate }}</th>
+                        <th>{{ 'reportList.lastModificationDate' | translate }}</th>
+                        <th>{{ 'reportList.creationDate' | translate }}</th>
+                        <th></th>            
+                    </tr>            
+                </thead>
+                <tbody>
+                    <tr ng-repeat="report in vm.reports| orderBy:'updatedAt':true">
+                        <td>
+                            <span>{{::report.title}}</span>
+                        </td>
+                        <td>
+                            <span>{{::report.description}}</span>
+                        </td>
+                        <td>
+                            <span>{{::report.updatedAt| date:'dd/MM/yyyy'}}</span>
+                        </td>
+                        <td>
+                            <span>{{::report.createdAt| date:'dd/MM/yyyy'}}</span>
+                        </td>
+                        <td>                        
+                            <button type="button" class="btn" ng-click="vm.chooseReport(report)">{{ 'reportList.addToDashboard' | translate }}</button>
+                        </td>                    
+                    </tr>
+                </tbody>
+            </table>
+        </div>        
+    </div>
+
+    <div class="modal-footer">        
+        <button class="btn btn-warning" ng-click="vm.cancel()">{{ confirmNo}}</button>
+    </div>
+
+</div>

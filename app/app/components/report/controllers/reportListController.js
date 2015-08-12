@@ -12,12 +12,10 @@
         
         var vm = this;
         
-        vm.reports = [];
-        vm.addReportMode = dashboardService.hasNewReport();
+        vm.reports = [];        
         
         vm.deleteReport = deleteReport;
-        vm.editReport = editReport;
-        vm.addReportToDashboard = addReportToDashboard;
+        vm.editReport = editReport;        
 
         renderPage();
         function renderPage() {
@@ -68,12 +66,6 @@
         function editReport(report) {            
             $state.go('reports',{objectId: report.objectId});            
         }
-
-        function addReportToDashboard(report) {
-            dashboardService.setNewReportId(report.objectId);
-            $state.go('dashboard');            
-        }
-
 
         var unbind = $scope.$on('dataReady', renderPage);
         $scope.$on('destroy', unbind);

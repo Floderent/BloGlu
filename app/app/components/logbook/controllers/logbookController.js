@@ -4,10 +4,10 @@
     angular.module('bloglu.logbook')
             .controller('logBookController', logBookController);
 
-    logBookController.$inject = ['menuHeaderService','$scope', '$state', '$stateParams', '$modal', 'eventService', 'ResourceIcon', 'ResourceName', 'logBookService', 'MessageService', 'printService'];
+    logBookController.$inject = ['menuHeaderService','$scope', '$rootScope', '$state', '$stateParams', '$modal', 'eventService', 'ResourceIcon', 'ResourceName', 'logBookService', 'MessageService', 'printService'];
 
 
-    function logBookController(menuHeaderService, $scope, $state, $stateParams, $modal, eventService, ResourceIcon, ResourceName, logBookService, MessageService, printService) {                
+    function logBookController(menuHeaderService, $scope, $rootScope, $state, $stateParams, $modal, eventService, ResourceIcon, ResourceName, logBookService, MessageService, printService) {                
                 
         var vm = this;
         
