@@ -9,27 +9,47 @@
 
     function reportService($q, $modal, ModelUtil, dataService, queryService, genericDaoService, unitService, ResourceCode) {
 
-        var reportService = {};
-
         var reportResourceName = 'Report';
 
-        reportService.getDashboards = function () {
-            return genericDaoService.getAll('Dashboard');
+        var reportService = {
+            getDashboards: getDashboards,
+            getReports: getReports,
+            saveReport: saveReport,
+            getReport: getReport,
+            deleteReport: deleteReport,
+            indexOfElement: indexOfElement,
+            executeReport: executeReport,
+            getFullQuery: getFullQuery,
+            executeReportQuery: executeReportQuery,
+            getQueryElementUnit: getQueryElementUnit,
+            getQueryElementsUnits: getQueryElementsUnits,
+            getQueryElementResourceName: getQueryElementResourceName,
+            chooseReport: chooseReport
         };
-        reportService.getReports = function () {
-            return genericDaoService.getAll(reportResourceName);
-        };
-        reportService.saveReport = function (report, isEdit) {
-            return genericDaoService.save(reportResourceName, report, isEdit);
-        };
-        reportService.getReport = function (reportId) {
-            return genericDaoService.get(reportResourceName, reportId);
-        };
-        reportService.deleteReport = function (report) {
-            return genericDaoService.remove(reportResourceName, report);
-        };
+        return reportService;
 
-        reportService.indexOfElement = function (elementList, element) {
+
+        function getDashboards() {
+            return genericDaoService.getAll('Dashboard');
+        }
+
+        function getReports() {
+            return genericDaoService.getAll(reportResourceName);
+        }
+
+        function saveReport(report, isEdit) {
+            return genericDaoService.save(reportResourceName, report, isEdit);
+        }
+
+        function getReport(reportId) {
+            return genericDaoService.get(reportResourceName, reportId);
+        }
+
+        function deleteReport(report) {
+            return genericDaoService.remove(reportResourceName, report);
+        }
+
+        function indexOfElement(elementList, element) {
             var indexOfElement = -1;
             var index = 0;
             angular.forEach(elementList, function (currentElement) {
@@ -40,20 +60,20 @@
                 index++;
             });
             return indexOfElement;
-        };
+        }
 
-        reportService.executeReport = function (report) {
-            var deferred = $q.defer();
-            if (report && report.select) {
-                reportService.executeReportQuery(report).then(deferred.resolve, deferred.reject);
-            } else {
-                deferred.reject('Wrong report format: no query');
-            }
-            return deferred.promise;
-        };
+        function executeReport(report) {
+            return $q(function (resolve, reject) {
+                if (report && report.select) {
+                    reportService.executeReportQuery(report).then(resolve, reject);
+                } else {
+                    reject('Wrong report format: no query');
+                }
+            });
+        }
 
 
-        reportService.getFullQuery = function (mdm, select, filters, orderBys) {
+        function getFullQuery(mdm, select, filters, orderBys) {
             var resultQuery = {};
             var selectElements = [];
 
@@ -107,43 +127,42 @@
                 }
             }
             return {query: resultQuery, headers: selectElements};
-        };
+        }
 
 
-        reportService.executeReportQuery = function (report) {
-            var deferred = $q.defer();
-            if (report) {
-                queryService.getMetadatamodel().then(function (mdm) {
-                    var queryResult = reportService.getFullQuery(mdm, report.select, report.filter, report.sort);
-                    deferred.resolve({
-                        headers: queryResult.headers,
-                        data: dataService.queryLocal('Event', queryResult.query),
-                        units: reportService.getQueryElementsUnits(queryResult.headers)
-                    });
-                }, deferred.reject);
-            } else {
-                deferred.reject();
-            }
-            return deferred.promise;
-        };
-
-        reportService.getQueryElementUnit = function (queryElement) {
-            var deferred = $q.defer();
-            if (queryElement && queryElement.filter) {
-                var filterObject = angular.fromJson(queryElement.filter);
-                if (filterObject.code) {
-                    unitService.getUnit(filterObject.code).then(deferred.resolve, deferred.reject);
+        function executeReportQuery(report) {
+            return $q(function (resolve, reject) {
+                if (report) {
+                    queryService.getMetadatamodel().then(function (mdm) {
+                        var queryResult = reportService.getFullQuery(mdm, report.select, report.filter, report.sort);
+                        resolve({
+                            headers: queryResult.headers,
+                            data: dataService.queryLocal('Event', queryResult.query),
+                            units: reportService.getQueryElementsUnits(queryResult.headers)
+                        });
+                    }, reject);
                 } else {
-                    deferred.resolve(null);
+                    reject();
                 }
-            } else {
-                deferred.resolve(null);
-            }
-            return deferred.promise;
-        };
+            });
+        }
 
-        reportService.getQueryElementsUnits = function (queryElements) {
-            var deferred = $q.defer();
+        function getQueryElementUnit(queryElement) {
+            return $q(function (resolve, reject) {
+                if (queryElement && queryElement.filter) {
+                    var filterObject = angular.fromJson(queryElement.filter);
+                    if (filterObject.code) {
+                        unitService.getUnit(filterObject.code).then(resolve, reject);
+                    } else {
+                        resolve(null);
+                    }
+                } else {
+                    resolve(null);
+                }
+            });
+        }
+
+        function getQueryElementsUnits(queryElements) {
             var resourceNames = [];
             var queryElementsNames = [];
             angular.forEach(queryElements, function (queryElement) {
@@ -158,7 +177,7 @@
                 resourcesUnitsPromises.push(unitService.getUnit(ResourceCode[resourceName]));
             });
             var resourcesUnits = [];
-            $q.all(resourcesUnitsPromises).then(function (results) {
+            return $q.all(resourcesUnitsPromises).then(function (results) {
                 for (var index in results) {
                     resourcesUnits.push({
                         title: queryElementsNames[index],
@@ -166,10 +185,9 @@
                         unit: results[index]
                     });
                 }
-                deferred.resolve(resourcesUnits);
-            }, deferred.reject);
-            return deferred.promise;
-        };
+                return resourcesUnits;
+            });
+        }
 
 
         function getQueryElementResourceName(queryElement) {
@@ -248,28 +266,26 @@
             });
             return result;
         }
-        
-        reportService.chooseReport = function(row, column){
-            return $modal.open({
-                    templateUrl: "app/components/report/templates/chooseReport.html",
-                    controller: "chooseReportController as vm",
-                    size: 'lg',
-                    resolve:{
-                        row: function(){
-                            return row;
-                        },
-                        column: function(){
-                            return column;
-                        },
-                        reports: function(reportService){
-                            return reportService.getReports();
-                        }
-                    }
-                }).result;                
-        };
-        
-        
 
-        return reportService;
+        function chooseReport(row, column) {
+            return $modal.open({
+                templateUrl: "app/components/report/templates/chooseReport.html",
+                controller: "chooseReportController as vm",
+                size: 'lg',
+                resolve: {
+                    row: function () {
+                        return row;
+                    },
+                    column: function () {
+                        return column;
+                    },
+                    reports: function (reportService) {
+                        return reportService.getReports();
+                    }
+                }
+            }).result;
+        }
+
+
     }
 })();

@@ -183,8 +183,8 @@
         "closeDatePicker": "Fermer",
         "clearDatePicker": "Effacer",
         "currentDatePicker": "Aujourd'hui",
-        "weeksDatePicker": "Semaines"
-        
+        "weeksDatePicker": "Semaines",
+        "selectCategory": "Selectionner une catégorie"
     },
     "import": {
         "pageTitle": "Importer des glycémies",
@@ -272,7 +272,7 @@
     },
     "reportList": {
         "pageTitle": "Voir la liste des rapports",
-        "addReportTitle": "Sélectionner la rapport à ajouter au tableau de bord",
+        "addReportTitle": "Sélectionner le rapport à ajouter au tableau de bord",
         "newReport": "Créer un nouveau rapport",
         "title": "Titre",
         "description": "Description",
@@ -280,7 +280,8 @@
         "creationDate": "Date de création",
         "delete": "Supprimer",
         "edit": "Modifier",
-        "addToDashboard": "Ajouter"
+        "addToDashboard": "Ajouter",
+        "cancel": "Annuler"
     },
     "userPreferences": {
         "account": "Mon compte",

@@ -20,14 +20,15 @@
             initTab: initTab,
             executeDashboard: executeDashboard,
             clearReport: clearReport,
-            chooseReport: chooseReport
+            chooseReport: chooseReport,
+            executeReport: executeReport
         };
         return dashboardService;
         
         
-        function chooseReport(dashboard, row, column){            
+        function chooseReport(dashboard, reportTab, row, column){            
             return reportService.chooseReport(row, column).then(function(reportData){
-                return dashboardService.addReport(dashboard, reportData);
+                return dashboardService.addReport(dashboard, reportTab, reportData);
             });
         }
        
@@ -66,12 +67,14 @@
             });
         }
         
-        function addReport(dashboard, reportData) {
+        function addReport(dashboard, reportTab, reportData) {
             return $q(function (resolve, reject) {                
                 if (reportData && reportData.report) {
                     if (reportData.row <= dashboardService.rowNumber && reportData.column <= dashboardService.columnNumber) {
-                        updateDashboardReport(dashboard, reportData.row, reportData.column, reportData.report.reportId).then(function (updatedDashboard) {                            
-                            resolve(updatedDashboard);
+                        updateDashboardReport(dashboard, reportData.row, reportData.column, reportData.report.reportId).then(function (updatedDashboard) {
+                            return dashboardService.executeReport(reportData, reportTab).then(function(){
+                                resolve(updatedDashboard);
+                            });                            
                         }, reject);
                     } else {
                         resolve();
@@ -131,10 +134,20 @@
             });
         }        
 
-
+        function isReportComplete(report){
+            return report && report.objectId;
+        }
+        
+        
         function executeReport(report, reportTab) {
             reportTab[report.row][report.column] = {loading: true};
-            return reportService.getReport(report.report).then(function (completeReport) {
+            var getReportPromise = null;
+            if(isReportComplete(report.report)){
+                getReportPromise = $q.when(report.report);
+            }else{
+                getReportPromise = reportService.getReport(report.report);
+            }
+            return getReportPromise.then(function (completeReport) {
                 reportService.executeReport(completeReport).then(function (reportQueryResult) {
                     reportQueryResult.type = completeReport.display;
                     reportQueryResult.title = completeReport.title;
@@ -147,7 +160,7 @@
                     reportTab[report.row][report.column].loading = false;
                 });
             });
-        }
+        }        
 
     }
 })();

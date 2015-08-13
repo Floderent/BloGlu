@@ -4,14 +4,15 @@
     angular.module('bloglu.import')
             .controller('importListController', importListController);
 
-    importListController.$inject = ['menuHeaderService','$scope', 'importService', 'MessageService', 'Utils'];
+    importListController.$inject = ['menuHeaderService', '$state','$scope', 'importService', 'MessageService', 'Utils'];
 
-    function importListController(menuHeaderService, $scope, importService, MessageService, Utils) {
+    function importListController(menuHeaderService, $state, $scope, importService, MessageService, Utils) {
         
         var vm = this;
         
         vm.deleteImport = deleteImport;
         vm.imports = [];
+        vm.goToNewimport = goToNewimport;
         
         renderPage();
 
@@ -57,7 +58,13 @@
             }, function () {
                 //exit
             });
-        };
+        }
+        
+        function goToNewimport(){
+            $state.go('import');
+        }
+        
+        
 
         var unbind = $scope.$on('dataReady', renderPage);
         $scope.$on('destroy', unbind);

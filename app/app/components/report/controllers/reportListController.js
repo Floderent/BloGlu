@@ -15,7 +15,8 @@
         vm.reports = [];        
         
         vm.deleteReport = deleteReport;
-        vm.editReport = editReport;        
+        vm.editReport = editReport;
+        vm.goToNewReport = goToNewReport;
 
         renderPage();
         function renderPage() {
@@ -66,6 +67,11 @@
         function editReport(report) {            
             $state.go('reports',{objectId: report.objectId});            
         }
+        
+        function goToNewReport(){
+            $state.go('report');
+        }
+        
 
         var unbind = $scope.$on('dataReady', renderPage);
         $scope.$on('destroy', unbind);

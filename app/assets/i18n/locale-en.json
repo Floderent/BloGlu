@@ -197,7 +197,8 @@
         "closeDatePicker": "Close",
         "clearDatePicker": "Clear",
         "currentDatePicker": "Today",
-        "weeksDatePicker": "Weeks"
+        "weeksDatePicker": "Weeks",
+        "selectCategory": "Select a category"
     },
     "import": {
         "pageTitle": "Import your blood glucose readings",
@@ -293,7 +294,8 @@
         "creationDate": "Creation Date",
         "delete": "Delete",
         "edit": "Edit",
-        "addToDashboard": "Add"
+        "addToDashboard": "Add",
+        "cancel": "Cancel"
     },
     "userPreferences": {
         "account": "My account",

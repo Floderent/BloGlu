@@ -8,9 +8,9 @@
     reportController.$inject = ['menuHeaderService', '$scope', '$q', '$stateParams', '$window', '$state', 'DataVisualization', 'reportService', 'queryService', 'MessageService', 'Utils'];
 
     function reportController(menuHeaderService, $scope, $q, $stateParams, $window, $state, DataVisualization, reportService, queryService, MessageService, Utils) {
-        
+
         var vm = this;
-        
+
         vm.loadingState = menuHeaderService.loadingState;
         vm.isEdit = $stateParams && $stateParams.objectId;
         vm.form = {};
@@ -22,8 +22,8 @@
         vm.filters = [];
         //selected filter
         vm.selectedFilter = null;
-        vm.datavizTypes = DataVisualization;        
-        
+        vm.datavizTypes = DataVisualization;
+
         vm.addQueryElement = addQueryElement;
         vm.removeQueryElement = removeQueryElement;
         vm.removeFilter = removeFilter;
@@ -33,6 +33,11 @@
         vm.executeQuery = executeQuery;
         vm.update = update;
         vm.deleteReport = deleteReport;
+        
+        vm.beginDateOpened = false;
+        vm.endDateOpened = false;
+        vm.openBeginDate = openBeginDate;
+        vm.openEndDate = openEndDate;
 
         renderPage();
 
@@ -54,17 +59,38 @@
                 menuHeaderService.decreasePending("processingMessage.loading");
             });
         }
-
-        function getReport() {
-            var deferred = $q.defer();
-            if (vm.isEdit) {
-                reportService.getReport($stateParams.objectId).then(function (result) {
-                    deferred.resolve(result);
-                });
+        
+        function openBeginDate($event){
+            $event.preventDefault();
+            $event.stopPropagation();
+            if (vm.beginDateOpened) {
+                vm.beginDateOpened = false;
             } else {
-                deferred.resolve();
+                vm.beginDateOpened = true;
             }
-            return deferred.promise;
+        }
+        
+        function openEndDate($event){
+            $event.preventDefault();
+            $event.stopPropagation();
+            if (vm.endDateOpened) {
+                vm.endDateOpened = false;
+            } else {
+                vm.endDateOpened = true;
+            }
+        }
+        
+        
+        function getReport() {
+            return $q(function (resolve, reject) {
+                if (vm.isEdit) {
+                    reportService.getReport($stateParams.objectId).then(function (result) {
+                        resolve(result);
+                    });
+                } else {
+                    resolve();
+                }
+            });
         }
 
         function getFilterParams() {
@@ -91,7 +117,7 @@
             return newFilter;
         }
 
-        function addQueryElement(queryElement) {            
+        function addQueryElement(queryElement) {
             if (!vm.report.select) {
                 vm.report.select = [];
             }
@@ -155,8 +181,8 @@
             menuHeaderService.increasePending("processingMessage.updatingData");
             reportService.saveReport(vm.report, vm.isEdit).then(function (result) {
                 vm.report = angular.extend(vm.report, result);
-                if (!vm.isEdit) {                    
-                    $state.go('report',{objectId: vm.report.objectId});
+                if (!vm.isEdit) {
+                    $state.go('report', {objectId: vm.report.objectId});
                 }
                 MessageService.successMessage('successMessage.reportUpdated', 2000);
             }, function (error) {

@@ -85,7 +85,9 @@
 
             <div class="form-group">
                 <label for="category">{{ 'event.category' | translate }}</label>
-                <select id="category" class="input-medium" data-ng-model="vm.event.category" data-ng-options="category.name for category in vm.categories track by category.objectId"></select>
+                <select id="category" class="input-medium" data-ng-model="vm.event.category" data-ng-options="category.name for category in vm.categories track by category.objectId">
+                    <option value="">{{"event.selectCategory" | translate}}</option>
+                </select>
             </div>
 
 

@@ -19,7 +19,7 @@
                 <div class="input-group">
                     <select id="selectQueryElement" class="form-control" data-ng-model="vm.selectedQueryElement" data-ng-options="queryElement.title | translate group by queryElement.group | translate for queryElement in vm.queryElements"></select>
                     <span class="input-group-btn">
-                        <button class="btn btn-default" ng-click="vm.addQueryElement(vm.selectedQueryElement)">{{ 'report.addElement' | translate }}</button>
+                        <button class="btn btn-primary" ng-click="vm.addQueryElement(vm.selectedQueryElement)">{{ 'report.addElement' | translate }}</button>
                     </span>
                 </div>
             </div>
@@ -28,41 +28,51 @@
             <div class="form-group">                
                 <label class="control-label" for="period">{{ 'report.analysisPeriod' | translate }}</label>
                 <div class="input-group">
-                    <select id="period" class="form-control" data-ng-model="selectedFilter" data-ng-options="filter as filter.title | translate for filter in vm.filters"></select>
+                    <select id="period" class="form-control" data-ng-model="vm.selectedFilter" data-ng-options="filter as filter.title | translate for filter in vm.filters"></select>
                     <span class="input-group-btn">
-                        <button class="btn btn-default" ng-click="vm.addFilter(selectedFilter)">{{ 'report.addElement' | translate }}</button>
+                        <button class="btn btn-primary" ng-click="vm.addFilter(vm.selectedFilter)">{{ 'report.addElement' | translate }}</button>
                     </span>
                 </div>
             </div>           
 
             <!-- Custom input for period -->
             <div data-ng-form="vm.form.filterValueForm" class="form-group" data-ng-show="vm.selectedFilter.customParameters">
-                <div class="input-group">
-                    <label class="control-label" for="beginDate">{{ 'report.beginDate' | translate }}</label>
+                <label class="control-label" for="beginDate">{{ 'report.beginDate' | translate }}</label>
+                <div class="input-group">                    
                     <input                        
                         id="beginDate" 
                         data-ng-required="vm.selectedFilter.customParameters"
-                        class="form-control" 
+                        class="form-control"
+                        is-open="vm.beginDateOpened"
                         datepicker-popup="dd/MM/yyyy"
                         close-text="{{ 'event.closeDatePicker' | translate }}"
                         clear-text="{{ 'event.clearDatePicker' | translate }}"
                         toggle-weeks-text="{{ 'event.weeksDatePicker' | translate }}"
                         current-text="{{ 'event.currentDatePicker' | translate }}"
-                        data-ng-model="beginDate"/>
-                    <label class="control-label" for="endDate">{{ 'report.endDate' | translate }}</label>
+                        data-ng-model="vm.beginDate"/>
+                    <span class="input-group-btn">                    
+                        <button class="btn btn-default" ng-click="vm.openBeginDate($event)"><i class="glyphicon glyphicon-calendar"></i></button>
+                    </span>
+                </div>
+                <label class="control-label" for="endDate">{{ 'report.endDate' | translate }}</label>
+                <div class="input-group">                    
                     <input 
                         id="endDate" 
                         data-ng-required="vm.selectedFilter.customParameters"
-                        class="form-control" 
+                        class="form-control"
+                        is-open="vm.endDateOpened"
                         datepicker-popup="dd/MM/yyyy"
                         close-text="{{ 'event.closeDatePicker' | translate }}"
                         clear-text="{{ 'event.clearDatePicker' | translate }}"
                         toggle-weeks-text="{{ 'event.weeksDatePicker' | translate }}"
                         current-text="{{ 'event.currentDatePicker' | translate }}"
-                        data-ng-model="endDate"/>
-                </div>                
-            </div>
+                        data-ng-model="vm.endDate"/>
+                    <span class="input-group-btn">                    
+                        <button class="btn btn-default" ng-click="vm.openEndDate($event)"><i class="glyphicon glyphicon-calendar"></i></button>
+                    </span>
+                </div>
 
+            </div>
         </div>
 
         <!-- Query elements -->
@@ -80,7 +90,7 @@
                     <span data-ng-repeat="(key, value) in selectedFilter">
                         {{value.title| translate}}
                         <span data-ng-if="value.filterValue">
-                            <span data-ng-repeat="(key, value) in value.filterValue">{{value | date:'dd/MM/yyyy'}} </span>
+                            <span data-ng-repeat="(key, value) in value.filterValue">{{value| date:'dd/MM/yyyy'}} </span>
                         </span>
                     </span>                    
                 </button>                

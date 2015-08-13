@@ -3,8 +3,10 @@
         <h3 class="panel-title">{{ 'reportList.pageTitle' | translate }}</h3>        
     </div>
 
-    <div ng-hide="vm.addReportMode" class="panel-body">
-        <a class="btn" href="#report">{{ 'reportList.newReport' | translate }}</a>        
+    <div class="panel-body">
+        <button type="button" class="btn btn-success" ng-click="vm.goToNewReport()">
+            <span class="glyphicon glyphicon-plus" aria-hidden="true"></span>&nbsp;{{ 'reportList.newReport' | translate }}
+        </button>        
     </div>
 
     <div class="table-responsive">

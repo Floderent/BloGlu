@@ -14,7 +14,7 @@
         vm.loadingState = menuHeaderService.loadingState;
         vm.reportTab = dashboardService.initTab();
         vm.dashboard = null;
-        vm.chooseReport = dashboardService.chooseReport;
+        vm.chooseReport = chooseReport;
         vm.clearReport = clearReport;
 
         renderPage();
@@ -43,6 +43,11 @@
                 menuHeaderService.decreasePending('processingMessage.loadingData');
             });
         }
+        
+        function chooseReport(row, column){            
+            return dashboardService.chooseReport(vm.dashboard, vm.reportTab, row, column);
+        }
+        
 
         var unbind = $scope.$on('dataReady', renderPage);
         $scope.$on('destroy', unbind);

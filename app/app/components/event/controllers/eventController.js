@@ -12,7 +12,6 @@
         var vm = this;
 
         vm.loadingState = menuHeaderService.loadingState;
-
         vm.placeHolder = 100;
         //init routeParams
         vm.objectId = $scope.objectId || $stateParams.objectId;
