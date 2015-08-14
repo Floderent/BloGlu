@@ -52,12 +52,7 @@
             var utc2 = //Date.UTC(b.getFullYear(), b.getMonth(), b.getDate());
                     getGMTMillis(b);
             return Math.floor((utc2 - utc1) / coef);
-        }
-
-        function dateDiffInDays(a, b) {
-            var _MS_PER_DAY = 1000 * 60 * 60 * 24;
-            return dateDiff(a, b, _MS_PER_DAY);
-        }
+        }       
 
         function dateDiffInHours(a, b) {
             var _MS_PER_HOUR = 1000 * 60 * 60;

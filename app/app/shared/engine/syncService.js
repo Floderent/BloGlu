@@ -8,9 +8,15 @@
 
 
     function syncService($q, $injector, $rootScope, Database, dataService, UserSessionService) {
-        var syncService = {};
+
         var dataTimeField = 'updatedAt';
-        //syncService.syncStatus = 'outOfDate';
+
+        var syncService = {
+            checkSyncStatus: checkSyncStatus,
+            sync: sync
+        };
+        return syncService;
+
         function getLocalDataInfos() {
             return dataService.init().then(function (result) {
                 var localDataInfos = {};
@@ -79,25 +85,25 @@
         }
 
         function syncCollection(collection, syncStatus, notify) {
-            var deferred = $q.defer();
-            var resource = $injector.get(collection)(UserSessionService.headers());
-            if (resource && resource.query) {
-                dataService.queryParse(collection, syncStatus.remoteCount, {limit: 1000}).then(function (result) {
-                    dataService.clear(collection).then(function () {
-                        dataService.addRecords(collection, result).then(function (addRecordsResult) {
-                            notify(1, collection + ' sync');
-                            deferred.resolve();
-                        }, deferred.reject);
-                    }, deferred.reject);
-                }, deferred.reject);
-            } else {
-                deferred.reject('No resource found for ' + collection);
-            }
-            return deferred.promise;
+            return $q(function (resolve, reject) {
+                var resource = $injector.get(collection)(UserSessionService.headers());
+                if (resource && resource.query) {
+                    dataService.queryParse(collection, syncStatus.remoteCount, {limit: 1000}).then(function (result) {
+                        dataService.clear(collection).then(function () {
+                            dataService.addRecords(collection, result).then(function (addRecordsResult) {
+                                notify(1, collection + ' sync');
+                                resolve();
+                            }, reject);
+                        }, reject);
+                    }, reject);
+                } else {
+                    reject('No resource found for ' + collection);
+                }
+            });
         }
 
 
-        syncService.checkSyncStatus = function () {
+        function checkSyncStatus() {
             return $q.all([
                 getParseDataInfos(),
                 getLocalDataInfos()
@@ -112,32 +118,40 @@
                 }
                 return compareSyncStatus(parseDataStatus, localDataStatus);
             });
-        };
-
-        syncService.sync = function (notify, mode) {
-            var deferred = $q.defer();
-            var notificationFunc = computeProgression(1, notify);
-            var promiseArray = [];
-            if (syncService.syncStatus === 'upToDate' || mode === 'offline') {
-                triggerSync(notificationFunc).then(deferred.resolve, deferred.reject);
-            } else {
-                syncService.checkSyncStatus().then(function (syncStatus) {
-                    notificationFunc(1, 'syncStatusChecked');
-                    notificationFunc = computeProgression(getNumberOfOutOfSyncCollections(syncStatus), notify);
-                    angular.forEach(syncStatus, function (value, key) {
-                        if (value.status === 'outOfDate') {
-                            promiseArray.push(syncCollection(key, value, notificationFunc));
-                        }
-                    });
-                    $q.all(promiseArray).then(function (result) {
-                        notificationFunc = computeProgression(1, notify);
-                        triggerSync(notificationFunc);
-                        deferred.resolve();
-                    }, deferred.reject, deferred.notify);
-                }, deferred.reject);
-            }
-            return deferred.promise;
-        };
+        }
+        
+        function triggerSync(notificationFunc) {
+            return dataService.init(true).then(function (result) {
+                notificationFunc(1, 'syncDone');
+                triggerDataReadyEvent();
+                return;
+            });
+        }
+        
+        function sync(notify, mode) {
+            return $q(function (resolve, reject) {
+                var notificationFunc = computeProgression(1, notify);
+                var promiseArray = [];
+                if (syncService.syncStatus === 'upToDate' || mode === 'offline') {
+                    triggerSync(notificationFunc).then(resolve, reject);
+                } else {
+                    syncService.checkSyncStatus().then(function (syncStatus) {
+                        notificationFunc(1, 'syncStatusChecked');
+                        notificationFunc = computeProgression(getNumberOfOutOfSyncCollections(syncStatus), notify);
+                        angular.forEach(syncStatus, function (value, key) {
+                            if (value.status === 'outOfDate') {
+                                promiseArray.push(syncCollection(key, value, notificationFunc));
+                            }
+                        });
+                        $q.all(promiseArray).then(function (result) {
+                            notificationFunc = computeProgression(1, notify);
+                            triggerSync(notificationFunc);
+                            resolve();
+                        }, reject);
+                    }, reject);
+                }
+            });
+        }
 
         function computeProgression(num, progress) {
             var total = 0;
@@ -159,18 +173,12 @@
             return numberOfOutOfSyncCollections;
         }
 
-        function triggerSync(notificationFunc) {            
-            return dataService.init(true).then(function (result) {
-                notificationFunc(1, 'syncDone');
-                triggerDataReadyEvent();
-                return;
-            });            
-        }
+        
 
         function triggerDataReadyEvent() {
             var eventName = 'dataReady';
             $rootScope.$broadcast(eventName);
         }
-        return syncService;
+
     }
 })();

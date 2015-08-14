@@ -43,37 +43,36 @@
         }
 
         function getEventTemplate(eventGroup, resourceCode) {
-            var template = "";
+            var template = '';
             switch (eventGroup.code) {
                 default:
                 case resourceCode['bloodGlucose']:
-                    template = '<div class="panel panel-primary">' +
-                            '<div class="panel-heading">' +
-                            '<span class="glyphicon glyphicon-tint"></span> {{title | translate}}' +
-                            '</div>' +
-                            '<div class="panel-body">' +
-                            '<p><button type="button" ng-style="{\'border-left\': border, \'border-color\': color}" class="btn btn-default">{{"logBook.average" | translate}} <span class="reading">{{average}}</span> {{unit.name}}</button></p>' +
-                            '<p><button type="button" class="btn btn-default" ng-click="viewEvent(code, maximumIds)">{{"logBook.maximum" | translate}} <span class="reading">{{maximum}}</span> {{unit.name}}</button></p>' +
-                            '<p><button type="button" class="btn btn-default" ng-click="viewEvent(code, minimumIds)">{{"logBook.minimum" | translate}} <span class="reading">{{minimum}}</span> {{unit.name}}</button></p>' +
-                            '<p><button type="button" class="btn btn-default">{{"logBook.number" | translate}} <span class="reading">{{number}}</span></button></p>' +
-                            '<p><button type="button" class="btn btn-primary pull-right" ng-click="blogluGroupedEventZoomInInterval({date:beginDate})">{{"logBook.viewDetails" | translate}}</button></p>' +
-                            '</div>' +
-                            '</div>';
+                    template = ['<div class="panel panel-primary">',
+                            '<div class="panel-heading">',
+                            '<span class="glyphicon glyphicon-tint"></span> {{title | translate}}',
+                            '</div>',
+                            '<div class="panel-body">',
+                            '<p><button type="button" ng-style="{\'border-left\': border, \'border-color\': color}" class="btn btn-default">{{"logBook.average" | translate}} <span class="reading">{{average}}</span> {{unit.name}}</button></p>',
+                            '<p><button type="button" class="btn btn-default" ng-click="viewEvent(code, maximumIds)">{{"logBook.maximum" | translate}} <span class="reading">{{maximum}}</span> {{unit.name}}</button></p>',
+                            '<p><button type="button" class="btn btn-default" ng-click="viewEvent(code, minimumIds)">{{"logBook.minimum" | translate}} <span class="reading">{{minimum}}</span> {{unit.name}}</button></p>',
+                            '<p><button type="button" class="btn btn-default">{{"logBook.number" | translate}} <span class="reading">{{number}}</span></button></p>',
+                            '<p><button type="button" class="btn btn-primary pull-right" ng-click="blogluGroupedEventZoomInInterval({date:beginDate})">{{"logBook.viewDetails" | translate}}</button></p>',
+                            '</div>',
+                            '</div>'].join('');
                     break;
                 case resourceCode['medication']:
-                    template = '<div class="panel panel-primary">' +
-                            '<div class="panel-heading">' +
-                            '<span class="glyphicon glyphicon-briefcase"></span> {{title | translate}}' +
-                            '</div>' +
-                            '<div class="panel-body">' +
-                            //'<p><button type="button" class="btn btn-default">{{"logBook.average" | translate}} <span class="reading">{{average}}</span> {{unit.name}}</button></p>'+
-                            '<p><button type="button" class="btn btn-default">{{"logBook.maximum" | translate}} <span class="reading">{{maximum}}</span> {{unit.name}}</button></p>' +
-                            '<p><button type="button" class="btn btn-default">{{"logBook.minimum" | translate}} <span class="reading">{{minimum}}</span> {{unit.name}}</button></p>' +
-                            '<p><button type="button" class="btn btn-default">{{"logBook.total" | translate}} <span class="reading">{{total}}</span> {{unit.name}}</button></p>' +
-                            '<p><button type="button" class="btn btn-default">{{"logBook.number" | translate}} <span class="reading">{{number}}</span></button></p>' +
-                            '<p><button type="button" class="btn btn-primary pull-right" ng-click="blogluGroupedEventZoomInInterval({date:beginDate})">{{"logBook.viewDetails" | translate}}</button></p>' +
-                            '</div>' +
-                            '</div>';
+                    template = ['<div class="panel panel-primary">',
+                            '<div class="panel-heading">',
+                            '<span class="glyphicon glyphicon-briefcase"></span> {{title | translate}}',
+                            '</div>',
+                            '<div class="panel-body">',                            
+                            '<p><button type="button" class="btn btn-default">{{"logBook.maximum" | translate}} <span class="reading">{{maximum}}</span> {{unit.name}}</button></p>',
+                            '<p><button type="button" class="btn btn-default">{{"logBook.minimum" | translate}} <span class="reading">{{minimum}}</span> {{unit.name}}</button></p>',
+                            '<p><button type="button" class="btn btn-default">{{"logBook.total" | translate}} <span class="reading">{{total}}</span> {{unit.name}}</button></p>',
+                            '<p><button type="button" class="btn btn-default">{{"logBook.number" | translate}} <span class="reading">{{number}}</span></button></p>',
+                            '<p><button type="button" class="btn btn-primary pull-right" ng-click="blogluGroupedEventZoomInInterval({date:beginDate})">{{"logBook.viewDetails" | translate}}</button></p>',
+                            '</div>',
+                            '</div>'].join('');
                     break;
             }
             return template;
@@ -124,7 +123,7 @@
 
                 if (range) {
                     scope.color = range.color;
-                    scope.border = "5px solid";
+                    scope.border = '5px solid';
                 }
                 return scope;
             });

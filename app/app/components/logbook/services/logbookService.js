@@ -9,7 +9,18 @@
 
 
     function logBookService($q, $filter, $translate, UserService, dateUtil, statsService, dataService, ModelUtil, ResourceName) {
-        var logBookService = {};
+        var logBookService = {
+            getTimeIntervalTitle: getTimeIntervalTitle,
+            getEventTypes: getEventTypes,
+            getDisplayParam: getDisplayParam,
+            getTimeInterval: getTimeInterval,
+            getTableData: getTableData,
+            getAggregtedData: getAggregtedData,
+            getWeekData: getWeekData,
+            getDayData: getDayData,
+            getMiddleTime: getMiddleTime
+        };
+        return logBookService;
 
         function getBloodGlucoseReadingsBetweenDates(beginDate, endDate, params) {
             var where = ModelUtil.addClauseToFilter({dateTime: {$gt: beginDate, $lt: endDate}}, params.where);
@@ -41,8 +52,7 @@
         }
 
         function getDayAnalysisPeriod(timeInterval) {
-            var analysisPeriods = [];
-            var deferred = $q.defer();
+            var analysisPeriods = [];            
             var baseDate = new Date(timeInterval.begin);
             baseDate.setHours(0);
             baseDate.setMinutes(0);
@@ -66,16 +76,14 @@
                 };
                 analysisPeriods.push(analysisPeriod);
                 baseDate.setDate(baseDate.getDate() + 1);
-            }
-            deferred.resolve(analysisPeriods);
-            return deferred.promise;
+            }            
+            return $q.when(analysisPeriods);
         }
 
 
 
         function getYearAnalysisPeriod(timeInterval) {
-            var analysisPeriods = [];
-            var deferred = $q.defer();
+            var analysisPeriods = [];            
             var baseDate = new Date(timeInterval.begin.getFullYear(), 0, 1);
             var endDate = new Date(timeInterval.end.getFullYear(), 11, 31);
             for (var year = baseDate.getFullYear(); year <= endDate.getFullYear(); year++) {
@@ -87,17 +95,14 @@
                 }
                 baseDate.setFullYear(baseDate.getFullYear() + 1);
             }
-            deferred.resolve(analysisPeriods);
-            return deferred.promise;
+            return $q.when(analysisPeriods);
         }
 
         function getMonthAnalysisPeriod(timeInterval) {
-            var analysisPeriods = [];
-            var deferred = $q.defer();
+            var analysisPeriods = [];            
             var baseDate = new Date(timeInterval.begin.getTime());
             var month = baseDate.getMonth();
-
-            UserService.getFirstDayOfWeek().then(function (firstDayOfWeek) {
+            return UserService.getFirstDayOfWeek().then(function (firstDayOfWeek) {
                 while (baseDate.getMonth() <= timeInterval.end.getMonth() && baseDate.getFullYear() === timeInterval.end.getFullYear()) {
                     var index = 0;
                     while (baseDate.getMonth() === month) {
@@ -109,9 +114,8 @@
                     }
                     month = baseDate.getMonth();
                 }
-                deferred.resolve(analysisPeriods);
-            });
-            return deferred.promise;
+                return analysisPeriods;                
+            });            
         }
 
 
@@ -209,7 +213,7 @@
             return days.indexOf(date.getDate());
         }
 
-        logBookService.getTimeIntervalTitle = function (timeInterval) {
+        function getTimeIntervalTitle(timeInterval) {
             var title = "";
             if (timeInterval) {
                 switch (timeInterval.name) {
@@ -231,18 +235,17 @@
                 }
             }
             return title;
-        };
+        }
 
-
-        logBookService.getEventTypes = function (display) {
+        function getEventTypes(display) {
             var eventTypes = {};
             angular.forEach(display, function (value) {
                 eventTypes[value] = ResourceName[value];
             });
             return eventTypes;
-        };
+        }
 
-        logBookService.getDisplayParam = function (array) {
+        function getDisplayParam(array) {
             var result = '';
             angular.forEach(array, function (value, key) {
                 result += value;
@@ -251,12 +254,11 @@
                 }
             });
             return result;
-        };
+        }
 
-        logBookService.getTimeInterval = function (intervalName, date) {
-            var deferred = $q.defer();
+        function getTimeInterval(intervalName, date) {            
             var timeInterval = null;
-            UserService.getFirstDayOfWeek().then(function (firstDayOfWeek) {
+            return UserService.getFirstDayOfWeek().then(function (firstDayOfWeek) {
                 switch (intervalName) {
                     case 'day':
                         timeInterval = dateUtil.getDateDayBeginAndEndDate(date);
@@ -274,14 +276,13 @@
                         timeInterval = dateUtil.getDateWeekBeginAndEndDate(date, firstDayOfWeek);
                         break;
                 }
-                deferred.resolve(timeInterval);
-            }, deferred.reject);
-            return deferred.promise;
-        };
+                return timeInterval;
+            });            
+        }
 
 
 
-        logBookService.getTableData = function (timeInterval, params) {
+        function getTableData(timeInterval, params) {
             var dataPromise = null;
             var dataParams = angular.extend({}, params);
             switch (timeInterval.name) {
@@ -300,10 +301,10 @@
                     break;
             }
             return dataPromise;
-        };
+        }
 
 
-        logBookService.getAggregtedData = function (timeInterval, params) {
+        function getAggregtedData(timeInterval, params) {
             return $q.all([
                 getBloodGlucoseReadingsBetweenDates(timeInterval.begin, timeInterval.end, params),
                 getAnalysisPeriods(timeInterval)
@@ -351,10 +352,10 @@
                 return dataArray;
             });
 
-        };
+        }
 
 
-        logBookService.getWeekData = function (timeInterval, params) {
+        function getWeekData(timeInterval, params) {
             return $q.all([
                 getBloodGlucoseReadingsBetweenDates(timeInterval.begin, timeInterval.end, params),
                 getAnalysisPeriods(timeInterval)
@@ -404,9 +405,9 @@
                 }
                 return dataArray;
             });
-        };
+        }
 
-        logBookService.getDayData = function (timeInterval, params) {
+        function getDayData(timeInterval, params) {
             return $q.all([
                 getBloodGlucoseReadingsBetweenDates(timeInterval.begin, timeInterval.end, params),
                 getAnalysisPeriods(timeInterval)
@@ -433,24 +434,21 @@
                 });
                 return dataArray;
             });
-        };
+        }
 
-        logBookService.getMiddleTime = function (period) {
+        function getMiddleTime(period) {
             var middleTime = null;
             if (period && period.begin && period.end) {
                 middleTime = new Date((getHourAndMinutesMilliseconds(period.begin) + getHourAndMinutesMilliseconds(period.end)) / 2);
             }
             return middleTime;
-        };
+        }
 
         function getHourAndMinutesMilliseconds(jsDate) {
             var _MS_PER_HOUR = 1000 * 60 * 60;
             var _MS_PER_MINUTE = 1000 * 60;
             return jsDate.getHours() * _MS_PER_HOUR + jsDate.getMinutes() * _MS_PER_MINUTE;
         }
-
-
-
-        return logBookService;
+        
     }
 })();

@@ -7,7 +7,6 @@
     printService.$inject = ['$q', '$filter', 'unitService'];
 
     function printService($q, $filter, unitService) {
-        var printService = {};
 
         var defaultParams = {
             table: {
@@ -27,6 +26,12 @@
                 yearKey: 'logbook.year'
             }
         };
+
+        var printService = {
+            printLogBook: printLogBook
+        };
+        return printService;
+
 
         function getTitle(timeInterval) {
             var title = "";
@@ -78,20 +83,18 @@
             return columnWidths;
         }
 
-        function getParameters(eventTypes) {
-            var deferred = $q.defer();
+        function getParameters(eventTypes) {            
             var promiseArray = [];
             angular.forEach(eventTypes, function (value) {
                 promiseArray.push(unitService.getUnit(value));
             });
             var result = {};
-            $q.all(promiseArray).then(function (results) {
+            return $q.all(promiseArray).then(function (results) {
                 for (var index in eventTypes) {
                     result[eventTypes[index]] = results[index];
                 }
-                deferred.resolve(result);
-            });
-            return deferred.promise;
+                return result;
+            });            
         }
 
 
@@ -163,13 +166,11 @@
 
 
         function convertTableToPDF(doc, tableData, interval, eventTypes, inputParams) {
-            var deferred = $q.defer();
-            getParameters(eventTypes).then(function (params) {
+            return getParameters(eventTypes).then(function (params) {
                 var printParams = angular.extend(inputParams, params);
                 doc.cellInitialize();
 
                 printParams.rowHeights = getRowHeights(tableData, interval, printParams);
-                ;
                 printParams.columnWidths = getColumnWidths(tableData, interval, printParams);
 
                 for (var rowIndex = 0; rowIndex < tableData.length; rowIndex++) {
@@ -180,14 +181,11 @@
                         renderCell(doc, rowIndex, columnIndex, interval, cellData, tableData, printParams);
                     }
                 }
-                deferred.resolve();
+                return;
             });
-            return deferred.promise;
         }
-        ;
 
-        printService.printLogBook = function (tableData, timeInterval, eventTypes, inputParams) {
-            var deferred = $q.defer();
+        function printLogBook(tableData, timeInterval, eventTypes, inputParams) {
             inputParams = inputParams || {};
             var printParams = angular.extend(inputParams, defaultParams);
 
@@ -197,12 +195,11 @@
             var title = printParams.title.text || getTitle(timeInterval);
             doc.text(10, 25, title);
 
-            convertTableToPDF(doc, tableData, timeInterval.name, eventTypes, printParams).then(function () {
+            return convertTableToPDF(doc, tableData, timeInterval.name, eventTypes, printParams).then(function () {
                 doc.save('sample-file.pdf');
-                deferred.resolve();
+                return;
             });
-            return deferred.promise;
-        };
-        return printService;
+        }
+
     }
 })();

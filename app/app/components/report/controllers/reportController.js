@@ -5,14 +5,14 @@
     angular.module('bloglu.report')
             .controller('reportController', reportController);
 
-    reportController.$inject = ['menuHeaderService', '$scope', '$q', '$stateParams', '$window', '$state', 'DataVisualization', 'reportService', 'queryService', 'MessageService', 'Utils'];
+    reportController.$inject = ['menuHeaderService', '$scope', '$q', '$window', '$state', 'DataVisualization', 'reportService', 'queryService', 'MessageService', 'Utils'];
 
-    function reportController(menuHeaderService, $scope, $q, $stateParams, $window, $state, DataVisualization, reportService, queryService, MessageService, Utils) {
+    function reportController(menuHeaderService, $scope, $q, $window, $state, DataVisualization, reportService, queryService, MessageService, Utils) {
 
         var vm = this;
 
         vm.loadingState = menuHeaderService.loadingState;
-        vm.isEdit = $stateParams && $stateParams.objectId;
+        vm.isEdit = $state && $state.params && $state.params.objectId;
         vm.form = {};
         vm.report = {};
         vm.selectedQueryElement = null;
@@ -84,7 +84,7 @@
         function getReport() {
             return $q(function (resolve, reject) {
                 if (vm.isEdit) {
-                    reportService.getReport($stateParams.objectId).then(function (result) {
+                    reportService.getReport($state.params.objectId).then(function (result) {
                         resolve(result);
                     });
                 } else {

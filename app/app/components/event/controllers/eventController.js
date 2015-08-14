@@ -124,7 +124,7 @@
                     $window.history.back();
                     break;
                 case 'MODAL':
-                    vm.$dismiss();
+                    $scope.$dismiss();
                     break;
                 default:
                     break;

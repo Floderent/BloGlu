@@ -146,26 +146,6 @@
             }
             return headers;
         }
-     
-        /*
-        function logInWithFacebook() {
-            var deferred = $q.defer();
-            Facebook.login(function (response) {
-                var parseFacebookUser = {
-                    authData: {
-                        facebook: {
-                            id: response.id,
-                            accessToken: response.accessToken,
-                            expiration_date: response.expiration_date
-                        }
-                    }
-                };
-                UserSessionService.signUp(parseFacebookUser).then(deferred.resolve, deferred.reject);
-            }, deferred.reject);
-            return deferred.promise;
-        }
-        */
-
 
         function displaySignUpModal() {
             $modal.open({

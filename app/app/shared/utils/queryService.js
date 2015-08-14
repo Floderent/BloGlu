@@ -7,15 +7,23 @@
     queryService.$inject = ['dataService'];
 
     function queryService(dataService) {
-        var queryService = {};
 
         var resourceName = 'Metadatamodel';
 
-        queryService.getMetadatamodel = function () {
-            return dataService.queryLocal(resourceName);
+        var queryService = {
+            getMetadatamodel: getMetadatamodel,
+            getMeasures: getMeasures,
+            getLevels: getLevels,
+            getFilters: getFilters
         };
+        return queryService;
 
-        queryService.getMeasures = function () {
+
+        function getMetadatamodel() {
+            return dataService.queryLocal(resourceName);
+        }
+
+        function getMeasures() {
             var measures = [];
             return dataService.queryLocal(resourceName).then(function (mdm) {
                 angular.forEach(mdm, function (mdmElement) {
@@ -25,9 +33,9 @@
                 });
                 return measures;
             });
-        };
+        }
 
-        queryService.getLevels = function () {
+        function getLevels() {
             var levels = [];
             return dataService.queryLocal(resourceName).then(function (mdm) {
                 angular.forEach(mdm, function (mdmElement) {
@@ -37,16 +45,16 @@
                 });
                 return levels;
             });
-        };
+        }
 
-        queryService.getFilters = function () {
+        function getFilters() {
             var result = [];
             angular.forEach(dataService.where, function (whereElement) {
                 result.push(whereElement);
             });
             return result;
-        };
+        }
 
-        return queryService;
+
     }
 })();

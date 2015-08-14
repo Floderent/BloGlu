@@ -10,8 +10,8 @@
                 controllerAs:'vm', 
                 templateUrl: 'app/components/report/templates/reportList.html'
             });
-            $stateProvider.state('reports.objectId', {
-                url: '/reports/:objectId',
+            $stateProvider.state('report.objectId', {
+                url: '/report/:objectId',
                 controller: 'reportController', 
                 controllerAs:'vm', 
                 templateUrl: 'app/components/report/templates/report.html'

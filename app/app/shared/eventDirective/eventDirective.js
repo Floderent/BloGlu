@@ -35,7 +35,7 @@ angular.module('bloglu.eventDirective').directive('blogluEvent', blogluEvent);
         }
 
         function getEventTemplate(event, resourceCode) {
-            var template = "";
+            var template = '';
             switch (event.code) {
                 case resourceCode['other']:
                     template = '<div class="panel-body"><span class="glyphicon glyphicon-tag"></span> {{dateTime | date:"HH:mm"}} <span>{{comment}}</span> {{category.name}}</div>';
@@ -109,16 +109,14 @@ angular.module('bloglu.eventDirective').directive('blogluEvent', blogluEvent);
 
                 if (range) {
                     scope.color = range.color;
-                    scope.border = "5px solid";
+                    scope.border = '5px solid';
                 }
                 return scope;
             });
         }
 
-        function getDefaultScope(event) {
-            var deferred = $q.defer();
-            deferred.resolve(event);
-            return deferred.promise;
+        function getDefaultScope(event) {            
+            return $q.when(event);
         }
 
         return {

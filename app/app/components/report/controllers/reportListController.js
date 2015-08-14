@@ -5,14 +5,14 @@
     angular.module('bloglu.report')
             .controller('reportListController', reportListController);
 
-    reportListController.$inject = ['menuHeaderService', '$scope', '$state', 'reportService', 'MessageService', 'dashboardService', 'Utils'];
+    reportListController.$inject = ['menuHeaderService', '$scope', '$state', 'reportService', 'MessageService', 'Utils'];
 
 
-    function reportListController(menuHeaderService, $scope, $state, reportService, MessageService, dashboardService, Utils) {
+    function reportListController(menuHeaderService, $scope, $state, reportService, MessageService, Utils) {
         
         var vm = this;
         
-        vm.reports = [];        
+        vm.reports = [];
         
         vm.deleteReport = deleteReport;
         vm.editReport = editReport;
@@ -65,7 +65,7 @@
         }
 
         function editReport(report) {            
-            $state.go('reports',{objectId: report.objectId});            
+            $state.go('report.objectId',{objectId: report.objectId});            
         }
         
         function goToNewReport(){

@@ -1,39 +1,49 @@
 (function () {
-    'use strict';    
+    'use strict';
 
-    angular
-            .module('bloglu.event')
-            .factory('eventService', eventService);
+    angular.module('bloglu.event')
+           .factory('eventService', eventService);
 
     eventService.$inject = ['$state', '$modal', '$q', '$rootScope', 'logBookService', 'genericDaoService', 'ResourceCode'];
 
     function eventService($state, $modal, $q, $rootScope, logBookService, genericDaoService, ResourceCode) {
 
-
-        var eventService = {};
         var resourceName = 'Event';
 
-        eventService.getEvent = function (eventId) {
+        var eventService = {
+            getEvent: getEvent,
+            saveEvent: saveEvent,
+            deleteEvent: deleteEvent,
+            resolveCreationMessage: resolveCreationMessage,
+            resolveUpdateMessage: resolveUpdateMessage,
+            resolveMessage: resolveMessage,
+            goToAddEvent: goToAddEvent,
+            viewEvent: viewEvent,
+            getEventRange: getEventRange
+        };
+        return eventService;
+
+        function getEvent(eventId) {
             return genericDaoService.get(resourceName, eventId);
-        };
+        }
 
-        eventService.saveEvent = function (event, isEdit) {
+        function saveEvent(event, isEdit) {
             return genericDaoService.save(resourceName, event, isEdit);
-        };
+        }
 
-        eventService.deleteEvent = function (event) {
+        function deleteEvent(event) {
             return genericDaoService.remove(resourceName, event);
-        };
+        }
 
-        eventService.resolveCreationMessage = function (eventCode) {
+        function resolveCreationMessage(eventCode) {
             return eventService.resolveMessage(eventCode, true);
-        };
+        }
 
-        eventService.resolveUpdateMessage = function (eventCode) {
+        function resolveUpdateMessage(eventCode) {
             return eventService.resolveMessage(eventCode);
-        };
+        }
 
-        eventService.resolveMessage = function (eventCode, isCreation) {
+        function resolveMessage(eventCode, isCreation) {
             var message = "";
             var messagePrefix = "successMessage.";
             var messageSuffix = "Updated";
@@ -44,54 +54,55 @@
                 message = messagePrefix + ResourceCode[eventCode] + messageSuffix;
             }
             return message;
-        };
+        }
 
 
-        eventService.goToAddEvent = function (eventCode, day, period, newPage) {
-            var deferred = $q.defer();            
-            var newEventDate = logBookService.getMiddleTime(period);
-            if (newPage) {
-                $state.go('event', {eventType: ResourceCode[eventCode],day: day.date.toISOString(), time: newEventDate.toISOString()});                
-                deferred.resolve();
-            } else {
-                var $modalScope = $rootScope.$new(true);
-                $modalScope.eventType = ResourceCode[eventCode];
-                $modalScope.day = day.date.toISOString();
-                $modalScope.time = newEventDate.toISOString();
-                $modalScope.windowMode = 'MODAL';
-                var modalInstance = $modal.open({
-                    templateUrl: "app/components/event/templates/event.html",
-                    controller: "eventController as vm",
-                    scope: $modalScope
-                });
-                modalInstance.result.then(deferred.resolve, deferred.reject);
-            }
-            return deferred.promise;
-        };
+        function goToAddEvent(eventCode, day, period, newPage) {
+            return $q(function (resolve, reject) {
+                var newEventDate = logBookService.getMiddleTime(period);
+                if (newPage) {
+                    $state.go('event', {eventType: ResourceCode[eventCode], day: day.date.toISOString(), time: newEventDate.toISOString()});
+                    resolve();
+                } else {
+                    var $modalScope = $rootScope.$new(true);
+                    $modalScope.eventType = ResourceCode[eventCode];
+                    $modalScope.day = day.date.toISOString();
+                    $modalScope.time = newEventDate.toISOString();
+                    $modalScope.windowMode = 'MODAL';
+                    var modalInstance = $modal.open({
+                        templateUrl: "app/components/event/templates/event.html",
+                        controller: "eventController as vm",
+                        scope: $modalScope
+                    });
+                    modalInstance.result.then(resolve, reject);
+                }
+            });
+        }
 
 
-        eventService.viewEvent = function (eventCode, eventId, newPage) {
-            var deferred = $q.defer();
-            var resource = ResourceCode[eventCode];
-            if (newPage) {                
-                $state.go('event', {eventType: resource,objectId: eventId});
-                deferred.resolve();
-            } else {
-                var $modalScope = $rootScope.$new(true);                
-                $modalScope.eventType = ResourceCode[eventCode];
-                $modalScope.objectId = eventId;
-                $modalScope.windowMode = 'MODAL';
+        function viewEvent(eventCode, eventId, newPage) {
+            return $q(function (resolve, reject) {
+                var resource = ResourceCode[eventCode];
+                if (newPage) {
+                    $state.go('event', {eventType: resource, objectId: eventId});
+                    resolve();
+                } else {
+                    var $modalScope = $rootScope.$new(true);
+                    $modalScope.eventType = ResourceCode[eventCode];
+                    $modalScope.objectId = eventId;
+                    $modalScope.windowMode = 'MODAL';
 
-                var modalInstance = $modal.open({
-                    templateUrl: "app/components/event/templates/event.html",
-                    controller: "eventController as vm",
-                    scope: $modalScope                    
-                });
-                modalInstance.result.then(deferred.resolve, deferred.reject);
-            }
-            return deferred.promise;
-        };
-        eventService.getEventRange = function (reading, unit, ranges) {
+                    var modalInstance = $modal.open({
+                        templateUrl: "app/components/event/templates/event.html",
+                        controller: "eventController as vm",
+                        scope: $modalScope
+                    });
+                    modalInstance.result.then(resolve, reject);
+                }
+            });
+        }
+
+        function getEventRange(reading, unit, ranges) {
             var resultRange = null;
             if (reading && unit && ranges && Array.isArray(ranges)) {
                 var convertedReading = reading * unit.coefficient;
@@ -103,8 +114,8 @@
                 });
             }
             return resultRange;
-        };
+        }
 
-        return eventService;
+
     }
 })();

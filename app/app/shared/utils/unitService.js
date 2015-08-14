@@ -8,49 +8,58 @@
 
     function unitService($q, dataService, UserService, ResourceCode) {
 
-        var unitService = {};
         var resourceName = 'Unit';
 
-        unitService.getUnitsByCode = function (code) {
-            return dataService.queryLocal(resourceName, {where: {code: code}});
+        var unitService = {
+            getUnitsByCode: getUnitsByCode,
+            getUnitById: getUnitById,
+            getReferenceUnitByCode: getReferenceUnitByCode,
+            getReferenceUnitByResourceName: getReferenceUnitByResourceName,
+            getUnit: getUnit,
+            getUnitByResourceName: getUnitByResourceName,
+            getReferenceUnit: getReferenceUnit
         };
-        
-        unitService.getUnitById = function(objectId){
-            return dataService.get(resourceName, objectId);
-        };
+        return unitService;
 
-        unitService.getReferenceUnitByCode = function (code) {
+        function getUnitsByCode(code) {
+            return dataService.queryLocal(resourceName, {where: {code: code}});
+        }
+
+        function getUnitById(objectId) {
+            return dataService.get(resourceName, objectId);
+        }
+
+        function getReferenceUnitByCode(code) {
             return dataService.queryLocal(resourceName, {where: {code: code, coefficient: 1}}).then(function (results) {
                 if (results && results.length >= 1) {
                     return results[0];
                 }
                 return results;
             });
-        };
+        }
 
-        unitService.getReferenceUnitByResourceName = function (resourceName) {
+        function getReferenceUnitByResourceName(resourceName) {
             return unitService.getReferenceUnitByCode(ResourceCode[resourceName]);
-        };
+        }
 
-        unitService.getUnit = function (code) {
+        function getUnit(code) {
             var resourceName = ResourceCode[parseInt(code)];
             return unitService.getUnitByResourceName(resourceName);
-        };
+        }
 
-        unitService.getUnitByResourceName = function (resourceName) {
-            var deferred = $q.defer();
-            UserService.getDefaultUnit(resourceName).then(function (defaultUnit) {
-                if (!defaultUnit) {
-                    unitService.getReferenceUnitByResourceName(resourceName).then(deferred.resolve, deferred.reject);
-                } else {
-                    deferred.resolve(defaultUnit);
-                }
-            }, deferred.reject);
-            return deferred.promise;
-        };
+        function getUnitByResourceName(resourceName) {
+            return $q(function (resolve, reject) {
+                UserService.getDefaultUnit(resourceName).then(function (defaultUnit) {
+                    if (!defaultUnit) {
+                        unitService.getReferenceUnitByResourceName(resourceName).then(resolve, reject);
+                    } else {
+                        resolve(defaultUnit);
+                    }
+                }, reject);
+            });
+        }
 
-
-        unitService.getReferenceUnit = function (units) {
+        function getReferenceUnit(units) {
             var referenceUnit = null;
             if (units && units.length > 0) {
                 angular.forEach(units, function (unit) {
@@ -61,9 +70,9 @@
                 });
             }
             return referenceUnit;
-        };
+        }
 
 
-        return unitService;
+
     }
 })();

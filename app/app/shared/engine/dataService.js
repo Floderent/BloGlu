@@ -8,16 +8,16 @@
 
     function dataService($q, $filter, $injector, $locale, indexeddbService, Database, Utils, UserSessionService) {
         /*
-        var dataService = {};
-        var localData = null;
-        var maxResult = 1000;
-        var idField = 'objectId';
-        */
-       
-       var select = {
+         var dataService = {};
+         var localData = null;
+         var maxResult = 1000;
+         var idField = 'objectId';
+         */
+
+        var select = {
             //Year
             year: function (value, row) {
-                var returnValue = "";
+                var returnValue = '';
                 if (value && value.getFullYear) {
                     returnValue = value.getFullYear();
                 }
@@ -25,7 +25,7 @@
             },
             //MonthName
             monthName: function (value, row) {
-                var returnValue = "";
+                var returnValue = '';
                 if (value && value.getFullYear) {
                     returnValue = this.$filter('date')(value, 'MMMM');
                 }
@@ -33,7 +33,7 @@
             }.bind({$filter: $filter}),
             //Month
             month: function (value, row, localData) {
-                var returnValue = "";
+                var returnValue = '';
                 if (value && value.getFullYear) {
                     returnValue = value.getMonth() + 1;
                 }
@@ -41,7 +41,7 @@
             },
             //weekDay
             weekDay: function (value, row, localData) {
-                var returnValue = "";
+                var returnValue = '';
                 if (value && value.getFullYear) {
                     returnValue = this.$filter('date')(value, 'EEEE');
                 }
@@ -111,7 +111,7 @@
                 var returnValue = '';
                 angular.forEach(ranges, function (range) {
                     if (convertedReading >= range.lowerLimit * range.unit.coefficient && convertedReading < range.upperLimit * range.unit.coefficient) {
-                        returnValue = " >= " + range.lowerLimit + " < " + range.upperLimit;
+                        returnValue = ' >= ' + range.lowerLimit + ' < ' + range.upperLimit;
                         return;
                     }
                 });
@@ -192,7 +192,7 @@
                 return indexOfA - indexOfB;
             }.bind({$locale: $locale})
         };
-        
+
         var operators = {
             $in: function (value, comparison) {
                 var match = false;
@@ -216,8 +216,8 @@
                 return value === comparison;
             }
         };
-        
-        
+
+
         var service = {
             localData: null,
             maxResult: 1000,
@@ -242,71 +242,65 @@
             sort: sort
         };
         return service;
-        
-        
-        
 
 
-         function logOut() {
+
+
+
+        function logOut() {
             service.localData = null;
             return service.clearWholeDatabase().then(function () {
                 return UserSessionService.logOut();
             });
-        };
+        }
 
 
-        function init(forceRefresh) {            
-            var deferred = $q.defer();
-            if (service.localData === null || forceRefresh) {                
-                service.getWholeDatabase().then(function (result) {                    
-                    service.localData = result;
-                    deferred.resolve(result);
-                }, deferred.reject);            
-            } else {
-                deferred.resolve(service.localData);
-            }            
-            return deferred.promise;
-        };
+        function init(forceRefresh) {
+            return $q(function (resolve, reject) {
+                if (service.localData === null || forceRefresh) {
+                    service.getWholeDatabase().then(function (result) {
+                        service.localData = result;
+                        resolve(result);
+                    }, reject);
+                } else {
+                    resolve(service.localData);
+                }
+            });
+        }
 
         function clear(collection) {
-            var deferred = $q.defer();
-            indexeddbService.clear(collection, UserSessionService.getUserId()).then(deferred.resolve, deferred.reject, deferred.notify);
-            return deferred.promise;
-        };
+            return indexeddbService.clearUserCollection(collection, UserSessionService.getUserId());
+        }
 
         function addRecords(collection, records) {
             var userId = UserSessionService.getUserId();
             return indexeddbService.addRecords(collection, userId, records);
-        };
+        }
 
         function clearWholeDatabase() {
-            var deferred = $q.defer();
             var promiseArray = [];
             angular.forEach(Database.schema, function (collectionName) {
                 promiseArray.push(indexeddbService.clear(collectionName, UserSessionService.getUserId()));
             });
-            $q.all(promiseArray).then(deferred.resolve, deferred.reject);
-            return deferred.promise;
-        };
+            return $q.all(promiseArray);
+        }
 
 
         function getWholeDatabase() {
-            var deferred = $q.defer();
             var promiseArray = [];
             if (UserSessionService.getCurrentUser()) {
                 angular.forEach(Database.schema, function (collectionName) {
                     promiseArray.push(indexeddbService.getData(collectionName, UserSessionService.getUserId()));
                 });
             }
-            $q.all(promiseArray).then(function (result) {
+            return $q.all(promiseArray).then(function (result) {
                 var allData = {};
                 for (var i = 0; i < result.length; i++) {
                     allData[Database.schema[i]] = result[i];
                 }
-                deferred.resolve(allData);
-            }, deferred.reject);
-            return deferred.promise;
-        };
+                return allData;
+            });
+        }
 
 
         function save(collection, data, params) {
@@ -326,7 +320,7 @@
                     });
                 });
             });
-        };
+        }
 
         function update(collection, objectId, data, params) {
             return service.init().then(function (localData) {
@@ -352,7 +346,7 @@
                     return updatedObject;
                 });
             });
-        };
+        }
 
         function updateObjectInfos(object, isCreate) {
             var currentDate = new Date();
@@ -386,13 +380,13 @@
                     return results[1];
                 });
             });
-        };
+        }
 
         function queryLocal(collection, params) {
             return service.init().then(function (localData) {
                 return service.processResult(localData[collection], params);
             });
-        };
+        }
 
         function get(collection, objectId) {
             return service.init().then(function (localData) {
@@ -403,22 +397,22 @@
                 }
                 return result;
             });
-        };
+        }
 
 
         function query(resourceObject, params) {
-            var deferred = $q.defer();
-            if (resourceObject && resourceObject.query) {
-                //do parse query
-                queryParse(resourceObject, params).then(function (queryResult) {
-                    //process result
-                    deferred.resolve(service.processResult(queryResult, params));
-                });
-            } else {
-                deferred.reject(resourceObject + ' is not a resource object');
-            }
-            return deferred.promise;
-        };
+            return $q(function (resolve, reject) {
+                if (resourceObject && resourceObject.query) {
+                    //do parse query
+                    queryParse(resourceObject, params).then(function (queryResult) {
+                        //process result
+                        resolve(service.processResult(queryResult, params));
+                    });
+                } else {
+                    reject(resourceObject + ' is not a resource object');
+                }
+            });
+        }
 
         function queryParse(resourceObject, params) {
             if (params.bigResult) {
@@ -492,35 +486,34 @@
         }
 
         function queryParse(collection, resourceCount, params) {
-            var deferred = $q.defer();
-
-            var resourceObject = $injector.get(collection)(UserSessionService.headers());
-            if (resourceCount <= service.maxResult) {
-                doParseQuery(resourceObject, params).then(deferred.resolve, deferred.reject);
-            } else {
-                var requestArray = [];
-                var requestNumber = Math.floor(resourceCount / service.maxResult);
-                var lastRequestCount = resourceCount % service.maxResult;
-                if (lastRequestCount > 0) {
-                    requestNumber++;
-                }
-                for (var requestIndex = 0; requestIndex < requestNumber; requestIndex++) {
-                    var requestParams = angular.extend({}, params);
-                    requestParams.limit = service.maxResult;
-                    requestParams.skip = requestIndex * service.maxResult;
-                    var request = doParseQuery(resourceObject, requestParams);
-                    requestArray.push(request);
-                }
-                $q.all(requestArray).then(function (results) {
-                    var resultArray = [];
-                    for (var resultIndex = 0; resultIndex < results.length; resultIndex++) {
-                        resultArray = resultArray.concat(results[resultIndex]);
+            return $q(function (resolve, reject) {
+                var resourceObject = $injector.get(collection)(UserSessionService.headers());
+                if (resourceCount <= service.maxResult) {
+                    doParseQuery(resourceObject, params).then(resolve, reject);
+                } else {
+                    var requestArray = [];
+                    var requestNumber = Math.floor(resourceCount / service.maxResult);
+                    var lastRequestCount = resourceCount % service.maxResult;
+                    if (lastRequestCount > 0) {
+                        requestNumber++;
                     }
-                    deferred.resolve(resultArray);
-                }, deferred.reject);
-            }
-            return deferred.promise;
-        };
+                    for (var requestIndex = 0; requestIndex < requestNumber; requestIndex++) {
+                        var requestParams = angular.extend({}, params);
+                        requestParams.limit = service.maxResult;
+                        requestParams.skip = requestIndex * service.maxResult;
+                        var request = doParseQuery(resourceObject, requestParams);
+                        requestArray.push(request);
+                    }
+                    $q.all(requestArray).then(function (results) {
+                        var resultArray = [];
+                        for (var resultIndex = 0; resultIndex < results.length; resultIndex++) {
+                            resultArray = resultArray.concat(results[resultIndex]);
+                        }
+                        resolve(resultArray);
+                    }, reject);
+                }
+            });
+        }
 
 
 
@@ -528,9 +521,9 @@
             var processedResult = queryResult;
             processedResult = [];
             var resultSize = 0;
-            if(queryResult){
+            if (queryResult) {
                 resultSize = queryResult.length;
-            }            
+            }
             var isGrouped = params && params.groupBy || containsOnlyAggregates(params);
             for (var i = 0; i < resultSize; i++) {
                 var row = queryResult[i];
@@ -548,7 +541,8 @@
             applyOrderBy(processedResult, params);
 
             return processedResult;
-        };
+        }
+        ;
 
         function containsOnlyAggregates(params) {
             var containsOnlyAggregates = true;
@@ -871,9 +865,9 @@
             var params = {};
             params.orderBy = orderBy;
             return applyOrderBy(data, params);
-        };
+        }
 
-        
+
 
     }
 })();
