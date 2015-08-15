@@ -61,8 +61,6 @@
     "error": "Error",
     "success" : "Success",
     
-    "noData": "No data",
-    
     "processingMessage":{
         "connecting" : "Logging in...",
         "loggingOut" : "Logging out...",

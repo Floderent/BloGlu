@@ -4,9 +4,9 @@
     angular.module('bloglu.menuHeader')
             .controller('menuHeaderController', MenuHeaderController);
 
-    MenuHeaderController.$inject = ['$scope', 'UserSessionService', 'syncService', 'menuHeaderService', 'AUTH_EVENTS'];
+    MenuHeaderController.$inject = ['$scope', 'UserSessionService', 'menuHeaderService', 'AUTH_EVENTS'];
 
-    function MenuHeaderController($scope, UserSessionService, syncService, menuHeaderService, AUTH_EVENTS) {
+    function MenuHeaderController($scope, UserSessionService, menuHeaderService, AUTH_EVENTS) {
         
         var vm = this;        
         

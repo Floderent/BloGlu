@@ -2,7 +2,7 @@
     angular.module('bloglu')
             .config(['$urlRouterProvider',
                 function ($urlRouterProvider) {
-                    $urlRouterProvider.otherwise('/dashboard');
+                    $urlRouterProvider.otherwise('/login');
                 }])
             .config(['$translateProvider', function ($translateProvider) {
                     $translateProvider.useStaticFilesLoader({

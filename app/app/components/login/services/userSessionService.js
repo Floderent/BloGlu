@@ -4,13 +4,13 @@
     angular.module('bloglu.login')
             .factory('UserSessionService', UserSessionService);
 
-    UserSessionService.$inject = ['$http', '$q', '$modal', 'localStorageService', 'ServerService'];
+    UserSessionService.$inject = ['$http', '$modal', 'localStorageService', 'ServerService'];
 
-    function UserSessionService($http, $q, $modal, localStorageService, ServerService) {
+    function UserSessionService($http, $modal, localStorageService, ServerService) {
 
         var UserSessionService = {
             cookieKey: 'sessionInfos',
-            sessionInfos: null,
+            sessionInfos: null,            
             signUp: signUp,            
             logIn: logIn,
             getCurrentUser: getCurrentUser,
@@ -22,8 +22,7 @@
             isTokenValid: isTokenValid,
             ownerReadWriteACL: ownerReadWriteACL,
             everyoneReadACL: everyoneReadACL,
-            headers: headers,
-            //logInWithFacebook: logInWithFacebook,
+            headers: headers,            
             displaySignUpModal: displaySignUpModal,
             displayResetPasswordModal: displayResetPasswordModal
         };        
@@ -42,7 +41,7 @@
                     sessionToken: user.sessionToken,
                     userId: user.objectId,
                     user: user
-                };
+                };                
                 localStorageService.set(UserSessionService.cookieKey, UserSessionService.sessionInfos);
                 return UserSessionService.sessionInfos;
             });
@@ -56,7 +55,7 @@
                 if(localStorageService.get(UserSessionService.cookieKey) && localStorageService.get(UserSessionService.cookieKey).user){
                     user = localStorageService.get(UserSessionService.cookieKey).user;
                 }
-            }
+            }            
             return user;
         }
         

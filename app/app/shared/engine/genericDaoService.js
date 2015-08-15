@@ -19,11 +19,11 @@ function genericDaoService(dataService) {
             }
             return dataService.remove(resourceName, objectId);
         };
-        genericDaoService.getAll = function(resourceName) {
+        genericDaoService.getAll = function(resourceName) {            
             return dataService.queryLocal(resourceName);
         };
         
-        genericDaoService.save = function(resourceName, data, isEdit){
+        genericDaoService.save = function(resourceName, data, isEdit){            
             var savingPromise = null;
             if (isEdit) {
                 var objectId = data.objectId;

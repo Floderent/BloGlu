@@ -169,7 +169,6 @@
                         var store = trans.objectStore(collection);
                         var range = IDBKeyRange.only(userId);
                         var index = store.index('userIndex');
-
                         var cursorRequest = index.openCursor(range);
                         cursorRequest.onsuccess = function () {
                             var cursor = cursorRequest.result;
@@ -193,11 +192,12 @@
 
 
 
-        function addRecord(collection, record) {
-            return $q(function (resolve, reject) {
+        function addRecord(collection, userId, record) {
+            return $q(function (resolve, reject) {                
                 openDatabase().then(function (db) {
                     var trans = db.transaction([collection], 'readwrite');
                     var store = trans.objectStore(collection);
+                    record.userId = userId;
                     var request = store.put(record);
                     request.onsuccess = function (e) {
                         resolve(e);

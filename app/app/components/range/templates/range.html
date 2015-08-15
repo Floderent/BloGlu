@@ -30,15 +30,15 @@
                             <input class="form-control" type="checkbox" ng-model="vm.newRange.normal">
                         </td>
                         <td>                    
-                <spectrum-colorpicker ng-model="vm.newRange.color" options="vm.colorPickerOptions"></spectrum-colorpicker>                    
-                </td>
-                <td>
-                    <button type="button" class="btn" ng-disabled="vm.loadingState.pending > 0" ng-click="vm.saveRange(vm.newRange)">{{ 'range.add' | translate }}</button>
-                </td>
-                </tr>
+                            <spectrum-colorpicker ng-model="vm.newRange.color" options="vm.colorPickerOptions"></spectrum-colorpicker>                    
+                        </td>
+                        <td>
+                            <button type="button" class="btn btn-success" ng-disabled="vm.loadingState.pending > 0" ng-click="vm.saveRange(vm.newRange)">
+                                <span class="glyphicon glyphicon-plus" aria-hidden="true"></span>&nbsp;{{ 'range.add' | translate }}
+                            </button>
+                        </td>
+                    </tr>
                 </tbody>
-
-
             </table>
         </div>
 
@@ -86,10 +86,18 @@
                 <spectrum-colorpicker ng-model="range.color" options="{showPalette: true, preferredFormat: 'hex'}"></spectrum-colorpicker>
                 </td>
                 <td>
-                    <button type="button" class="btn" ng-disabled="vm.loadingState.pending > 0" ng-click="vm.deleteRange(range)">{{ 'range.delete' | translate }}</button>
-                    <button type="button" class="btn" ng-disabled="vm.loadingState.pending > 0" ng-show="!range.isEdit" ng-click="vm.editRange(range)">{{ 'range.edit' | translate }}</button>
-                    <button type="button" class="btn" ng-disabled="vm.loadingState.pending > 0" ng-show="range.isEdit" ng-click="vm.updateRange(range)">{{ 'range.update' | translate }}</button>
-                    <button type="button" class="btn" ng-disabled="vm.loadingState.pending > 0" ng-show="range.isEdit" ng-click="vm.cancelEditRange(range)">{{ 'range.cancel' | translate }}</button>                            
+                    <button type="button" class="btn btn-danger" ng-disabled="vm.loadingState.pending > 0" ng-click="vm.deleteRange(range)">
+                        <span class="glyphicon glyphicon-trash" aria-hidden="true"></span>&nbsp;{{ 'range.delete' | translate }}
+                    </button>
+                    <button type="button" class="btn btn-primary" ng-disabled="vm.loadingState.pending > 0" ng-show="!range.isEdit" ng-click="vm.editRange(range)">
+                        <span class="glyphicon glyphicon-edit" aria-hidden="true"></span>&nbsp;{{ 'range.edit' | translate }}
+                    </button>
+                    <button type="button" class="btn btn-success" ng-disabled="vm.loadingState.pending > 0" ng-show="range.isEdit" ng-click="vm.updateRange(range)">
+                        <span class="glyphicon glyphicon-save" aria-hidden="true"></span>&nbsp;{{ 'range.update' | translate }}
+                    </button>
+                    <button type="button" class="btn btn-danger" ng-disabled="vm.loadingState.pending > 0" ng-show="range.isEdit" ng-click="vm.cancelEditRange(range)">
+                        <span class="glyphicon glyphicon-remove" aria-hidden="true"></span>&nbsp;{{ 'range.cancel' | translate }}
+                    </button>
                 </td>
                 </tr>
                 </tbody>

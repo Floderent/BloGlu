@@ -13,9 +13,7 @@
             getPeriodMaxDate: getPeriodMaxDate,
             getPeriodMaxEndDate: getPeriodMaxEndDate,
             getPeriodMaxBeginDate: getPeriodMaxBeginDate,
-            getNumberOfMillis: getNumberOfMillis,
             daysInMonth: daysInMonth,
-            getAvailableDays: getAvailableDays,
             arePeriodsIntersecting: arePeriodsIntersecting,
             arePeriodIntersecting: arePeriodIntersecting,
             checkDuration: checkDuration,
@@ -29,8 +27,6 @@
             getDateYearBeginAndEndDate: getDateYearBeginAndEndDate,
             getCurrentWeekSundayAndMonday: getCurrentWeekSundayAndMonday,
             arePeriodsOnMoreThanOneDay: arePeriodsOnMoreThanOneDay,
-            getAvailableYears: getAvailableYears,
-            getAvailableMonths: getAvailableMonths,
             convertToNormalFormat: convertToNormalFormat,
             convertToParseFormat: convertToParseFormat
         };
@@ -146,26 +142,8 @@
             return dateUtil.getPeriodMaxDate(periodArray, 'begin');
         }
 
-        function getNumberOfMillis(timeString) {
-            var splittedDateString = timeString.split(":");
-            var hours = parseInt(splittedDateString[0], 10);
-            var minutes = parseInt(splittedDateString[1], 10);
-            return (hours * 60 + minutes) * 60 * 1000;
-        }
-
         function daysInMonth(month, year) {
             return new Date(year, month, 0).getDate();
-        }
-
-        function getAvailableDays(month, year) {
-            var numberOfDays = dateUtil.daysInMonth(month, year);
-            var day = 1;
-            var resultArray = [];
-            while (day < numberOfDays) {
-                resultArray.push(day);
-                day++;
-            }
-            return resultArray;
         }
 
         function arePeriodsIntersecting(periodArray) {
@@ -354,24 +332,6 @@
             return result;
         }
 
-
-        function getAvailableYears() {
-            var resultArray = [];
-            var yearNumber = 100;
-            var startYear = 1970;
-            var i = 0;
-            while (i < yearNumber) {
-                resultArray.push(startYear + i);
-                i++;
-            }
-            return resultArray;
-        }
-
-        function getAvailableMonths() {
-            var resultArray = [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12];
-            return resultArray;
-        }
-
         function convertToNormalFormat(parseDate) {
             var normalDate = null;
             if (parseDate && parseDate.iso) {
@@ -381,7 +341,6 @@
             }
             return normalDate;
         }
-
 
         function convertToParseFormat(date) {
             var parseDate = null;

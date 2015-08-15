@@ -5,15 +5,16 @@
             .module('bloglu.category')
             .controller('categoryController', categoryController);
 
-    categoryController.$inject = ['$scope', 'menuHeaderService', 'MessageService', 'categoryService', 'ResourceName', 'Utils'];
+    categoryController.$inject = ['$scope', 'menuHeaderService', 'MessageService', 'categoryService', 'ResourceName', 'ResourceIcon', 'Utils'];
 
-    function categoryController($scope, menuHeaderService, MessageService, categoryService, ResourceName, Utils) {
+    function categoryController($scope, menuHeaderService, MessageService, categoryService, ResourceName, ResourceIcon, Utils) {
 
         var vm = this;
 
         vm.eventsTypes = ResourceName;
         vm.code = 1;
-        vm.eventType = ResourceName[vm.code];        
+        vm.eventType = ResourceName[vm.code]; 
+        vm.eventsIcons = ResourceIcon;
 
         vm.selectType = selectType;
         vm.saveCategory = saveCategory;

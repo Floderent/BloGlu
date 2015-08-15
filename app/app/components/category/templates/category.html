@@ -3,8 +3,10 @@
         <h3 class="panel-title">{{ 'category.pageTitle' | translate }}</h3>
     </div>
     <div class="panel-body ">
-        <div class="btn-group">
-            <label ng-repeat="(key, value) in vm.eventsTypes track by $index" class="btn btn-success" ng-model="vm.code" ng-click="vm.selectType(key, value)" btn-radio="{{key}}">{{value| translate}}</label>
+        <div class="btn-group">            
+            <button ng-repeat="(key, value) in vm.eventsTypes track by $index" ng-model="vm.code" type="button" class="btn btn-info" btn-radio="{{key}}" ng-click="vm.selectType(key, value)">
+                <span class="{{vm.eventsIcons[key]}}"></span>&nbsp;{{value| translate}}
+            </button>
         </div>
     </div>
 
@@ -12,35 +14,68 @@
         <div class="input-group">
             <div class="table-responsive">
                 <table class="table table-striped">
-                    <th>{{ 'category.new' | translate }} {{vm.eventType| translate}}</th>
-                    <th></th>
-                    <tr>
-                        <td>
-                            <input type="text" required class="input-sm" data-ng-model="vm.newCategory.name">
-                        </td>
-                        <td>
-                            <button type="button" class="btn" ng-click="vm.saveCategory(vm.newCategory)">{{ 'category.add' | translate }}</button>
-                        </td>
-                    </tr>
+                    <thead>
+                        <tr>
+                            <th>{{ 'category.new' | translate }} {{vm.eventType| translate}}</th>
+                            <th></th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td>
+                                <input type="text" required class="input-sm" data-ng-model="vm.newCategory.name">
+                            </td>
+                            <td>
+                                <button type="button" class="btn btn-success" ng-click="vm.saveCategory(vm.newCategory)">
+                                    <span class="glyphicon glyphicon-plus" aria-hidden="true"></span>&nbsp;{{ 'category.add' | translate }}
+                                </button>
+                            </td>
+                        </tr>
+                    </tbody>
                 </table>
             </div>                
         </div>
+        
         <div class="table-responsive">
             <table class="table table-striped">
-                <th>{{vm.eventType| translate}}</th>
-                <th></th>
-                <tr ng-repeat="category in vm.categories">
-                    <td>
-                        <div ng-show="!category.isEdit">{{category.name}}</div>
-                        <input type="text" required class="input-sm" ng-show="category.isEdit" data-ng-model="category.name">
-                    </td>
-                    <td>
-                        <button type="button" class="btn" ng-click="deleteCategory(category)">{{ 'category.delete' | translate }}</button>
-                        <button type="button" class="btn" ng-show="!category.isEdit" ng-click="editCategory(category)">{{ 'category.edit' | translate }}</button>
-                        <button type="button" class="btn" ng-show="category.isEdit" ng-click="updateCategory(category)">{{ 'category.update' | translate }}</button>
-                        <button type="button" class="btn" ng-show="category.isEdit" ng-click="cancelEditCategory(category)">{{ 'category.cancel' | translate }}</button>                            
-                    </td>
-                </tr>
+                <thead>
+                    <tr>
+                        <th>{{vm.eventType| translate}}</th>
+                        <th></th>
+                    </tr>                    
+                </thead>
+                <tbody ng-if="vm.categories.length !== 0">
+                    <tr ng-repeat="category in vm.categories">
+                        <td>
+                            <div ng-show="!category.isEdit">{{category.name}}</div>
+                            <input type="text" required class="input-sm" ng-show="category.isEdit" data-ng-model="category.name">
+                        </td>
+                        <td>
+                            <button type="button" class="btn btn-danger" ng-click="deleteCategory(category)">
+                                <span class="glyphicon glyphicon-trash" aria-hidden="true"></span>&nbsp;{{ 'category.delete' | translate }}
+                            </button>
+                            <button type="button" class="btn btn-primary" ng-show="!category.isEdit" ng-click="editCategory(category)">
+                                <span class="glyphicon glyphicon-edit" aria-hidden="true"></span>&nbsp;{{ 'category.edit' | translate }}
+                            </button>
+                            <button type="button" class="btn btn-success" ng-show="category.isEdit" ng-click="updateCategory(category)">
+                                <span class="glyphicon glyphicon-save" aria-hidden="true"></span>&nbsp;{{ 'category.update' | translate }}
+                            </button>
+                            <button type="button" class="btn btn-danger" ng-show="category.isEdit" ng-click="cancelEditCategory(category)">
+                                <span class="glyphicon glyphicon-remove" aria-hidden="true"></span>&nbsp;{{ 'category.cancel' | translate }}
+                            </button>
+                        </td>
+                    </tr>
+                </tbody>
+                
+                <tbody ng-if="vm.categories.length === 0">
+                    <tr>
+                        <td colspan="2" class="text-center">
+                            <span>{{"noData" | translate}}</span>
+                        </td> 
+                    </tr>
+                </tbody>
+                
+                
             </table>
         </div>
     </form>

@@ -108,20 +108,18 @@
 
         
         $rootScope.$on('$stateChangeStart', function (event, toState) {            
-            if (toState.name !== 'login') {
+            if (toState.name !== 'login') {                
                 if (!UserSessionService.getCurrentUser()) {
                     event.preventDefault();
                     $state.go('login');
                 }
-            }
+            }           
         });
         
 
-        $rootScope.$on('$stateChangeError',
-                function (event, toState, toParams, fromState, fromParams, error) {
-                    console.log(error);
-                }
-        );
+        $rootScope.$on('$stateChangeError', function (event, toState, toParams, fromState, fromParams, error) {
+            console.log(error);
+        });
 
 
 

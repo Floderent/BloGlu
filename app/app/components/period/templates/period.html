@@ -3,18 +3,21 @@
         <h3 class="panel-title">{{ 'period.pageTitle' | translate }}</h3>
     </div>
     <div class="panel-body ">
-        
     </div>
-    
     <form novalidate class="simple-form">
-            <div class="input-group">
-                <div class="table-responsive" ng-show="!vm.arePeriodsOnMoreThanOneDay">
-                    <table class="table table-striped">
-                        <th>{{ 'period.name' | translate }}</th>
-                        <th>{{ 'period.startTime' | translate }}</th>
-                        <th>{{ 'period.endTime' | translate }}</th>
-                        <th>{{ 'period.duration' | translate }}</th>
-                        <th></th>
+        <div class="input-group">
+            <div class="table-responsive" ng-show="!vm.arePeriodsOnMoreThanOneDay">
+                <table class="table table-striped">
+                    <thead>
+                        <tr>
+                            <th>{{ 'period.name' | translate }}</th>
+                            <th>{{ 'period.startTime' | translate }}</th>
+                            <th>{{ 'period.endTime' | translate }}</th>
+                            <th>{{ 'period.duration' | translate }}</th>
+                            <th></th>
+                        </tr>
+                    </thead>
+                    <tbody>
                         <tr>
                             <td>
                                 <input type="text" required class="input-sm" data-ng-model="vm.newPeriod.name">
@@ -31,28 +34,37 @@
                             </td>
                             <td>{{vm.newPeriod.end - vm.newPeriod.begin - 3600000| date:'HH:mm'}}</td>                            
                             <td>
-                                <button type="button" class="btn" ng-click="vm.savePeriod(vm.newPeriod)">{{ 'period.add' | translate }}</button>
+                                <button type="button" class="btn btn-success" ng-click="vm.savePeriod(vm.newPeriod)">
+                                    <span class="glyphicon glyphicon-plus" aria-hidden="true"></span>&nbsp;{{ 'period.add' | translate }}
+                                </button>
                             </td>
-
                         </tr>
-                    </table>
-                </div>
-
-                <div class="alert alert-danger"  ng-show="errorMessage">                            
-                    <strong>{{ 'period.error' | translate }}!</strong> {{errorMessage}}
-                </div>
-                <div class="alert alert-success"  ng-show="successMessage">                            
-                    <strong>{{ 'period.success' | translate }}!</strong> {{successMessage}}
-                </div>
+                    </tbody>
+                </table>
             </div>
-            <div class="table-responsive">
-                <table class="table table-striped">
-                    <th>{{ 'period.name' | translate }}</th>
-                    <th>{{ 'period.startTime' | translate }}</th>
-                    <th>{{ 'period.endTime' | translate }}</th>
-                    <th>{{ 'period.duration' | translate }}</th>
-                    <th></th>
-                    <tr ng-repeat="period in vm.periods | orderBy:vm.getBeginDateHours">
+
+            <div class="alert alert-danger"  ng-show="errorMessage">                            
+                <strong>{{ 'period.error' | translate }}!</strong> {{errorMessage}}
+            </div>
+            <div class="alert alert-success"  ng-show="successMessage">                            
+                <strong>{{ 'period.success' | translate }}!</strong> {{successMessage}}
+            </div>
+        </div>
+
+        <div class="table-responsive">
+            <table class="table table-striped">
+                <thead>
+                    <tr>
+                        <th>{{ 'period.name' | translate }}</th>
+                        <th>{{ 'period.startTime' | translate }}</th>
+                        <th>{{ 'period.endTime' | translate }}</th>
+                        <th>{{ 'period.duration' | translate }}</th>
+                        <th></th>
+                    </tr>
+                </thead>
+
+                <tbody ng-if="vm.periods.length !== 0">
+                    <tr ng-repeat="period in vm.periods| orderBy:vm.getBeginDateHours">
                         <td>
                             <div ng-show="!period.isEdit">{{period.name}}</div>
                             <input type="text" required class="input-sm" ng-show="period.isEdit" data-ng-model="period.name">
@@ -71,15 +83,29 @@
                         </td>
                         <td>{{period.end - period.begin - 3600000| date:'HH:mm'}}</td>
                         <td>
-                            <button type="button" class="btn" ng-click="vm.deletePeriod(period)">{{ 'period.delete' | translate }}</button>
-                            <button type="button" class="btn" ng-show="!period.isEdit" ng-click="vm.editPeriod(period)">{{ 'period.edit' | translate }}</button>
-                            <button type="button" class="btn" ng-show="period.isEdit" ng-click="vm.updatePeriod(period)">{{ 'period.update' | translate }}</button>
-                            <button type="button" class="btn" ng-show="period.isEdit" ng-click="vm.cancelEditPeriod(period)">{{ 'period.cancel' | translate }}</button>                            
+                            <button type="button" class="btn btn-danger" ng-click="vm.deletePeriod(period)">
+                                <span class="glyphicon glyphicon-trash" aria-hidden="true"></span>&nbsp;{{ 'period.delete' | translate }}
+                            </button>
+                            <button type="button" class="btn btn-primary" ng-show="!period.isEdit" ng-click="vm.editPeriod(period)">
+                                <span class="glyphicon glyphicon-edit" aria-hidden="true"></span>&nbsp;{{ 'period.edit' | translate }}
+                            </button>
+                            <button type="button" class="btn btn-success" ng-show="period.isEdit" ng-click="vm.updatePeriod(period)">
+                                <span class="glyphicon glyphicon-save" aria-hidden="true"></span>&nbsp;{{ 'period.update' | translate }}
+                            </button>
+                            <button type="button" class="btn btn-danger" ng-show="period.isEdit" ng-click="vm.cancelEditPeriod(period)">
+                                <span class="glyphicon glyphicon-remove" aria-hidden="true"></span>&nbsp;{{ 'period.cancel' | translate }}
+                            </button>
                         </td>
                     </tr>
-                </table>
-            </div>
-        </form>
-    
-    
+                </tbody>                
+                <tbody ng-if="vm.periods.length === 0">
+                    <tr>
+                        <td colspan="5" class="text-center">
+                            <span>{{"noData" | translate}}</span>
+                        </td> 
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+    </form>
 </div>

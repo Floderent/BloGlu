@@ -256,8 +256,8 @@
 
 
         function init(forceRefresh) {
-            return $q(function (resolve, reject) {
-                if (service.localData === null || forceRefresh) {
+            return $q(function (resolve, reject) {                
+                if (service.localData === null || forceRefresh) {                    
                     service.getWholeDatabase().then(function (result) {
                         service.localData = result;
                         resolve(result);
@@ -303,7 +303,7 @@
         }
 
 
-        function save(collection, data, params) {
+        function save(collection, data, params) {            
             return service.init().then(function (localData) {
                 //save to indexedDB and to the cloud
                 var resource = $injector.get(collection)(UserSessionService.headers());
@@ -315,7 +315,8 @@
                     if (localData && localData[collection]) {
                         localData[collection].push(createdObject);
                     }
-                    return indexeddbService.addRecord(collection, createdObject).then(function (indexedDBResult) {
+                    var userId = UserSessionService.getUserId();
+                    return indexeddbService.addRecord(collection, userId, createdObject).then(function (indexedDBResult) {
                         return createdObject;
                     });
                 });
@@ -340,7 +341,7 @@
                 delete data.userId;
                 //save to indexedDB add to the cloud
                 return $q.all([
-                    indexeddbService.addRecord(collection, updatedObject),
+                    indexeddbService.addRecord(collection, data.userId, updatedObject),
                     resource.update({'Id': objectId}, data).$promise
                 ]).then(function (results) {
                     return updatedObject;
