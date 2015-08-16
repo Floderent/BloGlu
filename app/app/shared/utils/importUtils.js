@@ -12,6 +12,9 @@
              {
                 name: 'careLink',
                 image: 'carelink',
+                fileExtension: '.csv',
+                delimiter: ';',
+                skipFirstLine: 10,
                 supportedEvents: [
                     ResourceCode.bloodGlucose,
                     ResourceCode.medication
@@ -55,10 +58,23 @@
 
         var service = {
             CSVToArray: CSVToArray,
-            dataFormats: dataFormats
+            dataFormats: dataFormats,
+            getFormatByName: getFormatByName
         };
         return service;
-
+        
+        
+        function getFormatByName(name){
+            var foundFormat = null;
+            angular.forEach(dataFormats, function(dataFormat){
+                if(dataFormat.name === name){
+                    foundFormat = dataFormat;
+                    return;
+                }                
+            });
+            return foundFormat;            
+        }
+        
 
         // This will parse a delimited string into an array of
         // arrays. The default delimiter is the comma, but this

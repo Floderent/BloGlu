@@ -15,8 +15,7 @@
             .factory('Category', Category)
             .factory('UserPreferences', UserPreferences)
             .factory('Range', Range)
-            .factory('User', User)
-            ;
+            .factory('User', User);
 
     ModelUtil.$inject = ['dateUtil', 'UserSessionService'];
     Unit.$inject = ['$resource', 'ServerService', 'ModelUtil'];

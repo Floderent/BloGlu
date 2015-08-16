@@ -13,16 +13,23 @@
         vm.loadingState = menuHeaderService.loadingState;
         vm.uploadProgress = 0;
         vm.file = null;
+        vm.eventsToImport = [];
+        
         vm.import = {};
-        vm.parsedFileInfos = null;
-        vm.importData = importData;
+        vm.parsedFileInfos = null;        
         vm.dataFormats = importService.dataFormats;
-        vm.import.type = importService.dataFormats[0];
+        vm.import.type = importService.dataFormats[0].name;
         vm.supportedEvents = vm.import.type.supportedEvents;
         vm.eventsIcons = ResourceIcon;
         
+        vm.fileOptions = {
+            size: {max:'10MB'},
+            accept: vm.import.type.fileExtension
+        };
+        
         vm.onFileSelect = onFileSelect;        
         vm.uploadAndAnalyseFile = uploadAndAnalyseFile;
+        vm.insertData = insertData;
 
         function onFileSelect(files) {            
             if (Array.isArray(files) && files.length > 0) {
@@ -34,45 +41,38 @@
         
         function progressHandler(progress) {
             vm.uploadProgress = progress;            
-        }
+        }        
         
-        
-        function uploadAndAnalyseFile(){            
-            return importService.uploadFile(vm.file, progressHandler)                    
+        function uploadAndAnalyseFile(){
+            menuHeaderService.increasePending('processingMessage.uploadingData');
+            return importService.uploadFile(vm.file, progressHandler)
+                    .then(function(uploadedFile){
+                        vm.import.file = uploadedFile;
+                        return uploadedFile;
+                    })
                     .then(importService.downloadFile)                    
-                    .then(function(fileContent){
-                        return importService.getDataFromFile(fileContent, vm.import.type);
-                    })
-                    .then(function(dataToImport){
-                        debugger;
-                        return importService.batchRequestProcess(dataToImport);
-                    })
-                    .then(function(result){
-                        debugger;        
-                    }, function(error){
-                        debugger;
-                    });
+                    .then(function(fileContent){                        
+                        vm.eventsToImport = importService.getDataFromFile(fileContent, vm.import.type);
+                        return;
+                    }).catch(function(error){
+                        MessageService.errorMessage('errorMessage.errorUploading');
+                    })['finally'](function(){
+                        menuHeaderService.decreasePending('processingMessage.uploadingData');
+                    });                   
         }
         
-        
-
-        function importData() {
+        function insertData(){
             menuHeaderService.increasePending('processingMessage.importingData');
             vm.import.dateTime = new Date();
-            importService.importData(vm.import, vm.file).then(function (importResult) {
-                debugger;
-                /*
-                importService.saveImport(importResult.import, true).then(function (saveResult) {
-                    MessageService.successMessage('successMessage.dataImported');
-                }, function (error) {
-                    MessageService.errorMessage('errorMessage.errorCreating');
-                });
-                */
-            }, function (error) {
+            
+            return importService.saveImport(vm.import, false).then(function(){
+                return importService.batchRequestProcess(vm.eventsToImport);
+            }, function(error){
                 MessageService.errorMessage('errorMessage.errorImporting');
-            })['finally'](function () {
+            })['finally'](function(){
                 menuHeaderService.decreasePending('processingMessage.importingData');
             });
-        };
+        }
+        
     }
 })();

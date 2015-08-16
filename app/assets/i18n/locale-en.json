@@ -71,7 +71,9 @@
         "savingData" : "Saving...",
         "deletingData": "Deleting...",
         "importingData" : "Importing...",
-        "executingQuery" : "Executing query..."
+        "executingQuery" : "Executing query...",
+        "uploadingData": "Uploading data...",
+        "importingData": "Importing data..."
     },
     
     "errorMessage":{
@@ -83,7 +85,9 @@
         "updatingError" : "Error updating",
         "deletingError" : "Error deleting",
         "errorImporting" : "Error importing",
-        "executingQueryError" : "Error during query execution"
+        "executingQueryError" : "Error during query execution",
+        "errorUploading": "Error while uploading data",
+        "errorImporting": "Error while importing data"
     },
     
     
@@ -206,9 +210,11 @@
         "importData": "Import data",
         "careLink": "CareLink",
         "eventToImport": "Event(s) to import",
-        "selectType": "Select a dat type",
+        "selectType": "Select a data type",
         "chooseFile": "Choose a file",
-        "uploadFile": "Upload file"
+        "uploadFile": "Upload file",
+        "eventsToInsert": "event(s) to import",
+        "insertData": "Import"
     },
     "importList": {
         "pageTitle": "View the import list",

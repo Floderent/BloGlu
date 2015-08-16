@@ -6,13 +6,13 @@
         <div ng-form="vm.importForm" novalidate role="form">
             <div class="form-group">
                 <label class="control-label" for="importName">{{ "import.name" | translate }}</label>                
-                <input type="text" class="form-control" name="importName" id="importName" ng-model="vm.import.name" required>
+                <input type="text" class="form-control" name="importName" id="importName" ng-model="vm.import.name" ng-required="true">
             </div>
             <div class="form-group">
                 <label class="control-label" for="importType">{{ "import.type" | translate }}</label>
-                <select id="importType" class="form-control" ng-change="vm.changeDataFormat()" data-ng-model="vm.import.dataFormat" data-ng-options="'import.'+dataFormat.name | translate for dataFormat in vm.dataFormats track by dataFormat.name">
+                <select id="importType" class="form-control" ng-change="vm.changeDataFormat()" data-ng-model="vm.import.dataFormat" data-ng-options="'import.'+dataFormat.name | translate for dataFormat in vm.dataFormats track by name">
                     <option value="">{{"import.selectType"| translate}}</option>
-                </select>
+                </select>                
             </div>
             <!--
             <div class="form-group">
@@ -26,26 +26,33 @@
             -->
             <div class="form-group">
                 <label class="control-label" for="importFile">{{ "import.file" | translate }}</label>
-                <button type="button" class="btn btn-primary" id="importFile" ngf-select ngf-change="vm.onFileSelect($file)" ngf-validate="{size: {max:'10MB'},accept: '.csv'}">
+                <button type="button" ng-disabled="vm.file" class="btn btn-primary" id="importFile" ngf-select ngf-change="vm.onFileSelect($file)" ngf-validate="vm.fileOptions">
                     {{"import.chooseFile"| translate}}
-                </button>
-                <span ng-if="vm.file">{{vm.file.name}}</span>
-            </div>
-            
+                </button>                
+            </div>            
             <div ng-if="vm.file">
                 <div class="form-group">
-                    <button class="btn btn-success" ng-click="vm.uploadAndAnalyseFile()">
-                        <span class="glyphicon glyphicon-upload" aria-hidden="true"></span>&nbsp;{{"import.uploadFile"| translate}}
-                    </button>
-                    <!-- upload progress bar -->
+                    <div class="inline">
+                        <span>{{vm.file.name}}</span>
+                        <button type="button" ng-disabled="vm.eventsToImport.length > 0" class="btn btn-success inline" ng-click="vm.uploadAndAnalyseFile()">
+                            <span class="glyphicon glyphicon-upload" ng-disabled="vm.loadingState.pending > 0 && vm.eventsToImport.length > 0" aria-hidden="true"></span>&nbsp;{{"import.uploadFile"| translate}}
+                        </button>                
+                    </div>
                 </div>
+                <!-- upload progress bar -->
                 <div class="progress">
                     <progressbar value="vm.uploadProgress">{{vm.uploadProgress}}&nbsp;%&nbsp;</progressbar>
                 </div>
             </div>
 
-
-            <button class="btn btn-primary btn-lg active pull-right" ng-disabled="((vm.importForm.$dirty && vm.importForm.$invalid) || vm.importForm.$pristine) || vm.loadingState.pending > 0" ng-click="vm.importData()">{{ 'import.importData' | translate }}</button>                
+            <div ng-if="vm.eventsToImport.length > 0">
+                <span>{{vm.eventsToImport.length}}&nbsp;{{"import.eventsToInsert"| translate}}</span>
+                <div class="form-group">
+                    <button class="btn btn-success" ng-click="vm.insertData()">
+                        <span class="glyphicon glyphicon glyphicon-share-alt" ng-disabled="vm.loadingState.pending > 0 || ((vm.importForm.$dirty && vm.importForm.$invalid) || vm.importForm.$pristine)" aria-hidden="true"></span>&nbsp;{{"import.insertData"| translate}}
+                    </button>                    
+                </div>
+            </div>            
 
         </div>
     </div>

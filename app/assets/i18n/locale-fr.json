@@ -74,7 +74,9 @@
         "deletingData": "Suppression...",
         "importingData": "Import en cours...",
         "executingQuery": "Exécution de la requête...",
-        "loading": "Chargement..."
+        "loading": "Chargement...",
+        "uploadingData": "Envoi des données...",
+        "importingData": "Import des données..."
     },
     "errorMessage": {
         "wrongCredentials": "Identifiant et/ou mot de passe incorrect(s)",
@@ -85,7 +87,9 @@
         "updatingError": "Erreur lors de la mise à jour",
         "deletingError": "Erreur lors de la suppression",
         "errorImporting": "Erreur lors de l'import",
-        "executingQueryError": "Erreur pendant l'exécution de la requêtes"
+        "executingQueryError": "Erreur pendant l'exécution de la requêtes",
+        "errorUploading": "Erreur lors de l'envoi des données",
+        "errorImporting": "Erreur lors de l'import des données"
     },
     "successMessage": {
         "userCreated": "Utilisateur créé",
@@ -194,7 +198,9 @@
         "eventToImport": "Evènement(s) à importer",
         "selectType": "Sélection un type de données",
         "chooseFile": "Choisissez un fichier",
-        "uploadFile": "Envoyer le fichier"
+        "uploadFile": "Envoyer le fichier",
+        "eventsToInsert": "évènement(s) à importer",
+        "insertData": "Importer"
     },
     "importList": {
         "pageTitle": "Voir la liste des imports",
