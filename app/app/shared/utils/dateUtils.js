@@ -305,7 +305,7 @@
             var sunday = period.begin;
             var monday = new Date(period.begin.getTime());
             monday.setDate(monday.getDate() + 1);
-            return [{index: "0", date: $filter('date')(sunday, 'EEEE')}, {index: "1", date: $filter('date')(monday, 'EEEE')}];
+            return [{index: 0, date: $filter('date')(sunday, 'EEEE')}, {index: 1, date: $filter('date')(monday, 'EEEE')}];
         }
 
         function arePeriodsOnMoreThanOneDay(periods) {

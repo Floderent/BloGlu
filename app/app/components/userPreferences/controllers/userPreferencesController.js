@@ -12,10 +12,10 @@
         
         var vm = this;
         vm.eventsTypes = ResourceName;
-        delete vm.eventsTypes["0"];
+        delete vm.eventsTypes['0'];
 
         vm.user = {};
-        vm.loadingState = menuHeaderService.loadingState;
+        vm.loadingState = menuHeaderService.loadingState;        
         vm.days = dateUtil.getCurrentWeekSundayAndMonday();
         vm.units = [];
         vm.deleteUser = deleteUser;        
@@ -23,35 +23,24 @@
 
         renderPage();
 
-        function renderPage() {
+        function renderPage() {            
             vm.user = UserSessionService.getCurrentUser();
             initPreferences();
             return initResourceUnits();
-        }
-        /*
-        function initUser() {
-            
-            
-            return UserService.getCurrentUser().then(function (currentUser) {
-                vm.user = currentUser.user;
-                initPreferences();
-                return;
-            });            
-        }
-        */
+        }      
        
-        function initPreferences() {
+        function initPreferences() {          
             if (!vm.user.preferences) {
                 vm.user.preferences = {};
             }
-            if (vm.user && vm.user.preferences && typeof vm.user.preferences.firstDayOfWeek === 'undefined' && vm.user.preferences.firstDayOfWeek === null) {
+            if (!vm.user.preferences.firstDayOfWeek) {
                 vm.user.preferences.firstDayOfWeek = 0;
             }
             if (!vm.user.preferences.defaultUnits) {
                 vm.user.preferences.defaultUnits = {};
-            }
+            }            
         }
-
+     
         function initResourceUnits() {
             var promiseArray = [];
             angular.forEach(ResourceName, function (value, key) {
@@ -68,13 +57,13 @@
         }
 
         function update(user) {
-            menuHeaderService.increasePending("processingMessage.updatingData");
+            menuHeaderService.increasePending('processingMessage.updatingData');
             UserService.saveUser(user).then(function (result) {
-                MessageService.successMessage("successMessage.userUpdated", 2000);
+                MessageService.successMessage('successMessage.userUpdated', 2000);
             }, function (error) {
                MessageService.errorMessage('errorMessage.updatingError', 2000);
             })['finally'](function () {
-                menuHeaderService.decreasePending("processingMessage.updatingData");
+                menuHeaderService.decreasePending('processingMessage.updatingData');
             });
         }
 
@@ -86,13 +75,13 @@
                 confirmNo: 'confirm.no'
             };
             Utils.openConfirmModal(modalScope).then(function (confirmed) {
-                menuHeaderService.increasePending("processingMessage.deletingData");                
+                menuHeaderService.increasePending('processingMessage.deletingData');
                 UserService.deleteUser(user).then(function () {
                     menuHeaderService.logOut();
                 }, function (error) {
                     MessageService.errorMessage('errorMessage.deletingError', 2000);
                 })['finally'](function () {
-                    menuHeaderService.decreasePending("processingMessage.deletingData");
+                    menuHeaderService.decreasePending('processingMessage.deletingData');
                 });
             }, function () {
                 //exit
