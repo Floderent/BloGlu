@@ -204,7 +204,11 @@
         "type": "Type",
         "file": "File",
         "importData": "Import data",
-        "careLink": "CareLink"
+        "careLink": "CareLink",
+        "eventToImport": "Event(s) to import",
+        "selectType": "Select a dat type",
+        "chooseFile": "Choose a file",
+        "uploadFile": "Upload file"
     },
     "importList": {
         "pageTitle": "View the import list",

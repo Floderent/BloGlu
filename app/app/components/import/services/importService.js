@@ -5,9 +5,9 @@
             .factory('importService', importService);
 
 
-    importService.$inject = ['$http', '$q', '$upload', 'Batch', 'dataService', 'importUtils', 'Event', 'ServerService', 'UserSessionService'];
+    importService.$inject = ['$http', '$q', 'Upload', 'Batch', 'dataService', 'importUtils', 'Event', 'ServerService', 'UserSessionService'];
 
-    function importService($http, $q, $upload, Batch, dataService, importUtils, Event, ServerService, UserSessionService) {
+    function importService($http, $q, Upload, Batch, dataService, importUtils, Event, ServerService, UserSessionService) {
 
         var uploadUrl = ServerService.baseUrl + 'files/';
         var fileHeaders = angular.extend({'Content-Type': 'text/plain'}, ServerService.headers);
@@ -17,11 +17,11 @@
             getImports: getImports,
             saveImport: saveImport,
             deleteImport: deleteImport,
-            downloadFile: downloadFile,
-            importData: importData,
+            downloadFile: downloadFile,            
             uploadFile: uploadFile,
             processFile: processFile,
             singleRequestProcess: singleRequestProcess,
+            getDataFromFile: getDataFromFile,
             batchRequestProcess: batchRequestProcess,
             dataFormats: importUtils.dataFormats
         };
@@ -52,52 +52,71 @@
             return dataService.remove(resourceName, importId);
         }
 
-        function downloadFile(fileLocation) {
-            return $http.get(fileLocation);
-        }
 
-        function importData(importObject, file, options) {
-            var resultData = {};
-            return $q(function (resolve, reject) {
-                importService.saveImport(importObject).then(function (savedImport) {
-                    importService.uploadFile(file).then(function (result) {
-                        if (result && result.data && result.data.url) {
-                            resultData.fileUrl = result.data.url;
-                            importService.downloadFile(result.data.url).then(function (result) {
-                                importService.processFile(result.data, savedImport.objectId, options).then(function (result) {
-                                    resultData = angular.extend(resultData, result);
-                                    savedImport.file = resultData.fileUrl;
-                                    resultData.import = savedImport;
-                                    resolve(resultData);
-                                });
-                            }, reject);
-                        } else {
-                            reject('file not uploaded');
-                        }
-                    }, reject, function progress(evt) {
-                    });
-                }, reject);
+        //=========================================================
+
+        function downloadFile(fileLocation) {
+            return $http.get(fileLocation).then(function (response) {
+                return response.data;
             });
         }
 
-        function uploadFile(file) {
+        function uploadFile(file, notify) {
             uploadUrl = uploadUrl + file.name;
-            return $upload.upload({
+            return Upload.upload({
                 url: uploadUrl,
                 method: 'POST',
                 headers: fileHeaders,
-                // withCredentials: true,
-                //data: {myObj: $scope.myModelObj},
-                file: file // or list of files: $files for html5 only
-                        /* set the file formData name ('Content-Desposition'). Default is 'file' */
-                        //fileFormDataName: myFile, //or a list of names for multiple files (html5).
-                        /* customize how data is added to formData. See #40#issuecomment-28612000 for sample code */
-                        //formDataAppender: function(formData, key, val){}
+                file: file
+            }).progress(function (evt) {
+                notify(parseInt(100.0 * evt.loaded / evt.total));
+            }).then(function (result) {
+                return result.data.url;
             });
-            //.error(...)
-            //.then(success, error, progress); 
-            //.xhr(function(xhr){xhr.upload.addEventListener(...)})// access and attach any event listener to XMLHttpRequest.
         }
+
+        function getDataFromFile(file, options) {
+            var dataArray = importUtils.CSVToArray(file, ';');
+            var linesToskip = 10;
+            var eventsToInsert = [];
+            for (var index in dataArray) {
+                if (index >= linesToskip) {
+                    var event = options.getEventFromData(dataArray[index]);
+                    if (event) {
+                        eventsToInsert.push(event);
+                    }
+                }
+            }
+            return eventsToInsert;
+        }
+
+        function batchRequestProcess(data) {
+            var batchSize = 50;
+            var promiseArray = [];
+            var batchData = [];
+            for (var i in data) {
+                var event = data[i];
+                batchData.push(event);
+                if (batchData.length % batchSize === 0) {
+                    promiseArray.push(saveBatch(batchData));
+                    batchData = [];
+                }
+            }
+            if (batchData.length > 0) {
+                promiseArray.push(saveBatch(batchData));
+            }
+            return $q.all(promiseArray);
+        }
+
+        function saveBatch(batchData) {
+            return Batch(UserSessionService.headers()).batchEvent({}, angular.copy(batchData)).$promise.then(function (importedEventsResponse) {
+                for (var index in batchData) {
+                    batchData[index] = angular.extend(batchData[index], importedEventsResponse[index].success);
+                }
+                return dataService.addRecords('Event', batchData);
+            });
+        }
+        //=========================================================
 
         function processFile(file, dataset, options) {
             var resultData = {};
@@ -115,8 +134,6 @@
             });
         }
 
-
-
         function singleRequestProcess(data) {
             var promiseArray = [];
             angular.forEach(data, function (line) {
@@ -129,32 +146,7 @@
             return promiseArray;
         }
 
-        function batchRequestProcess(data, options) {
-            var batchSize = 50;
-            var promiseArrayRemote = [];
-            var promiseArrayLocal = [];
-            var batchData = [];
-            for (var i in data) {
-                var event = options.getEventFromData(data[i]);
-                if (event) {
-                    batchData.push(event);
-                    if (batchData.length % batchSize === 0) {
-                        //add remote
-                        promiseArrayRemote.push(Batch(UserSessionService.headers()).batchEvent({}, angular.copy(batchData)));
-                        //add local
-                        //promiseArrayLocal.push(dataService.addRecords('Event', batchData));
-                        batchData = [];
-                    }
-                }
-            }
-            if (batchData.length > 0) {
-                //add remote
-                promiseArrayRemote.push(Batch(UserSessionService.headers()).batchEvent({}, angular.copy(batchData)));
-                //add local
-                //promiseArrayLocal.push(dataService.addRecords('Event', batchData));                
-            }
-            return {remote: promiseArrayRemote, local: promiseArrayLocal};
-        }
+
 
     }
 })();

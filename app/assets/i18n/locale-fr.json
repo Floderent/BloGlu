@@ -190,7 +190,11 @@
         "type": "Type",
         "file": "Fichier",
         "importData": "Importer des données",
-        "careLink": "CareLink"
+        "careLink": "CareLink",
+        "eventToImport": "Evènement(s) à importer",
+        "selectType": "Sélection un type de données",
+        "chooseFile": "Choisissez un fichier",
+        "uploadFile": "Envoyer le fichier"
     },
     "importList": {
         "pageTitle": "Voir la liste des imports",

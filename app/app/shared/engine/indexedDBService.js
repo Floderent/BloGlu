@@ -114,8 +114,6 @@
                 }, reject);
             });
         }
-        ;
-
 
         function clear(collection) {
             return $q(function (resolve, reject) {
@@ -133,8 +131,6 @@
                 });
             });
         }
-
-
 
         function clearUserCollection(collection, userId) {
             return $q(function (resolve, reject) {
@@ -190,8 +186,6 @@
             return $q.all(promiseArray);
         }
 
-
-
         function addRecord(collection, userId, record) {
             return $q(function (resolve, reject) {                
                 openDatabase().then(function (db) {
@@ -217,7 +211,7 @@
                     var itemStore = transaction.objectStore(collection);
                     putNext();
                     function putNext() {
-                        if (i < records.length) {
+                        if (i < records.length) {                            
                             records[i].userId = userId;
                             itemStore.put(records[i]).onsuccess = putNext;
                             itemStore.put(records[i]).onerror = function (error) {

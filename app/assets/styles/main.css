@@ -265,3 +265,8 @@ body {
     opacity: 0.4;
     filter: alpha(opacity=40); /* For IE8 and earlier */
 }
+
+//import images
+.carelink{
+    background-image: url(../images/carelink_logo.png);
+}

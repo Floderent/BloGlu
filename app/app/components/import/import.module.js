@@ -1,3 +1,3 @@
 (function () {
-    angular.module('bloglu.import',[]);
+    angular.module('bloglu.import',['ngFileUpload']);
 })();

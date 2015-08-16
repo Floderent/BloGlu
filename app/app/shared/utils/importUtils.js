@@ -11,6 +11,7 @@
         var dataFormats = [
              {
                 name: 'careLink',
+                image: 'carelink',
                 supportedEvents: [
                     ResourceCode.bloodGlucose,
                     ResourceCode.medication

@@ -12,7 +12,7 @@
     "jspdf": "~1.0.150",
     "highcharts": "~4.1.7",
     "highcharts-ng": "~0.0.8",
-    "ng-file-upload": "~1.4.0",
+    "ng-file-upload": "~6.2.0",
     "angular-translate": "2.7.2",
     "angular-dynamic-locale": "~0.1.27",
     "angular-translate-loader-static-files": "2.7.2",

@@ -6,13 +6,7 @@
 
     dataService.$inject = ['$q', '$filter', '$injector', '$locale', 'indexeddbService', 'Database', 'Utils', 'UserSessionService'];
 
-    function dataService($q, $filter, $injector, $locale, indexeddbService, Database, Utils, UserSessionService) {
-        /*
-         var dataService = {};
-         var localData = null;
-         var maxResult = 1000;
-         var idField = 'objectId';
-         */
+    function dataService($q, $filter, $injector, $locale, indexeddbService, Database, Utils, UserSessionService) {        
 
         var select = {
             //Year
@@ -221,6 +215,7 @@
         var service = {
             localData: null,
             maxResult: 1000,
+            batchSize: 50,
             idField: 'objectId',
             logOut: logOut,
             init: init,
@@ -242,10 +237,6 @@
             sort: sort
         };
         return service;
-
-
-
-
 
         function logOut() {
             service.localData = null;
@@ -348,7 +339,7 @@
                 });
             });
         }
-
+        
         function updateObjectInfos(object, isCreate) {
             var currentDate = new Date();
             if (object) {

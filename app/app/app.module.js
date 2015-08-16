@@ -7,11 +7,10 @@
         //third party
         'ui.bootstrap',
         'ui.router',
-        'highcharts-ng',
-        'angularFileUpload',        
+        'highcharts-ng',        
         'pascalprecht.translate',
-        'tmh.dynamicLocale',        
-        'LocalStorageModule',        
+        'tmh.dynamicLocale',
+        'LocalStorageModule',
         //application
         'bloglu.translation',
         'bloglu.menuHeader',

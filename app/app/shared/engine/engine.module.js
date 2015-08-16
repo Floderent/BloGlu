@@ -1,3 +1,3 @@
 (function () {
-    angular.module('bloglu.engine',[]);
+    angular.module('bloglu.engine', []);
 })();
