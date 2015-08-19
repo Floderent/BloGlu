@@ -10,14 +10,22 @@
     function periodService($translate, genericDaoService, dateUtil) {
 
         var resourceName = 'Period';
-        var periodService = {};
-
-
-        periodService.getPeriods = function () {
-            return genericDaoService.getAll(resourceName);
+        var periodService = {
+            getPeriods: getPeriods,
+            savePeriod: savePeriod,
+            deletePeriod: deletePeriod,
+            processPeriods: processPeriods,
+            arePeriodsOnMoreThanOneDay: arePeriodsOnMoreThanOneDay,
+            getNewPeriod: getNewPeriod,
+            checkPeriods: checkPeriods
         };
+        return periodService;
 
-        periodService.savePeriod = function (period, isEdit) {
+        function getPeriods() {
+            return genericDaoService.getAll(resourceName);
+        }
+
+        function savePeriod(period, isEdit) {
             var objectToSave = {
                 objectId: period.objectId,
                 name: period.name,
@@ -25,26 +33,25 @@
                 end: period.end
             };
             return genericDaoService.save(resourceName, objectToSave, isEdit);
-        };
+        }
 
-        periodService.deletePeriod = function (period) {
+        function deletePeriod(period) {
             return genericDaoService.remove(resourceName, period);
-        };
+        }
 
-        periodService.processPeriods = function (periodArray) {
+        function processPeriods(periodArray) {
             var newPeriod = null;
             if (dateUtil.arePeriodsOnMoreThanOneDay(periodArray) === 0) {
                 newPeriod = getNewPeriod(periodArray);
             }
             return newPeriod;
-        };
+        }
 
-
-        periodService.arePeriodsOnMoreThanOneDay = function (periodArray) {
+        function arePeriodsOnMoreThanOneDay(periodArray) {
             return (dateUtil.arePeriodsOnMoreThanOneDay(periodArray) >= 1);
-        };
+        }
 
-        periodService.getNewPeriod = function (periodArray) {
+        function getNewPeriod(periodArray) {
             var maxEndDate = dateUtil.getPeriodMaxEndDate(periodArray);
             if (maxEndDate === null) {
                 maxEndDate = new Date();
@@ -65,10 +72,10 @@
                 end: endDate
             };
             return newPeriod;
-        };
+        }
 
 
-        periodService.checkPeriods = function (periods, newPeriod) {
+        function checkPeriods(periods, newPeriod) {
             var errorMessages = [];
             var periodArray = periods.slice();
             if (newPeriod && newPeriod.begin && newPeriod.end) {
@@ -83,8 +90,8 @@
                 errorMessages.push($translate.instant("period.errorIntersection"));
             }
             return errorMessages;
-        };
+        }
 
-        return periodService;
+        
     }
 })();

@@ -9,18 +9,28 @@
     function rangeService($translate, genericDaoService, UserService) {
 
         var resourceName = 'Range';
-        var rangeService = {};
+        var rangeService = {
+            getDefaultUnit: getDefaultUnit,
+            getRanges: getRanges,
+            saveRange: saveRange,
+            deleteRange: deleteRange,
+            processRanges: processRanges,
+            checkRanges: checkRanges,
+            isNormalDefined: isNormalDefined,
+            areRangesIntersecting: areRangesIntersecting,
+            areRangeIntersecting: areRangeIntersecting
+        };
+        return rangeService;
 
-
-        rangeService.getDefaultUnit = function () {
+        function getDefaultUnit() {
             return UserService.getDefaultUnit(resourceName);
-        };
+        }
 
-        rangeService.getRanges = function () {
+        function getRanges() {
             return genericDaoService.getAll(resourceName);
-        };
+        }
 
-        rangeService.saveRange = function (range, isEdit) {
+        function saveRange(range, isEdit) {
             var objectToSave = {
                 unit: range.unit,
                 lowerLimit: range.lowerLimit,
@@ -29,15 +39,13 @@
                 color: range.color
             };
             return genericDaoService.save(resourceName, objectToSave, isEdit);
-        };
+        }
 
-        rangeService.deleteRange = function (range) {
+        function deleteRange(range) {
             return genericDaoService.remove(resourceName, range);
-        };
+        }
 
-
-
-        rangeService.processRanges = function (rangeArray, newRangeUnit) {
+        function processRanges(rangeArray, newRangeUnit) {
             var maxUpperLimit = 0;
             angular.forEach(rangeArray, function (range) {
                 if (range.upperLimit > maxUpperLimit) {
@@ -52,9 +60,9 @@
                 color: ''
             };
             return newRange;
-        };
+        }
 
-        rangeService.checkRanges = function (ranges, newRange) {
+        function checkRanges(ranges, newRange) {
             var errorMessages = [];
             var rangeArray = ranges.slice();
             if (newRange && newRange.lowerLimit && newRange.upperLimit) {
@@ -70,10 +78,10 @@
                 errorMessages.push($translate.instant("range.errorIntersection"));
             }
             return errorMessages;
-        };
+        }
 
 
-        rangeService.isNormalDefined = function (ranges) {
+        function isNormalDefined(ranges) {
             var isNormalRangeAlreadyDefined = false;
             for (var index in ranges) {
                 if (ranges[index].normal) {
@@ -82,9 +90,9 @@
                 }
             }
             return isNormalRangeAlreadyDefined;
-        };
+        }
 
-        rangeService.areRangesIntersecting = function (rangeArray) {
+        function areRangesIntersecting(rangeArray) {
             var areRangeIntersecting = false;
             if (rangeArray && Array.isArray(rangeArray)) {
                 for (var index = 0; index < rangeArray.length; index++) {
@@ -101,19 +109,19 @@
                 }
             }
             return areRangeIntersecting;
-        };
+        }
 
-        rangeService.areRangeIntersecting = function (range1, range2) {
+        function areRangeIntersecting(range1, range2) {
             var range1Begin = range1.lowerLimit * range1.unit.coefficient;
             var range1End = range1.upperLimit * range1.unit.coefficient;
             var range2Begin = range2.lowerLimit * range2.unit.coefficient;
             var range2End = range2.upperLimit * range2.unit.coefficient;
             return range1Begin > range2Begin && range1Begin < range2End ||
                     range1End > range2Begin && range1End < range2End;
-        };
+        }
 
 
 
-        return rangeService;
+        
     }
 })();

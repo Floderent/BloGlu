@@ -231,6 +231,7 @@
             query: query,
             queryParse: queryParse,
             processResult: processResult,
+            getDuplicates: getDuplicates,
             orderBy: orderBy,
             select: select,
             where: where,
@@ -292,7 +293,22 @@
                 return allData;
             });
         }
-
+        
+        function getDuplicates(collection, recordsToCheck, propertiesToCheck){
+            var duplicates = [];            
+            return service.init().then(function(localData){
+                if(localData[collection]){
+                    angular.forEach(recordsToCheck, function(recordToCheck){
+                        angular.forEach(localData[collection], function(storedRecord){
+                            if(Utils.equals(recordToCheck, storedRecord, propertiesToCheck)){
+                                duplicates.push(recordToCheck);
+                            }
+                        });
+                    });
+                }
+                return duplicates;
+            });
+        }
 
         function save(collection, data, params) {            
             return service.init().then(function (localData) {

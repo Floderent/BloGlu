@@ -5,9 +5,9 @@
     angular.module('bloglu.report')
             .controller('reportController', reportController);
 
-    reportController.$inject = ['menuHeaderService', '$scope', '$q', '$window', '$state', 'DataVisualization', 'reportService', 'queryService', 'MessageService', 'Utils'];
+    reportController.$inject = ['$scope', '$q', '$window', '$state', 'menuHeaderService',  'DataVisualization', 'reportService', 'queryService', 'MessageService', 'Utils'];
 
-    function reportController(menuHeaderService, $scope, $q, $window, $state, DataVisualization, reportService, queryService, MessageService, Utils) {
+    function reportController($scope, $q, $window, $state, menuHeaderService,  DataVisualization, reportService, queryService, MessageService, Utils) {
 
         var vm = this;
 
@@ -33,7 +33,7 @@
         vm.executeQuery = executeQuery;
         vm.update = update;
         vm.deleteReport = deleteReport;
-        
+
         vm.beginDateOpened = false;
         vm.endDateOpened = false;
         vm.openBeginDate = openBeginDate;
@@ -59,8 +59,8 @@
                 menuHeaderService.decreasePending("processingMessage.loading");
             });
         }
-        
-        function openBeginDate($event){
+
+        function openBeginDate($event) {
             $event.preventDefault();
             $event.stopPropagation();
             if (vm.beginDateOpened) {
@@ -69,8 +69,8 @@
                 vm.beginDateOpened = true;
             }
         }
-        
-        function openEndDate($event){
+
+        function openEndDate($event) {
             $event.preventDefault();
             $event.stopPropagation();
             if (vm.endDateOpened) {
@@ -79,8 +79,8 @@
                 vm.endDateOpened = true;
             }
         }
-        
-        
+
+
         function getReport() {
             return $q(function (resolve, reject) {
                 if (vm.isEdit) {
@@ -148,8 +148,8 @@
 
         function changeDisplay() {
             vm.executeQuery();
-        }
-
+        }        
+       
         function addFilter(selectedFilter) {
             vm.report.filter = [];
             if (selectedFilter.customParameters) {
@@ -159,7 +159,7 @@
                 } else {
                     //error in filter value form
                 }
-            } else {
+            } else {                
                 vm.report.filter.push(getSelectedFilter(selectedFilter));
                 vm.executeQuery();
             }
@@ -181,12 +181,20 @@
             menuHeaderService.increasePending("processingMessage.updatingData");
             reportService.saveReport(vm.report, vm.isEdit).then(function (result) {
                 vm.report = angular.extend(vm.report, result);
-                if (!vm.isEdit) {
-                    $state.go('report', {objectId: vm.report.objectId});
+                if (vm.isEdit) {
+                    MessageService.successMessage('successMessage.reportUpdated', 2000);
+                }else{
+                    //$state.go('report', {objectId: vm.report.objectId});
+                    MessageService.successMessage('successMessage.reportCreated', 2000);
                 }
-                MessageService.successMessage('successMessage.reportUpdated', 2000);
+                return $state.go('reports');
             }, function (error) {
-                MessageService.errorMessage("errorMessage.creatingError", 2000);
+                if(vm.isEdit){
+                    MessageService.errorMessage("errorMessage.updatingError", 2000);
+                }else{
+                    MessageService.errorMessage("errorMessage.creatingError", 2000);
+                }
+                
             })['finally'](function () {
                 menuHeaderService.decreasePending("processingMessage.updatingData");
             });

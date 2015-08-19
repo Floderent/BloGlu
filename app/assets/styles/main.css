@@ -265,3 +265,7 @@ body {
     opacity: 0.4;
     filter: alpha(opacity=40); /* For IE8 and earlier */
 }
+
+.overflow-panel-body{
+    overflow: auto;
+}

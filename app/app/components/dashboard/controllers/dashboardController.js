@@ -25,19 +25,17 @@
             dashboardService.saveDashboard(vm.dashboard);
         }
 
-        function renderPage() {            
-            menuHeaderService.increasePending('processingMessage.loadingData');
+        function renderPage() {
+            debugger;
+            menuHeaderService.increasePending('processingMessage.loadingData');            
             dashboardService.getDashboard().then(function (dashboard) {
-                vm.dashboard = dashboard;
-                dashboardService.addReport(dashboard).then(function () {
-                    dashboardService.executeDashboard(dashboard, vm.reportTab).then(function () {
-                    }, function (executeDashboardError) {
-                        //error message
-                    })['finally'](function () {
-                    });
-                }, function (addReportError) {
+                vm.dashboard = dashboard;                
+                dashboardService.executeDashboard(dashboard, vm.reportTab).then(function () {
+                }, function (executeDashboardError) {
                     //error message
+                })['finally'](function () {
                 });
+                
             }, function (dashboardError) {
             })['finally'](function () {
                 menuHeaderService.decreasePending('processingMessage.loadingData');

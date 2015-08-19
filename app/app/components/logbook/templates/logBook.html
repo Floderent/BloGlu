@@ -29,51 +29,57 @@
                         <button ng-disabled="vm.loadingState.pending > 0" ng-click="vm.printToPDF()" type="button" class="btn">{{ 'logBook.print' | translate }}</button>
                     </div>
                     <div class="text-center">
-                        <h3>{{vm.logBookTitle}} <small class="">{{vm.timeInterval.begin | date:'dd/MM/yyyy'}} - {{vm.timeInterval.end | date:'dd/MM/yyyy'}}</small></h3>
+                        <h3>{{vm.logBookTitle}} <small class="">{{vm.timeInterval.begin| date:'dd/MM/yyyy'}} - {{vm.timeInterval.end| date:'dd/MM/yyyy'}}</small></h3>
                     </div>
                 </form>
             </li>
         </ul>        
     </div>
 
-    <!-- Event table -->
-    <div class="table-responsive">
-        <table class="table">
-            <th ng-repeat="period in vm.header track by $index">
-                {{period.name}}
-            </th>
-            <tr ng-repeat="line in vm.data track by $index" ng-if="$index != 0">
-                <td ng-repeat="bloodGlucoseReadings in line track by $index">
-                    <!-- Row header -->
-                    <div ng-if="$index == 0">
-                        <div ng-if="vm.interval == 'week'">
-                            <strong>{{bloodGlucoseReadings.date| date:'EEEE d MMM'}}</strong>
-                        </div>
-                        <div ng-if="vm.interval != 'week'">
-                            <strong>{{bloodGlucoseReadings.text}}</strong>
-                        </div>                            
-                    </div>
-                    <div ng-if="($index != 0 && vm.interval === 'week') || (vm.interval === 'day')">
-                        <div ng-repeat="bloodGlucoseReading in bloodGlucoseReadings| orderBy:'dateTime'">                            
-                            <div>
-                                <bloglu-event bloglu-event="bloodGlucoseReading" click-action="vm.viewEvent(code, objectId)"></bloglu-event>                                
+    <div class="panel-body overflow-panel-body">
+        <!-- Event table -->
+        <div class="table-responsive">
+            <table class="table">
+                <thead>
+                    <tr>
+                        <th ng-repeat="period in vm.header track by $index">{{period.name}}</th>
+                    </tr>                    
+                </thead>
+                <tbody>
+                    <tr ng-repeat="line in vm.data track by $index" ng-if="$index != 0">
+                        <td ng-repeat="bloodGlucoseReadings in line track by $index">
+                            <!-- Row header -->
+                            <div ng-if="$index == 0">
+                                <div ng-if="vm.interval == 'week'">
+                                    <strong>{{bloodGlucoseReadings.date| date:'EEEE d MMM'}}</strong>
+                                </div>
+                                <div ng-if="vm.interval != 'week'">
+                                    <strong>{{bloodGlucoseReadings.text}}</strong>
+                                </div>                            
                             </div>
-                        </div>
-                        <!-- handle case of empty section -->
-                        <div ng-if="bloodGlucoseReadings.length === 0">
-                            <button ng-click="vm.addEvent(line[0], vm.header[$index])" class="center-block btn btn-primary"><span class="glyphicon glyphicon-plus-sign"></span></button>
-                        </div>
-                    </div>
+                            <div ng-if="($index != 0 && vm.interval === 'week') || (vm.interval === 'day')">
+                                <div ng-repeat="bloodGlucoseReading in bloodGlucoseReadings| orderBy:'dateTime'">                            
+                                    <div>
+                                        <bloglu-event bloglu-event="bloodGlucoseReading" click-action="vm.viewEvent(code, objectId)"></bloglu-event>                                
+                                    </div>
+                                </div>
+                                <!-- handle case of empty section -->
+                                <div ng-if="bloodGlucoseReadings.length === 0">
+                                    <button ng-click="vm.addEvent(line[0], vm.header[$index])" class="center-block btn btn-primary"><span class="glyphicon glyphicon-plus-sign"></span></button>
+                                </div>
+                            </div>
 
-                    <div ng-if="vm.interval !== 'week' && vm.interval !== 'day' && bloodGlucoseReadings.length > 0">
-                        <div ng-if="bloodGlucoseReadings.length > 0">                                
-                            <div ng-repeat="(key, value) in bloodGlucoseReadings[0]">
-                                <bloglu-event-group bloglu-grouped-event="value" bloglu-grouped-event-zoom-in-interval="vm.zoomInInterval(date)"></bloglu-event-group>
+                            <div ng-if="vm.interval !== 'week' && vm.interval !== 'day' && bloodGlucoseReadings.length > 0">
+                                <div ng-if="bloodGlucoseReadings.length > 0">                                
+                                    <div ng-repeat="(key, value) in bloodGlucoseReadings[0]">
+                                        <bloglu-event-group bloglu-grouped-event="value" bloglu-grouped-event-zoom-in-interval="vm.zoomInInterval(date)"></bloglu-event-group>
+                                    </div>
+                                </div>                        
                             </div>
-                        </div>                        
-                    </div>
-                </td>                
-            </tr> 
-        </table>
+                        </td>                
+                    </tr>
+                </tbody>
+            </table>
+        </div>
     </div>
 </div>

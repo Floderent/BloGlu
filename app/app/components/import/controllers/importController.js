@@ -4,16 +4,16 @@
     angular.module('bloglu.import')
             .controller('importController', importController);
 
-    importController.$inject = ['menuHeaderService','importService', 'MessageService', 'ResourceIcon'];
+    importController.$inject = ['$state','menuHeaderService','importService', 'MessageService', 'ResourceIcon'];
 
-    function importController(menuHeaderService, importService, MessageService, ResourceIcon) {
+    function importController($state, menuHeaderService, importService, MessageService, ResourceIcon) {
         
         var vm = this;
         
         vm.loadingState = menuHeaderService.loadingState;
         vm.uploadProgress = 0;
         vm.file = null;
-        vm.eventsToImport = [];
+        vm.eventsToImport = null;
         
         vm.import = {};
         vm.parsedFileInfos = null;        
@@ -53,8 +53,14 @@
                     .then(importService.downloadFile)                    
                     .then(function(fileContent){                        
                         vm.eventsToImport = importService.getDataFromFile(fileContent, vm.import.type);
-                        return;
-                    }).catch(function(error){
+                        return vm.eventsToImport;
+                    })
+                    .then(importService.checkForDuplicates)
+                    .then(function(duplicates){
+                        vm.duplicates = duplicates;
+                        return duplicates;
+                    })
+                    .catch(function(error){
                         MessageService.errorMessage('errorMessage.errorUploading');
                     })['finally'](function(){
                         menuHeaderService.decreasePending('processingMessage.uploadingData');
@@ -71,6 +77,8 @@
                 MessageService.errorMessage('errorMessage.errorImporting');
             })['finally'](function(){
                 menuHeaderService.decreasePending('processingMessage.importingData');
+                MessageService.errorMessage('successMessage.successImporting');
+                return $state.go('imports');
             });
         }
         

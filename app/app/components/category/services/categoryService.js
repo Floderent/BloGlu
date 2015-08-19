@@ -9,15 +9,21 @@
     categoryService.$inject = ['dataService', 'genericDaoService'];
 
     function categoryService(dataService, genericDaoService) {
-
-        var categoryService = {};
+        
         var resourceName = 'Category';
-
-        categoryService.getCategoriesByCode = function (code) {
-            return dataService.queryLocal(resourceName, {where: {code: code}});
+        
+        var categoryService = {
+            getCategoriesByCode: getCategoriesByCode,
+            saveCategory: saveCategory,
+            deleteCategory: deleteCategory
         };
+        return categoryService;
 
-        categoryService.saveCategory = function (category, isEdit) {
+        function getCategoriesByCode(code) {
+            return dataService.queryLocal(resourceName, {where: {code: code}});
+        }
+
+        function saveCategory(category, isEdit) {
             var savingPromise = null;
             var saveObject = {};
             if (category) {
@@ -30,15 +36,11 @@
                 savingPromise = dataService.save(resourceName, saveObject);
             }
             return savingPromise;
-        };
+        }
 
-
-        categoryService.deleteCategory = function (category) {
+        function deleteCategory(category) {
             return genericDaoService.remove(resourceName, category);
-        };
-
-
-
-        return categoryService;
+        }
+        
     }
 })();

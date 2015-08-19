@@ -1,28 +1,23 @@
 (function () {
-'use strict';
-
-angular.module('bloglu.utils')
+    'use strict';
+    
+    angular.module('bloglu.utils')
             .factory('Utils', Utils);
 
+    Utils.$inject = ['$modal', '$rootScope', '$translate', 'ResourceName', 'UserSessionService'];
 
-Utils.$inject = ['$modal', '$rootScope', '$translate', 'ResourceName', 'UserSessionService'];
+    function Utils($modal, $rootScope, $translate, ResourceName, UserSessionService) {
+        var Utils = {
+            openConfirmModal: openConfirmModal,
+            getConnectedUser: getConnectedUser,
+            getReferenceUnit: getReferenceUnit,
+            getDefaultUnit: getDefaultUnit,
+            getConvertedReading: getConvertedReading,
+            equals: equals
+        };
+        return Utils;
 
-function Utils($modal, $rootScope, $translate, ResourceName, UserSessionService) {
-        var Utils = {};
-        Utils.guid = (function () {
-            function s4() {
-                return Math.floor((1 + Math.random()) * 0x10000)
-                        .toString(16)
-                        .substring(1);
-            }
-            return function () {
-                return s4() + s4() + '-' + s4() + '-' + s4() + '-' +
-                        s4() + '-' + s4() + s4() + s4();
-            };
-        })();
-
-
-        Utils.openConfirmModal = function (scopeOptions, modalOptions) {
+        function openConfirmModal(scopeOptions, modalOptions) {
             var modalScope = $rootScope.$new();
             modalScope = angular.extend(modalScope, scopeOptions);
             if (scopeOptions) {
@@ -43,10 +38,10 @@ function Utils($modal, $rootScope, $translate, ResourceName, UserSessionService)
             };
             var defaultModalOptions = angular.extend(defaultModalOptions, modalOptions);
             return $modal.open(defaultModalOptions).result;
-        };
+        }
 
 
-        Utils.getConnectedUser = function (localData) {
+        function getConnectedUser(localData) {
             var currentUserId = UserSessionService.getUserId();
             var connectedUser = null;
             if (localData && localData.User) {
@@ -58,9 +53,9 @@ function Utils($modal, $rootScope, $translate, ResourceName, UserSessionService)
                 });
             }
             return connectedUser;
-        };
+        }
 
-        Utils.getReferenceUnit = function (localData, resourceCode) {
+        function getReferenceUnit(localData, resourceCode) {
             var referenceUnit = null;
             if (localData && localData.Unit) {
                 angular.forEach(localData.Unit, function (unit) {
@@ -71,10 +66,10 @@ function Utils($modal, $rootScope, $translate, ResourceName, UserSessionService)
                 });
             }
             return referenceUnit;
-        };
+        }
 
 
-        Utils.getDefaultUnit = function (localData, resourceCode) {
+        function getDefaultUnit(localData, resourceCode) {
             var defaultUnit = null;
             var connectedUser = Utils.getConnectedUser(localData);
             if (connectedUser.preferences && connectedUser.preferences.defaultUnits && connectedUser.preferences.defaultUnits[ResourceName[parseInt(resourceCode)]]) {
@@ -83,9 +78,9 @@ function Utils($modal, $rootScope, $translate, ResourceName, UserSessionService)
                 defaultUnit = Utils.getReferenceUnit(localData, resourceCode);
             }
             return defaultUnit;
-        };
+        }
 
-        Utils.getConvertedReading = function (value, row, localData, resourceCode) {
+        function getConvertedReading(value, row, localData, resourceCode) {
             var returnValue = null;
             if (row.code && row.code === resourceCode) {
                 returnValue = value;
@@ -96,10 +91,23 @@ function Utils($modal, $rootScope, $translate, ResourceName, UserSessionService)
                 }
             }
             return returnValue;
-        };
-        return Utils;
+        }
+        
+        function equals(object1, object2, propertiesToCheck){
+            var areEquals = true;
+            if(!object1 && object2 || object1 && !object2){
+                areEquals = false;
+            }else{
+                angular.forEach(propertiesToCheck, function(property){
+                if(object1[property] !== object2[property]){
+                    areEquals = false;
+                    return;
+                }
+            });
+            }            
+            return areEquals;
+        }        
+
     }
-
-
 
 })();

@@ -36,7 +36,11 @@
                         event.dateTime = dateUtil.processDateTime(dataArray[3]);
                         //TODO remove hard coded unit
                         //mg/dL
-                        event.unit = {objectId: '0Erp4POX9d'};
+                        event.unit = {
+                            objectId: '0Erp4POX9d',
+                            name: 'mg/dL',
+                            description: 'mg/dL'
+                        };
                         event.code = 1;
                     } else {
                         if (dataArray.length >= 29 && dataArray[10] && dataArray[11] && dataArray[3] && dataArray[0] !== 'Index') {
@@ -45,7 +49,11 @@
                             event.dateTime = dateUtil.processDateTime(dataArray[3]);
                             //TODO remove hard coded unit
                             //u
-                            event.unit = {objectId: 'mGI1gkg1hF'};
+                            event.unit = {
+                                objectId: 'mGI1gkg1hF',
+                                name: 'u',
+                                description: 'unit'
+                            };
                             event.code = 2;
                         }
                     }
@@ -53,8 +61,6 @@
                 }
             }
         ];
-
-
 
         var service = {
             CSVToArray: CSVToArray,
@@ -73,8 +79,7 @@
                 }                
             });
             return foundFormat;            
-        }
-        
+        }        
 
         // This will parse a delimited string into an array of
         // arrays. The default delimiter is the comma, but this

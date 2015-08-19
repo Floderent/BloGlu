@@ -5,9 +5,9 @@
             .module('bloglu.event')
             .controller('eventController', eventController);
 
-    eventController.$inject = ['$scope', '$q', 'menuHeaderService', '$stateParams', '$window', 'categoryService', 'eventService', 'MessageService', 'ResourceCode', 'unitService', 'UserService', 'Utils'];
+    eventController.$inject = ['$scope', '$q', '$stateParams', '$state', 'menuHeaderService',  'categoryService', 'eventService', 'MessageService', 'ResourceCode', 'unitService', 'UserService', 'Utils'];
 
-    function eventController($scope, $q, menuHeaderService, $stateParams, $window, categoryService, eventService, MessageService, ResourceCode, unitService, UserService, Utils) {
+    function eventController($scope, $q, $stateParams, $state, menuHeaderService,  categoryService, eventService, MessageService, ResourceCode, unitService, UserService, Utils) {
 
         var vm = this;
 
@@ -121,7 +121,10 @@
         function confirmAction() {
             switch (vm.windowMode) {
                 case 'NORMAL':
-                    $window.history.back();
+                    $state.go('logBook',{
+                        weekDate: vm.event.dateTime.toISOString(),
+                        display: [vm.eventCode]
+                    });                    
                     break;
                 case 'MODAL':
                     $scope.$dismiss();

@@ -11,6 +11,12 @@
             controllerAs: 'vm',
             templateUrl: 'app/components/dashboard/templates/dashboard.html'
         });
+        $stateProvider.state('default', {
+            url: '/',
+            controller: 'dashboardController',
+            controllerAs: 'vm',
+            templateUrl: 'app/components/dashboard/templates/dashboard.html'
+        });
     }
 })();
 

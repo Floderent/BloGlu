@@ -60,6 +60,7 @@
                             report: reportId
                         });
                     }
+                    debugger;
                     dashboardService.saveDashboard(dashboard).then(resolve, reject);
                 } else {
                     reject();
@@ -87,7 +88,7 @@
 
         function getDashboard() {
             return $q(function (resolve, reject) {
-                dashboardService.getDashboards().then(function (dashboards) {
+                dashboardService.getDashboards().then(function (dashboards) {                    
                     var dashboard = {
                         name: 'mainPage',
                         reports: []

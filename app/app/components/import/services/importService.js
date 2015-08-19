@@ -21,6 +21,7 @@
             uploadFile: uploadFile,            
             getDataFromFile: getDataFromFile,
             batchRequestProcess: batchRequestProcess,
+            checkForDuplicates: checkForDuplicates,
             dataFormats: importUtils.dataFormats
         };
         return importService;
@@ -111,7 +112,12 @@
                 }
                 return dataService.addRecords('Event', batchData);
             });
-        }        
-
+        }
+        
+        function checkForDuplicates(eventsToCheck){
+            return dataService.getDuplicates('Event', eventsToCheck, ['dateTime', 'reading', 'code']);
+        }
+        
+        
     }
 })();

@@ -126,7 +126,9 @@
         "reportUpdated" : "Report updated",        
         "dataImported" : "Data imported",
         
-        "userUpdated": "User updated"
+        "userUpdated": "User updated",
+        
+        "successImporting": "Data imported"
     },
     
     "resource":{

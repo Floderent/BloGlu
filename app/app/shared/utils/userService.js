@@ -8,7 +8,8 @@
 
 
     function UserService($q, genericDaoService, UserSessionService) {
-
+        
+        var resourceName = 'User';
         var UserService = {
             saveUser: saveUser,
             getUser: getUser,
@@ -19,8 +20,7 @@
             getDefaultUnits: getDefaultUnits,
             getDefaultUnit: getDefaultUnit
         };
-        return UserService;
-        var resourceName = 'User';
+        return UserService;        
 
         function saveUser(user) {
             return genericDaoService.save(resourceName, user, true);

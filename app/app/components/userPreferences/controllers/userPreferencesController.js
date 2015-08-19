@@ -75,7 +75,7 @@
                 confirmNo: 'confirm.no'
             };
             Utils.openConfirmModal(modalScope).then(function (confirmed) {
-                menuHeaderService.increasePending('processingMessage.deletingData');
+                menuHeaderService.increasePending('processingMessage.deletingData');                
                 UserService.deleteUser(user).then(function () {
                     menuHeaderService.logOut();
                 }, function (error) {
