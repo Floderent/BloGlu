@@ -87,12 +87,20 @@
             return eventsToInsert;
         }
 
-        function batchRequestProcess(data) {
+        function batchRequestProcess(data, duplicateData) {
+            
+            var dataToImport = data;
+            if(duplicateData && duplicateData.length > 0){
+                dataToImport = data.filter(function(element){
+                    return duplicateData.indexOf(element) < 0;
+                });
+            }
+            
             var batchSize = 50;
             var promiseArray = [];
             var batchData = [];
-            for (var i in data) {
-                var event = data[i];
+            for (var i in dataToImport) {
+                var event = dataToImport[i];
                 batchData.push(event);
                 if (batchData.length % batchSize === 0) {
                     promiseArray.push(saveBatch(batchData));
@@ -114,7 +122,7 @@
             });
         }
         
-        function checkForDuplicates(eventsToCheck){
+        function checkForDuplicates(eventsToCheck){            
             return dataService.getDuplicates('Event', eventsToCheck, ['dateTime', 'reading', 'code']);
         }
         

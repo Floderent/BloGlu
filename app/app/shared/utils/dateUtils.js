@@ -28,7 +28,9 @@
             getCurrentWeekSundayAndMonday: getCurrentWeekSundayAndMonday,
             arePeriodsOnMoreThanOneDay: arePeriodsOnMoreThanOneDay,
             convertToNormalFormat: convertToNormalFormat,
-            convertToParseFormat: convertToParseFormat
+            convertToParseFormat: convertToParseFormat,
+            convert: convert,
+            compareDates: compareDates
         };
         return dateUtil;
 
@@ -48,7 +50,7 @@
             var utc2 = //Date.UTC(b.getFullYear(), b.getMonth(), b.getDate());
                     getGMTMillis(b);
             return Math.floor((utc2 - utc1) / coef);
-        }       
+        }
 
         function dateDiffInHours(a, b) {
             var _MS_PER_HOUR = 1000 * 60 * 60;
@@ -352,6 +354,31 @@
             }
             return parseDate;
         }
+        // Converts the date in d to a date-object. The input can be:
+        //   a date object: returned without modification
+        //  an array      : Interpreted as [year,month,day]. NOTE: month is 0-11.
+        //   a number     : Interpreted as number of milliseconds
+        //                  since 1 Jan 1970 (a timestamp) 
+        //   a string     : Any format supported by the javascript engine, like
+        //                  "YYYY/MM/DD", "MM/DD/YYYY", "Jan 31 2009" etc.
+        //  an object     : Interpreted as an object with year, month and date
+        //                  attributes.  **NOTE** month is 0-11.
+        function convert(d) {
+            return (d.constructor === Date ? d : d.constructor === Array ? new Date(d[0], d[1], d[2]) : d.constructor === Number ? new Date(d) : d.constructor === String ? new Date(d) : typeof d === "object" ? new Date(d.year, d.month, d.date) : NaN);
+        }
+
+
+        // Compare two dates (could be of any type supported by the convert
+        // function above) and returns:
+        //  -1 : if a < b
+        //   0 : if a = b
+        //   1 : if a > b
+        // NaN : if a or b is an illegal date
+        // NOTE: The code inside isFinite does an assignment (=).
+        function compareDates(a, b) {
+            return (isFinite(a = dateUtil.convert(a).valueOf()) && isFinite(b = dateUtil.convert(b).valueOf()) ? (a > b) - (a < b) : NaN);
+        }
+
 
     }
 

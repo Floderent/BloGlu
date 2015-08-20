@@ -69,16 +69,22 @@
         
         function insertData(){
             menuHeaderService.increasePending('processingMessage.importingData');
-            vm.import.dateTime = new Date();
-            
-            return importService.saveImport(vm.import, false).then(function(){
-                return importService.batchRequestProcess(vm.eventsToImport);
-            }, function(error){
-                MessageService.errorMessage('errorMessage.errorImporting');
-            })['finally'](function(){
-                menuHeaderService.decreasePending('processingMessage.importingData');
-                MessageService.errorMessage('successMessage.successImporting');
-                return $state.go('imports');
+            vm.import.dateTime = new Date();            
+            return importService.saveImport(vm.import, false)
+                .then(function(){                    
+                    return importService.batchRequestProcess(vm.eventsToImport, vm.duplicates);                   
+                }, function(error){
+                    MessageService.errorMessage('errorMessage.errorImporting');
+                    return error;
+                })
+                .then(function(){
+                    MessageService.successMessage('successMessage.successImporting');
+                    return $state.go('imports');
+                }, function(error){
+                    MessageService.errorMessage('errorMessage.errorImporting');
+                    return error;
+                })['finally'](function(){
+                    menuHeaderService.decreasePending('processingMessage.importingData');
             });
         }
         

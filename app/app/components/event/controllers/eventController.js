@@ -122,7 +122,7 @@
             switch (vm.windowMode) {
                 case 'NORMAL':
                     $state.go('logBook',{
-                        weekDate: vm.event.dateTime.toISOString(),
+                        weekDate: vm.date.toISOString(),
                         display: [vm.eventCode]
                     });                    
                     break;

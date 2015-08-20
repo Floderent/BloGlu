@@ -201,7 +201,11 @@
         "chooseFile": "Choisissez un fichier",
         "uploadFile": "Envoyer le fichier",
         "eventsToInsert": "évènement(s) à importer",
-        "insertData": "Importer"
+        "insertData": "Importer",
+        "success": "Réussite !",
+        "warning": "Attention !",
+        "error": "Erreur !",
+        "duplicates": "évènements existent déjà. Ils ne seront pas importés"
     },
     "importList": {
         "pageTitle": "Voir la liste des imports",

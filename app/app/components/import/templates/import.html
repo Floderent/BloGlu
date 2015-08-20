@@ -47,10 +47,10 @@
 
             <div ng-if="vm.eventsToImport.length > 0">
                 <div class="alert alert-success" role="alert">  
-                    <strong>Success!</strong>&nbsp;{{vm.eventsToImport.length}}&nbsp;{{"import.eventsToInsert"| translate}}
+                    <strong>{{"import.success" | translate}}</strong>&nbsp;{{vm.eventsToImport.length}}&nbsp;{{"import.eventsToInsert"| translate}}
                 </div>
                 <div ng-if="vm.duplicates.length > 0" class="alert alert-warning" role="alert">  
-                    <strong>Warning!</strong>&nbsp;{{vm.duplicates.length}}&nbsp;{{"import.duplicates"| translate}}
+                    <strong>{{"import.warning" | translate}}</strong>&nbsp;{{vm.duplicates.length}}&nbsp;{{"import.duplicates"| translate}}
                 </div>                
                 <div class="form-group">
                     <button class="btn btn-success" ng-click="vm.insertData()">
@@ -61,7 +61,7 @@
             
             <div ng-if="vm.eventsToImport.length === 0">
                 <div class="alert alert-error" role="alert">  
-                    <strong>Error!</strong>&nbsp;{{"import.nothingToImport"| translate}}
+                    <strong>{{"import.error" | translate}}</strong>&nbsp;{{"import.nothingToImport"| translate}}
                 </div>
             </div>
             

@@ -1,12 +1,12 @@
 (function () {
     'use strict';
-    
+
     angular.module('bloglu.utils')
             .factory('Utils', Utils);
 
-    Utils.$inject = ['$modal', '$rootScope', '$translate', 'ResourceName', 'UserSessionService'];
+    Utils.$inject = ['$modal', '$rootScope', '$translate', 'ResourceName', 'UserSessionService', 'dateUtil'];
 
-    function Utils($modal, $rootScope, $translate, ResourceName, UserSessionService) {
+    function Utils($modal, $rootScope, $translate, ResourceName, UserSessionService, dateUtil) {
         var Utils = {
             openConfirmModal: openConfirmModal,
             getConnectedUser: getConnectedUser,
@@ -92,21 +92,29 @@
             }
             return returnValue;
         }
-        
-        function equals(object1, object2, propertiesToCheck){
+
+        function equals(object1, object2, propertiesToCheck) {
             var areEquals = true;
-            if(!object1 && object2 || object1 && !object2){
+            if (!object1 && object2 || object1 && !object2) {
                 areEquals = false;
-            }else{
-                angular.forEach(propertiesToCheck, function(property){
-                if(object1[property] !== object2[property]){
-                    areEquals = false;
-                    return;
-                }
-            });
-            }            
+            } else {
+                angular.forEach(propertiesToCheck, function (property) {
+                    if (object1[property] instanceof Date && object2[property] instanceof Date) {
+                        if (dateUtil.compareDates(object1[property], object2[property]) !== 0) {
+                            areEquals = false;
+                            return;
+                        }
+                    }else{
+                        if (object1[property] !== object2[property]) {
+                            areEquals = false;
+                            return;
+                        }
+                    }
+                    
+                });
+            }
             return areEquals;
-        }        
+        }
 
     }
 
