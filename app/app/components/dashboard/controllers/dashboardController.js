@@ -25,8 +25,7 @@
             dashboardService.saveDashboard(vm.dashboard);
         }
 
-        function renderPage() {
-            debugger;
+        function renderPage() {            
             menuHeaderService.increasePending('processingMessage.loadingData');            
             dashboardService.getDashboard().then(function (dashboard) {
                 vm.dashboard = dashboard;                

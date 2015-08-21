@@ -30,7 +30,10 @@
             convertToNormalFormat: convertToNormalFormat,
             convertToParseFormat: convertToParseFormat,
             convert: convert,
-            compareDates: compareDates
+            compareDates: compareDates,
+            getMiddleTime: getMiddleTime,
+            getMonthWeekNumber: getMonthWeekNumber,
+            isDateInPeriod: isDateInPeriod
         };
         return dateUtil;
 
@@ -378,7 +381,74 @@
         function compareDates(a, b) {
             return (isFinite(a = dateUtil.convert(a).valueOf()) && isFinite(b = dateUtil.convert(b).valueOf()) ? (a > b) - (a < b) : NaN);
         }
+        
+        function getMiddleTime(period) {
+            var middleTime = null;
+            if (period && period.begin && period.end) {
+                middleTime = new Date((getHourAndMinutesMilliseconds(period.begin) + getHourAndMinutesMilliseconds(period.end)) / 2);
+            }
+            return middleTime;
+        }
 
+        function getHourAndMinutesMilliseconds(jsDate) {
+            var _MS_PER_HOUR = 1000 * 60 * 60;
+            var _MS_PER_MINUTE = 1000 * 60;
+            return jsDate.getHours() * _MS_PER_HOUR + jsDate.getMinutes() * _MS_PER_MINUTE;
+        }
+        
+        function getMonthWeekNumber(baseDate) {
+            var month = baseDate.getMonth()
+                    , year = baseDate.getFullYear()
+                    , firstWeekday = new Date(year, month, 1).getDay()
+                    , lastDateOfMonth = new Date(year, month + 1, 0).getDate()
+                    , offsetDate = baseDate.getDate() + firstWeekday - 1
+                    , index = 1 // start index at 0 or 1, your choice
+                    , weeksInMonth = index + Math.ceil((lastDateOfMonth + firstWeekday - 7) / 7)
+                    , week = index + Math.floor(offsetDate / 7)
+                    ;
+            if (baseDate || week < 2 + index) {
+                return week;
+            }
+            return week === weeksInMonth ? index + 5 : week;
+        }
+        
+        function isDateInPeriod(timeIntervalName, date, period) {
+            var isPeriodInDate = false;
+            if (timeIntervalName === 'week') {
+                var dateHours = date.getHours();
+                var dateMinutes = date.getMinutes();
+
+                var beginDateHours = period.begin.getHours();
+                var beginDateMinutes = period.begin.getMinutes();
+
+                var endDateHours = period.end.getHours();
+                if (endDateHours === 0) {
+                    endDateHours = 23;
+                }
+                var endDateMinutes = period.end.getMinutes();
+                if (endDateHours === 23 && endDateMinutes === 0) {
+                    endDateMinutes = 59;
+                }
+                if (dateHours > beginDateHours && dateHours < endDateHours) {
+                    isPeriodInDate = true;
+                } else {
+                    if (dateHours === beginDateHours && dateMinutes >= beginDateMinutes && dateHours < endDateHours) {
+                        isPeriodInDate = true;
+                    } else {
+                        if (dateHours > beginDateHours && dateHours === endDateHours && dateMinutes <= endDateMinutes) {
+                            isPeriodInDate = true;
+                        } else {
+                            isPeriodInDate = false;
+                        }
+                    }
+                }
+            } else {
+                isPeriodInDate = date >= period.begin && date <= period.end;
+            }
+            return isPeriodInDate;
+        }
+        
+        
 
     }
 

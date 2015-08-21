@@ -55,7 +55,10 @@
                             '<p><button type="button" ng-style="{\'border-left\': border, \'border-color\': color}" class="btn btn-default">{{"logBook.average" | translate}} <span class="reading">{{average}}</span> {{unit.name}}</button></p>',
                             '<p><button type="button" class="btn btn-default" ng-click="viewEvent(code, maximumIds)">{{"logBook.maximum" | translate}} <span class="reading">{{maximum}}</span> {{unit.name}}</button></p>',
                             '<p><button type="button" class="btn btn-default" ng-click="viewEvent(code, minimumIds)">{{"logBook.minimum" | translate}} <span class="reading">{{minimum}}</span> {{unit.name}}</button></p>',
-                            '<p><button type="button" class="btn btn-default">{{"logBook.number" | translate}} <span class="reading">{{number}}</span></button></p>',
+                            '<p><button type="button" class="btn btn-default">{{"logBook.number" | translate}} <span class="reading">{{number}}</span></button></p>',                            
+                            '<p ng-repeat="numberByRangeLine in numberByRange">',
+                                '<span ng-if="numberByRangeLine.number > 0">{{numberByRangeLine.name}}:&nbsp;{{numberByRangeLine.number}}</span>',
+                            '</p>',
                             '<p><button type="button" class="btn btn-primary pull-right" ng-click="blogluGroupedEventZoomInInterval({date:beginDate})">{{"logBook.viewDetails" | translate}}</button></p>',
                             '</div>',
                             '</div>'].join('');
@@ -94,9 +97,14 @@
             var dataService = $injector.get('dataService');
             var userService = $injector.get('UserService');
 
-            var promiseArray = [dataService.queryLocal('Unit', {where: {code: event.code}}), dataService.queryLocal('Range'), userService.getDefaultUnit(resourceCode[event.code])];
+            var promiseArray = [
+                dataService.queryLocal('Unit', {where: {code: event.code}}), 
+                dataService.queryLocal('Range'), 
+                userService.getDefaultUnit(resourceCode[event.code])
+            ];
             return $q.all(promiseArray).then(function (results) {
                 var units = results[0];
+                var ranges = results[1];
                 var defaultUnit = results[2];
 
                 var unit = null;
@@ -105,7 +113,7 @@
                 } else {
                     unit = unitService.getReferenceUnit(units);
                 }
-                var range = eventService.getEventRange(event.average, unitService.getReferenceUnit(units), results[1]);
+                var range = eventService.getEventRange(event.average, unitService.getReferenceUnit(units), ranges);
 
                 scope.unit = unit;
                 scope.code = event.code;
@@ -120,6 +128,8 @@
 
                 scope.minimumIds = event.minimumIds;
                 scope.maximumIds = event.maximumIds;
+                
+                scope.numberByRange = event.numberByRange;
 
                 if (range) {
                     scope.color = range.color;

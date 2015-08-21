@@ -348,7 +348,7 @@
                 delete data.userId;
                 //save to indexedDB add to the cloud
                 return $q.all([
-                    indexeddbService.addRecord(collection, data.userId, updatedObject),
+                    indexeddbService.addRecord(collection, updatedObject.userId, updatedObject),
                     resource.update({'Id': objectId}, data).$promise
                 ]).then(function (results) {
                     return updatedObject;

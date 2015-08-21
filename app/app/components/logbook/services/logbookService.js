@@ -5,10 +5,10 @@
     angular.module('bloglu.logbook')
             .factory('logBookService', logBookService);
 
-    logBookService.$inject = ['$q', '$filter', '$translate', 'UserService', 'dateUtil', 'statsService', 'dataService', 'ModelUtil', 'ResourceName'];
+    logBookService.$inject = ['$q', '$filter', '$translate', 'UserService', 'dateUtil', 'statsService', 'dataService', 'ModelUtil', 'ResourceName', 'rangeService'];
 
 
-    function logBookService($q, $filter, $translate, UserService, dateUtil, statsService, dataService, ModelUtil, ResourceName) {
+    function logBookService($q, $filter, $translate, UserService, dateUtil, statsService, dataService, ModelUtil, ResourceName, rangeService) {
         var logBookService = {
             getTimeIntervalTitle: getTimeIntervalTitle,
             getEventTypes: getEventTypes,
@@ -18,7 +18,7 @@
             getAggregtedData: getAggregtedData,
             getWeekData: getWeekData,
             getDayData: getDayData,
-            getMiddleTime: getMiddleTime
+            getMiddleTime: dateUtil.getMiddleTime
         };
         return logBookService;
 
@@ -134,58 +134,7 @@
                 return result;
             });
         }
-
-        function getMonthWeekNumber(baseDate) {
-            var month = baseDate.getMonth()
-                    , year = baseDate.getFullYear()
-                    , firstWeekday = new Date(year, month, 1).getDay()
-                    , lastDateOfMonth = new Date(year, month + 1, 0).getDate()
-                    , offsetDate = baseDate.getDate() + firstWeekday - 1
-                    , index = 1 // start index at 0 or 1, your choice
-                    , weeksInMonth = index + Math.ceil((lastDateOfMonth + firstWeekday - 7) / 7)
-                    , week = index + Math.floor(offsetDate / 7)
-                    ;
-            if (baseDate || week < 2 + index) {
-                return week;
-            }
-            return week === weeksInMonth ? index + 5 : week;
-        }
-
-        function isDateInPeriod(timeIntervalName, date, period) {
-            var isPeriodInDate = false;
-            if (timeIntervalName === 'week') {
-                var dateHours = date.getHours();
-                var dateMinutes = date.getMinutes();
-
-                var beginDateHours = period.begin.getHours();
-                var beginDateMinutes = period.begin.getMinutes();
-
-                var endDateHours = period.end.getHours();
-                if (endDateHours === 0) {
-                    endDateHours = 23;
-                }
-                var endDateMinutes = period.end.getMinutes();
-                if (endDateHours === 23 && endDateMinutes === 0) {
-                    endDateMinutes = 59;
-                }
-                if (dateHours > beginDateHours && dateHours < endDateHours) {
-                    isPeriodInDate = true;
-                } else {
-                    if (dateHours === beginDateHours && dateMinutes >= beginDateMinutes && dateHours < endDateHours) {
-                        isPeriodInDate = true;
-                    } else {
-                        if (dateHours > beginDateHours && dateHours === endDateHours && dateMinutes <= endDateMinutes) {
-                            isPeriodInDate = true;
-                        } else {
-                            isPeriodInDate = false;
-                        }
-                    }
-                }
-            } else {
-                isPeriodInDate = date >= period.begin && date <= period.end;
-            }
-            return isPeriodInDate;
-        }
+        
 
         function sortPeriods(periods) {
             periods.sort(function (date1, date2) {
@@ -201,7 +150,7 @@
             var index = -1;
             for (var indexOfPeriod = 0; indexOfPeriod < periods.length; indexOfPeriod++) {
                 var period = periods[indexOfPeriod];
-                if (isDateInPeriod(timeInterval.name, bgrDate, period)) {
+                if (dateUtil.isDateInPeriod(timeInterval.name, bgrDate, period)) {
                     index = indexOfPeriod;
                     break;
                 }
@@ -221,7 +170,7 @@
                         title = $filter('date')(timeInterval.begin, 'EEEE d MMMM yyyy');
                         break;
                     case 'week':
-                        title = $filter('date')(timeInterval.begin, 'MMMM yyyy') + " " + $translate.instant('logBook.week') + " " + getMonthWeekNumber(timeInterval.begin);
+                        title = $filter('date')(timeInterval.begin, 'MMMM yyyy') + " " + $translate.instant('logBook.week') + " " + dateUtil.getMonthWeekNumber(timeInterval.begin);
                         break;
                     case 'month':
                         title = $filter('date')(timeInterval.begin, 'MMMM yyyy');
@@ -307,10 +256,12 @@
         function getAggregtedData(timeInterval, params) {
             return $q.all([
                 getBloodGlucoseReadingsBetweenDates(timeInterval.begin, timeInterval.end, params),
-                getAnalysisPeriods(timeInterval)
+                getAnalysisPeriods(timeInterval),
+                rangeService.getRanges()
             ]).then(function (result) {
                 var bloodGlucoseReadings = result[0];
                 var analysisPeriods = result[1];
+                var ranges = result[2];
                 var dataArray = [];
                 dataArray[0] = [];
                 var numberOfRow = 1;
@@ -345,7 +296,7 @@
                 for (var indexOfRow = 1; indexOfRow < dataArrayLength; indexOfRow++) {
                     for (var indexOfColumn = 0; indexOfColumn < dataArray[0].length; indexOfColumn++) {
                         if (dataArray[indexOfRow][indexOfColumn].length > 0) {
-                            dataArray[indexOfRow][indexOfColumn] = [statsService.getStatsFromBloodGlucoseReadingList(dataArray[indexOfRow][indexOfColumn], analysisPeriods[indexOfColumn])];
+                            dataArray[indexOfRow][indexOfColumn] = [statsService.getStatsFromBloodGlucoseReadingList(dataArray[indexOfRow][indexOfColumn], analysisPeriods[indexOfColumn], ranges)];
                         }
                     }
                 }
@@ -436,19 +387,7 @@
             });
         }
 
-        function getMiddleTime(period) {
-            var middleTime = null;
-            if (period && period.begin && period.end) {
-                middleTime = new Date((getHourAndMinutesMilliseconds(period.begin) + getHourAndMinutesMilliseconds(period.end)) / 2);
-            }
-            return middleTime;
-        }
-
-        function getHourAndMinutesMilliseconds(jsDate) {
-            var _MS_PER_HOUR = 1000 * 60 * 60;
-            var _MS_PER_MINUTE = 1000 * 60;
-            return jsDate.getHours() * _MS_PER_HOUR + jsDate.getMinutes() * _MS_PER_MINUTE;
-        }
+        
         
     }
 })();

@@ -97,7 +97,7 @@
             });
             var serie = {
                 type: 'pie',
-                name: serieQueryElement.title,
+                name: $translate.instant(serieQueryElement.title),
                 data: []
             };
             scope.chartConfig.series.push(serie);
@@ -111,7 +111,7 @@
                     } else {
                         textValue += " " + data[lineIndex][propertyName];
                     }
-                }
+                }                
                 serie.data.push([textValue, numericValue]);
             }
         }

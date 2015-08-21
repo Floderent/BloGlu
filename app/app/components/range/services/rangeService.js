@@ -27,7 +27,11 @@
         }
 
         function getRanges() {
-            return genericDaoService.getAll(resourceName);
+            return genericDaoService.getAll(resourceName).then(function(ranges){
+                return ranges.sort(function(range1, range2){
+                    return range1.lowerLimit > range2.lowerLimit;
+                });
+            });
         }
 
         function saveRange(range, isEdit) {

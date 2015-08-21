@@ -59,8 +59,7 @@
                             column: column,
                             report: reportId
                         });
-                    }
-                    debugger;
+                    }                    
                     dashboardService.saveDashboard(dashboard).then(resolve, reject);
                 } else {
                     reject();
@@ -71,8 +70,8 @@
         function addReport(dashboard, reportTab, reportData) {
             return $q(function (resolve, reject) {                
                 if (reportData && reportData.report) {
-                    if (reportData.row <= dashboardService.rowNumber && reportData.column <= dashboardService.columnNumber) {
-                        updateDashboardReport(dashboard, reportData.row, reportData.column, reportData.report.reportId).then(function (updatedDashboard) {
+                    if (reportData.row <= dashboardService.rowNumber && reportData.column <= dashboardService.columnNumber) {                        
+                        updateDashboardReport(dashboard, reportData.row, reportData.column, reportData.report.objectId).then(function (updatedDashboard) {
                             return dashboardService.executeReport(reportData, reportTab).then(function(){
                                 resolve(updatedDashboard);
                             });                            
