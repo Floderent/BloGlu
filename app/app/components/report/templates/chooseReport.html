@@ -1,6 +1,6 @@
 <div>
     <div class="modal-header">
-        <h3>{{ 'reportList.addReportTitle' | translate }}</h3>
+        <h3>{{ "reportList.addReportTitle" | translate }}</h3>
     </div>
 
     <div class="modal-body">
@@ -8,10 +8,10 @@
             <table class="table table-striped">
                 <thead>
                     <tr>
-                        <th>{{ 'reportList.title' | translate }}</th>
-                        <th>{{ 'reportList.description' | translate }}</th>
-                        <th>{{ 'reportList.lastModificationDate' | translate }}</th>
-                        <th>{{ 'reportList.creationDate' | translate }}</th>
+                        <th>{{ "reportList.title" | translate }}</th>
+                        <th>{{ "reportList.description" | translate }}</th>
+                        <th>{{ "reportList.lastModificationDate" | translate }}</th>
+                        <th>{{ "reportList.creationDate" | translate }}</th>
                         <th></th>            
                     </tr>            
                 </thead>
@@ -30,7 +30,7 @@
                             <span>{{::report.createdAt| date:'dd/MM/yyyy'}}</span>
                         </td>
                         <td>                        
-                            <button type="button" class="btn" ng-click="vm.chooseReport(report)">{{ 'reportList.addToDashboard' | translate }}</button>
+                            <button type="button" class="btn" ng-click="vm.chooseReport(report)">{{ "reportList.addToDashboard" | translate }}</button>
                         </td>                    
                     </tr>
                 </tbody>

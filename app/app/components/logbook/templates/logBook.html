@@ -4,19 +4,19 @@
     <div class="panel-heading">
         <ul class="pager">
             <li class="previous">
-                <a ng-click="vm.back()" href="" >&larr; {{'logBook.previous'| translate}}</a>
+                <a ng-click="vm.back()" href="" >&larr;&nbsp;{{"logBook.previous"| translate}}</a>
             </li>            
             <li class="next">
-                <a ng-click="vm.advance()" href="">{{'logBook.next'| translate}} &rarr;</a>
+                <a ng-click="vm.advance()" href="">{{"logBook.next"| translate}}&nbsp;&rarr;</a>
             </li>
             <li>
                 <form class="form-inline"> 
                     <div class="form-group">
                         <select id="interval" class="form-control input-sm" ng-model="vm.interval" ng-change="vm.change()">
-                            <option value="day">{{ 'logBook.day' | translate }}</option>
-                            <option value="week">{{ 'logBook.week' | translate }}</option>
-                            <option value="month">{{ 'logBook.month' | translate }}</option>
-                            <option value="year">{{ 'logBook.year' | translate }}</option>
+                            <option value="day">{{ "logBook.day" | translate }}</option>
+                            <option value="week">{{ "logBook.week" | translate }}</option>
+                            <option value="month">{{ "logBook.month" | translate }}</option>
+                            <option value="year">{{ "logBook.year" | translate }}</option>
                         </select>
                         <!--<label for="interval"> <big>{{logBookTitle}}</big></label>-->
                     </div>
@@ -26,7 +26,7 @@
                                 <span class="{{vm.eventsIcons[key]}}"></span>
                             </button>                        
                         </div>
-                        <button ng-disabled="vm.loadingState.pending > 0" ng-click="vm.printToPDF()" type="button" class="btn">{{ 'logBook.print' | translate }}</button>
+                        <button ng-disabled="vm.loadingState.pending > 0" ng-click="vm.printToPDF()" type="button" class="btn">{{ "logBook.print" | translate }}</button>
                     </div>
                     <div class="text-center">
                         <h3>{{vm.logBookTitle}} <small class="">{{vm.timeInterval.begin| date:'dd/MM/yyyy'}} - {{vm.timeInterval.end| date:'dd/MM/yyyy'}}</small></h3>

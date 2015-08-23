@@ -1,43 +1,43 @@
 <div class="panel panel-primary content-panel">
     <div class="panel-heading">
-        <h3 class="panel-title">{{ 'report.pageTitle' | translate }}</h3>
+        <h3 class="panel-title">{{ "report.pageTitle" | translate }}</h3>
     </div>
     <div class="panel-body">
         <div ng-form name="vm.reportForm" novalidate role="form">
             <div class="form-group">
-                <label class="control-label" for="reportTitle">{{'report.reportTitle'| translate }}</label>
-                <input class="form-control" id="reportTitle" type="text" placeholder="{{'report.reportTitle'| translate }}" ng-model="vm.report.title" required>
+                <label class="control-label" for="reportTitle">{{"report.reportTitle"| translate }}</label>
+                <input class="form-control" id="reportTitle" type="text" placeholder="{{"report.reportTitle"| translate }}" ng-model="vm.report.title" required>
             </div>
             <div class="form-group">
-                <label class="control-label" for="reportDescription">{{ 'report.comment' | translate }}</label>
-                <textarea id="reportDescription" class="form-control" ng-model="vm.report.description"  placeholder="{{ 'report.comment' | translate }}"></textarea>
+                <label class="control-label" for="reportDescription">{{ "report.comment" | translate }}</label>
+                <textarea id="reportDescription" class="form-control" ng-model="vm.report.description"  placeholder="{{ "report.comment" | translate }}"></textarea>
             </div>
 
             <!-- query elements -->
             <div class="form-group">
-                <label for="selectQueryElement">{{ 'report.queryElements' | translate }}</label>
+                <label for="selectQueryElement">{{ "report.queryElements" | translate }}</label>
                 <div class="input-group">
                     <select id="selectQueryElement" class="form-control" data-ng-model="vm.selectedQueryElement" data-ng-options="queryElement.title | translate group by queryElement.group | translate for queryElement in vm.queryElements"></select>
                     <span class="input-group-btn">
-                        <button class="btn btn-primary" ng-click="vm.addQueryElement(vm.selectedQueryElement)">{{ 'report.addElement' | translate }}</button>
+                        <button class="btn btn-primary" ng-click="vm.addQueryElement(vm.selectedQueryElement)">{{ "report.addElement" | translate }}</button>
                     </span>
                 </div>
             </div>
 
             <!-- Period to use -->
             <div class="form-group">                
-                <label class="control-label" for="period">{{ 'report.analysisPeriod' | translate }}</label>
+                <label class="control-label" for="period">{{ "report.analysisPeriod" | translate }}</label>
                 <div class="input-group">
                     <select id="period" class="form-control" data-ng-model="vm.selectedFilter" data-ng-options="filter as filter.title | translate for filter in vm.filters"></select>
                     <span class="input-group-btn">
-                        <button class="btn btn-primary" ng-click="vm.addFilter(vm.selectedFilter)">{{ 'report.addElement' | translate }}</button>
+                        <button class="btn btn-primary" ng-click="vm.addFilter(vm.selectedFilter)">{{ "report.addElement" | translate }}</button>
                     </span>
                 </div>
             </div>           
 
             <!-- Custom input for period -->
             <div data-ng-form="vm.form.filterValueForm" class="form-group" data-ng-show="vm.selectedFilter.customParameters">
-                <label class="control-label" for="beginDate">{{ 'report.beginDate' | translate }}</label>
+                <label class="control-label" for="beginDate">{{ "report.beginDate" | translate }}</label>
                 <div class="input-group">                    
                     <input                        
                         id="beginDate" 
@@ -108,8 +108,12 @@
         </div>        
 
         <!--<button class="btn-large btn-primary" ng-click="clear()">{{ 'report.clear' | translate }}</button>-->
-        <button class="btn btn-primary btn-lg active pull-left" ng-disabled="vm.loadingState.pending > 0" ng-show="vm.isEdit" ng-click="vm.deleteReport()">{{ 'report.delete' | translate }}</button>
-        <button class="btn btn-primary btn-lg active pull-right" ng-disabled="((vm.reportForm.$dirty && vm.reportForm.$invalid) || vm.reportForm.$pristine) || vm.loadingState.pending > 0" ng-click="vm.update()">{{ 'report.save' | translate }}</button>
+        <button class="btn btn-danger btn-lg active pull-left" ng-disabled="vm.loadingState.pending > 0" ng-show="vm.isEdit" ng-click="vm.deleteReport()">
+            <span class="glyphicon glyphicon-trash" aria-hidden="true"></span>&nbsp;{{ "report.delete" | translate }}
+        </button>
+        <button class="btn btn-primary btn-lg active pull-right" ng-disabled="((vm.reportForm.$dirty && vm.reportForm.$invalid) || vm.reportForm.$pristine) || vm.loadingState.pending > 0" ng-click="vm.update()">
+            <span class="glyphicon glyphicon-save" aria-hidden="true"></span>&nbsp;{{ "report.save" | translate }}
+        </button>
     </div>
     <div class="table-responsive">
         <dataviz config="vm.datavizConfig" column-order="vm.report.sort"></dataviz>

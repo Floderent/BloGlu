@@ -6,14 +6,14 @@
         <button ng-show="vm.windowMode === 'MODAL'" ng-click="$dismiss()" type="button" class="close" data-dismiss="modal" aria-hidden="true">&times;</button>
 
         <div ng-switch="vm.eventCode">
-            <h3 ng-switch-when="0" class="panel-title"><span class="glyphicon glyphicon-tag"></span> {{ 'event.otherTitle' | translate }}</h3>
-            <h3 ng-switch-when="1" class="panel-title"><span class="glyphicon glyphicon-tint"></span> {{ 'event.bgTitle' | translate }}</h3>
-            <h3 ng-switch-when="2" class="panel-title"><span class="glyphicon glyphicon-briefcase"></span> {{ 'event.medicationTitle' | translate }}</h3>
-            <h3 ng-switch-when="3" class="panel-title"><span class="glyphicon glyphicon-dashboard"></span> {{ 'event.weightTitle' | translate }}</h3>
-            <h3 ng-switch-when="4" class="panel-title"><span class="glyphicon glyphicon-heart"></span> {{ 'event.bloodPressureTitle' | translate }}</h3>
-            <h3 ng-switch-when="5" class="panel-title"><span class="glyphicon glyphicon-file"></span> {{ 'event.a1cTitle' | translate }}</h3>
-            <h3 ng-switch-when="6" class="panel-title"><span class="glyphicon glyphicon-flash"></span> {{ 'event.exerciseTitle' | translate }}</h3>
-            <h3 ng-switch-when="7" class="panel-title"><span class="glyphicon glyphicon-cutlery"></span> {{ 'event.foodIntakeTitle' | translate }}</h3>
+            <h3 ng-switch-when="0" class="panel-title"><span class="glyphicon glyphicon-tag"></span> {{ "event.otherTitle" | translate }}</h3>
+            <h3 ng-switch-when="1" class="panel-title"><span class="glyphicon glyphicon-tint"></span> {{ "event.bgTitle" | translate }}</h3>
+            <h3 ng-switch-when="2" class="panel-title"><span class="glyphicon glyphicon-briefcase"></span> {{ "event.medicationTitle" | translate }}</h3>
+            <h3 ng-switch-when="3" class="panel-title"><span class="glyphicon glyphicon-dashboard"></span> {{ "event.weightTitle" | translate }}</h3>
+            <h3 ng-switch-when="4" class="panel-title"><span class="glyphicon glyphicon-heart"></span> {{ "event.bloodPressureTitle" | translate }}</h3>
+            <h3 ng-switch-when="5" class="panel-title"><span class="glyphicon glyphicon-file"></span> {{ "event.a1cTitle" | translate }}</h3>
+            <h3 ng-switch-when="6" class="panel-title"><span class="glyphicon glyphicon-flash"></span> {{ "event.exerciseTitle" | translate }}</h3>
+            <h3 ng-switch-when="7" class="panel-title"><span class="glyphicon glyphicon-cutlery"></span> {{ "event.foodIntakeTitle" | translate }}</h3>
         </div>
     </div>
     <div class="panel-body ">
@@ -84,7 +84,7 @@
             </div>
 
             <div class="form-group">
-                <label for="category">{{ 'event.category' | translate }}</label>
+                <label for="category">{{ "event.category" | translate }}</label>
                 <select id="category" class="input-medium" data-ng-model="vm.event.category" data-ng-options="category.name for category in vm.categories track by category.objectId">
                     <option value="">{{"event.selectCategory" | translate}}</option>
                 </select>
@@ -92,13 +92,17 @@
 
 
             <div class="form-group">
-                <label for="comment">{{ 'event.comment' | translate }}</label>
+                <label for="comment">{{ "event.comment" | translate }}</label>
                 <textarea id="comment" class="form-control" ng-model="vm.event.comment"></textarea>
             </div>
 
             <div class="form-group">
-                <button class="btn btn-primary btn-lg active pull-left" ng-show="vm.isEdit" ng-click="vm.deleteEvent()">{{ 'event.delete' | translate }}</button>
-                <button class="btn btn-primary btn-lg active pull-right" ng-disabled="((eventForm.$dirty && eventForm.$invalid) || eventForm.$pristine) || vm.loadingState.pending > 0" ng-click="vm.updateEvent(vm.event)">{{ 'event.save' | translate }}</button>
+                <button class="btn btn-danger btn-lg active pull-left" ng-show="vm.isEdit" ng-click="vm.deleteEvent()">
+                    <span class="glyphicon glyphicon-trash" aria-hidden="true"></span>&nbsp;{{ "event.delete" | translate }}
+                </button>
+                <button class="btn btn-primary btn-lg active pull-right" ng-disabled="((eventForm.$dirty && eventForm.$invalid) || eventForm.$pristine) || vm.loadingState.pending > 0" ng-click="vm.updateEvent(vm.event)">
+                    <span class="glyphicon glyphicon-save" aria-hidden="true"></span>&nbsp;{{ 'event.save' | translate }}
+                </button>
             </div>
 
         </div>

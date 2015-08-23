@@ -4,18 +4,18 @@
         <img class="loading-icon" alt="loading" src="assets/images/spinner.gif" />
     </div>
     <div class="page-header loginHeader">
-        <h1 ng-cloak><img src="assets/images/bloglu_logo.png" alt="bloglu-logo">{{ 'appName' | translate }} <small ng-cloak>{{ 'mainScreenMessage' | translate }}</small></h1>        
+        <h1 ng-cloak><img src="assets/images/bloglu_logo.png" alt="bloglu-logo">{{ "appName" | translate }} <small ng-cloak>{{ "mainScreenMessage" | translate }}</small></h1>
     </div>
     <div class="panel-default">
         <form class="form-signin panel-body">
-            <h2 class="form-signin-heading" ng-cloak>{{'connection'| translate}}</h2>
+            <h2 class="form-signin-heading" ng-cloak>{{"connection"| translate}}</h2>
             <input id="name" class="form-control" placeholder="{{'userName'| translate}}" required autofocus type="text" value="" name="name" ng-cloak ng-model="user.username" />
             <input id="email" class="form-control" placeholder="{{'password'| translate}}" required type="password" value="" name="password" ng-cloak ng-model="user.password" />
             <a href="#" ng-cloak ng-click="vm.displaySignUpModal()">{{ 'signUp' | translate }}</a>&nbsp;{{ 'or' | translate }}&nbsp;<a href="#" class="pull-right" ng-cloak ng-click="vm.displayResetPasswordModal()">{{ 'forgotPwd' | translate }}&nbsp;?</a>
-            <button class="btn btn-primary btn-lg btn-block" ng-cloak ng-disabled="vm.loadingState.pending > 0" ng-click="vm.logIn(user)">{{ 'logIn' | translate }}</button>            
+            <button class="btn btn-primary btn-lg btn-block" ng-cloak ng-disabled="vm.loadingState.pending > 0" ng-click="vm.logIn(user)">{{ "logIn" | translate }}</button>
             <div class='pull-right'>
                 <p ng-cloak>
-                    {{'appStatus'| translate}} {{'appVersion'| translate}}
+                    {{"appStatus"| translate}} {{"appVersion"| translate}}
                 </p>
             </div>
         </form>

@@ -17,16 +17,16 @@
                         <input type="email" class="form-control" name="email" id="email" ng-model="vm.user.email" required>
 
                         <div class="alert alert-danger"  ng-show="preferencesForm.email.$invalid && preferencesForm.email.$dirty">                            
-                            <strong>{{ 'userPreferences.error' | translate }}!</strong> {{ 'userPreferences.invalidEmail' | translate }}
+                            <strong>{{ "userPreferences.error" | translate }}!</strong> {{ 'userPreferences.invalidEmail' | translate }}
                         </div>
                         <div class="alert alert-danger"  ng-show="(preferencesForm.password.$invalid && preferencesForm.password.$dirty) && (preferencesForm.confirmPassword.$invalid && preferencesForm.confirmPassword.$dirty)">                            
-                            <strong>{{ 'userPreferences.error' | translate }}!</strong> {{ 'userPreferences.passwordMismatched' | translate }}
+                            <strong>{{ "userPreferences.error" | translate }}!</strong> {{ 'userPreferences.passwordMismatched' | translate }}
                         </div>                        
                         <div class="alert alert-danger"  ng-show="errorMessage">                            
-                            <strong>{{ 'userPreferences.error' | translate }}!</strong> {{errorMessage}}
+                            <strong>{{ "userPreferences.error" | translate }}!</strong> {{errorMessage}}
                         </div>
                         <div class="alert alert-success"  ng-show="successMessage">                            
-                            <strong>{{ 'userPreferences.success' | translate }}!</strong> {{successMessage}}
+                            <strong>{{ "userPreferences.success" | translate }}!</strong> {{successMessage}}
                         </div>
                     </div>
                 </ng-form>
@@ -35,13 +35,13 @@
             <tab heading="{{'userPreferences.application'| translate }}">                
                 <ng-form name="applicationSettings" novalidate role="form">                
                     <div>                        
-                        <h4>{{ 'userPreferences.defaultValues' | translate }}</h4>
+                        <h4>{{ "userPreferences.defaultValues" | translate }}</h4>
                         <div class="form-group">                            
-                            <label for="daySelect">{{ 'userPreferences.firstDayOfWeek' | translate }}</label>
+                            <label for="daySelect">{{ "userPreferences.firstDayOfWeek" | translate }}</label>
                             <!-- day.index as  -->
                             <select id="daySelect" name="daySelect" class="form-control" data-ng-model="vm.user.preferences.firstDayOfWeek" data-ng-options="day.index as day.date for day in vm.days track by index"></select>
                         </div>
-                        <h4>{{ 'userPreferences.defaultUnits' | translate }}</h4>
+                        <h4>{{ "userPreferences.defaultUnits" | translate }}</h4>
                         <div ng-repeat="(key, value) in vm.eventsTypes track by $index">
                             <div class="form-group">
                                 <label for="{{value}}">{{value| translate}}</label>
@@ -50,12 +50,15 @@
                         </div>
                     </div>
                 </ng-form>
-            </tab>            
-        
+            </tab>
         </tabset>
         
-        <button class="btn btn-primary btn-lg active pull-left" ng-disabled="vm.loadingState.pending > 0" ng-click="vm.deleteUser(vm.user)">{{ 'userPreferences.delete' | translate }}</button>        
-        <button class="btn btn-primary btn-lg active pull-right" ng-disabled="vm.loadingState.pending > 0" ng-click="vm.update(vm.user)">{{ 'userPreferences.save' | translate }}</button>
+        <button class="btn btn-danger btn-lg active pull-left" ng-disabled="vm.loadingState.pending > 0" ng-click="vm.deleteUser(vm.user)">
+            <span class="glyphicon glyphicon-trash" aria-hidden="true"></span>&nbsp;{{ 'userPreferences.delete' | translate }}
+        </button>
+        <button class="btn btn-primary btn-lg active pull-right" ng-disabled="vm.loadingState.pending > 0" ng-click="vm.update(vm.user)">
+            <span class="glyphicon glyphicon-save" aria-hidden="true"></span>&nbsp;{{ 'userPreferences.save' | translate }}
+        </button>
     </div>
 </div>
 

@@ -1,17 +1,17 @@
 <div class="panel panel-primary content-panel">
     <div class="panel-heading">
-        <h3 class="panel-title">{{ 'range.pageTitle' | translate }}</h3>
+        <h3 class="panel-title">{{ "range.pageTitle" | translate }}</h3>
     </div>
     <div class="panel-body ">
         <div class="table-responsive">
             <table class="table table-striped">            
                 <thead>
                     <tr>
-                        <th>{{ 'range.unit' | translate }}</th>
-                        <th>{{ 'range.lowerLimit' | translate }}</th>
-                        <th>{{ 'range.upperLimit' | translate }}</th>
-                        <th>{{ 'range.normalRange' | translate }}</th>
-                        <th>{{ 'range.color' | translate }}</th>
+                        <th>{{ "range.unit" | translate }}</th>
+                        <th>{{ "range.lowerLimit" | translate }}</th>
+                        <th>{{ "range.upperLimit" | translate }}</th>
+                        <th>{{ "range.normalRange" | translate }}</th>
+                        <th>{{ "range.color" | translate }}</th>
                         <th></th>
                     </tr>
                 </thead>            
@@ -34,7 +34,7 @@
                         </td>
                         <td>
                             <button type="button" class="btn btn-success" ng-disabled="vm.loadingState.pending > 0" ng-click="vm.saveRange(vm.newRange)">
-                                <span class="glyphicon glyphicon-plus" aria-hidden="true"></span>&nbsp;{{ 'range.add' | translate }}
+                                <span class="glyphicon glyphicon-plus" aria-hidden="true"></span>&nbsp;{{ "range.add" | translate }}
                             </button>
                         </td>
                     </tr>
@@ -44,21 +44,21 @@
 
         <div>
             <div class="alert alert-danger"  ng-show="errorMessage">                            
-                <strong>{{ 'range.error' | translate }}!</strong> {{errorMessage}}
+                <strong>{{ "range.error" | translate }}!</strong> {{errorMessage}}
             </div>
             <div class="alert alert-success"  ng-show="successMessage">                            
-                <strong>{{ 'range.success' | translate }}!</strong> {{successMessage}}
+                <strong>{{ "range.success" | translate }}!</strong> {{successMessage}}
             </div>
         </div>
         <div class="table-responsive">
             <table class="table table-striped">
                 <thead>
                     <tr>
-                        <th>{{ 'range.unit' | translate }}</th>
-                        <th>{{ 'range.lowerLimit' | translate }}</th>
-                        <th>{{ 'range.upperLimit' | translate }}</th>
-                        <th>{{ 'range.normalRange' | translate }}</th>
-                        <th>{{ 'range.color' | translate }}</th>
+                        <th>{{ "range.unit" | translate }}</th>
+                        <th>{{ "range.lowerLimit" | translate }}</th>
+                        <th>{{ "range.upperLimit" | translate }}</th>
+                        <th>{{ "range.normalRange" | translate }}</th>
+                        <th>{{ "range.color" | translate }}</th>
                         <th></th>
                         <th></th>
                     </tr>                
@@ -87,16 +87,16 @@
                 </td>
                 <td>
                     <button type="button" class="btn btn-danger" ng-disabled="vm.loadingState.pending > 0" ng-click="vm.deleteRange(range)">
-                        <span class="glyphicon glyphicon-trash" aria-hidden="true"></span>&nbsp;{{ 'range.delete' | translate }}
+                        <span class="glyphicon glyphicon-trash" aria-hidden="true"></span>&nbsp;{{ "range.delete" | translate }}
                     </button>
                     <button type="button" class="btn btn-primary" ng-disabled="vm.loadingState.pending > 0" ng-show="!range.isEdit" ng-click="vm.editRange(range)">
-                        <span class="glyphicon glyphicon-edit" aria-hidden="true"></span>&nbsp;{{ 'range.edit' | translate }}
+                        <span class="glyphicon glyphicon-edit" aria-hidden="true"></span>&nbsp;{{ "range.edit" | translate }}
                     </button>
                     <button type="button" class="btn btn-success" ng-disabled="vm.loadingState.pending > 0" ng-show="range.isEdit" ng-click="vm.updateRange(range)">
-                        <span class="glyphicon glyphicon-save" aria-hidden="true"></span>&nbsp;{{ 'range.update' | translate }}
+                        <span class="glyphicon glyphicon-save" aria-hidden="true"></span>&nbsp;{{ "range.update" | translate }}
                     </button>
                     <button type="button" class="btn btn-danger" ng-disabled="vm.loadingState.pending > 0" ng-show="range.isEdit" ng-click="vm.cancelEditRange(range)">
-                        <span class="glyphicon glyphicon-remove" aria-hidden="true"></span>&nbsp;{{ 'range.cancel' | translate }}
+                        <span class="glyphicon glyphicon-remove" aria-hidden="true"></span>&nbsp;{{ "range.cancel" | translate }}
                     </button>
                 </td>
                 </tr>

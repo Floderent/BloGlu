@@ -1,6 +1,6 @@
 <div class="panel panel-primary content-panel">
     <div class="panel-heading">
-        <h3 class="panel-title">{{ 'period.pageTitle' | translate }}</h3>
+        <h3 class="panel-title">{{ "period.pageTitle" | translate }}</h3>
     </div>
     <div class="panel-body ">
     </div>
@@ -10,10 +10,10 @@
                 <table class="table table-striped">
                     <thead>
                         <tr>
-                            <th>{{ 'period.name' | translate }}</th>
-                            <th>{{ 'period.startTime' | translate }}</th>
-                            <th>{{ 'period.endTime' | translate }}</th>
-                            <th>{{ 'period.duration' | translate }}</th>
+                            <th>{{ "period.name" | translate }}</th>
+                            <th>{{ "period.startTime" | translate }}</th>
+                            <th>{{ "period.endTime" | translate }}</th>
+                            <th>{{ "period.duration" | translate }}</th>
                             <th></th>
                         </tr>
                     </thead>
@@ -35,7 +35,7 @@
                             <td>{{vm.newPeriod.end - vm.newPeriod.begin - 3600000| date:'HH:mm'}}</td>                            
                             <td>
                                 <button type="button" class="btn btn-success" ng-click="vm.savePeriod(vm.newPeriod)">
-                                    <span class="glyphicon glyphicon-plus" aria-hidden="true"></span>&nbsp;{{ 'period.add' | translate }}
+                                    <span class="glyphicon glyphicon-plus" aria-hidden="true"></span>&nbsp;{{ "period.add" | translate }}
                                 </button>
                             </td>
                         </tr>
@@ -44,10 +44,10 @@
             </div>
 
             <div class="alert alert-danger"  ng-show="errorMessage">                            
-                <strong>{{ 'period.error' | translate }}!</strong> {{errorMessage}}
+                <strong>{{ "period.error" | translate }}!</strong> {{errorMessage}}
             </div>
             <div class="alert alert-success"  ng-show="successMessage">                            
-                <strong>{{ 'period.success' | translate }}!</strong> {{successMessage}}
+                <strong>{{ "period.success" | translate }}!</strong> {{successMessage}}
             </div>
         </div>
 
@@ -55,10 +55,10 @@
             <table class="table table-striped">
                 <thead>
                     <tr>
-                        <th>{{ 'period.name' | translate }}</th>
-                        <th>{{ 'period.startTime' | translate }}</th>
-                        <th>{{ 'period.endTime' | translate }}</th>
-                        <th>{{ 'period.duration' | translate }}</th>
+                        <th>{{ "period.name" | translate }}</th>
+                        <th>{{ "period.startTime" | translate }}</th>
+                        <th>{{ "period.endTime" | translate }}</th>
+                        <th>{{ "period.duration" | translate }}</th>
                         <th></th>
                     </tr>
                 </thead>
@@ -84,16 +84,16 @@
                         <td>{{period.end - period.begin - 3600000| date:'HH:mm'}}</td>
                         <td>
                             <button type="button" class="btn btn-danger" ng-click="vm.deletePeriod(period)">
-                                <span class="glyphicon glyphicon-trash" aria-hidden="true"></span>&nbsp;{{ 'period.delete' | translate }}
+                                <span class="glyphicon glyphicon-trash" aria-hidden="true"></span>&nbsp;{{ "period.delete" | translate }}
                             </button>
                             <button type="button" class="btn btn-primary" ng-show="!period.isEdit" ng-click="vm.editPeriod(period)">
-                                <span class="glyphicon glyphicon-edit" aria-hidden="true"></span>&nbsp;{{ 'period.edit' | translate }}
+                                <span class="glyphicon glyphicon-edit" aria-hidden="true"></span>&nbsp;{{ "period.edit" | translate }}
                             </button>
                             <button type="button" class="btn btn-success" ng-show="period.isEdit" ng-click="vm.updatePeriod(period)">
-                                <span class="glyphicon glyphicon-save" aria-hidden="true"></span>&nbsp;{{ 'period.update' | translate }}
+                                <span class="glyphicon glyphicon-save" aria-hidden="true"></span>&nbsp;{{ "period.update" | translate }}
                             </button>
                             <button type="button" class="btn btn-danger" ng-show="period.isEdit" ng-click="vm.cancelEditPeriod(period)">
-                                <span class="glyphicon glyphicon-remove" aria-hidden="true"></span>&nbsp;{{ 'period.cancel' | translate }}
+                                <span class="glyphicon glyphicon-remove" aria-hidden="true"></span>&nbsp;{{ "period.cancel" | translate }}
                             </button>
                         </td>
                     </tr>
