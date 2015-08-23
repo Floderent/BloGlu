@@ -398,6 +398,9 @@
                                         if (event.category && event.category.objectId) {
                                             event.category = {__type: 'Pointer', className: 'Category', objectId: event.category.objectId};
                                         }
+                                        if(event.import && event.import.objectId){
+                                            event.import = {__type: 'Pointer', className: 'Import', objectId: event.import.objectId};
+                                        }
                                     }
                                     postEvent.method = 'POST';
                                     postEvent.path = '/1/classes/Event';
@@ -467,6 +470,9 @@
                             if (data.category && data.category.objectId) {
                                 data.category = {__type: 'Pointer', className: 'Category', objectId: data.category.objectId};
                             }
+                            if(data.import && data.import.objectId){
+                                data.import = {__type: 'Pointer', className: 'Import', objectId: data.import.objectId};
+                            }
                         }
                         return angular.toJson(data);
                     }
@@ -498,6 +504,9 @@
                             }
                             if (data.category && data.category.objectId) {
                                 data.category = {__type: 'Pointer', className: 'Category', objectId: data.category.objectId};
+                            }
+                            if(data.import && data.import.objectId){
+                                data.import = {__type: 'Pointer', className: 'Import', objectId: data.import.objectId};
                             }
                         }
                         return angular.toJson(data);

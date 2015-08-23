@@ -95,8 +95,8 @@
             menuHeaderService.increasePending('processingMessage.importingData');
             vm.import.dateTime = new Date();
             return importService.saveImport(vm.import, false)
-                    .then(function () {
-                        return importService.batchRequestProcess(vm.eventsToImport, vm.duplicates);
+                    .then(function (savedImport) {                        
+                        return importService.batchRequestProcess(vm.eventsToImport, vm.duplicates, savedImport);
                     }, function (error) {
                         MessageService.errorMessage('errorMessage.errorImporting');
                         return error;

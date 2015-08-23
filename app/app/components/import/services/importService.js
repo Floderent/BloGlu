@@ -113,15 +113,24 @@
             }
             return eventsToInsert;
         }
-
-        function batchRequestProcess(data, duplicateData) {
-            
+        
+        function preprocessDataToImport(data, duplicateData, importObject){
             var dataToImport = data;
             if(duplicateData && duplicateData.length > 0){
                 dataToImport = data.filter(function(element){
                     return duplicateData.indexOf(element) < 0;
                 });
-            }
+            }            
+            angular.forEach(dataToImport, function(record){
+                record.import = importObject;
+            });
+            return dataToImport;
+        }
+        
+        
+        function batchRequestProcess(data, duplicateData, importObject) {
+            
+            var dataToImport = preprocessDataToImport(data, duplicateData, importObject);
             
             var batchSize = 50;
             var promiseArray = [];
@@ -144,7 +153,7 @@
             return Batch(UserSessionService.headers()).batchEvent({}, angular.copy(batchData)).$promise.then(function (importedEventsResponse) {
                 for (var index in batchData) {
                     batchData[index] = angular.extend(batchData[index], importedEventsResponse[index].success);
-                }
+                }                
                 return dataService.addRecords('Event', batchData).then(function(){
                     return dataService.saveAllLocal('Event', batchData);
                 });

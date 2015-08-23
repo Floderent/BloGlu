@@ -6,11 +6,11 @@
         <div ng-form name="vm.reportForm" novalidate role="form">
             <div class="form-group">
                 <label class="control-label" for="reportTitle">{{"report.reportTitle"| translate }}</label>
-                <input class="form-control" id="reportTitle" type="text" placeholder="{{"report.reportTitle"| translate }}" ng-model="vm.report.title" required>
+                <input class="form-control" id="reportTitle" type="text" placeholder="{{'report.reportTitle'| translate }}" ng-model="vm.report.title" required>
             </div>
             <div class="form-group">
                 <label class="control-label" for="reportDescription">{{ "report.comment" | translate }}</label>
-                <textarea id="reportDescription" class="form-control" ng-model="vm.report.description"  placeholder="{{ "report.comment" | translate }}"></textarea>
+                <textarea id="reportDescription" class="form-control" ng-model="vm.report.description"  placeholder="{{ 'report.comment' | translate }}"></textarea>
             </div>
 
             <!-- query elements -->
