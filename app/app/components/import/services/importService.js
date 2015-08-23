@@ -5,9 +5,9 @@
             .factory('importService', importService);
 
 
-    importService.$inject = ['$http', '$q', 'Upload', 'Batch', 'dataService', 'importUtils', 'ServerService', 'UserSessionService'];
+    importService.$inject = ['$http', '$q', 'Upload', 'Batch', 'dataService', 'importUtils', 'ServerService', 'UserSessionService', 'ResourceName', 'unitService'];
 
-    function importService($http, $q, Upload, Batch, dataService, importUtils, ServerService, UserSessionService) {
+    function importService($http, $q, Upload, Batch, dataService, importUtils, ServerService, UserSessionService, ResourceName, unitService) {
 
         var uploadUrl = ServerService.baseUrl + 'files/';
         var fileHeaders = angular.extend({'Content-Type': 'text/plain'}, ServerService.headers);
@@ -22,10 +22,13 @@
             getDataFromFile: getDataFromFile,
             batchRequestProcess: batchRequestProcess,
             checkForDuplicates: checkForDuplicates,
-            dataFormats: importUtils.dataFormats
+            dataFormats: importUtils.dataFormats,
+            getEventsTypes: getEventsTypes,
+            getUnits: getUnits,
+            getFormatByName: importUtils.getFormatByName,
+            getReferenceUnit: unitService.getReferenceUnit
         };
         return importService;
-
 
         function getImports() {
             return dataService.queryLocal(resourceName);
@@ -50,6 +53,30 @@
             }
             return dataService.remove(resourceName, importId);
         }
+        
+        function getEventsTypes(supportedEvents){
+            var eventsTypes = {};
+            angular.forEach(ResourceName, function (name, index) {
+                if (supportedEvents.indexOf(parseInt(index)) !== -1) {
+                    eventsTypes[index] = name;
+                }
+            });
+            return eventsTypes;
+        }
+        
+        function getUnits(eventsTypes){
+            var unitsByResourceName = {};
+            var promiseArray = [];
+            angular.forEach(eventsTypes, function (resourceName, key) {
+                promiseArray.push(unitService.getUnitsByCode(parseInt(key)).then(function (units) {
+                    unitsByResourceName[resourceName] = units;                    
+                    return units;
+                }));
+            });
+            return $q.all(promiseArray).then(function(){
+                return unitsByResourceName;
+            });
+        }        
 
         function downloadFile(fileLocation) {
             return $http.get(fileLocation).then(function (response) {
@@ -71,14 +98,14 @@
             });
         }
 
-        function getDataFromFile(file, dataFormatName) {            
+        function getDataFromFile(file, dataFormatName, importOptions) {            
             var dateFormat = importUtils.getFormatByName(dataFormatName);            
             var dataArray = importUtils.CSVToArray(file, dateFormat.delimiter);
             var linesToskip = dateFormat.skipFirstLine;
             var eventsToInsert = [];
             for (var index in dataArray) {
                 if (index >= linesToskip) {
-                    var event = dateFormat.getEventFromData(dataArray[index]);
+                    var event = dateFormat.getEventFromData(dataArray[index], importOptions);
                     if (event) {
                         eventsToInsert.push(event);
                     }
@@ -118,7 +145,9 @@
                 for (var index in batchData) {
                     batchData[index] = angular.extend(batchData[index], importedEventsResponse[index].success);
                 }
-                return dataService.addRecords('Event', batchData);
+                return dataService.addRecords('Event', batchData).then(function(){
+                    return dataService.saveAllLocal('Event', batchData);
+                });
             });
         }
         

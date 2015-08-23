@@ -45,7 +45,7 @@
                         <div ng-repeat="(key, value) in vm.eventsTypes track by $index">
                             <div class="form-group">
                                 <label for="{{value}}">{{value| translate}}</label>
-                                <select id="{{value}}" class="form-control" data-ng-model="vm.user.preferences.defaultUnits[value]" data-ng-options="unit.name for unit in vm.units[value] track by objectId"></select>
+                                <select id="{{value}}" class="form-control" data-ng-model="vm.user.preferences.defaultUnits[value]" data-ng-options="unit.name for unit in vm.units[value] track by unit.objectId"></select>
                             </div>
                         </div>
                     </div>

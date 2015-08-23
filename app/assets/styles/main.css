@@ -212,16 +212,23 @@ body {
 .pad { padding: 25px; }
 
 .small-report{
-    width: 370px;
-    height: 370px;
+    min-width: 350px;
+    min-height: 350px;
+    //margin-left: 10px;
+    //margin-right: 10px;
+    //display: inline-block;
+}
+
+.small-report-content{
+    min-width: 340px;
+    min-height: 340px;
     margin-left: 10px;
     margin-right: 10px;
-    display: inline-block;
 }
 
 .right-corner{
     position: absolute;
-    right: 10px;
+    right: 35px;
     top: 10px;
 }
 

@@ -24,6 +24,15 @@
                 </div>
             </div>
             -->
+
+            <div ng-repeat="(eventCode, eventName) in vm.eventsTypes track by $index">
+                <div class="form-group">
+                    <label for="{{eventName}}">{{eventName| translate}}</label>
+                    <select id="{{eventName}}" class="form-control" ng-model="vm.defaultUnits[eventName]" ng-options="unit.name for unit in vm.unitsByResourceName[eventName] track by unit.objectId"></select>                    
+                </div>
+            </div>
+
+
             <div class="form-group">
                 <label class="control-label" for="importFile">{{ "import.file" | translate }}</label>
                 <button type="button" ng-disabled="vm.file" class="btn btn-primary" id="importFile" ngf-select ngf-change="vm.onFileSelect($file)" ngf-validate="vm.fileOptions">
@@ -58,13 +67,12 @@
                     </button>                    
                 </div>
             </div>    
-            
+
             <div ng-if="vm.eventsToImport.length === 0">
                 <div class="alert alert-error" role="alert">  
                     <strong>{{"import.error" | translate}}</strong>&nbsp;{{"import.nothingToImport"| translate}}
                 </div>
-            </div>
-            
+            </div>            
 
         </div>
     </div>

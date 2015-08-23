@@ -80,13 +80,13 @@ angular.module('bloglu.eventDirective').directive('blogluEvent', blogluEvent);
 
 
         function getBloodGlucoseScope(event) {
-            var scope = {};
-            var dataService = $injector.get('dataService');
+            var scope = {};            
             var userService = $injector.get('UserService');
             var resourceCode = $injector.get('ResourceCode');
-
+            var rangeService = $injector.get('rangeService');
+            
             var promiseArray = [
-                dataService.queryLocal('Range'),
+                rangeService.getRanges(),
                 userService.getDefaultUnit(resourceCode[event.code])
             ];
             return $q.all(promiseArray).then(function (results) {

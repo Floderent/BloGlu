@@ -4,9 +4,9 @@
     angular.module('bloglu.utils')
             .factory('importUtils', importUtils);
 
-    importUtils.$inject = ['dateUtil', 'ResourceCode'];
+    importUtils.$inject = ['dateUtil', 'ResourceCode', 'ResourceName'];
             
-    function importUtils(dateUtil, ResourceCode) {
+    function importUtils(dateUtil, ResourceCode, ResourceName) {
 
         var dataFormats = [
              {
@@ -19,7 +19,7 @@
                     ResourceCode.bloodGlucose,
                     ResourceCode.medication
                 ],
-                getEventFromData: function (dataArray) {
+                getEventFromData: function (dataArray, importOptions) {                    
                     //gly => 29
                     //dateTime => 3                      
                     var event = null;
@@ -33,28 +33,16 @@
                                 event.reading = parseInt(dataArray[5]);
                             }
                         }
-                        event.dateTime = dateUtil.processDateTime(dataArray[3]);
-                        //TODO remove hard coded unit
-                        //mg/dL
-                        event.unit = {
-                            objectId: '0Erp4POX9d',
-                            name: 'mg/dL',
-                            description: 'mg/dL'
-                        };
-                        event.code = 1;
+                        event.dateTime = dateUtil.processDateTime(dataArray[3]);                        
+                        event.code = 1;                        
+                        event.unit = importOptions.defaultUnits[ResourceName[event.code]];                        
                     } else {
                         if (dataArray.length >= 29 && dataArray[10] && dataArray[11] && dataArray[3] && dataArray[0] !== 'Index') {
                             event = {};
                             event.reading = parseInt(dataArray[11]);
-                            event.dateTime = dateUtil.processDateTime(dataArray[3]);
-                            //TODO remove hard coded unit
-                            //u
-                            event.unit = {
-                                objectId: 'mGI1gkg1hF',
-                                name: 'u',
-                                description: 'unit'
-                            };
+                            event.dateTime = dateUtil.processDateTime(dataArray[3]);                            
                             event.code = 2;
+                            event.unit = importOptions.defaultUnits[ResourceName[event.code]];                            
                         }
                     }
                     return event;

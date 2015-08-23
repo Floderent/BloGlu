@@ -24,7 +24,7 @@
         vm.interval = 'week';
         
         //functions
-        //vm.changeResource = changeResource;
+        vm.changeResource = changeResource;
         vm.viewEvent = viewEvent;
         vm.printToPDF = printToPDF;
         vm.change = change;
@@ -49,7 +49,7 @@
         
         renderPage();
         
-        /*
+        
         function changeResource(){
             var resourceCodes = [];
             angular.forEach(vm.resource, function (value, key) {
@@ -58,32 +58,12 @@
                 }
             });
             vm.display = resourceCodes;
-            $location.url($location.path());
-            $location.path('logBook').search('weekDate', vm.currentDate.toISOString()).search('interval', vm.interval).search('display', logBookService.getDisplayParam(vm.display));
-        }
-        */
-        
-        
-        $scope.$watch('vm.resource', function (newValue, oldValue) {
-            if (newValue !== oldValue) {
-                var resourceCodes = [];
-                angular.forEach(newValue, function (value, key) {
-                    if (value) {
-                        resourceCodes.push(parseInt(key));
-                    }
-                });                
-                vm.display = resourceCodes;                
-                
-                $state.go('logBook', {
+            $state.go('logBook', {
                     weekDate: vm.currentDate.toISOString(),
                     interval: vm.interval,
                     display: logBookService.getDisplayParam(vm.display)
-                },{reload:true});
-            }
-        }, true);
-        
-
-        
+            },{reload:true});
+        }        
 
         function renderPage() {
             menuHeaderService.increasePending("processingMessage.loadingData");

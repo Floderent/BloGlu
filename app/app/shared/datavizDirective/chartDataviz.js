@@ -45,8 +45,8 @@
                 options: {
                     chart: {
                         type: 'line',
-                        width: 300,
-                        height: 300
+                        width: 320,
+                        height: 320
                     }
                 },
                 series: [],

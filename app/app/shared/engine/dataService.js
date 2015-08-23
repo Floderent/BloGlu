@@ -6,7 +6,7 @@
 
     dataService.$inject = ['$q', '$filter', '$injector', '$locale', 'indexeddbService', 'Database', 'Utils', 'UserSessionService'];
 
-    function dataService($q, $filter, $injector, $locale, indexeddbService, Database, Utils, UserSessionService) {        
+    function dataService($q, $filter, $injector, $locale, indexeddbService, Database, Utils, UserSessionService) {
 
         var select = {
             //Year
@@ -223,6 +223,7 @@
             addRecords: addRecords,
             clearWholeDatabase: clearWholeDatabase,
             getWholeDatabase: getWholeDatabase,
+            saveAllLocal: saveAllLocal,
             save: save,
             update: update,
             remove: remove,
@@ -248,8 +249,8 @@
 
 
         function init(forceRefresh) {
-            return $q(function (resolve, reject) {                
-                if (service.localData === null || forceRefresh) {                    
+            return $q(function (resolve, reject) {
+                if (service.localData === null || forceRefresh) {
                     service.getWholeDatabase().then(function (result) {
                         service.localData = result;
                         resolve(result);
@@ -293,14 +294,14 @@
                 return allData;
             });
         }
-        
-        function getDuplicates(collection, recordsToCheck, propertiesToCheck){
-            var duplicates = [];            
-            return service.init().then(function(localData){
-                if(localData[collection]){
-                    angular.forEach(recordsToCheck, function(recordToCheck){
-                        angular.forEach(localData[collection], function(storedRecord){
-                            if(Utils.equals(recordToCheck, storedRecord, propertiesToCheck)){
+
+        function getDuplicates(collection, recordsToCheck, propertiesToCheck) {
+            var duplicates = [];
+            return service.init().then(function (localData) {
+                if (localData[collection]) {
+                    angular.forEach(recordsToCheck, function (recordToCheck) {
+                        angular.forEach(localData[collection], function (storedRecord) {
+                            if (Utils.equals(recordToCheck, storedRecord, propertiesToCheck)) {
                                 duplicates.push(recordToCheck);
                             }
                         });
@@ -310,7 +311,7 @@
             });
         }
 
-        function save(collection, data, params) {            
+        function save(collection, data, params) {
             return service.init().then(function (localData) {
                 //save to indexedDB and to the cloud
                 var resource = $injector.get(collection)(UserSessionService.headers());
@@ -330,6 +331,18 @@
             });
         }
 
+        function saveAllLocal(collection, data) {
+            return service.init().then(function (localData) {
+                if (localData && localData[collection]) {
+                    angular.forEach(data, function (record) {
+                        localData[collection].push(record);
+                    });
+                }
+                return;
+            });
+        }
+
+
         function update(collection, objectId, data, params) {
             return service.init().then(function (localData) {
                 var resource = $injector.get(collection)(UserSessionService.headers());
@@ -346,16 +359,17 @@
                 }
                 //remove userId field
                 delete data.userId;
+                var userId = UserSessionService.getUserId();
                 //save to indexedDB add to the cloud
                 return $q.all([
-                    indexeddbService.addRecord(collection, updatedObject.userId, updatedObject),
+                    indexeddbService.addRecord(collection, userId, updatedObject),
                     resource.update({'Id': objectId}, data).$promise
                 ]).then(function (results) {
                     return updatedObject;
                 });
             });
         }
-        
+
         function updateObjectInfos(object, isCreate) {
             var currentDate = new Date();
             if (object) {

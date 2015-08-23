@@ -34,7 +34,7 @@
             });
         }
 
-        function saveRange(range, isEdit) {
+        function saveRange(range, isEdit) {            
             var objectToSave = {
                 unit: range.unit,
                 lowerLimit: range.lowerLimit,
@@ -42,6 +42,10 @@
                 normal: range.normal,
                 color: range.color
             };
+            if(isEdit){
+                objectToSave.objectId = range.objectId;
+                objectToSave.userId = range.userId;
+            }
             return genericDaoService.save(resourceName, objectToSave, isEdit);
         }
 
