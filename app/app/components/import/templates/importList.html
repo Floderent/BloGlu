@@ -1,11 +1,11 @@
 <div class="panel panel-primary content-panel">
     <div class="panel-heading">
-        <h3 class="panel-title">{{ 'importList.pageTitle' | translate }}</h3>
+        <h3 class="panel-title">{{ "importList.pageTitle" | translate }}</h3>
     </div>
 
     <div class="panel-body">        
         <button type="button" class="btn btn-success" ng-click="vm.goToNewimport()">
-            <span class="glyphicon glyphicon-plus" aria-hidden="true"></span>&nbsp;{{ 'importList.newImport' | translate }}
+            <span class="glyphicon glyphicon-plus" aria-hidden="true"></span>&nbsp;{{ "importList.newImport" | translate }}
         </button> 
     </div>
 
@@ -13,9 +13,9 @@
         <table class="table table-striped">
             <thead>
                 <tr>
-                    <th>{{ 'importList.name' | translate }}</th>
-                    <th>{{ 'importList.date' | translate }}</th>
-                    <th>{{ 'importList.file' | translate }}</th>            
+                    <th>{{ "importList.name" | translate }}</th>
+                    <th>{{ "importList.date" | translate }}</th>
+                    <th>{{ "importList.file" | translate }}</th>            
                     <th></th>
                 </tr>
             </thead>
@@ -31,7 +31,9 @@
                         <span>{{import.file}}</span>
                     </td>              
                     <td>
-                        <button type="button" class="btn" ng-click="vm.deleteImport(import)">{{ 'importList.delete' | translate }}</button>                    
+                        <button type="button" class="btn btn-danger" ng-click="vm.deleteImport(import)">
+                            <span class="glyphicon glyphicon-trash" aria-hidden="true"></span>&nbsp;{{ "importList.delete" | translate }}
+                        </button>                    
                     </td>
                 </tr>
             </tbody>
