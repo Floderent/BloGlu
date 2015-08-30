@@ -276,3 +276,11 @@ body {
 .overflow-panel-body{
     overflow: auto;
 }
+
+.logbook-title{
+    font-size : 24px;
+    font-family: "Helvetica Neue", Helvetica, Arial, sans-serif;
+    font-weight: 500;
+    line-height: 1.1;
+    color: inherit;
+}

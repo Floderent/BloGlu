@@ -33,7 +33,8 @@
             compareDates: compareDates,
             getMiddleTime: getMiddleTime,
             getMonthWeekNumber: getMonthWeekNumber,
-            isDateInPeriod: isDateInPeriod
+            isDateInPeriod: isDateInPeriod,
+            formatDateForDisplay: formatDateForDisplay
         };
         return dateUtil;
 
@@ -446,6 +447,10 @@
                 isPeriodInDate = date >= period.begin && date <= period.end;
             }
             return isPeriodInDate;
+        }
+        
+        function formatDateForDisplay(dateToFormat){
+            return $filter('date')(dateToFormat, 'dd/MM/yyyy HH:mm');
         }
         
         

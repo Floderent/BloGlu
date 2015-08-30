@@ -158,7 +158,8 @@
         "parameters": "Parameters",
         "bgRanges": "Blood glucose ranges",
         "analysisPeriods": "Analysis periods",
-        "eventTypes": "Event types"
+        "eventTypes": "Event types",
+        "search": "Search"
     },
     "category": {
         "pageTitle": "View or modify the events categories",

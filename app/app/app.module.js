@@ -13,6 +13,7 @@
         'LocalStorageModule',
         //application
         'bloglu.translation',
+        'bloglu.engine',
         'bloglu.menuHeader',
         'bloglu.category',
         'bloglu.dashboard',
@@ -30,8 +31,7 @@
         'bloglu.chart',
         'bloglu.confirmModal',
         'bloglu.dashboardReport',
-        'bloglu.datavizDirective',
-        'bloglu.engine',
+        'bloglu.datavizDirective',        
         'bloglu.equals',
         'bloglu.eventDirective',
         'bloglu.eventGroupDirective',

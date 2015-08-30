@@ -3,7 +3,7 @@
 
     angular.module('bloglu.engine')
             .factory('dataService', dataService);
-
+    
     dataService.$inject = ['$q', '$filter', '$injector', '$locale', 'indexeddbService', 'Database', 'Utils', 'UserSessionService'];
 
     function dataService($q, $filter, $injector, $locale, indexeddbService, Database, Utils, UserSessionService) {

@@ -2,38 +2,50 @@
 
     <!-- Panel header -->
     <div class="panel-heading">
-        <ul class="pager">
-            <li class="previous">
-                <a ng-click="vm.back()" href="" >&larr;&nbsp;{{"logBook.previous"| translate}}</a>
-            </li>            
-            <li class="next">
-                <a ng-click="vm.advance()" href="">{{"logBook.next"| translate}}&nbsp;&rarr;</a>
-            </li>
-            <li>
-                <form class="form-inline"> 
-                    <div class="form-group">
-                        <select id="interval" class="form-control input-sm" ng-model="vm.interval" ng-change="vm.change()">
-                            <option value="day">{{ "logBook.day" | translate }}</option>
-                            <option value="week">{{ "logBook.week" | translate }}</option>
-                            <option value="month">{{ "logBook.month" | translate }}</option>
-                            <option value="year">{{ "logBook.year" | translate }}</option>
-                        </select>
-                        <!--<label for="interval"> <big>{{logBookTitle}}</big></label>-->
+
+        <div class="row">            
+            <div class="col-md-2 col-xs-1">
+                <!-- back button -->
+                <button type="button" class="btn btn-info btn-lg pull-left" ng-click="vm.back()">
+                    <span class="glyphicon glyphicon-chevron-left"></span>
+                </button>
+            </div>
+            <div class="col-md-2 col-xs-2">                
+                <select id="interval" class="form-control input-sm" ng-model="vm.interval" ng-change="vm.change()">
+                    <option value="day">{{ "logBook.day" | translate }}</option>
+                    <option value="week">{{ "logBook.week" | translate }}</option>
+                    <option value="month">{{ "logBook.month" | translate }}</option>
+                    <option value="year">{{ "logBook.year" | translate }}</option>
+                </select>
+            </div>            
+            <div class="col-md-4 col-xs-6">
+                <div class="text-center">
+                    <div class="btn-group btn-group-sm">
+                        <button ng-repeat="(key, value) in vm.eventsTypes track by $index" type="button" class="btn btn-info" ng-model="vm.resource[key]" btn-checkbox tooltip="{{value| translate}}">
+                            <span class="{{vm.eventsIcons[key]}}"></span>
+                        </button>                        
                     </div>
-                    <div class="form-group">
-                        <div class="btn-group">
-                            <button ng-repeat="(key, value) in vm.eventsTypes track by $index" type="button" class="btn btn-info" ng-model="vm.resource[key]" btn-checkbox tooltip="{{value| translate}}">
-                                <span class="{{vm.eventsIcons[key]}}"></span>
-                            </button>                        
-                        </div>
-                        <button ng-disabled="vm.loadingState.pending > 0" ng-click="vm.printToPDF()" type="button" class="btn">{{ "logBook.print" | translate }}</button>
-                    </div>
-                    <div class="text-center">
-                        <h3>{{vm.logBookTitle}} <small class="">{{vm.timeInterval.begin| date:'dd/MM/yyyy'}} - {{vm.timeInterval.end| date:'dd/MM/yyyy'}}</small></h3>
-                    </div>
-                </form>
-            </li>
-        </ul>        
+                </div>
+            </div>            
+            <div class="col-md-2 col-xs-2">
+                <div class="pull-right">
+                    <button ng-disabled="vm.loadingState.pending > 0" ng-click="vm.printToPDF()" type="button" class="btn btn-small">
+                        {{ "logBook.print" | translate }}
+                    </button>
+                </div>                                
+            </div>
+            <div class="col-md-2 col-xs-1">
+                <!-- advance button -->
+                <button type="button" class="btn btn-info btn-lg pull-right" ng-click="vm.advance()">
+                    <span class="glyphicon glyphicon-chevron-right"></span>
+                </button>
+            </div>
+        </div>       
+        <div class="row">
+            <div class="text-center">
+                <span class="logbook-title">{{vm.logBookTitle}} <small class="">{{vm.timeInterval.begin| date:'dd/MM/yyyy'}} - {{vm.timeInterval.end| date:'dd/MM/yyyy'}}</small></span>
+            </div>
+        </div>
     </div>
 
     <div class="panel-body overflow-panel-body">

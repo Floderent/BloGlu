@@ -59,6 +59,19 @@
                     </ul> 
                 </li>
             </ul>
+            <!-- Search field -->
+            <form class="navbar-form navbar-left" role="search">
+                <div class="form-group">
+                  <input type="text" class="form-control"
+                         ng-model="vm.selectedEvent"
+                         placeholder="{{'menu.search' | translate}}" 
+                         typeahead="event as vm.formatEventForDisplay(event) for event in vm.search($viewValue)" 
+                         typeahead-on-select="vm.onEventSelect($item, $model, $label)"
+                         typeahead-loading="vm.loadingEvents" 
+                         typeahead-no-results="vm.noResults">
+                </div>                
+            </form>
+            
             <!-- right part -->
             <ul class="nav navbar-nav navbar-right" >
                 <li class="dropdown">                            
