@@ -36,5 +36,6 @@
         'bloglu.eventDirective',
         'bloglu.eventGroupDirective',
         'bloglu.print',
+        'bloglu.search',
         'bloglu.utils']);
 })();

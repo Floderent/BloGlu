@@ -84,6 +84,8 @@
         <script src="bower_components/spectrum/spectrum.js"></script>
         <script src="bower_components/angular-spectrum-colorpicker/dist/angular-spectrum-colorpicker.min.js"></script>
         <script src="bower_components/lunr.js/lunr.min.js"></script>
+        <script src="bower_components/lunr-languages/lunr.stemmer.support.js"></script>
+        <script src="bower_components/lunr-languages/lunr.fr.js"></script>
         <!-- endbower -->
         <!-- endbuild -->
         
@@ -111,6 +113,7 @@
         <script src="app/shared/utils/utils.module.js"></script>        
         <script src="app/shared/menuHeader/menuHeader.module.js"></script>
         <script src="app/shared/translation/translation.module.js"></script>
+        <script src="app/shared/search/search.module.js"></script>
         <!-- endbuild -->
         
         <!-- build:js({.tmp,app}) scripts/scripts.js -->
@@ -196,9 +199,7 @@
         <script src="app/shared/engine/genericDaoService.js"></script>
         <script src="app/shared/engine/indexedDBService.js"></script>
         <script src="app/shared/engine/modelsService.js"></script>
-        <script src="app/shared/engine/syncService.js"></script>
-        <script src="app/shared/engine/search.service.js"></script>
-        <script src="app/shared/engine/lunr.service.js"></script>
+        <script src="app/shared/engine/syncService.js"></script>        
         <!-- equals -->        
         <script src="app/shared/equals/equals.js"></script>
         <!-- eventDirective -->        
@@ -207,6 +208,10 @@
         <script src="app/shared/eventGroupDirective/eventGroupDirective.js"></script>
         <!-- print -->        
         <script src="app/shared/print/printService.js"></script>
+        <script src="app/shared/print/printUtils.service.js"></script>
+        <!-- search -->
+        <script src="app/shared/search/search.service.js"></script>
+        <script src="app/shared/search/lunr.service.js"></script>
         <!-- utils -->        
         <script src="app/shared/utils/commonService.js"></script>        
         <script src="app/shared/utils/queryService.js"></script>

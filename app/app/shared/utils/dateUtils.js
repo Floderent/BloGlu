@@ -34,7 +34,9 @@
             getMiddleTime: getMiddleTime,
             getMonthWeekNumber: getMonthWeekNumber,
             isDateInPeriod: isDateInPeriod,
-            formatDateForDisplay: formatDateForDisplay
+            formatDateForDisplay: formatDateForDisplay,
+            getMonthName: getMonthName,
+            getYear: getYear
         };
         return dateUtil;
 
@@ -453,8 +455,14 @@
             return $filter('date')(dateToFormat, 'dd/MM/yyyy HH:mm');
         }
         
+        function getMonthName(date){
+            return $filter('date')(date, 'MMMM');
+        }
         
-
+        function getYear(date){
+            return $filter('date')(date, 'yyyy');
+        }
+        
     }
 
 })();

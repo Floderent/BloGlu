@@ -4,16 +4,16 @@
     angular.module('bloglu.print')
             .factory('printService', printService);
 
-    printService.$inject = ['$q', '$filter', 'unitService'];
+    printService.$inject = ['$q', '$filter', 'printUtilsService', 'unitService'];
 
-    function printService($q, $filter, unitService) {
+    function printService($q, $filter, printUtilsService, unitService) {
 
         var defaultParams = {
             table: {
                 contentTextfontSize: 12,
                 titleTextFontSize: 14,
-                contentTextFontType: "normal",
-                titleTextFontType: "bold",
+                contentTextFontType: 'normal',
+                titleTextFontType: 'bold',
                 cellHeight: 35,
                 contentCellWidth: 100,
                 titleCellWidth: 130
@@ -34,10 +34,19 @@
 
 
         function getTitle(timeInterval) {
-            var title = "";
+            var title = '';
             if (timeInterval) {
-                title = $filter('date')(timeInterval.begin, 'dd/MM/yyyy') + " - " + $filter('date')(timeInterval.end, 'dd/MM/yyyy');
+                title = $filter('date')(timeInterval.begin, 'dd/MM/yyyy') + ' - ' + $filter('date')(timeInterval.end, 'dd/MM/yyyy');
             }
+            return title;
+        }
+
+        function getFileName(timeInterval) {
+            var title = 'logbook_';
+            if (timeInterval) {
+                title += $filter('date')(timeInterval.begin, 'ddMMyyyy') + '_' + $filter('date')(timeInterval.end, 'ddMMyyyy');
+            }
+            title += '.pdf';
             return title;
         }
 
@@ -46,21 +55,13 @@
             var rowHeights = [];
             for (var rowIndex = 0; rowIndex < tableData.length; rowIndex++) {
                 var row = tableData[rowIndex];
-                var rowHeight = params.table.cellHeight;
+                var lineRowHeigths = [];
                 for (var columnIndex = 0; columnIndex < tableData[0].length; columnIndex++) {
                     var cellData = row[columnIndex];
-                    if (rowIndex !== 0 && interval !== 'week') {
-                        rowHeight = rowHeight * 5;
-                    } else {
-                        if (Array.isArray(cellData) && cellData.length > 0) {
-                            var newRowHeight = cellData.length * rowHeight;
-                            if (newRowHeight > rowHeight) {
-                                rowHeight = newRowHeight;
-                            }
-                        }
-                    }
-                }
-                rowHeights.push(rowHeight);
+                    lineRowHeigths.push(printUtilsService.logbookPrintFormats[interval].getRowHeight(rowIndex, cellData, params));
+                }                
+                var max = Math.max.apply(null, lineRowHeigths);                
+                rowHeights.push(max);
             }
             return rowHeights;
         }
@@ -69,21 +70,13 @@
             var columnWidths = [];
             if (tableData.length > 0) {
                 for (var columnIndex = 0; columnIndex < tableData[0].length; columnIndex++) {
-                    var columnWidth = params.table.contentCellWidth;
-                    if (columnIndex === 0) {
-                        columnWidth = params.table.titleCellWidth;
-                    } else {
-                        if (interval !== 'week') {
-                            columnWidth = params.table.titleCellWidth * 1.5;
-                        }
-                    }
-                    columnWidths.push(columnWidth);
+                    columnWidths.push(printUtilsService.logbookPrintFormats[interval].getColumnWidth(0, columnIndex, tableData, params));
                 }
             }
             return columnWidths;
         }
 
-        function getParameters(eventTypes) {            
+        function getParameters(eventTypes) {
             var promiseArray = [];
             angular.forEach(eventTypes, function (value) {
                 promiseArray.push(unitService.getUnit(value));
@@ -94,76 +87,24 @@
                     result[eventTypes[index]] = results[index];
                 }
                 return result;
-            });            
+            });
         }
 
 
-        function renderCell(doc, rowIndex, columnIndex, interval, cellData, tableData, params) {
-
+        function renderCell(doc, rowIndex, columnIndex, interval, cellData, tableData, params, newPage) {
             var height = params.rowHeights[rowIndex];
             var width = params.columnWidths[columnIndex];
 
-            var valueToDisplay = " ";
-
+            var valueToDisplay = ' ';
             //default values
             doc.setFontType(params.table.contentTextFontType);
             doc.setFontSize(params.table.contentTextfontSize);
 
             if (cellData) {
-                if (rowIndex === 0) {
-                    if (cellData.name) {
-                        doc.setFontType(params.table.titleTextFontType);
-                        doc.setFontSize(params.table.titleTextFontSize);
-                        valueToDisplay = cellData.name;
-                    }
-                } else {
-                    if (interval === 'week') {
-                        valueToDisplay = renderWeekCell(doc, rowIndex, columnIndex, interval, cellData, tableData, params);
-                    } else {
-                        valueToDisplay = renderAggregatedCell(doc, rowIndex, columnIndex, interval, cellData, tableData, params);
-                    }
-                }
-
+                valueToDisplay = printUtilsService.logbookPrintFormats[interval].renderCell(doc, rowIndex, columnIndex, interval, cellData, tableData, params);
             }
-            doc.cell(10, 50, width, height, valueToDisplay, rowIndex);
+            doc.cell(10, 50, width, height, valueToDisplay, rowIndex);            
         }
-        ;
-
-
-        function renderWeekCell(doc, rowIndex, columnIndex, interval, cellData, tableData, params) {
-            var valueToDisplay = " ";
-            if (columnIndex === 0) {
-                doc.setFontType(params.table.titleTextFontType);
-                doc.setFontSize(params.table.titleTextFontSize);
-                valueToDisplay = $filter('date')(cellData.date, 'EEEE d MMM');
-            } else {
-                if (cellData && Array.isArray(cellData)) {
-                    angular.forEach(cellData, function (element) {
-                        valueToDisplay += $filter('date')(element.dateTime, 'HH:mm') + "\n " + element.reading + " " + params[element.code].name + "\n";
-                    });
-                }
-            }
-            return valueToDisplay;
-        }
-
-        function renderAggregatedCell(doc, rowIndex, columnIndex, interval, cellData, tableData, params) {
-            var valueToDisplay = "";
-            if (cellData && Array.isArray(cellData)) {
-                angular.forEach(cellData, function (element) {
-                    if (element) {
-                        angular.forEach(element, function (value, key) {
-                            valueToDisplay =
-                                    " Maximum: " + value.maximum + " " + params[value.code].name +
-                                    " \n Minimum: " + value.minimum + " " + params[value.code].name +
-                                    " \n Average: " + value.average + " " + params[value.code].name +
-                                    " \n Number: " + value.number;
-                        });
-                    }
-                });
-            }
-            return valueToDisplay;
-        }
-
 
         function convertTableToPDF(doc, tableData, interval, eventTypes, inputParams) {
             return getParameters(eventTypes).then(function (params) {
@@ -173,11 +114,23 @@
                 printParams.rowHeights = getRowHeights(tableData, interval, printParams);
                 printParams.columnWidths = getColumnWidths(tableData, interval, printParams);
 
+                var contentHeight = 50; 
+                var pageHeight= doc.internal.pageSize.height;
+                
                 for (var rowIndex = 0; rowIndex < tableData.length; rowIndex++) {
-                    var row = tableData[rowIndex];
+                    var row = tableData[rowIndex];                     
+                    //check if new line will overflow                    
+                    contentHeight += printParams.rowHeights[rowIndex];
+                    //if it overflows, add a new page
+                    if(contentHeight >= pageHeight){                        
+                        contentHeight = 0;                        
+                        doc.addPage();
+                        doc.cellInitialize();
+                    }                    
+                    
                     for (var columnIndex = 0; columnIndex < tableData[0].length; columnIndex++) {
                         var cellData = row[columnIndex];
-                        // ? ? width height                         
+                        // ? ? width height                                               
                         renderCell(doc, rowIndex, columnIndex, interval, cellData, tableData, printParams);
                     }
                 }
@@ -196,7 +149,7 @@
             doc.text(10, 25, title);
 
             return convertTableToPDF(doc, tableData, timeInterval.name, eventTypes, printParams).then(function () {
-                doc.save('sample-file.pdf');
+                doc.save(getFileName(timeInterval));
                 return;
             });
         }

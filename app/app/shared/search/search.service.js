@@ -1,20 +1,13 @@
 (function () {
     'use strict';
 
-    angular.module('bloglu.engine')
+    angular.module('bloglu.search')
             .factory('searchService', searchService);
 
-    searchService.$inject = ['dataService', 'translationService', 'eventService', 'dateUtil', 'ResourceName', 'lunr'];
+    searchService.$inject = ['$q', 'dataService', 'translationService', 'eventService', 'dateUtil', 'ResourceName', 'lunr'];
 
 
-    function searchService(dataService, translationService, eventService, dateUtil, ResourceName, lunr) {
-        
-        var index = lunr(function () {            
-            this.field('comment', {boost: 10});
-            this.field('category.name', {boost: 2});
-            this.ref('objectId');
-        });
-
+    function searchService($q, dataService, translationService, eventService, dateUtil, ResourceName, lunr) {
 
         var searchService = {
             search: search,
@@ -23,39 +16,44 @@
         };
         return  searchService;
 
-        
         function search(searchTerm) {
             return dataService.init()
                     .then(function (localData) {
                         var events = localData['Event'];
-                        indexEvents(events);
-                        /*
-                        var foundEvents = events.filter(function (event) {
-                            return eventSearchPredicate(event, searchTerm);
-                        });
-                        */
-                       var searchResults = index.search(searchTerm);
-                       var foundEvents = getSearchResults(events, searchResults);                       
-                        return foundEvents;
+                        return indexEvents(events, searchTerm);
                     });
         }
-        
-        
-        function getSearchResults(events, foundEvents){
-            return events.filter(function(event){
-                return foundEvents.filter(function(foundEvent){
-                    return foundEvent.ref === event.objectId;
-                }).length === 1;
+
+        function indexEvents(events, searchTerm) {
+
+            return $q(function (resolve) {
+                var worker = new Worker('app/shared/search/indexWorker.js');
+                worker.addEventListener('message', function (e) {                    
+                    resolve(e.data);
+                }, false);
+
+                worker.postMessage({
+                    result: [],
+                    searchTerm: searchTerm,
+                    events: events
+                });
             });
+
+            /*
+             events.forEach(function(event){                
+             var eventToIndex = {
+             comment: event.comment,
+             categoryName: event.category && event.category.name,
+             resourceName: translationService.translate(ResourceName[event.code]),
+             month: dateUtil.getMonthName(event.dateTime),
+             year: event.dateTime.getFullYear(),
+             objectId: event.objectId
+             };                
+             index.add(eventToIndex);
+             });
+             */
         }
-        
-        
-        function indexEvents(events){            
-            events.forEach(function(event){
-                index.add(event);
-            });
-        }
-        
+
 
         function eventSearchPredicate(event, searchTerm) {
             var searchConditions = [

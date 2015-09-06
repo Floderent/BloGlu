@@ -1,7 +1,7 @@
 (function () {
     'use strict';
     
-    angular.module('bloglu.engine')
+    angular.module('bloglu.search')
             .factory('lunr', lunr);
 
     lunr.$inject = ['$window'];

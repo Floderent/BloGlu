@@ -25,6 +25,7 @@
     "highcharts-ng": "~0.0.8",
     "json3": "~3.2.6",
     "jspdf": "~1.0.150",
+    "lunr-languages": "~0.0.4",
     "lunr.js": "~0.5.12",
     "ng-file-upload": "~6.2.0"
   },
