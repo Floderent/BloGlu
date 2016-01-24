@@ -1,13 +1,12 @@
 (function () {
     'use strict';
 
-    angular
-            .module('bloglu.event')
-            .controller('eventController', eventController);
+    angular.module('bloglu.event')
+           .controller('eventController', eventController);
 
-    eventController.$inject = ['$scope', '$q', '$stateParams', '$state', 'menuHeaderService',  'categoryService', 'eventService', 'MessageService', 'ResourceCode', 'unitService', 'UserService', 'Utils'];
+    eventController.$inject = ['$scope', '$q', '$stateParams', '$state', 'menuHeaderService', 'categoryService', 'eventService', 'MessageService', 'ResourceCode', 'unitService', 'UserService', 'Utils'];
 
-    function eventController($scope, $q, $stateParams, $state, menuHeaderService,  categoryService, eventService, MessageService, ResourceCode, unitService, UserService, Utils) {
+    function eventController($scope, $q, $stateParams, $state, menuHeaderService, categoryService, eventService, MessageService, ResourceCode, unitService, UserService, Utils) {
 
         var vm = this;
 
@@ -44,10 +43,8 @@
                 vm.units = results[1];
                 vm.categories = results[2];
                 vm.defaultUnit = results[3];
-
                 handleDate();
                 handleUnit();
-
             }, function () {
                 MessageService.errorMessage('errorMessage.loadingError', 2000);
             })['finally'](function () {
@@ -121,10 +118,10 @@
         function confirmAction() {
             switch (vm.windowMode) {
                 case 'NORMAL':
-                    $state.go('logBook',{
+                    $state.go('logBook', {
                         weekDate: vm.date.toISOString(),
                         display: [vm.eventCode]
-                    });                    
+                    });
                     break;
                 case 'MODAL':
                     $scope.$dismiss();
@@ -153,7 +150,7 @@
             }
             event.dateTime = vm.date;
             event.code = vm.eventCode;
-            eventService.saveEvent(event, vm.isEdit).then(function resolve(result) {
+            eventService.saveEvent(event, vm.isEdit).then(function (result) {
                 if (vm.isEdit) {
                     MessageService.successMessage(eventService.resolveUpdateMessage(vm.eventCode), 2000);
                 } else {
